@@ -4,7 +4,7 @@ import automata.automaton as automaton
 
 
 class NFA(automaton.Automaton):
-    """a deterministic finite automaton"""
+    """a nondeterministic finite automaton"""
 
     def validate_automaton(self):
         """returns True if this NFA is internally consistent;
