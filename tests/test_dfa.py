@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-import unittest
 import automaton
+import nose.tools as nose
 from dfa import DFA
 
 
-class TestChat(unittest.TestCase):
+class TestDFA():
 
-    def setUp(self):
+    def setup(self):
         # DFA which matches all binary strings ending in an odd number of 1s
         self.dfa = DFA(**{
             'states': {'q0', 'q1', 'q2'},
@@ -22,37 +22,37 @@ class TestChat(unittest.TestCase):
         })
 
     def test_validate_automaton_missing_state(self):
-        with self.assertRaises(automaton.MissingStateError):
+        with nose.assert_raises(automaton.MissingStateError):
             del self.dfa.transitions['q1']
             self.dfa.validate_automaton()
 
     def test_validate_automaton_missing_symbol(self):
-        with self.assertRaises(automaton.MissingSymbolError):
+        with nose.assert_raises(automaton.MissingSymbolError):
             del self.dfa.transitions['q1']['1']
             self.dfa.validate_automaton()
 
     def test_validate_automaton_invalid_state(self):
-        with self.assertRaises(automaton.InvalidStateError):
+        with nose.assert_raises(automaton.InvalidStateError):
             self.dfa.transitions['q1']['1'] = 'q3'
             self.dfa.validate_automaton()
 
     def test_validate_automaton_invalid_initial_state(self):
-        with self.assertRaises(automaton.InvalidStateError):
+        with nose.assert_raises(automaton.InvalidStateError):
             self.dfa.initial_state = 'q3'
             self.dfa.validate_automaton()
 
     def test_validate_automaton_invalid_final_state(self):
-        with self.assertRaises(automaton.InvalidStateError):
+        with nose.assert_raises(automaton.InvalidStateError):
             self.dfa.final_states = {'q3'}
             self.dfa.validate_automaton()
 
     def test_validate_input_valid(self):
-        self.assertEqual(self.dfa.validate_input('0111'), True)
+        nose.assert_equal(self.dfa.validate_input('0111'), True)
 
     def test_validate_input_invalid_symbol(self):
-        with self.assertRaises(automaton.InvalidSymbolError):
+        with nose.assert_raises(automaton.InvalidSymbolError):
             self.dfa.validate_input('01112')
 
     def test_validate_input_nonfinal_state(self):
-        with self.assertRaises(automaton.FinalStateError):
+        with nose.assert_raises(automaton.FinalStateError):
             self.dfa.validate_input('011')
