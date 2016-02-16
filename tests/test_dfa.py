@@ -52,7 +52,7 @@ class TestDFA():
             self.dfa.validate_automaton()
 
     def test_validate_input_valid(self):
-        nose.assert_equal(self.dfa.validate_input('0111'), True)
+        nose.assert_equal(self.dfa.validate_input('0111'), 'q1')
 
     def test_validate_input_invalid_symbol(self):
         with nose.assert_raises(automaton.InvalidSymbolError):

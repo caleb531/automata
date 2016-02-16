@@ -57,12 +57,16 @@ class NFA(automaton.Automaton):
 
             new_current_states = set()
             for current_state in current_states:
-                if symbol in self.transitions[current_state]:
-                    for end_state in self.transitions[current_state][symbol]:
-                        new_current_states.add(end_state)
-                if '' in self.transitions[current_state]:
-                    for end_state in self.transitions[current_state]['']:
-                        new_current_states.add(end_state)
+                if (symbol in self.transitions[current_state] or
+                        '' in self.transitions[current_state]):
+                    if symbol in self.transitions[current_state]:
+                        for state in self.transitions[current_state][symbol]:
+                            new_current_states.add(state)
+                    if '' in self.transitions[current_state]:
+                        for state in self.transitions[current_state]['']:
+                            new_current_states.add(state)
+                else:
+                    new_current_states.add(current_state)
 
             current_states = new_current_states
 
@@ -77,6 +81,7 @@ class NFA(automaton.Automaton):
 
         if not (current_states & self.final_states):
             raise automaton.FinalStateError(
-                'the automaton stopped on all non-final states')
+                'the automaton stopped on all non-final states ({})'.format(
+                    (current_states - self.final_states)))
 
-        return True
+        return current_states
