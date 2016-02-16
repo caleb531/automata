@@ -13,7 +13,7 @@ class TestNFA():
         self.nfa = NFA(**{
             'states': {'q0', 'q1', 'q2', 'q3', 'q4',
                        'q5', 'q6', 'q7', 'q8', 'q9'},
-            'symbols': {'a', 'b'},
+            'symbols': {'a'},
             'transitions': {
                 'q0': {'a': {'q1', 'q8'}},
                 'q1': {'a': {'q2'}, '': {'q6'}},
@@ -64,6 +64,10 @@ class TestNFA():
 
     def test_validate_input_valid_empty_str_still_reading(self):
         nose.assert_equal(self.nfa.validate_input('a'), {'q6', 'q8'})
+
+    def test_validate_input_invalid_symbol(self):
+        with nose.assert_raises(automaton.InvalidSymbolError):
+            self.nfa.validate_input('aab')
 
     def test_validate_input_nonfinal_state(self):
         with nose.assert_raises(automaton.FinalStateError):
