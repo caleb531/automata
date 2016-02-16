@@ -14,7 +14,7 @@ class TestNFA():
             'states': {'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'},
             'symbols': {'a', 'b'},
             'transitions': {
-                'q0': {'a': {'q1', 'q4'}},
+                'q0': {'a': {'q1', 'q5'}},
                 'q1': {'a': {'q2'}},
                 'q2': {'a': {'q3'}},
                 'q3': {'': {'q4'}},
@@ -50,3 +50,13 @@ class TestNFA():
         with nose.assert_raises(automaton.InvalidStateError):
             self.nfa.final_states = {'q7'}
             self.nfa.validate_automaton()
+
+    def test_validate_input_valid_three_chars(self):
+        nose.assert_equal(self.nfa.validate_input('aaa'), True)
+
+    def test_validate_input_valid_six_chars(self):
+        nose.assert_equal(self.nfa.validate_input('aaaaaa'), True)
+
+    def test_validate_input_nonfinal_state(self):
+        with nose.assert_raises(automaton.FinalStateError):
+            self.nfa.validate_input('a')

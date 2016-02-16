@@ -19,20 +19,20 @@ class DFA(automaton.Automaton):
         for start_state, paths in self.transitions.items():
 
             path_symbols = set(paths.keys())
-            missing_symbols = self.symbols.difference(path_symbols)
+            missing_symbols = self.symbols - path_symbols
             if missing_symbols:
                 raise automaton.MissingSymbolError(
                     'state {} is missing transitions for symbols ({})'.format(
                         start_state, ', '.join(missing_symbols)))
 
-            invalid_symbols = path_symbols.difference(self.symbols)
+            invalid_symbols = path_symbols - self.symbols
             if invalid_symbols:
                 raise automaton.InvalidSymbolError(
                     'symbols are not valid ({})'.format(
                         ', '.join(invalid_symbols)))
 
             path_states = set(paths.values())
-            invalid_states = path_states.difference(self.states)
+            invalid_states = path_states - self.states
             if invalid_states:
                 raise automaton.InvalidStateError(
                     'states are not valid ({})'.format(
@@ -42,7 +42,7 @@ class DFA(automaton.Automaton):
             raise automaton.InvalidStateError(
                 '{} is not a valid state'.format(self.initial_state))
 
-        invalid_final_states = self.final_states.difference(self.states)
+        invalid_final_states = self.final_states - self.states
         if invalid_final_states:
             raise automaton.InvalidStateError(
                 'states are not valid ({})'.format(

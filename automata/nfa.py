@@ -19,14 +19,14 @@ class NFA(automaton.Automaton):
         for start_state, paths in self.transitions.items():
 
             path_symbols = set(paths.keys())
-            invalid_symbols = path_symbols.difference(self.symbols.union({''}))
+            invalid_symbols = path_symbols - self.symbols.union({''})
             if invalid_symbols:
                 raise automaton.InvalidSymbolError(
                     'symbols are not valid ({})'.format(
                         ', '.join(invalid_symbols)))
 
             path_states = set().union(*paths.values())
-            invalid_states = path_states.difference(self.states)
+            invalid_states = path_states - self.states
             if invalid_states:
                 raise automaton.InvalidStateError(
                     'states are not valid ({})'.format(
@@ -43,9 +43,40 @@ class NFA(automaton.Automaton):
 
         return True
 
-    # TODO
     def validate_input(self, input_str):
         """returns True if the given string is accepted by this NFA;
         raises the appropriate exception if the string is not accepted"""
+
+        current_states = {self.initial_state}
+
+        for symbol in input_str:
+
+            if symbol not in self.symbols:
+                raise automaton.InvalidSymbolError(
+                    '{} is not a valid symbol'.format(symbol))
+
+            new_current_states = set()
+            for current_state in current_states:
+                if symbol in self.transitions[current_state]:
+                    for end_state in self.transitions[current_state][symbol]:
+                        new_current_states.add(end_state)
+                if '' in self.transitions[current_state]:
+                    for end_state in self.transitions[current_state]['']:
+                        new_current_states.add(end_state)
+
+            current_states = new_current_states
+
+        new_current_states = set()
+        for current_state in current_states:
+            if '' in self.transitions[current_state]:
+                for end_state in self.transitions[current_state]['']:
+                    new_current_states.add(end_state)
+            else:
+                new_current_states.add(current_state)
+        current_states = new_current_states
+
+        if not (current_states & self.final_states):
+            raise automaton.FinalStateError(
+                'the automaton stopped on all non-final states')
 
         return True
