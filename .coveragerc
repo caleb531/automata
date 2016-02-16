@@ -1,0 +1,20 @@
+# Configuration for coverage.py (https://pypi.python.org/pypi/coverage)
+
+[run]
+# Enable branch coverage
+branch = True
+
+[report]
+
+# Regexes for lines to exclude from consideration
+exclude_lines =
+
+    # Ignore non-runnable code
+    if __name__ == .__main__.:
+
+    pass
+
+# Only check coverage for source files
+include =
+    automaton.py
+    dfa.py
