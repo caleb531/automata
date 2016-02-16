@@ -42,10 +42,11 @@ class DFA(automaton.Automaton):
             raise automaton.InvalidStateError(
                 '{} is not a valid state'.format(self.initial_state))
 
-        for state in self.final_states:
-            if state not in self.states:
-                raise automaton.InvalidStateError(
-                    '{} is not a valid state'.format(state))
+        invalid_final_states = self.final_states.difference(self.states)
+        if invalid_final_states:
+            raise automaton.InvalidStateError(
+                'states are not valid ({})'.format(
+                    ', '.join(invalid_final_states)))
 
         return True
 
