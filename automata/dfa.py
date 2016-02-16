@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import automaton
+import automata.automaton as automaton
 
 
 class DFA(automaton.Automaton):

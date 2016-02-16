@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import automaton
+import automata.automaton as automaton
 import nose.tools as nose
-from dfa import DFA
+from automata.dfa import DFA
 
 
 class TestDFA():

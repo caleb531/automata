@@ -16,5 +16,5 @@ exclude_lines =
 
 # Only check coverage for source files
 include =
-    automaton.py
-    dfa.py
+    automata/automaton.py
+    automata/dfa.py
