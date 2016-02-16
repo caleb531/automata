@@ -30,6 +30,11 @@ class TestNFA():
             del self.nfa.transitions['q1']
             self.nfa.validate_automaton()
 
+    def test_validate_automaton_invalid_symbol(self):
+        with nose.assert_raises(automaton.InvalidSymbolError):
+            self.nfa.transitions['q1']['c'] = {'q2'}
+            self.nfa.validate_automaton()
+
     def test_validate_automaton_invalid_state(self):
         with nose.assert_raises(automaton.InvalidStateError):
             self.nfa.transitions['q1']['a'] = {'q6'}

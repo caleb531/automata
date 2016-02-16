@@ -18,8 +18,15 @@ class NFA(automaton.Automaton):
 
         for start_state, paths in self.transitions.items():
 
-            invalid_states = set().union(*paths.values()).difference(
-                self.states)
+            path_symbols = set(paths.keys())
+            invalid_symbols = path_symbols.difference(self.symbols.union({''}))
+            if invalid_symbols:
+                raise automaton.InvalidSymbolError(
+                    'symbols are not valid ({})'.format(
+                        ', '.join(invalid_symbols)))
+
+            path_states = set().union(*paths.values())
+            invalid_states = path_states.difference(self.states)
             if invalid_states:
                 raise automaton.InvalidStateError(
                     'states are not valid ({})'.format(
