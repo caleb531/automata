@@ -31,6 +31,11 @@ class TestDFA():
             del self.dfa.transitions['q1']['1']
             self.dfa.validate_automaton()
 
+    def test_validate_automaton_invalid_symbol(self):
+        with nose.assert_raises(automaton.InvalidSymbolError):
+            self.dfa.transitions['q1']['2'] = 'q2'
+            self.dfa.validate_automaton()
+
     def test_validate_automaton_invalid_state(self):
         with nose.assert_raises(automaton.InvalidStateError):
             self.dfa.transitions['q1']['1'] = 'q3'

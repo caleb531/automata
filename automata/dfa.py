@@ -18,13 +18,21 @@ class DFA(automaton.Automaton):
 
         for start_state, paths in self.transitions.items():
 
-            missing_symbols = self.symbols.difference(set(paths.keys()))
+            path_symbols = set(paths.keys())
+            missing_symbols = self.symbols.difference(path_symbols)
             if missing_symbols:
                 raise automaton.MissingSymbolError(
                     'state {} is missing transitions for symbols ({})'.format(
                         start_state, ', '.join(missing_symbols)))
 
-            invalid_states = set(paths.values()).difference(self.states)
+            invalid_symbols = path_symbols.difference(self.symbols)
+            if invalid_symbols:
+                raise automaton.InvalidSymbolError(
+                    'symbols are not valid ({})'.format(
+                        ', '.join(invalid_symbols)))
+
+            path_states = set(paths.values())
+            invalid_states = path_states.difference(self.states)
             if invalid_states:
                 raise automaton.InvalidStateError(
                     'states are not valid ({})'.format(
