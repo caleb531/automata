@@ -15,8 +15,8 @@ class NFA(automaton.Automaton):
         for start_state, paths in transitions.items():
             self.transitions[start_state] = {}
             for symbol, end_states in paths.items():
-                self.transitions[start_state][symbol] = \
-                    set(transitions[start_state][symbol])
+                self.transitions[start_state][symbol] = set(
+                    transitions[start_state][symbol])
         self.initial_state = initial_state
         self.final_states = set(final_states)
         self.validate_automaton()
