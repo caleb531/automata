@@ -4,6 +4,7 @@ import abc
 
 
 class Automaton(metaclass=abc.ABCMeta):
+    """an abstract base class for finite automata"""
 
     def __init__(self, states, symbols, transitions, initial_state,
                  final_states):
@@ -17,10 +18,14 @@ class Automaton(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def validate_input(self):
+        """returns True if the given string is accepted by this automaton;
+        raises the appropriate exception if the string is not accepted"""
         pass
 
     @abc.abstractmethod
     def validate_automaton(self):
+        """returns True if this automaton is internally consistent;
+        raises the appropriate exception if this automaton is invalid"""
         pass
 
 
