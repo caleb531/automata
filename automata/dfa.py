@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import automata.automaton as automaton
 
 
@@ -67,3 +68,16 @@ class DFA(automaton.Automaton):
                 'the automaton stopped on a non-final state')
 
         return current_state
+
+    @staticmethod
+    def from_file(file_path):
+        """constructs a new DFA from the given file path's contents"""
+
+        with open(file_path, 'r') as dfa_file:
+            dfa_dict = json.load(dfa_file)
+
+        dfa_dict['states'] = set(dfa_dict['states'])
+        dfa_dict['symbols'] = set(dfa_dict['symbols'])
+        dfa_dict['final_states'] = set(dfa_dict['final_states'])
+
+        return DFA(**dfa_dict)

@@ -28,6 +28,12 @@ class Automaton(metaclass=abc.ABCMeta):
         raises the appropriate exception otherwise"""
         pass
 
+    @staticmethod
+    @abc.abstractmethod
+    def from_file(file_path):
+        """constructs a new automaton from the given file path's contents"""
+        pass
+
 
 class AutomatonError(Exception):
     """the base class for all automaton-related errors"""

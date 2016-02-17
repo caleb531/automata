@@ -70,3 +70,9 @@ class TestDFA():
         """should raise error if the stop state is not a final state"""
         with nose.assert_raises(automaton.FinalStateError):
             self.dfa.validate_input('011')
+
+    def test_from_file(self):
+        """should construct a new DFA from the given file path's contents"""
+        nose.assert_equal(
+            DFA.from_file('./tests/files/dfa.json').__dict__,
+            self.dfa.__dict__)
