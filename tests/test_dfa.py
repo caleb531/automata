@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import automata.automaton as automaton
 import nose.tools as nose
 from automata.dfa import DFA
@@ -20,6 +21,20 @@ class TestDFA():
             'initial_state': 'q0',
             'final_states': {'q1'}
         })
+
+    def test_init_json(self):
+        """should copy given JSON object into new DFA"""
+        with open('tests/files/dfa.JSON', 'r') as dfa_file:
+            dfa_json = json.load(dfa_file)
+        new_dfa = DFA(**dfa_json)
+        nose.assert_equal(new_dfa.states, set(dfa_json['states']))
+        nose.assert_is_not(new_dfa.states, dfa_json['states'])
+        nose.assert_equal(new_dfa.symbols, set(dfa_json['symbols']))
+        nose.assert_is_not(new_dfa.symbols, dfa_json['symbols'])
+        nose.assert_equal(new_dfa.transitions, dict(dfa_json['transitions']))
+        nose.assert_is_not(new_dfa.transitions, dfa_json['transitions'])
+        nose.assert_equal(new_dfa.final_states, set(dfa_json['final_states']))
+        nose.assert_is_not(new_dfa.final_states, dfa_json['final_states'])
 
     def test_validate_automaton_missing_state(self):
         """should raise error if a state has no transitions defined"""

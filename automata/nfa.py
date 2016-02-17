@@ -6,6 +6,16 @@ import automata.automaton as automaton
 class NFA(automaton.Automaton):
     """a nondeterministic finite automaton"""
 
+    def __init__(self, states, symbols, transitions, initial_state,
+                 final_states):
+        """initialize a complete NFA"""
+        self.states = states
+        self.symbols = symbols
+        self.transitions = transitions
+        self.initial_state = initial_state
+        self.final_states = final_states
+        self.validate_automaton()
+
     def validate_automaton(self):
         """returns True if this NFA is internally consistent;
         raises the appropriate exception otherwise"""

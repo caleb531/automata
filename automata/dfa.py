@@ -1,10 +1,21 @@
 #!/usr/bin/env python3
 
+import copy
 import automata.automaton as automaton
 
 
 class DFA(automaton.Automaton):
     """a deterministic finite automaton"""
+
+    def __init__(self, states, symbols, transitions, initial_state,
+                 final_states):
+        """initialize a complete DFA"""
+        self.states = set(states)
+        self.symbols = set(symbols)
+        self.transitions = copy.deepcopy(transitions)
+        self.initial_state = initial_state
+        self.final_states = set(final_states)
+        self.validate_automaton()
 
     def validate_automaton(self):
         """returns True if this DFA is internally consistent;

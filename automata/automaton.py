@@ -6,15 +6,11 @@ import abc
 class Automaton(metaclass=abc.ABCMeta):
     """an abstract base class for finite automata"""
 
+    @abc.abstractmethod
     def __init__(self, states, symbols, transitions, initial_state,
                  final_states):
         """initialize a complete finite automaton"""
-        self.states = states
-        self.symbols = symbols
-        self.transitions = transitions
-        self.initial_state = initial_state
-        self.final_states = final_states
-        self.validate_automaton()
+        pass
 
     @abc.abstractmethod
     def validate_input(self):
