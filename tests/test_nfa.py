@@ -79,9 +79,8 @@ class TestNFA():
         with nose.assert_raises(automaton.FinalStateError):
             self.nfa.validate_input('aaaaa')
 
-    def test_from_json(self):
-        """should construct a new NFA from the given JSON string"""
-        with open('tests/files/nfa.json', 'r') as nfa_file:
-            nose.assert_equal(
-                NFA.from_json(nfa_file.read()).__dict__,
-                self.nfa.__dict__)
+    def test_from_file(self):
+        """should construct a new NFA from the given file path's contents"""
+        nose.assert_equal(
+            NFA.from_file('./tests/files/nfa.json').__dict__,
+            self.nfa.__dict__)
