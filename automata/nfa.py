@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 import automata.automaton as automaton
 
 
@@ -90,20 +89,3 @@ class NFA(automaton.Automaton):
                     (current_states - self.final_states)))
 
         return current_states
-
-    @staticmethod
-    def from_file(file_path):
-        """constructs a new NFA from the given file path's contents"""
-
-        with open(file_path, 'r') as nfa_file:
-            nfa_dict = json.load(nfa_file)
-
-        nfa_dict['states'] = set(nfa_dict['states'])
-        nfa_dict['symbols'] = set(nfa_dict['symbols'])
-        nfa_dict['final_states'] = set(nfa_dict['final_states'])
-
-        for start_state, paths in nfa_dict['transitions'].items():
-            for symbol, end_states in paths.items():
-                nfa_dict['transitions'][start_state][symbol] = set(end_states)
-
-        return NFA(**nfa_dict)
