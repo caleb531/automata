@@ -24,7 +24,7 @@ class TestDFA():
 
     def test_init_json(self):
         """should copy given JSON object into new DFA"""
-        with open('tests/files/dfa.JSON', 'r') as dfa_file:
+        with open('tests/files/dfa.json', 'r') as dfa_file:
             dfa_json = json.load(dfa_file)
         new_dfa = DFA(**dfa_json)
         nose.assert_equal(new_dfa.states, set(dfa_json['states']))
@@ -33,6 +33,7 @@ class TestDFA():
         nose.assert_is_not(new_dfa.symbols, dfa_json['symbols'])
         nose.assert_equal(new_dfa.transitions, dict(dfa_json['transitions']))
         nose.assert_is_not(new_dfa.transitions, dfa_json['transitions'])
+        nose.assert_equal(new_dfa.initial_state, dfa_json['initial_state'])
         nose.assert_equal(new_dfa.final_states, set(dfa_json['final_states']))
         nose.assert_is_not(new_dfa.final_states, dfa_json['final_states'])
 

@@ -9,11 +9,16 @@ class NFA(automaton.Automaton):
     def __init__(self, states, symbols, transitions, initial_state,
                  final_states):
         """initialize a complete NFA"""
-        self.states = states
-        self.symbols = symbols
-        self.transitions = transitions
+        self.states = set(states)
+        self.symbols = set(symbols)
+        self.transitions = {}
+        for start_state, paths in transitions.items():
+            self.transitions[start_state] = {}
+            for symbol, end_states in paths.items():
+                self.transitions[start_state][symbol] = \
+                    set(transitions[start_state][symbol])
         self.initial_state = initial_state
-        self.final_states = final_states
+        self.final_states = set(final_states)
         self.validate_automaton()
 
     def validate_automaton(self):

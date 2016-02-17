@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import automata.automaton as automaton
 import nose.tools as nose
 from automata.nfa import NFA
@@ -29,6 +30,26 @@ class TestNFA():
             'initial_state': 'q0',
             'final_states': {'q4', 'q6', 'q9'}
         })
+
+    def test_init_json(self):
+        """should copy given JSON object into new NFA"""
+        with open('tests/files/nfa.json', 'r') as nfa_file:
+            nfa_json = json.load(nfa_file)
+        new_nfa = NFA(**nfa_json)
+        nose.assert_equal(new_nfa.states, set(nfa_json['states']))
+        nose.assert_is_not(new_nfa.states, nfa_json['states'])
+        nose.assert_equal(new_nfa.symbols, set(nfa_json['symbols']))
+        nose.assert_is_not(new_nfa.symbols, nfa_json['symbols'])
+        nose.assert_is_not(new_nfa.transitions, nfa_json['transitions'])
+        for start_state, paths in new_nfa.transitions.items():
+            nose.assert_is_not(paths, nfa_json['transitions'][start_state])
+            for symbol, end_states in paths.items():
+                nose.assert_equal(
+                    end_states,
+                    set(nfa_json['transitions'][start_state][symbol]))
+        nose.assert_equal(new_nfa.initial_state, nfa_json['initial_state'])
+        nose.assert_equal(new_nfa.final_states, set(nfa_json['final_states']))
+        nose.assert_is_not(new_nfa.final_states, nfa_json['final_states'])
 
     def test_validate_automaton_missing_state(self):
         """should raise error if a state has no transitions defined"""
@@ -61,7 +82,7 @@ class TestNFA():
             self.nfa.validate_automaton()
 
     def test_validate_input_valid(self):
-        """should return correct stop states when valid DFA input is given"""
+        """should return correct stop states when valid NFA input is given"""
         nose.assert_equal(
             self.nfa.validate_input('aaaaaa'), {'q5', 'q7', 'q9'})
 
