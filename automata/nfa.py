@@ -92,11 +92,10 @@ class NFA(automaton.Automaton):
         return current_states
 
     @staticmethod
-    def from_file(file_path):
-        """constructs a new NFA from the given file path's contents"""
+    def from_json(json_str):
+        """constructs a new NFA from the given JSON string"""
 
-        with open(file_path, 'r') as nfa_file:
-            nfa_dict = json.load(nfa_file)
+        nfa_dict = json.loads(json_str)
 
         nfa_dict['states'] = set(nfa_dict['states'])
         nfa_dict['symbols'] = set(nfa_dict['symbols'])

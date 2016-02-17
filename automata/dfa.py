@@ -70,11 +70,10 @@ class DFA(automaton.Automaton):
         return current_state
 
     @staticmethod
-    def from_file(file_path):
-        """constructs a new DFA from the given file path's contents"""
+    def from_json(json_str):
+        """constructs a new DFA from the given JSON string"""
 
-        with open(file_path, 'r') as dfa_file:
-            dfa_dict = json.load(dfa_file)
+        dfa_dict = json.loads(json_str)
 
         dfa_dict['states'] = set(dfa_dict['states'])
         dfa_dict['symbols'] = set(dfa_dict['symbols'])

@@ -30,8 +30,8 @@ class Automaton(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod
-    def from_file(file_path):
-        """constructs a new automaton from the given file path's contents"""
+    def from_json(json_str):
+        """constructs a new automaton from the given JSON string"""
         pass
 
 

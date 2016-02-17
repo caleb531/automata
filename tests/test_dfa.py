@@ -71,8 +71,9 @@ class TestDFA():
         with nose.assert_raises(automaton.FinalStateError):
             self.dfa.validate_input('011')
 
-    def test_from_file(self):
-        """should construct a new DFA from the given file path's contents"""
-        nose.assert_equal(
-            DFA.from_file('./tests/files/dfa.json').__dict__,
-            self.dfa.__dict__)
+    def test_from_json(self):
+        """should construct a new DFA from the given JSON string"""
+        with open('tests/files/dfa.json', 'r') as dfa_file:
+            nose.assert_equal(
+                DFA.from_json(dfa_file.read()).__dict__,
+                self.dfa.__dict__)
