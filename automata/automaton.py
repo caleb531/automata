@@ -19,13 +19,13 @@ class Automaton(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def validate_input(self):
         """returns True if the given string is accepted by this automaton;
-        raises the appropriate exception if the string is not accepted"""
+        raises the appropriate exception otherwise"""
         pass
 
     @abc.abstractmethod
     def validate_automaton(self):
         """returns True if this automaton is internally consistent;
-        raises the appropriate exception if this automaton is invalid"""
+        raises the appropriate exception otherwise"""
         pass
 
 

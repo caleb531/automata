@@ -8,7 +8,7 @@ class NFA(automaton.Automaton):
 
     def validate_automaton(self):
         """returns True if this NFA is internally consistent;
-        raises the appropriate exception if this NFA is invalid"""
+        raises the appropriate exception otherwise"""
 
         for state in self.states:
             if state not in self.transitions:
@@ -45,7 +45,7 @@ class NFA(automaton.Automaton):
 
     def validate_input(self, input_str):
         """returns True if the given string is accepted by this NFA;
-        raises the appropriate exception if the string is not accepted"""
+        raises the appropriate exception otherwise"""
 
         current_states = {self.initial_state}
 

@@ -8,7 +8,7 @@ class DFA(automaton.Automaton):
 
     def validate_automaton(self):
         """returns True if this DFA is internally consistent;
-        raises the appropriate exception if this DFA is invalid"""
+        raises the appropriate exception otherwise"""
 
         for state in self.states:
             if state not in self.transitions:
@@ -52,7 +52,7 @@ class DFA(automaton.Automaton):
 
     def validate_input(self, input_str):
         """returns True if the given string is accepted by this DFA;
-        raises the appropriate exception if the string is not accepted"""
+        raises the appropriate exception otherwise"""
 
         current_state = self.initial_state
 
