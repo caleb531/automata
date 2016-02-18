@@ -4,6 +4,7 @@ import json
 import automata.automaton as automaton
 import nose.tools as nose
 from automata.dfa import DFA
+from automata.nfa import NFA
 
 
 class TestDFA():
@@ -86,3 +87,40 @@ class TestDFA():
         """should raise error if the stop state is not a final state"""
         with nose.assert_raises(automaton.FinalStateError):
             self.dfa.validate_input('011')
+
+    def test_from_nfa_simple(self):
+        """should properly convert a simple NFA to a DFA"""
+        nfa = NFA(**{
+            'states': {'q0', 'q1', 'q2'},
+            'symbols': {'0', '1'},
+            'transitions': {
+                'q0': {'0': {'q0', 'q1'}},
+                'q1': {'1': {'q2'}},
+                'q2': {}
+            },
+            'initial_state': 'q0',
+            'final_states': {'q2'}
+        })
+        dfa = DFA.from_nfa(nfa)
+        nose.assert_equal(dfa.states, {'{}', '{q0}', '{q0q1}', '{q2}'})
+        nose.assert_equal(dfa.symbols, {'0', '1'})
+        nose.assert_equal(dfa.transitions, {
+            '{}': {
+                '0': '{}',
+                '1': '{}'
+            },
+            '{q0}': {
+                '0': '{q0q1}',
+                '1': '{}'
+            },
+            '{q0q1}': {
+                '0': '{q0q1}',
+                '1': '{q2}'
+            },
+            '{q2}': {
+                '0': '{}',
+                '1': '{}'
+            }
+        })
+        nose.assert_equal(dfa.initial_state, '{q0}')
+        nose.assert_equal(dfa.final_states, {'{q2}'})
