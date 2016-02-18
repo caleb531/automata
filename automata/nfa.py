@@ -8,7 +8,7 @@ class NFA(automaton.Automaton):
 
     def __init__(self, states, symbols, transitions, initial_state,
                  final_states):
-        """initialize a complete NFA"""
+        """initializes a complete NFA"""
         self.states = set(states)
         self.symbols = set(symbols)
         self.transitions = {}

@@ -9,7 +9,7 @@ class Automaton(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self, states, symbols, transitions, initial_state,
                  final_states):
-        """initialize a complete finite automaton"""
+        """initializes a complete finite automaton"""
         pass
 
     @abc.abstractmethod
@@ -23,6 +23,11 @@ class Automaton(metaclass=abc.ABCMeta):
         """returns True if this automaton is internally consistent;
         raises the appropriate exception otherwise"""
         pass
+
+    @staticmethod
+    def stringify_states(states):
+        """stringifies the given set of states as a single state name"""
+        return '{{{}}}'.format(''.join(sorted(list(states))))
 
 
 class AutomatonError(Exception):

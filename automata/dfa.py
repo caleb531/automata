@@ -10,7 +10,7 @@ class DFA(automaton.Automaton):
 
     def __init__(self, states, symbols, transitions, initial_state,
                  final_states):
-        """initialize a complete DFA"""
+        """initializes a complete DFA"""
         self.states = set(states)
         self.symbols = set(symbols)
         self.transitions = copy.deepcopy(transitions)
@@ -81,10 +81,6 @@ class DFA(automaton.Automaton):
         return current_state
 
     @staticmethod
-    def stringify_states(states):
-        return '{{{}}}'.format(''.join(sorted(list(states))))
-
-    @staticmethod
     def from_nfa(nfa):
         """converts the given NFA to a DFA"""
 
@@ -98,26 +94,26 @@ class DFA(automaton.Automaton):
 
         for i in range(0, 2**len(nfa.states)):
 
-            current_state = queue.get()
-            current_state_str = DFA.stringify_states(current_state)
+            current_states = queue.get()
+            current_state_str = DFA.stringify_states(current_states)
             dfa_states.add(current_state_str)
             dfa_transitions[current_state_str] = {}
 
-            if (current_state & nfa.final_states):
-                dfa_final_states.add(DFA.stringify_states(current_state))
+            if (current_states & nfa.final_states):
+                dfa_final_states.add(DFA.stringify_states(current_states))
 
             for symbol in nfa.symbols:
 
-                new_current_state = set()
-                for sub_state in current_state:
+                new_current_states = set()
+                for sub_state in current_states:
                     if symbol in nfa.transitions[sub_state]:
-                        new_current_state.update(
+                        new_current_states.update(
                             nfa.transitions[sub_state][symbol])
 
                 dfa_transitions[current_state_str][symbol] = \
-                    DFA.stringify_states(new_current_state)
+                    DFA.stringify_states(new_current_states)
 
-                queue.put(new_current_state)
+                queue.put(new_current_states)
 
         return DFA(
             states=dfa_states, symbols=dfa_symbols,
