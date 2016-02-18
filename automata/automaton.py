@@ -24,6 +24,37 @@ class Automaton(metaclass=abc.ABCMeta):
         raises the appropriate exception otherwise"""
         pass
 
+    def validate_transition_start_states(self):
+        """raises an error if this automaton's transition start states are
+        invalid"""
+        for state in self.states:
+            if state not in self.transitions:
+                raise MissingStateError(
+                    'state {} is missing from transition function'.format(
+                        state))
+
+    def validate_transition_end_states(self, path_states):
+        """raises an error if this automaton's transition end states are
+        invalid"""
+        invalid_states = path_states - self.states
+        if invalid_states:
+            raise InvalidStateError(
+                'states are not valid ({})'.format(
+                    ', '.join(invalid_states)))
+
+    def validate_initial_state(self):
+        """raises an error if this automaton's initial state is invalid"""
+        if self.initial_state not in self.states:
+            raise InvalidStateError(
+                '{} is not a valid state'.format(self.initial_state))
+
+    def validate_final_states(self):
+        """raise an error if this automaton's final states are invalid"""
+        for state in self.final_states:
+            if state not in self.states:
+                raise InvalidStateError(
+                    '{} is not a valid state'.format(state))
+
     @staticmethod
     def stringify_states(states):
         """stringifies the given set of states as a single state name"""

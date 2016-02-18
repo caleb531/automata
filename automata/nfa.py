@@ -25,11 +25,7 @@ class NFA(automaton.Automaton):
         """returns True if this NFA is internally consistent;
         raises the appropriate exception otherwise"""
 
-        for state in self.states:
-            if state not in self.transitions:
-                raise automaton.MissingStateError(
-                    'state {} is missing from transition function'.format(
-                        state))
+        self.validate_transition_start_states()
 
         for start_state, paths in self.transitions.items():
 
@@ -41,20 +37,10 @@ class NFA(automaton.Automaton):
                         ', '.join(invalid_symbols)))
 
             path_states = set().union(*paths.values())
-            invalid_states = path_states - self.states
-            if invalid_states:
-                raise automaton.InvalidStateError(
-                    'states are not valid ({})'.format(
-                        ', '.join(invalid_states)))
+            self.validate_transition_end_states(path_states)
 
-        if self.initial_state not in self.states:
-            raise automaton.InvalidStateError(
-                '{} is not a valid state'.format(self.initial_state))
-
-        for state in self.final_states:
-            if state not in self.states:
-                raise automaton.InvalidStateError(
-                    '{} is not a valid state'.format(state))
+        self.validate_initial_state()
+        self.validate_final_states()
 
         return True
 
