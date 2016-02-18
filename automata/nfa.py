@@ -52,24 +52,24 @@ class NFA(automaton.Automaton):
     def get_next_current_states(self, current_states, symbol=None):
         """returns the next set of current states given the current set"""
 
-        new_current_states = set()
+        next_current_states = set()
         for current_state in current_states:
 
             symbol_transition = symbol in self.transitions[current_state]
             empty_str_transition = '' in self.transitions[current_state]
 
             if symbol_transition:
-                for end_state in self.transitions[current_state][symbol]:
-                    new_current_states.add(end_state)
+                next_current_states.update(
+                    self.transitions[current_state][symbol])
 
             if empty_str_transition:
-                for end_state in self.transitions[current_state]['']:
-                    new_current_states.add(end_state)
+                next_current_states.update(
+                    self.transitions[current_state][''])
 
             if not symbol_transition and not empty_str_transition:
-                new_current_states.add(current_state)
+                next_current_states.add(current_state)
 
-        return new_current_states
+        return next_current_states
 
     def validate_input(self, input_str):
         """returns True if the given string is accepted by this NFA;

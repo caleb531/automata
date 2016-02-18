@@ -22,6 +22,7 @@ class DFA(automaton.Automaton):
         """raises an error if the transition symbols are missing or invalid"""
 
         path_symbols = set(paths.keys())
+
         missing_symbols = self.symbols - path_symbols
         if missing_symbols:
             raise automaton.MissingSymbolError(
@@ -70,7 +71,8 @@ class DFA(automaton.Automaton):
 
     @staticmethod
     def from_nfa(nfa):
-        """converts the given NFA to a DFA"""
+        """converts the given NFA to a DFA;
+        empty string transitions are currently not supported"""
 
         queue = Queue()
         queue.put({nfa.initial_state})
@@ -92,16 +94,16 @@ class DFA(automaton.Automaton):
 
             for symbol in nfa.symbols:
 
-                new_current_states = set()
-                for sub_state in current_states:
-                    if symbol in nfa.transitions[sub_state]:
-                        new_current_states.update(
-                            nfa.transitions[sub_state][symbol])
+                next_current_states = set()
+                for current_state in current_states:
+                    if symbol in nfa.transitions[current_state]:
+                        next_current_states.update(
+                            nfa.transitions[current_state][symbol])
 
                 dfa_transitions[current_state_str][symbol] = \
-                    DFA.stringify_states(new_current_states)
+                    DFA.stringify_states(next_current_states)
 
-                queue.put(new_current_states)
+                queue.put(next_current_states)
 
         return DFA(
             states=dfa_states, symbols=dfa_symbols,
