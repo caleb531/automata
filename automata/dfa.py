@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import copy
+from queue import Queue
 import automata.automaton as automaton
 
 
@@ -15,7 +16,7 @@ class DFA(automaton.Automaton):
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = set(final_states)
-        self.validate_automaton()
+        # self.validate_automaton()
 
     def validate_automaton(self):
         """returns True if this DFA is internally consistent;
@@ -78,3 +79,46 @@ class DFA(automaton.Automaton):
                 'the automaton stopped on a non-final state')
 
         return current_state
+
+    @staticmethod
+    def stringify_states(states):
+        return '{{{}}}'.format(''.join(sorted(list(states))))
+
+    @staticmethod
+    def from_nfa(nfa):
+        """converts the given NFA to a DFA"""
+
+        queue = Queue()
+        queue.put({nfa.initial_state})
+        dfa_states = set()
+        dfa_symbols = nfa.symbols
+        dfa_transitions = {}
+        dfa_initial_state = nfa.initial_state
+        dfa_final_states = set()
+
+        for i in range(0, 2**len(nfa.states)):
+
+            current_state = queue.get()
+            current_state_str = DFA.stringify_states(current_state)
+            dfa_states.add(current_state_str)
+            dfa_transitions[current_state_str] = {}
+
+            for symbol in nfa.symbols:
+
+                new_current_state = set()
+                for sub_state in current_state:
+                    if symbol in nfa.transitions[sub_state]:
+                        new_current_state.update(
+                            nfa.transitions[sub_state][symbol])
+
+                dfa_transitions[current_state_str][symbol] = \
+                    DFA.stringify_states(new_current_state)
+
+                dfa_final_states.update(new_current_state & nfa.final_states)
+
+                queue.put(new_current_state)
+
+        return DFA(
+            states=dfa_states, symbols=dfa_symbols,
+            transitions=dfa_transitions, initial_state=dfa_initial_state,
+            final_states=dfa_final_states)
