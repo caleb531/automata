@@ -16,7 +16,7 @@ class DFA(automaton.Automaton):
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = set(final_states)
-        # self.validate_automaton()
+        self.validate_automaton()
 
     def validate_automaton(self):
         """returns True if this DFA is internally consistent;
@@ -93,7 +93,7 @@ class DFA(automaton.Automaton):
         dfa_states = set()
         dfa_symbols = nfa.symbols
         dfa_transitions = {}
-        dfa_initial_state = nfa.initial_state
+        dfa_initial_state = '{{{}}}'.format(nfa.initial_state)
         dfa_final_states = set()
 
         for i in range(0, 2**len(nfa.states)):
@@ -102,6 +102,9 @@ class DFA(automaton.Automaton):
             current_state_str = DFA.stringify_states(current_state)
             dfa_states.add(current_state_str)
             dfa_transitions[current_state_str] = {}
+
+            if (current_state & nfa.final_states):
+                dfa_final_states.add(DFA.stringify_states(current_state))
 
             for symbol in nfa.symbols:
 
@@ -113,8 +116,6 @@ class DFA(automaton.Automaton):
 
                 dfa_transitions[current_state_str][symbol] = \
                     DFA.stringify_states(new_current_state)
-
-                dfa_final_states.update(new_current_state & nfa.final_states)
 
                 queue.put(new_current_state)
 
