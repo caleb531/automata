@@ -105,22 +105,10 @@ class TestDFA():
         nose.assert_equal(dfa.states, {'{}', '{q0}', '{q0q1}', '{q2}'})
         nose.assert_equal(dfa.symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
-            '{}': {
-                '0': '{}',
-                '1': '{}'
-            },
-            '{q0}': {
-                '0': '{q0q1}',
-                '1': '{}'
-            },
-            '{q0q1}': {
-                '0': '{q0q1}',
-                '1': '{q2}'
-            },
-            '{q2}': {
-                '0': '{}',
-                '1': '{}'
-            }
+            '{}': {'0': '{}', '1': '{}'},
+            '{q0}': {'0': '{q0q1}', '1': '{}'},
+            '{q0q1}': {'0': '{q0q1}', '1': '{q2}'},
+            '{q2}': {'0': '{}', '1': '{}'}
         })
         nose.assert_equal(dfa.initial_state, '{q0}')
         nose.assert_equal(dfa.final_states, {'{q2}'})
