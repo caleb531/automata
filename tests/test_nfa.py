@@ -11,11 +11,11 @@ class TestNFA():
     def setup(self):
         # NFA which matches "a", "aaa", or any string of 'a's where number of
         # 'a's is even and greater than zero
-        self.nfa = NFA(**{
-            'states': {'q0', 'q1', 'q2', 'q3', 'q4',
-                       'q5', 'q6', 'q7', 'q8', 'q9'},
-            'symbols': {'a'},
-            'transitions': {
+        self.nfa = NFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4',
+                    'q5', 'q6', 'q7', 'q8', 'q9'},
+            symbols={'a'},
+            transitions={
                 'q0': {'a': {'q1', 'q8'}},
                 'q1': {'a': {'q2'}, '': {'q6'}},
                 'q2': {'a': {'q3'}},
@@ -27,9 +27,9 @@ class TestNFA():
                 'q8': {'a': {'q9'}},
                 'q9': {'a': {'q8'}}
             },
-            'initial_state': 'q0',
-            'final_states': {'q4', 'q6', 'q9'}
-        })
+            initial_state='q0',
+            final_states={'q4', 'q6', 'q9'}
+        )
 
     def test_init_json(self):
         """should copy given JSON object into new NFA"""

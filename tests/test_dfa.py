@@ -11,17 +11,17 @@ class TestDFA():
 
     def setup(self):
         # DFA which matches all binary strings ending in an odd number of '1's
-        self.dfa = DFA(**{
-            'states': {'q0', 'q1', 'q2'},
-            'symbols': {'0', '1'},
-            'transitions': {
+        self.dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            symbols={'0', '1'},
+            transitions={
                 'q0': {'0': 'q0', '1': 'q1'},
                 'q1': {'0': 'q0', '1': 'q2'},
                 'q2': {'0': 'q2', '1': 'q1'}
             },
-            'initial_state': 'q0',
-            'final_states': {'q1'}
-        })
+            initial_state='q0',
+            final_states={'q1'}
+        )
 
     def test_init_json(self):
         """should copy given JSON object into new DFA"""
@@ -90,17 +90,17 @@ class TestDFA():
 
     def test_from_nfa_simple(self):
         """should properly convert a simple NFA to a DFA"""
-        nfa = NFA(**{
-            'states': {'q0', 'q1', 'q2'},
-            'symbols': {'0', '1'},
-            'transitions': {
+        nfa = NFA(
+            states={'q0', 'q1', 'q2'},
+            symbols={'0', '1'},
+            transitions={
                 'q0': {'0': {'q0', 'q1'}},
                 'q1': {'1': {'q2'}},
                 'q2': {}
             },
-            'initial_state': 'q0',
-            'final_states': {'q2'}
-        })
+            initial_state='q0',
+            final_states={'q2'}
+        )
         dfa = DFA.from_nfa(nfa)
         nose.assert_equal(dfa.states, {'{}', '{q0}', '{q0q1}', '{q2}'})
         nose.assert_equal(dfa.symbols, {'0', '1'})
