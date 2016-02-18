@@ -49,6 +49,28 @@ class NFA(automaton.Automaton):
 
         return True
 
+    def get_next_current_states(self, current_states, symbol=None):
+        """returns the next set of current states given the current set"""
+
+        new_current_states = set()
+        for current_state in current_states:
+
+            symbol_transition = symbol in self.transitions[current_state]
+            empty_str_transition = '' in self.transitions[current_state]
+
+            if symbol_transition:
+                for end_state in self.transitions[current_state][symbol]:
+                    new_current_states.add(end_state)
+
+            if empty_str_transition:
+                for end_state in self.transitions[current_state]['']:
+                    new_current_states.add(end_state)
+
+            if not symbol_transition and not empty_str_transition:
+                new_current_states.add(current_state)
+
+        return new_current_states
+
     def validate_input(self, input_str):
         """returns True if the given string is accepted by this NFA;
         raises the appropriate exception otherwise"""
@@ -58,34 +80,10 @@ class NFA(automaton.Automaton):
         for symbol in input_str:
 
             self.validate_input_symbol(symbol)
+            current_states = self.get_next_current_states(
+                current_states, symbol)
 
-            new_current_states = set()
-            for current_state in current_states:
-
-                symbol_transition = symbol in self.transitions[current_state]
-                empty_str_transition = '' in self.transitions[current_state]
-
-                if symbol_transition:
-                    for end_state in self.transitions[current_state][symbol]:
-                        new_current_states.add(end_state)
-
-                if empty_str_transition:
-                    for end_state in self.transitions[current_state]['']:
-                        new_current_states.add(end_state)
-
-                if not symbol_transition and not empty_str_transition:
-                    new_current_states.add(current_state)
-
-            current_states = new_current_states
-
-        new_current_states = set()
-        for current_state in current_states:
-            if '' in self.transitions[current_state]:
-                for end_state in self.transitions[current_state]['']:
-                    new_current_states.add(end_state)
-            else:
-                new_current_states.add(current_state)
-        current_states = new_current_states
+        current_states = self.get_next_current_states(current_states)
 
         if not (current_states & self.final_states):
             raise automaton.FinalStateError(
