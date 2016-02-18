@@ -18,6 +18,22 @@ class DFA(automaton.Automaton):
         self.final_states = set(final_states)
         self.validate_automaton()
 
+    def validate_transition_symbols(self, start_state, paths):
+        """raises an error if the transition symbols are missing or invalid"""
+
+        path_symbols = set(paths.keys())
+        missing_symbols = self.symbols - path_symbols
+        if missing_symbols:
+            raise automaton.MissingSymbolError(
+                'state {} is missing transitions for symbols ({})'.format(
+                    start_state, ', '.join(missing_symbols)))
+
+        invalid_symbols = path_symbols - self.symbols
+        if invalid_symbols:
+            raise automaton.InvalidSymbolError(
+                'symbols are not valid ({})'.format(
+                    ', '.join(invalid_symbols)))
+
     def validate_automaton(self):
         """returns True if this DFA is internally consistent;
         raises the appropriate exception otherwise"""
@@ -26,18 +42,7 @@ class DFA(automaton.Automaton):
 
         for start_state, paths in self.transitions.items():
 
-            path_symbols = set(paths.keys())
-            missing_symbols = self.symbols - path_symbols
-            if missing_symbols:
-                raise automaton.MissingSymbolError(
-                    'state {} is missing transitions for symbols ({})'.format(
-                        start_state, ', '.join(missing_symbols)))
-
-            invalid_symbols = path_symbols - self.symbols
-            if invalid_symbols:
-                raise automaton.InvalidSymbolError(
-                    'symbols are not valid ({})'.format(
-                        ', '.join(invalid_symbols)))
+            self.validate_transition_symbols(start_state, paths)
 
             path_states = set(paths.values())
             self.validate_transition_end_states(path_states)
@@ -54,9 +59,7 @@ class DFA(automaton.Automaton):
         current_state = self.initial_state
 
         for symbol in input_str:
-            if symbol not in self.symbols:
-                raise automaton.InvalidSymbolError(
-                    '{} is not a valid symbol'.format(symbol))
+            self.validate_input_symbol(symbol)
             current_state = self.transitions[current_state][symbol]
 
         if current_state not in self.final_states:

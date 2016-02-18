@@ -21,6 +21,16 @@ class NFA(automaton.Automaton):
         self.final_states = set(final_states)
         self.validate_automaton()
 
+    def validate_transition_symbols(self, start_state, paths):
+        """raises an error if the transition symbols are missing or invalid"""
+
+        path_symbols = set(paths.keys())
+        invalid_symbols = path_symbols - self.symbols.union({''})
+        if invalid_symbols:
+            raise automaton.InvalidSymbolError(
+                'symbols are not valid ({})'.format(
+                    ', '.join(invalid_symbols)))
+
     def validate_automaton(self):
         """returns True if this NFA is internally consistent;
         raises the appropriate exception otherwise"""
@@ -29,12 +39,7 @@ class NFA(automaton.Automaton):
 
         for start_state, paths in self.transitions.items():
 
-            path_symbols = set(paths.keys())
-            invalid_symbols = path_symbols - self.symbols.union({''})
-            if invalid_symbols:
-                raise automaton.InvalidSymbolError(
-                    'symbols are not valid ({})'.format(
-                        ', '.join(invalid_symbols)))
+            self.validate_transition_symbols(start_state, paths)
 
             path_states = set().union(*paths.values())
             self.validate_transition_end_states(path_states)
@@ -52,9 +57,7 @@ class NFA(automaton.Automaton):
 
         for symbol in input_str:
 
-            if symbol not in self.symbols:
-                raise automaton.InvalidSymbolError(
-                    '{} is not a valid symbol'.format(symbol))
+            self.validate_input_symbol(symbol)
 
             new_current_states = set()
             for current_state in current_states:

@@ -13,12 +13,6 @@ class Automaton(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def validate_input(self):
-        """returns True if the given string is accepted by this automaton;
-        raises the appropriate exception otherwise"""
-        pass
-
-    @abc.abstractmethod
     def validate_automaton(self):
         """returns True if this automaton is internally consistent;
         raises the appropriate exception otherwise"""
@@ -49,11 +43,23 @@ class Automaton(metaclass=abc.ABCMeta):
                 '{} is not a valid state'.format(self.initial_state))
 
     def validate_final_states(self):
-        """raise an error if this automaton's final states are invalid"""
+        """raises an error if this automaton's final states are invalid"""
         for state in self.final_states:
             if state not in self.states:
                 raise InvalidStateError(
                     '{} is not a valid state'.format(state))
+
+    @abc.abstractmethod
+    def validate_input(self):
+        """returns True if the given string is accepted by this automaton;
+        raises the appropriate exception otherwise"""
+        pass
+
+    def validate_input_symbol(self, symbol):
+        """raises an error if the given input symbol is invalid"""
+        if symbol not in self.symbols:
+            raise InvalidSymbolError(
+                '{} is not a valid symbol'.format(symbol))
 
     @staticmethod
     def stringify_states(states):
