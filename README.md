@@ -121,3 +121,34 @@ nfa.validate_input('abba') # raises FinalStateError
 The library also includes a number of exception classes to ensure that errors
 never pass silently (unless explicitly silenced). See `automata/automaton.py`
 for these class definitions.
+
+To reference these exceptions (so as to catch them in a `try..except` block or
+whatnot), simply import `automata.automaton` however you'd like:
+
+```python
+import automata.automaton as automaton
+```
+
+#### class AutomatonError
+
+A base class from which all other automaton exceptions inherit.
+
+#### class InvalidStateError
+
+Raised if a state is not a valid state for this automaton.
+
+#### class InvalidSymbolError
+
+Raised if a symbol is not a valid symbol for this automaton.
+
+#### class MissingStateError
+
+Raised if a state is missing from the transition map.
+
+#### class MissingSymbolError
+
+Raised if a symbol is missing from the transition map.
+
+#### class FinalStateError
+
+Raised if the automaton stopped at a non-final state.

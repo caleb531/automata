@@ -24,7 +24,7 @@ class Automaton(metaclass=abc.ABCMeta):
         for state in self.states:
             if state not in self.transitions:
                 raise MissingStateError(
-                    'state {} is missing from transition function'.format(
+                    'state {} is missing from transition map'.format(
                         state))
 
     def validate_transition_end_states(self, path_states):
@@ -83,12 +83,12 @@ class InvalidSymbolError(AutomatonError):
 
 
 class MissingStateError(AutomatonError):
-    """a state is missing from the transition function"""
+    """a state is missing from the transition map"""
     pass
 
 
 class MissingSymbolError(AutomatonError):
-    """a symbol is missing from the transition function"""
+    """a symbol is missing from the transition map"""
     pass
 
 
