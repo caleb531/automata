@@ -50,7 +50,7 @@ class Automaton(metaclass=abc.ABCMeta):
                     '{} is not a valid state'.format(state))
 
     @abc.abstractmethod
-    def validate_input(self):
+    def validate_input(self, input_str):
         """returns True if the given string is accepted by this automaton;
         raises the appropriate exception otherwise"""
         pass

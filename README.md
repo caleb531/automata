@@ -13,16 +13,9 @@ functionality.
 
 ## API
 
-The project consists of three core classes and a number of exception
-classes:
+### Properties
 
-### class Automaton
-
-An abstract base class for all finite automata. As such, it cannot be
-instantiated on its own; it must be subclassed and its abstract methods must be
-implemented. The `Automaton` class can be found under `automata/automaton.py`.
-
-Every finite automaton instance must have the following properties:
+Every finite automaton instance has the following properties:
 
 1. `state`: a `set` of the automaton's valid states; all state names are
 represented as strings
@@ -32,16 +25,30 @@ be represented as strings
 
 3. `transitions`: a `dict` consisting of the transitions for each state. The
 structure of this object may differ slightly depending on the subclass's
-implementation. See the `DFA` and `NFA` class definitions for details of how
-state transitions are implemented.
+implementation. See the `DFA` and `NFA` class definitions for details on how I
+chose to implement state transitions.
 
 4. `initial_state`: the string name of the initial state for this automaton
 
 5. `final_states`: a `set` of final states for this automaton
 
+All of these properties must be supplied when the automaton subclass is
+instantiated (see the examples below).
+
 ### class DFA
 
-A subclass of `Automata` which represents a deterministic finite automaton. The `DFA` class can be found under `automata/dfa.py`.
+A subclass of class `Automata` which represents a deterministic finite
+automaton. The `DFA` class can be found under `automata/dfa.py`.
+
+### Methods
+
+#### validate_input(input_str)
+
+The `validate_input()` method checks whether or not the given string is accepted
+by the DFA. If the string is accepted, the method returns the state the
+automaton stopped on (which is assumed at this point to be a valid final state).
+If the string is rejected by the DFA, the method will raise the appropriate
+exception.
 
 #### Example
 
@@ -59,11 +66,14 @@ dfa = DFA(
     initial_state='q0',
     final_states={'q1'}
 )
+dfa.validate_input('01') # returns 'q1'
+dfa.validate_input('011') # raises FinalStateError
 ```
 
 ### class NFA
 
-A subclass of `Automata` which represents a nondeterministic finite automaton. The `NFA` class can be found under `automata/nfa.py`.
+A subclass of class `Automata` which represents a nondeterministic finite
+automaton. The `NFA` class can be found under `automata/nfa.py`.
 
 #### Example
 
@@ -72,8 +82,7 @@ from automata.nfa import NFA
 # NFA which matches "a", "aaa", or any string of 'a's where number of
 # 'a's is even and greater than zero
 nfa = NFA(
-    states={'q0', 'q1', 'q2', 'q3', 'q4',
-            'q5', 'q6', 'q7', 'q8', 'q9'},
+    states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9'},
     symbols={'a'},
     transitions={
         'q0': {'a': {'q1', 'q8'}},
@@ -92,10 +101,12 @@ nfa = NFA(
     initial_state='q0',
     final_states={'q4', 'q6', 'q9'}
 )
+nfa.validate_input('aaaaaa') # returns {'q5', 'q7', 'q9'}
+nfa.validate_input('aaab') # raises InvalidSymbolError
 ```
 
 ### Exception classes
 
 The library also includes a number of exception classes to ensure that errors
-never pass silently (unless explicitly silenced). See `automata/automata.py` for
-these class definitions.
+never pass silently (unless explicitly silenced). See `automata/automaton.py`
+for these class definitions.
