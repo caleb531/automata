@@ -75,8 +75,7 @@ class NFA(automaton.Automaton):
         return new_states
 
     def get_next_current_states(self, current_states, symbol=None):
-        """returns the next set of current states given the current set;
-        used when converting this NFA to a DFA (see DFA.from_nfa)"""
+        """returns the next set of current states given the current set"""
 
         next_current_states = set()
         for current_state in current_states:
