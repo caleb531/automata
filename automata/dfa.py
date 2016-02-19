@@ -71,8 +71,7 @@ class DFA(automaton.Automaton):
 
     @staticmethod
     def from_nfa(nfa):
-        """converts the given NFA to a DFA;
-        empty string transitions are currently not supported"""
+        """converts the given NFA to a DFA"""
 
         queue = Queue()
         queue.put({nfa.initial_state})

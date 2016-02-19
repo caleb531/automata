@@ -66,18 +66,34 @@ class NFA(automaton.Automaton):
         for current_state in current_states:
 
             symbol_end_states = self.transitions[current_state].get(symbol)
-            empty_str_end_states = self.transitions[current_state].get('')
+            lambda_end_states = self.transitions[current_state].get('')
 
             if symbol_end_states:
                 next_current_states.update(symbol_end_states)
 
-            if empty_str_end_states:
-                next_current_states.update(empty_str_end_states)
+            if lambda_end_states:
+                next_current_states.update(lambda_end_states)
 
-            if not symbol_end_states and not empty_str_end_states:
+            if not symbol_end_states and not lambda_end_states:
                 next_current_states.add(current_state)
 
         return next_current_states
+
+    def add_lambda_transition_states(self, states):
+        """finds all end states for lambda transitions connected to the given
+        set of states"""
+
+        new_states = set()
+        for state in states:
+
+            if '' in self.transitions[state]:
+                new_states.update(self.transitions[state][''])
+                # Keep adding states as long as we keep finding contiguous
+                # lambda transitions
+                new_states.update(self.add_lambda_transition_states(
+                    self.transitions[state]['']))
+
+        return new_states
 
     def get_next_dfa_current_states(self, current_states, symbol=None):
         """returns the next set of current states given the current set;
@@ -86,9 +102,11 @@ class NFA(automaton.Automaton):
         next_current_states = set()
         for current_state in current_states:
 
-            if symbol in self.transitions[current_state]:
-                next_current_states.update(
-                    self.transitions[current_state][symbol])
+            symbol_end_states = self.transitions[current_state].get(symbol)
+            if symbol_end_states:
+                next_current_states.update(symbol_end_states)
+                next_current_states.update(self.add_lambda_transition_states(
+                    symbol_end_states))
 
         return next_current_states
 

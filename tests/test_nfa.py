@@ -86,8 +86,8 @@ class TestNFA():
         nose.assert_equal(
             self.nfa.validate_input('aaaaaa'), {'q5', 'q7', 'q9'})
 
-    def test_validate_input_empty_str(self):
-        """should resolve any empty state transitions on the stop states"""
+    def test_validate_input_lambda(self):
+        """should resolve any lambda transitions on the stop states"""
         nose.assert_equal(self.nfa.validate_input('aaa'), {'q4', 'q7', 'q8'})
 
     def test_validate_input_invalid_symbol(self):
