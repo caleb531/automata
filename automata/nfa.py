@@ -11,15 +11,24 @@ class NFA(automaton.Automaton):
         """initializes a complete NFA"""
         self.states = set(states)
         self.symbols = set(symbols)
-        self.transitions = {}
-        for start_state, paths in transitions.items():
-            self.transitions[start_state] = {}
-            for symbol, end_states in paths.items():
-                self.transitions[start_state][symbol] = set(
-                    transitions[start_state][symbol])
+        self.transitions = NFA.clone_transitions(transitions)
         self.initial_state = initial_state
         self.final_states = set(final_states)
         self.validate_automaton()
+
+    @staticmethod
+    def clone_transitions(transitions):
+        """clones the given transitions dictionary"""
+
+        cloned_transitions = {}
+        for start_state, paths in transitions.items():
+
+            cloned_transitions[start_state] = {}
+            for symbol, end_states in paths.items():
+                cloned_transitions[start_state][symbol] = set(
+                    transitions[start_state][symbol])
+
+        return cloned_transitions
 
     def validate_transition_symbols(self, start_state, paths):
         """raises an error if the transition symbols are missing or invalid"""
