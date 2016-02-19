@@ -35,11 +35,6 @@ chose to implement state transitions.
 All of these properties must be supplied when the automaton subclass is
 instantiated (see the examples below).
 
-### class DFA
-
-A subclass of class `Automata` which represents a deterministic finite
-automaton. The `DFA` class can be found under `automata/dfa.py`.
-
 ### Methods
 
 #### validate_input(input_str)
@@ -49,6 +44,11 @@ by the DFA. If the string is accepted, the method returns the state the
 automaton stopped on (which is assumed at this point to be a valid final state).
 If the string is rejected by the DFA, the method will raise the appropriate
 exception.
+
+### class DFA
+
+A subclass of class `Automata` which represents a deterministic finite
+automaton. The `DFA` class can be found under `automata/dfa.py`.
 
 #### Example
 
