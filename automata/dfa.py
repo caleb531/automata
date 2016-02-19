@@ -84,9 +84,9 @@ class DFA(automaton.Automaton):
         for i in range(0, 2**len(nfa.states)):
 
             current_states = queue.get()
-            current_state_str = DFA.stringify_states(current_states)
-            dfa_states.add(current_state_str)
-            dfa_transitions[current_state_str] = {}
+            current_state_label = DFA.stringify_states(current_states)
+            dfa_states.add(current_state_label)
+            dfa_transitions[current_state_label] = {}
 
             if (current_states & nfa.final_states):
                 dfa_final_states.add(DFA.stringify_states(current_states))
@@ -95,8 +95,8 @@ class DFA(automaton.Automaton):
 
                 next_current_states = nfa.get_next_current_states(
                     current_states, symbol)
-                dfa_transitions[current_state_str][symbol] = \
-                    DFA.stringify_states(next_current_states)
+                dfa_transitions[current_state_label][symbol] = (
+                    DFA.stringify_states(next_current_states))
 
                 queue.put(next_current_states)
 
