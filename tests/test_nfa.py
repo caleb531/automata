@@ -9,8 +9,8 @@ from automata.nfa import NFA
 class TestNFA():
 
     def setup(self):
-        # NFA which matches "a", "aaa", or any string of 'a's where number of
-        # 'a's is even and greater than zero
+        # NFA which matches strings beginning with "a", ending with "a", and
+        # containing no consecutive 'b's
         self.nfa = NFA(
             states={'q0', 'q1', 'q2'},
             symbols={'a', 'b'},
@@ -75,7 +75,7 @@ class TestNFA():
 
     def test_validate_input_valid(self):
         """should return correct stop states when valid NFA input is given"""
-        nose.assert_equal(self.nfa.validate_input('a'), {'q1', 'q2'})
+        nose.assert_equal(self.nfa.validate_input('aba'), {'q1', 'q2'})
 
     def test_validate_input_invalid_symbol(self):
         """should raise error if an invalid symbol is read"""
@@ -85,4 +85,4 @@ class TestNFA():
     def test_validate_input_nonfinal_state(self):
         """should raise error if the stop state is not a final state"""
         with nose.assert_raises(automaton.FinalStateError):
-            self.nfa.validate_input('abb')
+            self.nfa.validate_input('abba')

@@ -79,7 +79,8 @@ automaton. The `NFA` class can be found under `automata/nfa.py`.
 
 ```python
 from automata.nfa import NFA
-# NFA which matches strings beginning with "a", ending with "a", and containing no consecutive 'b's
+# NFA which matches strings beginning with "a", ending with "a", and containing
+# no consecutive 'b's
 nfa = NFA(
     states={'q0', 'q1', 'q2'},
     symbols={'a', 'b'},
@@ -91,7 +92,8 @@ nfa = NFA(
     initial_state='q0',
     final_states={'q1'}
 )
-nfa.validate_input('a')
+nfa.validate_input('aba') # returns {'q1', 'q2'}
+nfa.validate_input('abba') # raises FinalStateError
 ```
 
 ### Exception classes
