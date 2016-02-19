@@ -93,7 +93,7 @@ class DFA(automaton.Automaton):
 
             for symbol in nfa.symbols:
 
-                next_current_states = nfa.get_next_dfa_current_states(
+                next_current_states = nfa.get_next_current_states(
                     current_states, symbol)
                 dfa_transitions[current_state_str][symbol] = \
                     DFA.stringify_states(next_current_states)

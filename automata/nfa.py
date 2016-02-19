@@ -58,27 +58,6 @@ class NFA(automaton.Automaton):
 
         return True
 
-    def get_next_nfa_current_states(self, current_states, symbol=None):
-        """returns the next set of current states given the current set;
-        used when validating input for this NFA"""
-
-        next_current_states = set()
-        for current_state in current_states:
-
-            symbol_end_states = self.transitions[current_state].get(symbol)
-            lambda_end_states = self.transitions[current_state].get('')
-
-            if symbol_end_states:
-                next_current_states.update(symbol_end_states)
-
-            if lambda_end_states:
-                next_current_states.update(lambda_end_states)
-
-            if not symbol_end_states and not lambda_end_states:
-                next_current_states.add(current_state)
-
-        return next_current_states
-
     def add_lambda_transition_states(self, states):
         """finds all end states for lambda transitions connected to the given
         set of states"""
@@ -95,7 +74,7 @@ class NFA(automaton.Automaton):
 
         return new_states
 
-    def get_next_dfa_current_states(self, current_states, symbol=None):
+    def get_next_current_states(self, current_states, symbol=None):
         """returns the next set of current states given the current set;
         used when converting this NFA to a DFA (see DFA.from_nfa)"""
 
@@ -119,14 +98,12 @@ class NFA(automaton.Automaton):
         for symbol in input_str:
 
             self.validate_input_symbol(symbol)
-            current_states = self.get_next_nfa_current_states(
+            current_states = self.get_next_current_states(
                 current_states, symbol)
-
-        current_states = self.get_next_nfa_current_states(current_states)
 
         if not (current_states & self.final_states):
             raise automaton.FinalStateError(
                 'the automaton stopped on all non-final states ({})'.format(
-                    (current_states - self.final_states)))
+                    current_states))
 
         return current_states

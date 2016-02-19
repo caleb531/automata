@@ -79,30 +79,19 @@ automaton. The `NFA` class can be found under `automata/nfa.py`.
 
 ```python
 from automata.nfa import NFA
-# NFA which matches "a", "aaa", or any string of 'a's where number of
-# 'a's is even and greater than zero
+# NFA which matches strings beginning with "a", ending with "a", and containing no consecutive 'b's
 nfa = NFA(
-    states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9'},
-    symbols={'a'},
+    states={'q0', 'q1', 'q2'},
+    symbols={'a', 'b'},
     transitions={
-        'q0': {'a': {'q1', 'q8'}},
-        'q1': {'a': {'q2'}, '': {'q6'}},
-        'q2': {'a': {'q3'}},
-        # Empty string transitions use '' as the key name
-        'q3': {'': {'q4'}},
-        'q4': {'a': {'q5'}},
-        # As with any NFA, each state is not required to have transitions
-        'q5': {},
-        'q6': {'a': {'q7'}},
-        'q7': {},
-        'q8': {'a': {'q9'}},
-        'q9': {'a': {'q8'}}
+        'q0': {'a': {'q1'}},
+        'q1': {'a': {'q1'}, '': {'q2'}},
+        'q2': {'b': {'q0'}}
     },
     initial_state='q0',
-    final_states={'q4', 'q6', 'q9'}
+    final_states={'q1'}
 )
-nfa.validate_input('aaaaaa') # returns {'q5', 'q7', 'q9'}
-nfa.validate_input('aaab') # raises InvalidSymbolError
+nfa.validate_input('a')
 ```
 
 ### Exception classes
