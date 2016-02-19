@@ -56,16 +56,14 @@ class NFA(automaton.Automaton):
         next_current_states = set()
         for current_state in current_states:
 
-            symbol_transition = symbol in self.transitions[current_state]
-            empty_str_transition = '' in self.transitions[current_state]
+            symbol_transition = self.transitions[current_state].get(symbol)
+            empty_str_transition = self.transitions[current_state].get('')
 
             if symbol_transition:
-                next_current_states.update(
-                    self.transitions[current_state][symbol])
+                next_current_states.update(symbol_transition)
 
             if empty_str_transition:
-                next_current_states.update(
-                    self.transitions[current_state][''])
+                next_current_states.update(empty_str_transition)
 
             if not symbol_transition and not empty_str_transition:
                 next_current_states.add(current_state)
