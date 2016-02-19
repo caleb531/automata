@@ -13,42 +13,46 @@ functionality.
 
 ## API
 
-### Properties
+### class Automata
 
-Every finite automaton instance has the following properties:
-
-1. `state`: a `set` of the automaton's valid states; all state names are
-represented as strings
-
-2. `symbols`: a `set` of the automaton's valid symbols, each of which must also
-be represented as strings
-
-3. `transitions`: a `dict` consisting of the transitions for each state. The
-structure of this object may differ slightly depending on the subclass's
-implementation. See the `DFA` and `NFA` class definitions for details on how I
-chose to implement state transitions.
-
-4. `initial_state`: the string name of the initial state for this automaton
-
-5. `final_states`: a `set` of final states for this automaton
-
-All of these properties must be supplied when the automaton subclass is
-instantiated (see the examples below).
-
-### Methods
-
-#### validate_input(input_str)
-
-The `validate_input()` method checks whether or not the given string is accepted
-by the DFA. If the string is accepted, the method returns the state the
-automaton stopped on (which is assumed at this point to be a valid final state).
-If the string is rejected by the DFA, the method will raise the appropriate
-exception.
+An abstract base class from which all finite automata inherit. As such, it
+cannot be instantiated on its own; you must use the `DFA` and `NFA` classes
+instead (or you may create your own subclass if you're feeling adventurous). The
+`Automaton` class can be found under `automata/automaton.py`.
 
 ### class DFA
 
-A subclass of class `Automata` which represents a deterministic finite
+A subclass of class `Automaton` which represents a deterministic finite
 automaton. The `DFA` class can be found under `automata/dfa.py`.
+
+#### Automaton properties
+
+Every DFA instance has the following properties:
+
+1. `states`: a `set` of the DFA's valid states, each of which must be
+represented as a string
+
+2. `symbols`: a `set` of the DFA's valid symbols, each of which must also be
+represented as a string
+
+3. `transitions`: a `dict` consisting of the transitions for each state. Each
+key is a state name and each value is a `dict` which maps a symbol (the key) to
+a state (the value).
+
+4. `initial_state`: the name of the initial state for this DFA
+
+5. `final_states`: a `set` of final states for this DFA
+
+All of these properties must be supplied when the DFA is
+instantiated (see the examples below).
+
+#### def validate_input(input_str)
+
+The `validate_input()` method checks whether or not the given string is accepted
+by the DFA. If the string is accepted, the method returns the state the
+automaton stopped on (which presumably is a valid final state). If the string is
+rejected by the DFA, the method will raise the appropriate exception (see
+**Exception classes**).
 
 #### Example
 
@@ -72,14 +76,30 @@ dfa.validate_input('011') # raises FinalStateError
 
 ### class NFA
 
-A subclass of class `Automata` which represents a nondeterministic finite
+A subclass of class `Automaton` which represents a nondeterministic finite
 automaton. The `NFA` class can be found under `automata/nfa.py`.
+
+#### NFA properties
+
+Every NFA contains the same five DFA properties: `state`, `symbols`,
+`transitions`, `initial_state`, and `final_states`. However, the structure of
+the  `transitions` object has been modified slightly so as to accommodate the
+fact that a single state can have more than one transition for the same symbol.
+Therefore, instead of mapping a symbol to a state in each sub-dict, each symbol
+is mapped to a set of end states.
+
+#### def validate_input(input_str)
+
+The `validate_input()` method checks whether or not the given string is accepted
+by the NFA. If the string is accepted, the method returns a `set` of states the
+automaton stopped on (which presumably contains at least one valid final state).
+If the string is rejected by the NFA, the method will raise the appropriate exception (see **Exception classes**).
 
 #### Example
 
 ```python
 from automata.nfa import NFA
-# NFA which matches strings beginning with "a", ending with "a", and containing
+# NFA which matches strings beginning with 'a', ending with 'a', and containing
 # no consecutive 'b's
 nfa = NFA(
     states={'q0', 'q1', 'q2'},

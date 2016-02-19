@@ -9,7 +9,7 @@ from automata.nfa import NFA
 class TestNFA():
 
     def setup(self):
-        # NFA which matches strings beginning with "a", ending with "a", and
+        # NFA which matches strings beginning with 'a', ending with 'a', and
         # containing no consecutive 'b's
         self.nfa = NFA(
             states={'q0', 'q1', 'q2'},
