@@ -8,7 +8,7 @@ import automata.automaton as automaton
 class DFA(automaton.Automaton):
     """a deterministic finite automaton"""
 
-    def __init__(self, states, symbols, transitions, initial_state,
+    def __init__(self, *, states, symbols, transitions, initial_state,
                  final_states):
         """initializes a complete DFA"""
         self.states = set(states)

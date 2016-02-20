@@ -6,7 +6,7 @@ import automata.automaton as automaton
 class NFA(automaton.Automaton):
     """a nondeterministic finite automaton"""
 
-    def __init__(self, states, symbols, transitions, initial_state,
+    def __init__(self, *, states, symbols, transitions, initial_state,
                  final_states):
         """initializes a complete NFA"""
         self.states = set(states)
