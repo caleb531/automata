@@ -25,7 +25,7 @@ instead (or you may create your own subclass if you're feeling adventurous). The
 A subclass of class `Automaton` which represents a deterministic finite
 automaton. The `DFA` class can be found under `automata/dfa.py`.
 
-#### Automaton properties
+#### DFA properties
 
 Every DFA instance has the following properties:
 
@@ -83,17 +83,18 @@ automaton. The `NFA` class can be found under `automata/nfa.py`.
 
 Every NFA contains the same five DFA properties: `state`, `symbols`,
 `transitions`, `initial_state`, and `final_states`. However, the structure of
-the  `transitions` object has been modified slightly so as to accommodate the
-fact that a single state can have more than one transition for the same symbol.
-Therefore, instead of mapping a symbol to a state in each sub-dict, each symbol
-is mapped to a set of end states.
+the  `transitions` object has been modified slightly to accommodate the fact
+that a single state can have more than one transition for the same symbol.
+Therefore, instead of mapping a symbol to *one* end state in each sub-dict, each
+symbol is mapped to a *set* of end states.
 
 #### def validate_input(input_str)
 
 The `validate_input()` method checks whether or not the given string is accepted
 by the NFA. If the string is accepted, the method returns a `set` of states the
 automaton stopped on (which presumably contains at least one valid final state).
-If the string is rejected by the NFA, the method will raise the appropriate exception (see **Exception classes**).
+If the string is rejected by the NFA, the method will raise the appropriate
+exception (see **Exception classes**).
 
 #### Example
 
@@ -106,6 +107,7 @@ nfa = NFA(
     symbols={'a', 'b'},
     transitions={
         'q0': {'a': {'q1'}},
+        # Use '' as the key name for empty string (lambda) transitions
         'q1': {'a': {'q1'}, '': {'q2'}},
         'q2': {'b': {'q0'}}
     },
