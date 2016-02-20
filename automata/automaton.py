@@ -20,11 +20,12 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def validate_transition_start_states(self):
         """raises an error if this automaton's transition start states are
-        invalid"""
-        for state in self.states:
-            if state not in self.transitions:
-                raise MissingStateError(
-                    'state {} is missing from transition map'.format(state))
+        missing"""
+        missing_states = self.states - set(self.transitions.keys())
+        if missing_states:
+            raise MissingStateError(
+                'states are missing from transition map ({})'.format(
+                    ', '.join(missing_states)))
 
     def validate_transition_end_states(self, path_states):
         """raises an error if this automaton's transition end states are
@@ -62,7 +63,7 @@ class Automaton(metaclass=abc.ABCMeta):
     @staticmethod
     def stringify_states(states):
         """stringifies the given set of states as a single state name"""
-        return '{{{}}}'.format(''.join(sorted(list(states))))
+        return '{{{}}}'.format(''.join(sorted(states)))
 
 
 class AutomatonError(Exception):
