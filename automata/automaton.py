@@ -24,8 +24,7 @@ class Automaton(metaclass=abc.ABCMeta):
         for state in self.states:
             if state not in self.transitions:
                 raise MissingStateError(
-                    'state {} is missing from transition map'.format(
-                        state))
+                    'state {} is missing from transition map'.format(state))
 
     def validate_transition_end_states(self, path_states):
         """raises an error if this automaton's transition end states are
@@ -33,8 +32,7 @@ class Automaton(metaclass=abc.ABCMeta):
         invalid_states = path_states - self.states
         if invalid_states:
             raise InvalidStateError(
-                'states are not valid ({})'.format(
-                    ', '.join(invalid_states)))
+                'states are not valid ({})'.format(', '.join(invalid_states)))
 
     def validate_initial_state(self):
         """raises an error if this automaton's initial state is invalid"""
@@ -44,10 +42,10 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def validate_final_states(self):
         """raises an error if this automaton's final states are invalid"""
-        for state in self.final_states:
-            if state not in self.states:
-                raise InvalidStateError(
-                    '{} is not a valid state'.format(state))
+        invalid_states = self.final_states - self.states
+        if invalid_states:
+            raise InvalidStateError(
+                'states are not valid ({})'.format(', '.join(invalid_states)))
 
     @abc.abstractmethod
     def validate_input(self, input_str):

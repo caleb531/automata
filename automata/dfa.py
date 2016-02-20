@@ -65,7 +65,7 @@ class DFA(automaton.Automaton):
 
         if current_state not in self.final_states:
             raise automaton.FinalStateError(
-                'the automaton stopped on a non-final state')
+                'the automaton stopped at a non-final state')
 
         return current_state
 

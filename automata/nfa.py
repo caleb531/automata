@@ -102,7 +102,7 @@ class NFA(automaton.Automaton):
 
         if not (current_states & self.final_states):
             raise automaton.FinalStateError(
-                'the automaton stopped on all non-final states ({})'.format(
+                'the automaton stopped at all non-final states ({})'.format(
                     current_states))
 
         return current_states
