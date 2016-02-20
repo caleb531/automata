@@ -11,7 +11,7 @@ class NFA(automaton.Automaton):
         """initializes a complete NFA"""
         self.states = set(states)
         self.symbols = set(symbols)
-        self.transitions = NFA.clone_transitions(transitions)
+        self.transitions = self.__class__.clone_transitions(transitions)
         self.initial_state = initial_state
         self.final_states = set(final_states)
         self.validate_automaton()

@@ -69,8 +69,8 @@ class DFA(automaton.Automaton):
 
         return current_state
 
-    @staticmethod
-    def from_nfa(nfa):
+    @classmethod
+    def from_nfa(cls, nfa):
         """converts the given NFA to a DFA"""
 
         queue = Queue()
@@ -84,23 +84,23 @@ class DFA(automaton.Automaton):
         for i in range(0, 2**len(nfa.states)):
 
             current_states = queue.get()
-            current_state_label = DFA.stringify_states(current_states)
+            current_state_label = cls.stringify_states(current_states)
             dfa_states.add(current_state_label)
             dfa_transitions[current_state_label] = {}
 
             if (current_states & nfa.final_states):
-                dfa_final_states.add(DFA.stringify_states(current_states))
+                dfa_final_states.add(cls.stringify_states(current_states))
 
             for symbol in nfa.symbols:
 
                 next_current_states = nfa.get_next_current_states(
                     current_states, symbol)
                 dfa_transitions[current_state_label][symbol] = (
-                    DFA.stringify_states(next_current_states))
+                    cls.stringify_states(next_current_states))
 
                 queue.put(next_current_states)
 
-        return DFA(
+        return cls(
             states=dfa_states, symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)

@@ -100,7 +100,7 @@ exception (see **Exception classes**).
 
 #### Converting an NFA to a DFA
 
-To convert an existing NFA to a DFA, call the `DFA.from_nfa` static method with
+To convert an existing NFA to a DFA, call the `DFA.from_nfa` class method with
 the NFA instance as the only argument, as seen below.
 
 #### Complete example
