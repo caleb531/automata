@@ -145,12 +145,12 @@ Raised if a symbol is not a valid symbol for this automaton.
 
 #### class MissingStateError
 
-Raised if a state is missing from the transition map.
+Raised if a state is missing from the transition map for this automaton.
 
 #### class MissingSymbolError
 
-Raised if a symbol is missing from the transition map.
+Raised if a symbol is missing from the transition map for this automaton.
 
 #### class FinalStateError
 
-Raised if the automaton stopped at a non-final state.
+Raised if the automaton stopped at a non-final state after validating input.
