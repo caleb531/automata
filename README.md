@@ -13,17 +13,18 @@ functionality.
 
 ## API
 
-### class Automata
+### class Automaton
 
-An abstract base class from which all finite automata inherit. As such, it
-cannot be instantiated on its own; you must use the `DFA` and `NFA` classes
-instead (or you may create your own subclass if you're feeling adventurous). The
-`Automaton` class can be found under `automata/automaton.py`.
+The `Automaton` class is an abstract base class from which all finite automata
+inherit. As such, it cannot be instantiated on its own; you must use the `DFA`
+and `NFA` classes instead (or you may create your own subclass if you're feeling
+adventurous). The `Automaton` class can be found under `automata/automaton.py`.
 
 ### class DFA
 
-A subclass of class `Automaton` which represents a deterministic finite
-automaton. The `DFA` class can be found under `automata/dfa.py`.
+The `DFA` class is a subclass of class `Automaton` which represents a
+deterministic finite automaton. The `DFA` class can be found under
+`automata/dfa.py`.
 
 #### DFA properties
 
@@ -54,7 +55,7 @@ automaton stopped on (which presumably is a valid final state). If the string is
 rejected by the DFA, the method will raise the appropriate exception (see
 **Exception classes**).
 
-#### Example
+#### Complete example
 
 ```python
 from automata.dfa import DFA
@@ -76,8 +77,9 @@ dfa.validate_input('011') # raises FinalStateError
 
 ### class NFA
 
-A subclass of class `Automaton` which represents a nondeterministic finite
-automaton. The `NFA` class can be found under `automata/nfa.py`.
+The `NFA` class is a subclass of class `Automaton` which represents a
+nondeterministic finite automaton. The `NFA` class can be found under
+`automata/nfa.py`.
 
 #### NFA properties
 
@@ -96,9 +98,15 @@ automaton stopped on (which presumably contains at least one valid final state).
 If the string is rejected by the NFA, the method will raise the appropriate
 exception (see **Exception classes**).
 
-#### Example
+#### Converting an NFA to a DFA
+
+To convert an existing NFA to a DFA, call the `DFA.from_nfa` static method with
+the NFA instance as the only argument, as seen below.
+
+#### Complete example
 
 ```python
+from automata.dfa import DFA
 from automata.nfa import NFA
 # NFA which matches strings beginning with 'a', ending with 'a', and containing
 # no consecutive 'b's
@@ -114,6 +122,7 @@ nfa = NFA(
     initial_state='q0',
     final_states={'q1'}
 )
+dfa = DFA.from_nfa(nfa) # returns an equivalent DFA
 nfa.validate_input('aba') # returns {'q1', 'q2'}
 nfa.validate_input('abba') # raises FinalStateError
 ```
