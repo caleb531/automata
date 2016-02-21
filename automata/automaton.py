@@ -24,7 +24,7 @@ class Automaton(metaclass=abc.ABCMeta):
         missing_states = self.states - set(self.transitions.keys())
         if missing_states:
             raise MissingStateError(
-                'states are missing from transition map ({})'.format(
+                'transition start states are missing ({})'.format(
                     ', '.join(missing_states)))
 
     def _validate_transition_end_states(self, path_states):
@@ -33,20 +33,22 @@ class Automaton(metaclass=abc.ABCMeta):
         invalid_states = path_states - self.states
         if invalid_states:
             raise InvalidStateError(
-                'states are not valid ({})'.format(', '.join(invalid_states)))
+                'transition end states are not valid ({})'.format(
+                    ', '.join(invalid_states)))
 
     def _validate_initial_state(self):
         """raises an error if this automaton's initial state is invalid"""
         if self.initial_state not in self.states:
             raise InvalidStateError(
-                '{} is not a valid state'.format(self.initial_state))
+                '{} is not a valid initial state'.format(self.initial_state))
 
     def _validate_final_states(self):
         """raises an error if this automaton's final states are invalid"""
         invalid_states = self.final_states - self.states
         if invalid_states:
             raise InvalidStateError(
-                'states are not valid ({})'.format(', '.join(invalid_states)))
+                'final states are not valid ({})'.format(
+                    ', '.join(invalid_states)))
 
     @abc.abstractmethod
     def validate_input(self, input_str):
@@ -58,7 +60,7 @@ class Automaton(metaclass=abc.ABCMeta):
         """raises an error if the given input symbol is invalid"""
         if symbol not in self.symbols:
             raise InvalidSymbolError(
-                '{} is not a valid symbol'.format(symbol))
+                '{} is not a valid input symbol'.format(symbol))
 
     @staticmethod
     def _stringify_states(states):
