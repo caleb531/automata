@@ -73,14 +73,14 @@ class DFA(automaton.Automaton):
     def from_nfa(cls, nfa):
         """creates a new DFA that is equivalent to the given NFA"""
 
-        queue = Queue()
-        queue.put({nfa.initial_state})
         dfa_states = set()
         dfa_symbols = nfa.symbols
         dfa_transitions = {}
-        dfa_initial_state = '{{{}}}'.format(nfa.initial_state)
+        dfa_initial_state = cls._stringify_states({nfa.initial_state})
         dfa_final_states = set()
 
+        queue = Queue()
+        queue.put({nfa.initial_state})
         for i in range(0, 2**len(nfa.states)):
 
             current_states = queue.get()
