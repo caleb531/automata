@@ -71,7 +71,7 @@ class DFA(automaton.Automaton):
 
     @classmethod
     def from_nfa(cls, nfa):
-        """converts the given NFA to a DFA"""
+        """creates a new DFA that is equivalent to the given NFA"""
 
         queue = Queue()
         queue.put({nfa.initial_state})

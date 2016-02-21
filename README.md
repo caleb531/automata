@@ -49,7 +49,7 @@ a state (the value).
 All of these properties must be supplied when the DFA is
 instantiated (see the examples below).
 
-#### def validate_input(input_str)
+#### Validating input
 
 The `validate_input()` method checks whether or not the given string is accepted
 by the DFA. If the string is accepted, the method returns the state the
@@ -92,7 +92,7 @@ that a single state can have more than one transition for the same symbol.
 Therefore, instead of mapping a symbol to *one* end state in each sub-dict, each
 symbol is mapped to a *set* of end states.
 
-#### def validate_input(input_str)
+#### Validating input
 
 The `validate_input()` method checks whether or not the given string is accepted
 by the NFA. If the string is accepted, the method returns a `set` of states the
@@ -102,8 +102,8 @@ exception (see **Exception classes**).
 
 #### Converting an NFA to a DFA
 
-To convert an existing NFA to a DFA, call the `DFA.from_nfa` class method with
-the NFA instance as the only argument, as seen below.
+The `DFA.from_nfa()` class method creates a DFA that is equivalent to the given
+NFA.
 
 #### Complete example
 
