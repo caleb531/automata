@@ -18,7 +18,7 @@ class DFA(automaton.Automaton):
         self.final_states = set(final_states)
         self.validate_automaton()
 
-    def validate_transition_symbols(self, start_state, paths):
+    def _validate_transition_symbols(self, start_state, paths):
         """raises an error if the transition symbols are missing or invalid"""
 
         path_symbols = set(paths.keys())
@@ -39,17 +39,17 @@ class DFA(automaton.Automaton):
         """returns True if this DFA is internally consistent;
         raises the appropriate exception otherwise"""
 
-        self.validate_transition_start_states()
+        self._validate_transition_start_states()
 
         for start_state, paths in self.transitions.items():
 
-            self.validate_transition_symbols(start_state, paths)
+            self._validate_transition_symbols(start_state, paths)
 
             path_states = set(paths.values())
-            self.validate_transition_end_states(path_states)
+            self._validate_transition_end_states(path_states)
 
-        self.validate_initial_state()
-        self.validate_final_states()
+        self._validate_initial_state()
+        self._validate_final_states()
 
         return True
 
@@ -60,7 +60,7 @@ class DFA(automaton.Automaton):
         current_state = self.initial_state
 
         for symbol in input_str:
-            self.validate_input_symbol(symbol)
+            self._validate_input_symbol(symbol)
             current_state = self.transitions[current_state][symbol]
 
         if current_state not in self.final_states:
@@ -84,19 +84,19 @@ class DFA(automaton.Automaton):
         for i in range(0, 2**len(nfa.states)):
 
             current_states = queue.get()
-            current_state_label = cls.stringify_states(current_states)
+            current_state_label = cls._stringify_states(current_states)
             dfa_states.add(current_state_label)
             dfa_transitions[current_state_label] = {}
 
             if (current_states & nfa.final_states):
-                dfa_final_states.add(cls.stringify_states(current_states))
+                dfa_final_states.add(cls._stringify_states(current_states))
 
             for symbol in nfa.symbols:
 
-                next_current_states = nfa.get_next_current_states(
+                next_current_states = nfa._get_next_current_states(
                     current_states, symbol)
                 dfa_transitions[current_state_label][symbol] = (
-                    cls.stringify_states(next_current_states))
+                    cls._stringify_states(next_current_states))
 
                 queue.put(next_current_states)
 

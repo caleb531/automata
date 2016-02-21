@@ -18,7 +18,7 @@ class Automaton(metaclass=abc.ABCMeta):
         raises the appropriate exception otherwise"""
         pass
 
-    def validate_transition_start_states(self):
+    def _validate_transition_start_states(self):
         """raises an error if this automaton's transition start states are
         missing"""
         missing_states = self.states - set(self.transitions.keys())
@@ -27,7 +27,7 @@ class Automaton(metaclass=abc.ABCMeta):
                 'states are missing from transition map ({})'.format(
                     ', '.join(missing_states)))
 
-    def validate_transition_end_states(self, path_states):
+    def _validate_transition_end_states(self, path_states):
         """raises an error if this automaton's transition end states are
         invalid"""
         invalid_states = path_states - self.states
@@ -35,13 +35,13 @@ class Automaton(metaclass=abc.ABCMeta):
             raise InvalidStateError(
                 'states are not valid ({})'.format(', '.join(invalid_states)))
 
-    def validate_initial_state(self):
+    def _validate_initial_state(self):
         """raises an error if this automaton's initial state is invalid"""
         if self.initial_state not in self.states:
             raise InvalidStateError(
                 '{} is not a valid state'.format(self.initial_state))
 
-    def validate_final_states(self):
+    def _validate_final_states(self):
         """raises an error if this automaton's final states are invalid"""
         invalid_states = self.final_states - self.states
         if invalid_states:
@@ -54,14 +54,14 @@ class Automaton(metaclass=abc.ABCMeta):
         raises the appropriate exception otherwise"""
         pass
 
-    def validate_input_symbol(self, symbol):
+    def _validate_input_symbol(self, symbol):
         """raises an error if the given input symbol is invalid"""
         if symbol not in self.symbols:
             raise InvalidSymbolError(
                 '{} is not a valid symbol'.format(symbol))
 
     @staticmethod
-    def stringify_states(states):
+    def _stringify_states(states):
         """stringifies the given set of states as a single state name"""
         return '{{{}}}'.format(''.join(sorted(states)))
 
