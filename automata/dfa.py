@@ -32,8 +32,8 @@ class DFA(automaton.Automaton):
         invalid_symbols = path_symbols - self.symbols
         if invalid_symbols:
             raise automaton.InvalidSymbolError(
-                'symbols are not valid ({})'.format(
-                    ', '.join(invalid_symbols)))
+                'state {} has invalid transition symbols ({})'.format(
+                    start_state, ', '.join(invalid_symbols)))
 
     def validate_automaton(self):
         """returns True if this DFA is internally consistent;
@@ -65,7 +65,8 @@ class DFA(automaton.Automaton):
 
         if current_state not in self.final_states:
             raise automaton.FinalStateError(
-                'the automaton stopped at a non-final state')
+                'the automaton stopped at a non-final state ({})'.format(
+                    current_state))
 
         return current_state
 

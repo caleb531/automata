@@ -37,8 +37,8 @@ class NFA(automaton.Automaton):
         invalid_symbols = path_symbols - self.symbols.union({''})
         if invalid_symbols:
             raise automaton.InvalidSymbolError(
-                'symbols are not valid ({})'.format(
-                    ', '.join(invalid_symbols)))
+                'state {} has invalid transition symbols ({})'.format(
+                    start_state, ', '.join(invalid_symbols)))
 
     def validate_automaton(self):
         """returns True if this NFA is internally consistent;
