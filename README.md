@@ -1,4 +1,4 @@
-# *Automata*
+# Automata
 
 *Copyright 2016 Caleb Evans*  
 *Released under the MIT license*
@@ -6,12 +6,12 @@
 [![Build Status](https://travis-ci.org/caleb531/automata.svg?branch=master)](https://travis-ci.org/caleb531/automata)
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=master)](https://coveralls.io/r/caleb531/automata?branch=master)
 
-*Automata* is a Python 3 library which implements the structures and algorithms I
+Automata is a Python 3 library which implements the structures and algorithms I
 am learning in my Automata Theory class. The project is still under development,
 so the API is not yet stable, nor is the code complete in terms of
 functionality.
 
-*Automata* requires Python 3.3 or newer.
+Automata requires Python 3.3 or newer.
 
 ## API
 
@@ -103,7 +103,7 @@ exception (see **Exception classes**).
 #### Converting an NFA to a DFA
 
 The `DFA.from_nfa()` class method creates a DFA that is equivalent to the given
-NFA.
+NFA. The original NFA is not modified, and the new DFA is returned.
 
 #### Complete example
 
