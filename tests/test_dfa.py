@@ -7,7 +7,7 @@ from automata.dfa import DFA
 from automata.nfa import NFA
 
 
-class TestDFA():
+class TestDFA(object):
 
     def setup(self):
         # DFA which matches all binary strings ending in an odd number of '1's

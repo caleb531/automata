@@ -6,7 +6,7 @@ import nose.tools as nose
 from automata.nfa import NFA
 
 
-class TestNFA():
+class TestNFA(object):
 
     def setup(self):
         # NFA which matches strings beginning with 'a', ending with 'a', and
