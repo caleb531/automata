@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
 
-import copy
-from queue import Queue
 import automata.automaton as automaton
+import automata.nfa
+from copy import deepcopy
+from queue import Queue
 
 
 class DFA(automaton.Automaton):
     """a deterministic finite automaton"""
 
-    def __init__(self, *, states, symbols, transitions, initial_state,
-                 final_states):
+    def __init__(self, obj=None, *, states=None, symbols=None,
+                 transitions=None, initial_state=None, final_states=None):
         """initializes a complete DFA"""
-        self.states = set(states)
-        self.symbols = set(symbols)
-        self.transitions = copy.deepcopy(transitions)
-        self.initial_state = initial_state
-        self.final_states = set(final_states)
-        self.validate_automaton()
+        if isinstance(obj, automata.nfa.NFA):
+            self._init_from_nfa(obj)
+        elif isinstance(obj, DFA):
+            self._init_from_dfa(obj)
+        else:
+            self.states = set(states)
+            self.symbols = set(symbols)
+            self.transitions = deepcopy(transitions)
+            self.initial_state = initial_state
+            self.final_states = set(final_states)
+            self.validate_automaton()
 
     def _validate_transition_symbols(self, start_state, paths):
         """raises an error if the transition symbols are missing or invalid"""
@@ -70,14 +76,21 @@ class DFA(automaton.Automaton):
 
         return current_state
 
-    @classmethod
-    def from_nfa(cls, nfa):
-        """creates a new DFA that is equivalent to the given NFA"""
+    def _init_from_dfa(self, dfa):
+        """initializes this DFA as an exact copy of the given DFA"""
+        self.__init__(
+            states=dfa.states, symbols=dfa.symbols,
+            transitions=dfa.transitions, initial_state=dfa.initial_state,
+            final_states=dfa.final_states)
+
+    def _init_from_nfa(self, nfa):
+        """initializes this DFA as one equivalent to the given NFA"""
 
         dfa_states = set()
         dfa_symbols = nfa.symbols
         dfa_transitions = {}
-        dfa_initial_state = cls._stringify_states({nfa.initial_state})
+        dfa_initial_state = self.__class__._stringify_states(
+            {nfa.initial_state})
         dfa_final_states = set()
 
         queue = Queue()
@@ -85,23 +98,25 @@ class DFA(automaton.Automaton):
         for i in range(0, 2**len(nfa.states)):
 
             current_states = queue.get()
-            current_state_label = cls._stringify_states(current_states)
+            current_state_label = self.__class__._stringify_states(
+                current_states)
             dfa_states.add(current_state_label)
             dfa_transitions[current_state_label] = {}
 
             if (current_states & nfa.final_states):
-                dfa_final_states.add(cls._stringify_states(current_states))
+                dfa_final_states.add(self.__class__._stringify_states(
+                    current_states))
 
             for symbol in nfa.symbols:
 
                 next_current_states = nfa._get_next_current_states(
                     current_states, symbol)
                 dfa_transitions[current_state_label][symbol] = (
-                    cls._stringify_states(next_current_states))
+                    self.__class__._stringify_states(next_current_states))
 
                 queue.put(next_current_states)
 
-        return cls(
+        self.__init__(
             states=dfa_states, symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)

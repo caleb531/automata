@@ -57,6 +57,11 @@ automaton stopped on (which presumably is a valid final state). If the string is
 rejected by the DFA, the method will raise the appropriate exception (see
 **Exception classes**).
 
+#### Copying an DFA
+
+To create an exact copy of an DFA, simply pass an `DFA` instance into the `DFA`
+constructor.
+
 #### Complete example
 
 ```python
@@ -73,6 +78,7 @@ dfa = DFA(
     initial_state='q0',
     final_states={'q1'}
 )
+dfa_copy = DFA(dfa) # returns an exact copy of dfa
 dfa.validate_input('01') # returns 'q1'
 dfa.validate_input('011') # raises FinalStateError
 ```
@@ -102,8 +108,13 @@ exception (see **Exception classes**).
 
 #### Converting an NFA to a DFA
 
-The `DFA.from_nfa()` class method creates a DFA that is equivalent to the given
-NFA. The original NFA is not modified, and the new DFA is returned.
+To create a DFA that is equivalent to an existing NFA, simply pass the `NFA`
+instance to the `DFA` constructor.
+
+#### Copying an NFA
+
+To create an exact copy of an NFA, simply pass an `NFA` instance into the `NFA`
+constructor.
 
 #### Complete example
 
@@ -124,7 +135,8 @@ nfa = NFA(
     initial_state='q0',
     final_states={'q1'}
 )
-dfa = DFA.from_nfa(nfa) # returns an equivalent DFA
+nfa_copy = NFA(nfa) # returns an exact copy of nfa
+dfa = DFA(nfa) # returns an equivalent DFA
 nfa.validate_input('aba') # returns {'q1', 'q2'}
 nfa.validate_input('abba') # raises FinalStateError
 ```
