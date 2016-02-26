@@ -2,6 +2,7 @@
 
 import automata.automaton as automaton
 import automata.dfa
+from copy import deepcopy
 
 
 class NFA(automaton.Automaton):
@@ -15,11 +16,11 @@ class NFA(automaton.Automaton):
         elif isinstance(obj, NFA):
             self._init_from_nfa(obj)
         else:
-            self.states = set(states)
-            self.symbols = set(symbols)
-            self.transitions = self.__class__._copy_transitions(transitions)
+            self.states = states.copy()
+            self.symbols = symbols.copy()
+            self.transitions = deepcopy(transitions)
             self.initial_state = initial_state
-            self.final_states = set(final_states)
+            self.final_states = final_states.copy()
             self.validate_automaton()
 
     def _init_from_nfa(self, nfa):
@@ -42,20 +43,6 @@ class NFA(automaton.Automaton):
             states=dfa.states, symbols=dfa.symbols,
             transitions=nfa_transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)
-
-    @staticmethod
-    def _copy_transitions(transitions):
-        """copies the given transitions dictionary"""
-
-        copied_transitions = {}
-        for start_state, paths in transitions.items():
-
-            copied_transitions[start_state] = {}
-            for symbol, end_states in paths.items():
-                copied_transitions[start_state][symbol] = set(
-                    transitions[start_state][symbol])
-
-        return copied_transitions
 
     def _validate_transition_symbols(self, start_state, paths):
         """raises an error if the transition symbols are missing or invalid"""

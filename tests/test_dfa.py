@@ -23,17 +23,17 @@ class TestDFA(object):
         )
 
     def test_init_dfa(self):
-        """should clone DFA if passed into DFA constructor"""
+        """should copy DFA if passed into DFA constructor"""
         new_dfa = DFA(self.dfa)
-        nose.assert_equal(new_dfa.states, set(self.dfa.states))
         nose.assert_is_not(new_dfa.states, self.dfa.states)
-        nose.assert_equal(new_dfa.symbols, set(self.dfa.symbols))
+        nose.assert_equal(new_dfa.states, self.dfa.states)
         nose.assert_is_not(new_dfa.symbols, self.dfa.symbols)
-        nose.assert_equal(new_dfa.transitions, dict(self.dfa.transitions))
+        nose.assert_equal(new_dfa.symbols, self.dfa.symbols)
         nose.assert_is_not(new_dfa.transitions, self.dfa.transitions)
+        nose.assert_equal(new_dfa.transitions, self.dfa.transitions)
         nose.assert_equal(new_dfa.initial_state, self.dfa.initial_state)
-        nose.assert_equal(new_dfa.final_states, set(self.dfa.final_states))
         nose.assert_is_not(new_dfa.final_states, self.dfa.final_states)
+        nose.assert_equal(new_dfa.final_states, self.dfa.final_states)
 
     def test_validate_automaton_missing_state(self):
         """should raise error if a state has no transitions defined"""

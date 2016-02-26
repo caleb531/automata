@@ -24,22 +24,25 @@ class TestNFA(object):
         )
 
     def test_init_nfa(self):
-        """should clone NFA if passed into NFA constructor"""
+        """should copy NFA if passed into NFA constructor"""
         new_nfa = NFA(self.nfa)
-        nose.assert_equal(new_nfa.states, set(self.nfa.states))
         nose.assert_is_not(new_nfa.states, self.nfa.states)
-        nose.assert_equal(new_nfa.symbols, set(self.nfa.symbols))
+        nose.assert_equal(new_nfa.states, self.nfa.states)
         nose.assert_is_not(new_nfa.symbols, self.nfa.symbols)
+        nose.assert_equal(new_nfa.symbols, self.nfa.symbols)
         nose.assert_is_not(new_nfa.transitions, self.nfa.transitions)
         for start_state, paths in new_nfa.transitions.items():
             nose.assert_is_not(paths, self.nfa.transitions[start_state])
             for symbol, end_states in paths.items():
+                nose.assert_is_not(
+                    end_states,
+                    self.nfa.transitions[start_state][symbol])
                 nose.assert_equal(
                     end_states,
-                    set(self.nfa.transitions[start_state][symbol]))
+                    self.nfa.transitions[start_state][symbol])
         nose.assert_equal(new_nfa.initial_state, self.nfa.initial_state)
-        nose.assert_equal(new_nfa.final_states, set(self.nfa.final_states))
         nose.assert_is_not(new_nfa.final_states, self.nfa.final_states)
+        nose.assert_equal(new_nfa.final_states, self.nfa.final_states)
 
     def test_init_dfa(self):
         """should convert DFA to NFA if passed into NFA constructor"""

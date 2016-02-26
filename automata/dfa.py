@@ -17,11 +17,11 @@ class DFA(automaton.Automaton):
         elif isinstance(obj, DFA):
             self._init_from_dfa(obj)
         else:
-            self.states = set(states)
-            self.symbols = set(symbols)
+            self.states = states.copy()
+            self.symbols = symbols.copy()
             self.transitions = deepcopy(transitions)
             self.initial_state = initial_state
-            self.final_states = set(final_states)
+            self.final_states = final_states.copy()
             self.validate_automaton()
 
     def _validate_transition_symbols(self, start_state, paths):
