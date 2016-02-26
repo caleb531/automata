@@ -77,7 +77,7 @@ class DFA(automaton.Automaton):
         return current_state
 
     def _init_from_dfa(self, dfa):
-        """initializes this DFA as an exact clone of the given DFA"""
+        """initializes this DFA as an exact copy of the given DFA"""
         self.__init__(
             states=dfa.states, symbols=dfa.symbols,
             transitions=dfa.transitions, initial_state=dfa.initial_state,
