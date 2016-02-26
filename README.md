@@ -102,8 +102,8 @@ exception (see **Exception classes**).
 
 #### Converting an NFA to a DFA
 
-The `DFA.from_nfa()` class method creates a DFA that is equivalent to the given
-NFA. The original NFA is not modified, and the new DFA is returned.
+To create a DFA that is equivalent to an existing NFA, simply pass the `NFA`
+instance to the `DFA` constructor.
 
 #### Complete example
 
@@ -124,7 +124,7 @@ nfa = NFA(
     initial_state='q0',
     final_states={'q1'}
 )
-dfa = DFA.from_nfa(nfa) # returns an equivalent DFA
+dfa = DFA(nfa) # returns an equivalent DFA
 nfa.validate_input('aba') # returns {'q1', 'q2'}
 nfa.validate_input('abba') # raises FinalStateError
 ```
