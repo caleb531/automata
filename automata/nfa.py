@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+import copy
 import automata.automaton as automaton
 import automata.dfa
-from copy import deepcopy
 
 
 class NFA(automaton.Automaton):
@@ -18,7 +18,7 @@ class NFA(automaton.Automaton):
         else:
             self.states = states.copy()
             self.symbols = symbols.copy()
-            self.transitions = deepcopy(transitions)
+            self.transitions = copy.deepcopy(transitions)
             self.initial_state = initial_state
             self.final_states = final_states.copy()
             self.validate_automaton()

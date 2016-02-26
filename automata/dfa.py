@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+import copy
+import queue
 import automata.automaton as automaton
 import automata.nfa
-from copy import deepcopy
-from queue import Queue
 
 
 class DFA(automaton.Automaton):
@@ -19,7 +19,7 @@ class DFA(automaton.Automaton):
         else:
             self.states = states.copy()
             self.symbols = symbols.copy()
-            self.transitions = deepcopy(transitions)
+            self.transitions = copy.deepcopy(transitions)
             self.initial_state = initial_state
             self.final_states = final_states.copy()
             self.validate_automaton()
@@ -93,11 +93,11 @@ class DFA(automaton.Automaton):
             {nfa.initial_state})
         dfa_final_states = set()
 
-        queue = Queue()
-        queue.put({nfa.initial_state})
+        state_queue = queue.Queue()
+        state_queue.put({nfa.initial_state})
         for i in range(0, 2**len(nfa.states)):
 
-            current_states = queue.get()
+            current_states = state_queue.get()
             current_state_label = self.__class__._stringify_states(
                 current_states)
             dfa_states.add(current_state_label)
@@ -114,7 +114,7 @@ class DFA(automaton.Automaton):
                 dfa_transitions[current_state_label][symbol] = (
                     self.__class__._stringify_states(next_current_states))
 
-                queue.put(next_current_states)
+                state_queue.put(next_current_states)
 
         self.__init__(
             states=dfa_states, symbols=dfa_symbols,
