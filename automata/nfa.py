@@ -1,20 +1,47 @@
 #!/usr/bin/env python3
 
 import automata.automaton as automaton
+import automata.dfa
 
 
 class NFA(automaton.Automaton):
     """a nondeterministic finite automaton"""
 
-    def __init__(self, *, states, symbols, transitions, initial_state,
-                 final_states):
+    def __init__(self, obj=None, *, states=None, symbols=None,
+                 transitions=None, initial_state=None, final_states=None):
         """initializes a complete NFA"""
-        self.states = set(states)
-        self.symbols = set(symbols)
-        self.transitions = self.__class__._clone_transitions(transitions)
-        self.initial_state = initial_state
-        self.final_states = set(final_states)
-        self.validate_automaton()
+        if isinstance(obj, automata.dfa.DFA):
+            self._init_from_dfa(obj)
+        elif isinstance(obj, NFA):
+            self._init_from_nfa(obj)
+        else:
+            self.states = set(states)
+            self.symbols = set(symbols)
+            self.transitions = self.__class__._clone_transitions(transitions)
+            self.initial_state = initial_state
+            self.final_states = set(final_states)
+            self.validate_automaton()
+
+    def _init_from_nfa(self, nfa):
+        """initializes this NFA as an exact clone of the given NFA"""
+        self.__init__(
+            states=nfa.states, symbols=nfa.symbols,
+            transitions=nfa.transitions, initial_state=nfa.initial_state,
+            final_states=nfa.final_states)
+
+    def _init_from_dfa(self, dfa):
+        """initializes this NFA as one equivalent to the given DFA"""
+
+        nfa_transitions = {}
+        for start_state, paths in dfa.transitions.items():
+            nfa_transitions[start_state] = {}
+            for symbol, end_state in paths.items():
+                nfa_transitions[start_state][symbol] = {end_state}
+
+        self.__init__(
+            states=dfa.states, symbols=dfa.symbols,
+            transitions=nfa_transitions, initial_state=dfa.initial_state,
+            final_states=dfa.final_states)
 
     @staticmethod
     def _clone_transitions(transitions):

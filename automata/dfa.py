@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import automata.automaton as automaton
+import automata.nfa
 from copy import deepcopy
 from queue import Queue
-from automata.nfa import NFA
 
 
 class DFA(automaton.Automaton):
@@ -12,7 +12,7 @@ class DFA(automaton.Automaton):
     def __init__(self, obj=None, *, states=None, symbols=None,
                  transitions=None, initial_state=None, final_states=None):
         """initializes a complete DFA"""
-        if isinstance(obj, NFA):
+        if isinstance(obj, automata.nfa.NFA):
             self._init_from_nfa(obj)
         elif isinstance(obj, DFA):
             self._init_from_dfa(obj)
