@@ -104,7 +104,6 @@ class NFA(automaton.Automaton):
                     next_current_states.update(
                         self._get_lambda_closure(end_state))
 
-        print(next_current_states)
         return next_current_states
 
     def validate_input(self, input_str):
