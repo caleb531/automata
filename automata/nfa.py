@@ -69,35 +69,63 @@ class NFA(automaton.Automaton):
 
         return True
 
-    def _add_lambda_transition_states(self, states):
+    def _follow_lambda_transitions_for_state(self, current_state):
+        """
+        Follow lambda transitions connected to the given state.
+
+        Return a set of all states reachable from the given state by following
+        only lambda transitions.
+        """
+        stack = []
+        encountered_states = set()
+        stack.append(current_state)
+
+        while stack:
+
+            state = stack.pop()
+            if state not in encountered_states:
+                encountered_states.add(state)
+
+                if '' in self.transitions[state]:
+                    for end_state in self.transitions[state]['']:
+                        stack.append(end_state)
+
+        return encountered_states
+
+    def _follow_lambda_transitions_for_states(self, states):
         """
         Follow lambda transitions connected to the given set of states.
 
-        Return a set of end states for all lambda transitions
-        connected to the given set of states
+        Return a set of all states reachable from the given states by following
+        only lambda transitions.
         """
-        new_states = set()
+        encountered_states = set()
+
         for state in states:
 
             if '' in self.transitions[state]:
-                new_states.update(self.transitions[state][''])
-                # Keep adding states as long as we keep finding contiguous
-                # lambda transitions
-                new_states.update(self._add_lambda_transition_states(
-                    self.transitions[state]['']))
+                for end_state in self.transitions[state]['']:
+                    encountered_states.update(
+                        self._follow_lambda_transitions_for_state(end_state))
 
-        return new_states
+        return encountered_states
 
-    def _get_next_current_states(self, current_states, symbol=None):
+    def _get_next_current_states(self, current_states, symbol):
         """Return the next set of current states given the current set."""
         next_current_states = set()
+
+        if current_states == {self.initial_state}:
+            next_current_states.update(
+                self._follow_lambda_transitions_for_states(current_states))
+
         for current_state in current_states:
 
             symbol_end_states = self.transitions[current_state].get(symbol)
             if symbol_end_states:
                 next_current_states.update(symbol_end_states)
-                next_current_states.update(self._add_lambda_transition_states(
-                    symbol_end_states))
+                next_current_states.update(
+                    self._follow_lambda_transitions_for_states(
+                        symbol_end_states))
 
         return next_current_states
 
@@ -118,6 +146,6 @@ class NFA(automaton.Automaton):
         if not (current_states & self.final_states):
             raise automaton.FinalStateError(
                 'the automaton stopped at all non-final states ({})'.format(
-                    current_states))
+                    ', '.join(current_states)))
 
         return current_states

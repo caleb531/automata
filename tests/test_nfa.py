@@ -112,3 +112,19 @@ class TestNFA(object):
         """Should raise error if the stop state is not a final state."""
         with nose.assert_raises(automaton.FinalStateError):
             self.nfa.validate_input('abba')
+
+    def test_cyclic_lambda_transitions(self):
+        """Should traverse NFA containing cyclic lambda transitions."""
+        nfa = NFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            symbols={'a'},
+            transitions={
+                'q0': {'': {'q1', 'q3'}},
+                'q1': {'a': {'q2'}},
+                'q2': {'': {'q3'}},
+                'q3': {'': {'q0'}}
+            },
+            initial_state='q0',
+            final_states={'q3'}
+        )
+        nose.assert_equal(nfa.validate_input('aaa'), {'q0', 'q1', 'q2', 'q3'})
