@@ -115,6 +115,7 @@ class TestNFA(object):
 
     def test_cyclic_lambda_transitions(self):
         """Should traverse NFA containing cyclic lambda transitions."""
+        # NFA which matches 0 or more occurrences of 'a'
         nfa = NFA(
             states={'q0', 'q1', 'q2', 'q3'},
             symbols={'a'},
@@ -127,4 +128,5 @@ class TestNFA(object):
             initial_state='q0',
             final_states={'q3'}
         )
-        nose.assert_equal(nfa.validate_input('aaa'), {'q0', 'q1', 'q2', 'q3'})
+        nose.assert_equal(nfa.validate_input(''), {'q0', 'q1', 'q3'})
+        nose.assert_equal(nfa.validate_input('a'), {'q0', 'q1', 'q2', 'q3'})

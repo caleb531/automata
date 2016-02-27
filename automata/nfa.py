@@ -69,16 +69,17 @@ class NFA(automaton.Automaton):
 
         return True
 
-    def _follow_lambda_transitions_for_state(self, current_state):
+    def _get_lambda_closure(self, start_state):
         """
-        Follow lambda transitions connected to the given state.
+        Return the lambda closure for the given state.
 
-        Return a set of all states reachable from the given state by following
-        only lambda transitions.
+        The lambda closure of a state q is the set containing q, along with
+        every state that can be reached from q by following only lambda
+        transitions.
         """
         stack = []
         encountered_states = set()
-        stack.append(current_state)
+        stack.append(start_state)
 
         while stack:
 
@@ -87,26 +88,7 @@ class NFA(automaton.Automaton):
                 encountered_states.add(state)
 
                 if '' in self.transitions[state]:
-                    for end_state in self.transitions[state]['']:
-                        stack.append(end_state)
-
-        return encountered_states
-
-    def _follow_lambda_transitions_for_states(self, states):
-        """
-        Follow lambda transitions connected to the given set of states.
-
-        Return a set of all states reachable from the given states by following
-        only lambda transitions.
-        """
-        encountered_states = set()
-
-        for state in states:
-
-            if '' in self.transitions[state]:
-                for end_state in self.transitions[state]['']:
-                    encountered_states.update(
-                        self._follow_lambda_transitions_for_state(end_state))
+                    stack.extend(self.transitions[state][''])
 
         return encountered_states
 
@@ -114,19 +96,15 @@ class NFA(automaton.Automaton):
         """Return the next set of current states given the current set."""
         next_current_states = set()
 
-        if current_states == {self.initial_state}:
-            next_current_states.update(
-                self._follow_lambda_transitions_for_states(current_states))
-
         for current_state in current_states:
 
             symbol_end_states = self.transitions[current_state].get(symbol)
             if symbol_end_states:
-                next_current_states.update(symbol_end_states)
-                next_current_states.update(
-                    self._follow_lambda_transitions_for_states(
-                        symbol_end_states))
+                for end_state in symbol_end_states:
+                    next_current_states.update(
+                        self._get_lambda_closure(end_state))
 
+        print(next_current_states)
         return next_current_states
 
     def validate_input(self, input_str):
@@ -135,7 +113,7 @@ class NFA(automaton.Automaton):
 
         Return a set of states the NFA stopped at if string is valid.
         """
-        current_states = {self.initial_state}
+        current_states = self._get_lambda_closure(self.initial_state)
 
         for symbol in input_str:
 
