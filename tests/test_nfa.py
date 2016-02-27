@@ -115,7 +115,7 @@ class TestNFA(object):
 
     def test_cyclic_lambda_transitions(self):
         """Should traverse NFA containing cyclic lambda transitions."""
-        # NFA which matches 0 or more occurrences of 'a'
+        # NFA which matches zero or more occurrences of 'a'
         nfa = NFA(
             states={'q0', 'q1', 'q2', 'q3'},
             symbols={'a'},
