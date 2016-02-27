@@ -13,11 +13,6 @@ class Automaton(metaclass=abc.ABCMeta):
         """Initialize a complete finite automaton."""
         pass
 
-    @abc.abstractmethod
-    def validate_automaton(self):
-        """Return True if this automaton is internally consistent."""
-        pass
-
     def _validate_transition_start_states(self):
         """Raise an error if transition start states are missing."""
         missing_states = self.states - set(self.transitions.keys())
@@ -49,8 +44,8 @@ class Automaton(metaclass=abc.ABCMeta):
                     ', '.join(invalid_states)))
 
     @abc.abstractmethod
-    def validate_input(self, input_str):
-        """Check if the given string is accepted by this automaton."""
+    def validate_automaton(self):
+        """Return True if this automaton is internally consistent."""
         pass
 
     def _validate_input_symbol(self, symbol):
@@ -58,6 +53,11 @@ class Automaton(metaclass=abc.ABCMeta):
         if symbol not in self.symbols:
             raise InvalidSymbolError(
                 '{} is not a valid input symbol'.format(symbol))
+
+    @abc.abstractmethod
+    def validate_input(self, input_str):
+        """Check if the given string is accepted by this automaton."""
+        pass
 
     @staticmethod
     def _stringify_states(states):
