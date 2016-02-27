@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Classes and methods for working with deterministic finite automata."""
 
 import copy
 import queue
@@ -7,11 +8,11 @@ import automata.nfa
 
 
 class DFA(automaton.Automaton):
-    """a deterministic finite automaton"""
+    """A deterministic finite automaton."""
 
     def __init__(self, obj=None, *, states=None, symbols=None,
                  transitions=None, initial_state=None, final_states=None):
-        """initializes a complete DFA"""
+        """Initialize a complete DFA."""
         if isinstance(obj, automata.nfa.NFA):
             self._init_from_nfa(obj)
         elif isinstance(obj, DFA):
@@ -25,8 +26,7 @@ class DFA(automaton.Automaton):
             self.validate_automaton()
 
     def _validate_transition_symbols(self, start_state, paths):
-        """raises an error if the transition symbols are missing or invalid"""
-
+        """Raise an error if the transition symbols are missing or invalid."""
         path_symbols = set(paths.keys())
 
         missing_symbols = self.symbols - path_symbols
@@ -42,9 +42,7 @@ class DFA(automaton.Automaton):
                     start_state, ', '.join(invalid_symbols)))
 
     def validate_automaton(self):
-        """returns True if this DFA is internally consistent;
-        raises the appropriate exception otherwise"""
-
+        """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
 
         for start_state, paths in self.transitions.items():
@@ -60,9 +58,11 @@ class DFA(automaton.Automaton):
         return True
 
     def validate_input(self, input_str):
-        """returns True if the given string is accepted by this DFA;
-        raises the appropriate exception otherwise"""
+        """
+        Check if the given string is accepted by this DFA.
 
+        Return the state the NFA stopped at if string is valid.
+        """
         current_state = self.initial_state
 
         for symbol in input_str:
@@ -77,15 +77,14 @@ class DFA(automaton.Automaton):
         return current_state
 
     def _init_from_dfa(self, dfa):
-        """initializes this DFA as an exact copy of the given DFA"""
+        """Initialize this DFA as an exact copy of the given DFA."""
         self.__init__(
             states=dfa.states, symbols=dfa.symbols,
             transitions=dfa.transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)
 
     def _init_from_nfa(self, nfa):
-        """initializes this DFA as one equivalent to the given NFA"""
-
+        """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states = set()
         dfa_symbols = nfa.symbols
         dfa_transitions = {}
