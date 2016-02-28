@@ -93,7 +93,8 @@ class DFA(automaton.Automaton):
 
         state_queue = queue.Queue()
         state_queue.put({nfa.initial_state})
-        for i in range(0, 2**len(nfa.states)):
+        max_num_dfa_states = 2**len(nfa.states)
+        for i in range(0, max_num_dfa_states):
 
             current_states = state_queue.get()
             current_state_label = self.__class__._stringify_states(
