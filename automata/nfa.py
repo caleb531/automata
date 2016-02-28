@@ -34,6 +34,7 @@ class NFA(automaton.Automaton):
     def _init_from_dfa(self, dfa):
         """Initialize this NFA as one equivalent to the given DFA."""
         nfa_transitions = {}
+
         for start_state, paths in dfa.transitions.items():
             nfa_transitions[start_state] = {}
             for symbol, end_state in paths.items():
@@ -58,9 +59,7 @@ class NFA(automaton.Automaton):
         self._validate_transition_start_states()
 
         for start_state, paths in self.transitions.items():
-
             self._validate_transition_symbols(start_state, paths)
-
             path_states = set().union(*paths.values())
             self._validate_transition_end_states(path_states)
 
@@ -82,11 +81,9 @@ class NFA(automaton.Automaton):
         stack.append(start_state)
 
         while stack:
-
             state = stack.pop()
             if state not in encountered_states:
                 encountered_states.add(state)
-
                 if '' in self.transitions[state]:
                     stack.extend(self.transitions[state][''])
 
@@ -97,7 +94,6 @@ class NFA(automaton.Automaton):
         next_current_states = set()
 
         for current_state in current_states:
-
             symbol_end_states = self.transitions[current_state].get(symbol)
             if symbol_end_states:
                 for end_state in symbol_end_states:
@@ -115,7 +111,6 @@ class NFA(automaton.Automaton):
         current_states = self._get_lambda_closure(self.initial_state)
 
         for symbol in input_str:
-
             self._validate_input_symbol(symbol)
             current_states = self._get_next_current_states(
                 current_states, symbol)

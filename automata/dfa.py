@@ -46,9 +46,7 @@ class DFA(automaton.Automaton):
         self._validate_transition_start_states()
 
         for start_state, paths in self.transitions.items():
-
             self._validate_transition_symbols(start_state, paths)
-
             path_states = set(paths.values())
             self._validate_transition_end_states(path_states)
 
@@ -107,12 +105,10 @@ class DFA(automaton.Automaton):
                     current_states))
 
             for symbol in nfa.symbols:
-
                 next_current_states = nfa._get_next_current_states(
                     current_states, symbol)
                 dfa_transitions[current_state_label][symbol] = (
                     self.__class__._stringify_states(next_current_states))
-
                 state_queue.put(next_current_states)
 
         self.__init__(
