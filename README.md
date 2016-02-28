@@ -57,9 +57,17 @@ automaton stopped on (which presumably is a valid final state). If the string is
 rejected by the DFA, the method will raise the appropriate exception (see
 **Exception classes**).
 
-#### Copying an DFA
+#### Validating a DFA
 
-To create an exact copy of an DFA, simply pass an `DFA` instance into the `DFA`
+The `validate_automaton()` method checks whether the DFA is actually a valid
+DFA. For instance, the method will raise an error if the a state transition is
+missing for a particular symbol. This method is automatically called when the
+DFA is initialized, so it's only really useful after modifying an
+already-instantiated DFA.
+
+#### Copying a DFA
+
+To create an exact copy of a DFA, simply pass an `DFA` instance into the `DFA`
 constructor.
 
 #### Complete example
@@ -105,6 +113,13 @@ by the NFA. If the string is accepted, the method returns a `set` of states the
 automaton stopped on (which presumably contains at least one valid final state).
 If the string is rejected by the NFA, the method will raise the appropriate
 exception (see **Exception classes**).
+
+#### Validating an NFA
+
+The `validate_automaton()` method checks whether the NFA is actually a valid
+NFA. The method has the same basic behavior and prescribed use case as the
+`DFA.validate_automaton()` method, despite being less restrictive (since NFAs
+are naturally less restrictive than DFAs).
 
 #### Converting an NFA to a DFA
 
