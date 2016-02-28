@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of DFAs."""
 
-import automata.automaton as automaton
 import nose.tools as nose
+
+import automata.automaton as automaton
 from automata.dfa import DFA
 from automata.nfa import NFA
 

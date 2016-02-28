@@ -3,6 +3,7 @@
 
 import copy
 import queue
+
 import automata.automaton as automaton
 import automata.nfa
 

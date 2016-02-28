@@ -2,6 +2,7 @@
 """Classes and methods for working with nondeterministic finite automata."""
 
 import copy
+
 import automata.automaton as automaton
 import automata.dfa
 

@@ -3,6 +3,7 @@ coverage==4.0.3
 flake8==2.5.4
 flake8-docstrings==0.2.5
 invoke==0.12.2
+isort==4.2.2
 mando==0.3.3
 mccabe==0.4.0
 nose==1.3.7
