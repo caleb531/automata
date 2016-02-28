@@ -64,6 +64,16 @@ class Automaton(metaclass=abc.ABCMeta):
         """Stringify the given set of states as a single state name."""
         return '{{{}}}'.format(''.join(sorted(states)))
 
+    def complement(self):
+        """Return the complement of the automaton."""
+        dfa_comp = self.__class__(self)
+        dfa_comp.final_states = dfa_comp.states - dfa_comp.final_states
+        return dfa_comp
+
+    def __invert__(self):
+        """Return the complement of the automaton via the ~ unary operator."""
+        return self.complement()
+
 
 class AutomatonError(Exception):
     """The base class for all automaton-related errors."""

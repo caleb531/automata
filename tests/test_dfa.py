@@ -137,3 +137,13 @@ class TestDFA(object):
         })
         nose.assert_equal(dfa.initial_state, '{q0}')
         nose.assert_equal(dfa.final_states, {'{q1q2}'})
+
+    def test_complement(self):
+        """Should compute complement of a DFA."""
+        dfa_comp = ~self.dfa
+        nose.assert_equal(dfa_comp.states, self.dfa.states)
+        nose.assert_equal(dfa_comp.symbols, self.dfa.symbols)
+        nose.assert_equal(dfa_comp.transitions, self.dfa.transitions)
+        nose.assert_equal(dfa_comp.initial_state, self.dfa.initial_state)
+        nose.assert_equal(
+            dfa_comp.final_states, self.dfa.states - self.dfa.final_states)
