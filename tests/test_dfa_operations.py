@@ -37,6 +37,16 @@ class TestDFAOperations(test_automaton.TestAutomaton):
             final_states={'s2'}
         )
 
+    def test_complement(self):
+        """Should compute complement of a DFA."""
+        comp = ~self.dfa1
+        nose.assert_equal(comp.states, self.dfa1.states)
+        nose.assert_equal(comp.symbols, self.dfa1.symbols)
+        nose.assert_equal(comp.transitions, self.dfa1.transitions)
+        nose.assert_equal(comp.initial_state, self.dfa1.initial_state)
+        nose.assert_equal(
+            comp.final_states, self.dfa1.states - self.dfa1.final_states)
+
     def test_union(self):
         """Should compute union of two DFAs."""
         union = self.dfa1 | self.dfa2

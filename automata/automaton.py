@@ -72,9 +72,9 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def complement(self):
         """Compute the complement of the automaton."""
-        dfa_comp = self.__class__(self)
-        dfa_comp.final_states = dfa_comp.states - dfa_comp.final_states
-        return dfa_comp
+        comp = self.__class__(self)
+        comp.final_states = comp.states - comp.final_states
+        return comp
 
     def __invert__(self):
         """Compute the complement of the automaton via the ~ operator."""
