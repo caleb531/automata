@@ -132,21 +132,21 @@ class DFA(automaton.Automaton):
         state_product = itertools.product(self.states, other.states)
         for self_state, other_state in state_product:
 
-            new_start_state_name = self.__class__._stringify_states((
+            new_start_state = self.__class__._stringify_states((
                 self_state, other_state))
-            union_states.add(new_start_state_name)
-            union_transitions[new_start_state_name] = {}
+            union_states.add(new_start_state)
+            union_transitions[new_start_state] = {}
 
             if (self_state in self.final_states or other_state in
                     other.final_states):
-                union_final_states.add(new_start_state_name)
+                union_final_states.add(new_start_state)
 
             for symbol in union_symbols:
-                new_end_state_name = self.__class__._stringify_states((
+                new_end_state = self.__class__._stringify_states((
                     self.transitions[self_state][symbol],
                     other.transitions[other_state][symbol]))
-                union_transitions[new_start_state_name][symbol] = (
-                    new_end_state_name)
+                union_transitions[new_start_state][symbol] = (
+                    new_end_state)
 
         return DFA(
             states=union_states, symbols=union_symbols,
