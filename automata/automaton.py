@@ -71,13 +71,13 @@ class Automaton(metaclass=abc.ABCMeta):
         return self.__class__(self)
 
     def complement(self):
-        """Return the complement of the automaton."""
+        """Compute the complement of the automaton."""
         dfa_comp = self.__class__(self)
         dfa_comp.final_states = dfa_comp.states - dfa_comp.final_states
         return dfa_comp
 
     def __invert__(self):
-        """Return the complement of the automaton via the ~ unary operator."""
+        """Compute the complement of the automaton via the ~ operator."""
         return self.complement()
 
     def _validate_symbol_set_equality(self, other):

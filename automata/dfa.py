@@ -120,7 +120,7 @@ class DFA(automaton.Automaton):
             final_states=dfa_final_states)
 
     def union(self, other):
-        """Return the union of two automata."""
+        """Compute the union of two automata."""
         union_states = set()
         union_symbols = self.symbols
         self._validate_symbol_set_equality(other)
@@ -154,5 +154,20 @@ class DFA(automaton.Automaton):
             final_states=union_final_states)
 
     def __or__(self, other):
-        """Return the union of two automata via the | operator."""
+        """Compute the union of two automata via the | operator."""
         return self.union(other)
+
+    def intersection(self, other):
+        """Compute the intersection of two automata."""
+        intersection = self | other
+        intersection.final_states = set()
+        final_state_product = itertools.product(
+            self.final_states, other.final_states)
+        for self_final_state, other_final_state in final_state_product:
+            intersection.final_states.add(self.__class__._stringify_states((
+                self_final_state, other_final_state)))
+        return intersection
+
+    def __and__(self, other):
+        """Compute the intersection of two automata via the & operator."""
+        return self.intersection(other)
