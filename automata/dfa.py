@@ -2,6 +2,7 @@
 """Classes and methods for working with deterministic finite automata."""
 
 import copy
+import itertools
 import queue
 
 import automata.automaton as automaton
@@ -88,7 +89,7 @@ class DFA(automaton.Automaton):
         dfa_symbols = nfa.symbols
         dfa_transitions = {}
         dfa_initial_state = self.__class__._stringify_states(
-            {nfa.initial_state})
+            (nfa.initial_state,))
         dfa_final_states = set()
 
         state_queue = queue.Queue()
@@ -97,10 +98,10 @@ class DFA(automaton.Automaton):
         for i in range(0, max_num_dfa_states):
 
             current_states = state_queue.get()
-            current_state_label = self.__class__._stringify_states(
+            current_state_name = self.__class__._stringify_states(
                 current_states)
-            dfa_states.add(current_state_label)
-            dfa_transitions[current_state_label] = {}
+            dfa_states.add(current_state_name)
+            dfa_transitions[current_state_name] = {}
 
             if (current_states & nfa.final_states):
                 dfa_final_states.add(self.__class__._stringify_states(
@@ -109,7 +110,7 @@ class DFA(automaton.Automaton):
             for symbol in nfa.symbols:
                 next_current_states = nfa._get_next_current_states(
                     current_states, symbol)
-                dfa_transitions[current_state_label][symbol] = (
+                dfa_transitions[current_state_name][symbol] = (
                     self.__class__._stringify_states(next_current_states))
                 state_queue.put(next_current_states)
 
@@ -117,3 +118,41 @@ class DFA(automaton.Automaton):
             states=dfa_states, symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
+
+    def union(self, other):
+        """Return the union of two automata."""
+        # TODO: raise error if self.symbols != other.symbols
+        union_states = set()
+        union_symbols = self.symbols
+        union_transitions = {}
+        union_initial_state = self.__class__._stringify_states(
+            (self.initial_state, other.initial_state))
+        union_final_states = set()
+
+        state_product = itertools.product(self.states, other.states)
+        for self_state, other_state in state_product:
+
+            new_start_state_name = self.__class__._stringify_states((
+                self_state, other_state))
+            union_states.add(new_start_state_name)
+            union_transitions[new_start_state_name] = {}
+
+            if (self_state in self.final_states or other_state in
+                    other.final_states):
+                union_final_states.add(new_start_state_name)
+
+            for symbol in union_symbols:
+                new_end_state_name = self.__class__._stringify_states((
+                    self.transitions[self_state][symbol],
+                    other.transitions[other_state][symbol]))
+                union_transitions[new_start_state_name][symbol] = (
+                    new_end_state_name)
+
+        return DFA(
+            states=union_states, symbols=union_symbols,
+            transitions=union_transitions, initial_state=union_initial_state,
+            final_states=union_final_states)
+
+    def __or__(self, other):
+        """Return the union of two automata via the | operator."""
+        return self.union(other)

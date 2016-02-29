@@ -61,8 +61,10 @@ class Automaton(metaclass=abc.ABCMeta):
 
     @staticmethod
     def _stringify_states(states):
+        if isinstance(states, set):
+            states = sorted(states)
         """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(''.join(sorted(states)))
+        return '{{{}}}'.format(''.join(states))
 
     def copy(self):
         """Create an exact copy of the automaton."""

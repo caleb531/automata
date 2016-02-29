@@ -119,3 +119,46 @@ class TestDFA(test_automaton.TestAutomaton):
         nose.assert_equal(dfa_comp.initial_state, self.dfa.initial_state)
         nose.assert_equal(
             dfa_comp.final_states, self.dfa.states - self.dfa.final_states)
+
+    def test_union(delf):
+        """Should compute union of two DFAs."""
+        # DFA which matches strings containing zero or more occurrences of 'a'
+        # but only one occurrence of 'b'
+        dfa1 = DFA(
+            states={'q0', 'q1'},
+            symbols={'a', 'b'},
+            transitions={
+                'q0': {'a': 'q0', 'b': 'q1'},
+                'q1': {'a': 'q1', 'b': 'q0'}
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        dfa2 = DFA(
+            states={'s0', 's1', 's2'},
+            symbols={'a', 'b'},
+            transitions={
+                's0': {'a': 's1', 'b': 's2'},
+                's1': {'a': 's2', 'b': 's0'},
+                's2': {'a': 's0', 'b': 's1'}
+            },
+            initial_state='s0',
+            final_states={'s2'}
+        )
+        dfa_union = dfa1 | dfa2
+        nose.assert_equal(
+            dfa_union.states,
+            {'{q0s0}', '{q0s1}', '{q0s2}', '{q1s0}', '{q1s1}', '{q1s2}'})
+        nose.assert_equal(dfa_union.symbols, {'a', 'b'})
+        nose.assert_equal(dfa_union.transitions, {
+            '{q0s0}': {'a': '{q0s1}', 'b': '{q1s2}'},
+            '{q0s1}': {'a': '{q0s2}', 'b': '{q1s0}'},
+            '{q0s2}': {'a': '{q0s0}', 'b': '{q1s1}'},
+            '{q1s0}': {'a': '{q1s1}', 'b': '{q0s2}'},
+            '{q1s1}': {'a': '{q1s2}', 'b': '{q0s0}'},
+            '{q1s2}': {'a': '{q1s0}', 'b': '{q0s1}'}
+        })
+        nose.assert_equal(dfa_union.initial_state, '{q0s0}')
+        nose.assert_equal(
+            dfa_union.final_states,
+            {'{q1s0}', '{q1s1}', '{q1s2}', '{q0s2}'})
