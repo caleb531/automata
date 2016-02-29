@@ -162,3 +162,11 @@ class TestDFA(test_automaton.TestAutomaton):
         nose.assert_equal(
             dfa_union.final_states,
             {'{q1s0}', '{q1s1}', '{q1s2}', '{q0s2}'})
+
+    def test_union_symbol_mismatch(self):
+        """Should raise error if symbol sets are not equal when unioning."""
+        dfa1 = self.dfa
+        dfa2 = DFA(self.dfa)
+        dfa2.symbols.add('2')
+        with nose.assert_raises(automaton.SymbolMismatchError):
+            dfa1 | dfa2

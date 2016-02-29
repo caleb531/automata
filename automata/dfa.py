@@ -121,9 +121,9 @@ class DFA(automaton.Automaton):
 
     def union(self, other):
         """Return the union of two automata."""
-        # TODO: raise error if self.symbols != other.symbols
         union_states = set()
         union_symbols = self.symbols
+        self._validate_symbol_set_equality(other)
         union_transitions = {}
         union_initial_state = self.__class__._stringify_states(
             (self.initial_state, other.initial_state))

@@ -80,6 +80,11 @@ class Automaton(metaclass=abc.ABCMeta):
         """Return the complement of the automaton via the ~ unary operator."""
         return self.complement()
 
+    def _validate_symbol_set_equality(self, other):
+        """Raise an error if the symbol sets are not equal."""
+        if other.symbols != self.symbols:
+            raise SymbolMismatchError('symbol sets are not equal')
+
 
 class AutomatonError(Exception):
     """The base class for all automaton-related errors."""
@@ -113,5 +118,11 @@ class MissingSymbolError(AutomatonError):
 
 class FinalStateError(AutomatonError):
     """The automaton stopped at a non-final state."""
+
+    pass
+
+
+class SymbolMismatchError(AutomatonError):
+    """The symbol sets for the automata are not equal."""
 
     pass
