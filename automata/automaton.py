@@ -64,6 +64,10 @@ class Automaton(metaclass=abc.ABCMeta):
         """Stringify the given set of states as a single state name."""
         return '{{{}}}'.format(''.join(sorted(states)))
 
+    def copy(self):
+        """Create an exact copy of the automaton."""
+        return self.__class__(self)
+
     def complement(self):
         """Return the complement of the automaton."""
         dfa_comp = self.__class__(self)

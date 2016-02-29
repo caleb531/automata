@@ -4,40 +4,23 @@
 import nose.tools as nose
 
 import automata.automaton as automaton
+import tests.test_automaton as test_automaton
 from automata.dfa import DFA
 from automata.nfa import NFA
 
 
-class TestDFA(object):
+class TestDFA(test_automaton.TestAutomaton):
     """A test class for testing deterministic finite automata."""
-
-    def setup(self):
-        """Reset test DFA before every test function."""
-        # DFA which matches all binary strings ending in an odd number of '1's
-        self.dfa = DFA(
-            states={'q0', 'q1', 'q2'},
-            symbols={'0', '1'},
-            transitions={
-                'q0': {'0': 'q0', '1': 'q1'},
-                'q1': {'0': 'q0', '1': 'q2'},
-                'q2': {'0': 'q2', '1': 'q1'}
-            },
-            initial_state='q0',
-            final_states={'q1'}
-        )
 
     def test_init_dfa(self):
         """Should copy DFA if passed into DFA constructor."""
         new_dfa = DFA(self.dfa)
-        nose.assert_is_not(new_dfa.states, self.dfa.states)
-        nose.assert_equal(new_dfa.states, self.dfa.states)
-        nose.assert_is_not(new_dfa.symbols, self.dfa.symbols)
-        nose.assert_equal(new_dfa.symbols, self.dfa.symbols)
-        nose.assert_is_not(new_dfa.transitions, self.dfa.transitions)
-        nose.assert_equal(new_dfa.transitions, self.dfa.transitions)
-        nose.assert_equal(new_dfa.initial_state, self.dfa.initial_state)
-        nose.assert_is_not(new_dfa.final_states, self.dfa.final_states)
-        nose.assert_equal(new_dfa.final_states, self.dfa.final_states)
+        self.assert_is_copy(new_dfa, self.dfa)
+
+    def test_copy_dfa(self):
+        """Should create exact copy of DFA if copy() method is called."""
+        new_dfa = self.dfa.copy()
+        self.assert_is_copy(new_dfa, self.dfa)
 
     def test_validate_automaton_missing_state(self):
         """Should raise error if a state has no transitions defined."""
@@ -116,18 +99,7 @@ class TestDFA(object):
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
-        nfa = NFA(
-            states={'q0', 'q1', 'q2'},
-            symbols={'a', 'b'},
-            transitions={
-                'q0': {'a': {'q1'}},
-                'q1': {'a': {'q1'}, '': {'q2'}},
-                'q2': {'b': {'q0'}}
-            },
-            initial_state='q0',
-            final_states={'q1'}
-        )
-        dfa = DFA(nfa)
+        dfa = DFA(self.nfa)
         nose.assert_equal(dfa.states, {'{}', '{q0}', '{q1q2}'})
         nose.assert_equal(dfa.symbols, {'a', 'b'})
         nose.assert_equal(dfa.transitions, {

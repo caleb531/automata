@@ -4,63 +4,26 @@
 import nose.tools as nose
 
 import automata.automaton as automaton
-from automata.dfa import DFA
+import tests.test_automaton as test_automaton
 from automata.nfa import NFA
 
 
-class TestNFA(object):
+class TestNFA(test_automaton.TestAutomaton):
     """A test class for testing nondeterministic finite automata."""
-
-    def setup(self):
-        """Reset test NFA before every test function."""
-        # NFA which matches strings beginning with 'a', ending with 'a', and
-        # containing no consecutive 'b's
-        self.nfa = NFA(
-            states={'q0', 'q1', 'q2'},
-            symbols={'a', 'b'},
-            transitions={
-                'q0': {'a': {'q1'}},
-                'q1': {'a': {'q1'}, '': {'q2'}},
-                'q2': {'b': {'q0'}}
-            },
-            initial_state='q0',
-            final_states={'q1'}
-        )
 
     def test_init_nfa(self):
         """Should copy NFA if passed into NFA constructor."""
         new_nfa = NFA(self.nfa)
-        nose.assert_is_not(new_nfa.states, self.nfa.states)
-        nose.assert_equal(new_nfa.states, self.nfa.states)
-        nose.assert_is_not(new_nfa.symbols, self.nfa.symbols)
-        nose.assert_equal(new_nfa.symbols, self.nfa.symbols)
-        nose.assert_is_not(new_nfa.transitions, self.nfa.transitions)
-        for start_state, paths in new_nfa.transitions.items():
-            nose.assert_is_not(paths, self.nfa.transitions[start_state])
-            for symbol, end_states in paths.items():
-                nose.assert_is_not(
-                    end_states,
-                    self.nfa.transitions[start_state][symbol])
-                nose.assert_equal(
-                    end_states,
-                    self.nfa.transitions[start_state][symbol])
-        nose.assert_equal(new_nfa.initial_state, self.nfa.initial_state)
-        nose.assert_is_not(new_nfa.final_states, self.nfa.final_states)
-        nose.assert_equal(new_nfa.final_states, self.nfa.final_states)
+        self.assert_is_copy(new_nfa, self.nfa)
+
+    def test_copy_nfa(self):
+        """Should create exact copy of NFA if copy() method is called."""
+        new_nfa = self.nfa.copy()
+        self.assert_is_copy(new_nfa, self.nfa)
 
     def test_init_dfa(self):
         """Should convert DFA to NFA if passed into NFA constructor."""
-        nfa = NFA(DFA(
-            states={'q0', 'q1', 'q2'},
-            symbols={'0', '1'},
-            transitions={
-                'q0': {'0': 'q0', '1': 'q1'},
-                'q1': {'0': 'q0', '1': 'q2'},
-                'q2': {'0': 'q2', '1': 'q1'}
-            },
-            initial_state='q0',
-            final_states={'q1'}
-        ))
+        nfa = NFA(self.dfa)
         nose.assert_equal(nfa.states, {'q0', 'q1', 'q2'})
         nose.assert_equal(nfa.symbols, {'0', '1'})
         nose.assert_equal(nfa.transitions, {
