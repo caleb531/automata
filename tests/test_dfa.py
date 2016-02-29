@@ -112,13 +112,13 @@ class TestDFA(test_automaton.TestAutomaton):
 
     def test_complement(self):
         """Should compute complement of a DFA."""
-        dfa_comp = ~self.dfa
-        nose.assert_equal(dfa_comp.states, self.dfa.states)
-        nose.assert_equal(dfa_comp.symbols, self.dfa.symbols)
-        nose.assert_equal(dfa_comp.transitions, self.dfa.transitions)
-        nose.assert_equal(dfa_comp.initial_state, self.dfa.initial_state)
+        complement = ~self.dfa
+        nose.assert_equal(complement.states, self.dfa.states)
+        nose.assert_equal(complement.symbols, self.dfa.symbols)
+        nose.assert_equal(complement.transitions, self.dfa.transitions)
+        nose.assert_equal(complement.initial_state, self.dfa.initial_state)
         nose.assert_equal(
-            dfa_comp.final_states, self.dfa.states - self.dfa.final_states)
+            complement.final_states, self.dfa.states - self.dfa.final_states)
 
     def test_union(delf):
         """Should compute union of two DFAs."""
@@ -145,12 +145,12 @@ class TestDFA(test_automaton.TestAutomaton):
             initial_state='s0',
             final_states={'s2'}
         )
-        dfa_union = dfa1 | dfa2
+        union = dfa1 | dfa2
         nose.assert_equal(
-            dfa_union.states,
+            union.states,
             {'{q0s0}', '{q0s1}', '{q0s2}', '{q1s0}', '{q1s1}', '{q1s2}'})
-        nose.assert_equal(dfa_union.symbols, {'a', 'b'})
-        nose.assert_equal(dfa_union.transitions, {
+        nose.assert_equal(union.symbols, {'a', 'b'})
+        nose.assert_equal(union.transitions, {
             '{q0s0}': {'a': '{q0s1}', 'b': '{q1s2}'},
             '{q0s1}': {'a': '{q0s2}', 'b': '{q1s0}'},
             '{q0s2}': {'a': '{q0s0}', 'b': '{q1s1}'},
@@ -158,9 +158,9 @@ class TestDFA(test_automaton.TestAutomaton):
             '{q1s1}': {'a': '{q1s2}', 'b': '{q0s0}'},
             '{q1s2}': {'a': '{q1s0}', 'b': '{q0s1}'}
         })
-        nose.assert_equal(dfa_union.initial_state, '{q0s0}')
+        nose.assert_equal(union.initial_state, '{q0s0}')
         nose.assert_equal(
-            dfa_union.final_states,
+            union.final_states,
             {'{q1s0}', '{q1s1}', '{q1s2}', '{q0s2}'})
 
     def test_union_symbol_mismatch(self):
