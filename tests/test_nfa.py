@@ -33,6 +33,17 @@ class TestNFA(test_automaton.TestAutomaton):
         })
         nose.assert_equal(nfa.initial_state, 'q0')
 
+    def test_nfa_equal(self):
+        """Should correctly determine if two NFAs are equal."""
+        new_nfa = self.nfa.copy()
+        nose.assert_true(self.nfa == new_nfa, 'NFAs are not equal')
+
+    def test_nfa_not_equal(self):
+        """Should correctly determine if two NFAs are not equal."""
+        new_nfa = self.nfa.copy()
+        new_nfa.final_states.add('q2')
+        nose.assert_true(self.nfa != new_nfa, 'NFAs are not equal')
+
     def test_validate_automaton_missing_state(self):
         """Should raise error if a state has no transitions defined."""
         with nose.assert_raises(automaton.MissingStateError):

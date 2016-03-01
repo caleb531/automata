@@ -22,6 +22,17 @@ class TestDFA(test_automaton.TestAutomaton):
         new_dfa = self.dfa.copy()
         self.assert_is_copy(new_dfa, self.dfa)
 
+    def test_dfa_equal(self):
+        """Should correctly determine if two DFAs are equal."""
+        new_dfa = self.dfa.copy()
+        nose.assert_true(self.dfa == new_dfa, 'DFAs are not equal')
+
+    def test_dfa_not_equal(self):
+        """Should correctly determine if two DFAs are not equal."""
+        new_dfa = self.dfa.copy()
+        new_dfa.final_states.add('q2')
+        nose.assert_true(self.dfa != new_dfa, 'DFAs are not equal')
+
     def test_validate_automaton_missing_state(self):
         """Should raise error if a state has no transitions defined."""
         with nose.assert_raises(automaton.MissingStateError):

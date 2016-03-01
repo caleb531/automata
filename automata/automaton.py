@@ -70,6 +70,10 @@ class Automaton(metaclass=abc.ABCMeta):
         """Create an exact copy of the automaton."""
         return self.__class__(self)
 
+    def __eq__(self, other):
+        """Check if two automata are equal."""
+        return self.__dict__ == other.__dict__
+
     def complement(self):
         """Compute the complement of the automaton."""
         comp = self.__class__(self)
