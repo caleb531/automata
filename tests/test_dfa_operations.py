@@ -36,6 +36,19 @@ class TestDFAOperations(test_automaton.TestAutomaton):
             initial_state='s0',
             final_states={'s2'}
         )
+        # Attributes of the union of dfa1 and dfa2, available for convenience
+        self.union_states = {
+            '{q0s0}', '{q0s1}', '{q0s2}', '{q1s0}', '{q1s1}', '{q1s2}'}
+        self.union_symbols = {'a', 'b'}
+        self.union_transitions = {
+            '{q0s0}': {'a': '{q0s1}', 'b': '{q1s2}'},
+            '{q0s1}': {'a': '{q0s2}', 'b': '{q1s0}'},
+            '{q0s2}': {'a': '{q0s0}', 'b': '{q1s1}'},
+            '{q1s0}': {'a': '{q1s1}', 'b': '{q0s2}'},
+            '{q1s1}': {'a': '{q1s2}', 'b': '{q0s0}'},
+            '{q1s2}': {'a': '{q1s0}', 'b': '{q0s1}'}
+        }
+        self.union_initial_state = '{q0s0}'
 
     def test_complement(self):
         """Should compute complement of a DFA."""
@@ -50,19 +63,10 @@ class TestDFAOperations(test_automaton.TestAutomaton):
     def test_union(self):
         """Should compute union of two DFAs."""
         union = self.dfa1 | self.dfa2
-        nose.assert_equal(
-            union.states,
-            {'{q0s0}', '{q0s1}', '{q0s2}', '{q1s0}', '{q1s1}', '{q1s2}'})
-        nose.assert_equal(union.symbols, {'a', 'b'})
-        nose.assert_equal(union.transitions, {
-            '{q0s0}': {'a': '{q0s1}', 'b': '{q1s2}'},
-            '{q0s1}': {'a': '{q0s2}', 'b': '{q1s0}'},
-            '{q0s2}': {'a': '{q0s0}', 'b': '{q1s1}'},
-            '{q1s0}': {'a': '{q1s1}', 'b': '{q0s2}'},
-            '{q1s1}': {'a': '{q1s2}', 'b': '{q0s0}'},
-            '{q1s2}': {'a': '{q1s0}', 'b': '{q0s1}'}
-        })
-        nose.assert_equal(union.initial_state, '{q0s0}')
+        nose.assert_equal(union.states, self.union_states)
+        nose.assert_equal(union.symbols, self.union_symbols)
+        nose.assert_equal(union.transitions, self.union_transitions)
+        nose.assert_equal(union.initial_state, self.union_initial_state)
         nose.assert_equal(
             union.final_states,
             {'{q1s0}', '{q1s1}', '{q1s2}', '{q0s2}'})
@@ -75,18 +79,10 @@ class TestDFAOperations(test_automaton.TestAutomaton):
 
     def test_intersection(self):
         """Should compute intersection of two DFAs."""
-        intersection = self.dfa1 & self.dfa2
+        inter = self.dfa1 & self.dfa2
         nose.assert_equal(
-            intersection.states,
-            {'{q0s0}', '{q0s1}', '{q0s2}', '{q1s0}', '{q1s1}', '{q1s2}'})
-        nose.assert_equal(intersection.symbols, {'a', 'b'})
-        nose.assert_equal(intersection.transitions, {
-            '{q0s0}': {'a': '{q0s1}', 'b': '{q1s2}'},
-            '{q0s1}': {'a': '{q0s2}', 'b': '{q1s0}'},
-            '{q0s2}': {'a': '{q0s0}', 'b': '{q1s1}'},
-            '{q1s0}': {'a': '{q1s1}', 'b': '{q0s2}'},
-            '{q1s1}': {'a': '{q1s2}', 'b': '{q0s0}'},
-            '{q1s2}': {'a': '{q1s0}', 'b': '{q0s1}'}
-        })
-        nose.assert_equal(intersection.initial_state, '{q0s0}')
-        nose.assert_equal(intersection.final_states, {'{q1s2}'})
+            inter.states, self.union_states)
+        nose.assert_equal(inter.symbols, self.union_symbols)
+        nose.assert_equal(inter.transitions, self.union_transitions)
+        nose.assert_equal(inter.initial_state, self.union_initial_state)
+        nose.assert_equal(inter.final_states, {'{q1s2}'})

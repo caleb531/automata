@@ -159,14 +159,14 @@ class DFA(automaton.Automaton):
 
     def intersection(self, other):
         """Compute the intersection of two automata."""
-        intersection = self | other
-        intersection.final_states = set()
+        inter = self | other
+        inter.final_states = set()
         final_state_product = itertools.product(
             self.final_states, other.final_states)
         for self_final_state, other_final_state in final_state_product:
-            intersection.final_states.add(self.__class__._stringify_states((
+            inter.final_states.add(self.__class__._stringify_states((
                 self_final_state, other_final_state)))
-        return intersection
+        return inter
 
     def __and__(self, other):
         """Compute the intersection of two automata via the & operator."""
