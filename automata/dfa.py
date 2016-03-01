@@ -171,3 +171,17 @@ class DFA(automaton.Automaton):
     def __and__(self, other):
         """Compute the intersection of two automata via the & operator."""
         return self.intersection(other)
+
+    def difference(self, other):
+        """Compute the difference of two automata."""
+        diff = self | other
+        excluded_state_product = itertools.product(
+            self.states, other.final_states)
+        for self_state, other_final_state in excluded_state_product:
+            diff.final_states.discard(self.__class__._stringify_states((
+                self_state, other_final_state)))
+        return diff
+
+    def __sub__(self, other):
+        """Compute the difference of two automata via the - operator."""
+        return self.difference(other)

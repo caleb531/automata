@@ -100,9 +100,17 @@ class TestDFAOperations(test_automaton.TestAutomaton):
     def test_intersection(self):
         """Should compute intersection of two DFAs."""
         inter = self.dfa1 & self.dfa2
-        nose.assert_equal(
-            inter.states, self.union_states)
+        nose.assert_equal(inter.states, self.union_states)
         nose.assert_equal(inter.symbols, self.union_symbols)
         nose.assert_equal(inter.transitions, self.union_transitions)
         nose.assert_equal(inter.initial_state, self.union_initial_state)
         nose.assert_equal(inter.final_states, {'{q1s2}'})
+
+    def test_difference(self):
+        """Should compute difference of two DFAs."""
+        diff = self.dfa1 - self.dfa2
+        nose.assert_equal(diff.states, self.union_states)
+        nose.assert_equal(diff.symbols, self.union_symbols)
+        nose.assert_equal(diff.transitions, self.union_transitions)
+        nose.assert_equal(diff.initial_state, self.union_initial_state)
+        nose.assert_equal(diff.final_states, {'{q1s0}', '{q1s1}'})
