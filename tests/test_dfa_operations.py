@@ -77,6 +77,26 @@ class TestDFAOperations(test_automaton.TestAutomaton):
         with nose.assert_raises(automaton.SymbolMismatchError):
             self.dfa1 | self.dfa2
 
+    # def test_union_different_symbol_sets(self):
+    #     """Should union symbol sets of operands when unioning."""
+    #     dfa3 = DFA(
+    #         states={'q0', 'q1'},
+    #         symbols={'a'},
+    #         transitions={'q0': {'a': 'q1'}, 'q1': {'a': 'q1'}},
+    #         initial_state='q0',
+    #         final_states={'q1'}
+    #     )
+    #     dfa4 = DFA(
+    #         states={'s0', 's1'},
+    #         symbols={'b'},
+    #         transitions={'s0': {'b': 's1'}, 's1': {'b': 's1'}},
+    #         initial_state='s0',
+    #         final_states={'s1'}
+    #     )
+    #     union = dfa3 | dfa4
+    #     nose.assert_equal(
+    #         union.states, {'{q0s0}', '{q0s1}', '{q1s0}', '{q1s1}'})
+
     def test_intersection(self):
         """Should compute intersection of two DFAs."""
         inter = self.dfa1 & self.dfa2
