@@ -155,7 +155,7 @@ class DFA(automaton.Automaton):
             self_end_state, other_end_state))
 
     def union(self, other):
-        """Compute the union of two automata."""
+        """Compute the union of two DFAs."""
         union_states = set()
         union_symbols = self.symbols | other.symbols
         union_transitions = {}
@@ -192,11 +192,11 @@ class DFA(automaton.Automaton):
             final_states=union_final_states)
 
     def __or__(self, other):
-        """Compute the union of two automata via the | operator."""
+        """Compute the union of two DFAs via the | operator."""
         return self.union(other)
 
     def intersection(self, other):
-        """Compute the intersection of two automata."""
+        """Compute the intersection of two DFAs."""
         inter = self | other
         inter.final_states = set()
         final_state_product = itertools.product(
@@ -207,11 +207,11 @@ class DFA(automaton.Automaton):
         return inter
 
     def __and__(self, other):
-        """Compute the intersection of two automata via the & operator."""
+        """Compute the intersection of two DFAs via the & operator."""
         return self.intersection(other)
 
     def difference(self, other):
-        """Compute the difference of two automata."""
+        """Compute the difference of two DFAs."""
         diff = self | other
         excluded_state_product = itertools.product(
             self.states, other.final_states)
@@ -221,5 +221,5 @@ class DFA(automaton.Automaton):
         return diff
 
     def __sub__(self, other):
-        """Compute the difference of two automata via the - operator."""
+        """Compute the difference of two DFAs via the - operator."""
         return self.difference(other)
