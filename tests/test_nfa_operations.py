@@ -36,16 +36,18 @@ class TestNFAOperations(test_automaton.TestAutomaton):
             initial_state='d0',
             final_states={'d3'}
         )
-        self.union_states = {'{c0,d0}', 'c0', 'c1', 'c2', 'c3'}
+        self.union_states = {
+            '{c0,d0}', 'c0', 'c1', 'c2', 'c3', 'd0', 'd1', 'd2', 'd3'}
         self.union_symbols = {'c', 'a', 't', 'd', 'o', 'g'}
         self.union_transitions = {
-            'c0': {'c': 'c1'},
-            'c1': {'a': 'c2'},
-            'c2': {'t': 'c3'},
+            '{c0,d0}': {'': {'c0', 'd0'}},
+            'c0': {'c': {'c1'}},
+            'c1': {'a': {'c2'}},
+            'c2': {'t': {'c3'}},
             'c3': {},
-            'd0': {'d': 'd1'},
-            'd1': {'o': 'd2'},
-            'd2': {'g': 'd3'},
+            'd0': {'d': {'d1'}},
+            'd1': {'o': {'d2'}},
+            'd2': {'g': {'d3'}},
             'd3': {},
         }
         self.union_initial_state = '{c0,d0}'
@@ -61,13 +63,11 @@ class TestNFAOperations(test_automaton.TestAutomaton):
         nose.assert_equal(
             nfa_comp.final_states, self.nfa1.states - self.nfa1.final_states)
 
-    # def test_union(self):
-    #     """Should compute union of two NFAs."""
-    #     union = self.nfa1 | self.nfa2
-    #     nose.assert_equal(union.states, self.union_states)
-    #     nose.assert_equal(union.symbols, self.union_symbols)
-    #     nose.assert_equal(union.transitions, self.union_transitions)
-    #     nose.assert_equal(union.initial_state, self.union_initial_state)
-    #     nose.assert_equal(
-    #         union.final_states,
-    #         {'{q1,s0}', '{q1,s1}', '{q1,s2}', '{q0,s2}'})
+    def test_union(self):
+        """Should compute union of two NFAs."""
+        union = self.nfa1 | self.nfa2
+        nose.assert_equal(union.states, self.union_states)
+        nose.assert_equal(union.symbols, self.union_symbols)
+        nose.assert_equal(union.transitions, self.union_transitions)
+        nose.assert_equal(union.initial_state, self.union_initial_state)
+        nose.assert_equal(union.final_states, {'d3', 'c3'})
