@@ -119,17 +119,52 @@ class DFA(automaton.Automaton):
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
 
+    def _get_union_product(self, other, trap_state):
+        """Compute the product of two DFAs; optionally include trap states."""
+        trap_state_set = {trap_state}
+        if self.symbols != other.symbols:
+            return itertools.product(
+                self.states | trap_state_set,
+                other.states | trap_state_set)
+        else:
+            return itertools.product(self.states, other.states)
+
+    def _get_union_end_state(self, other, self_state, other_state,
+                             trap_state, symbol):
+        """
+        Compute the end state of a DFA union operation.
+
+        Accept a state from the first DFA and a state from the second DFA. Use
+        their respective (partial) end states to create a composite end state.
+        If any of the original states does not have a transition for the given
+        symbol, the partial end state becomes the given trap state.
+        """
+        if (self_state != trap_state and symbol in
+                self.transitions[self_state]):
+            self_end_state = self.transitions[self_state][symbol]
+        else:
+            self_end_state = trap_state
+
+        if (other_state != trap_state and symbol in
+                other.transitions[other_state]):
+            other_end_state = other.transitions[other_state][symbol]
+        else:
+            other_end_state = trap_state
+
+        return self.__class__._stringify_states((
+            self_end_state, other_end_state))
+
     def union(self, other):
         """Compute the union of two automata."""
         union_states = set()
-        union_symbols = self.symbols
-        self._validate_symbol_set_equality(other)
+        union_symbols = self.symbols | other.symbols
         union_transitions = {}
-        union_initial_state = self.__class__._stringify_states(
-            (self.initial_state, other.initial_state))
+        union_initial_state = self.__class__._stringify_states((
+            self.initial_state, other.initial_state))
         union_final_states = set()
 
-        state_product = itertools.product(self.states, other.states)
+        trap_state = '{}'
+        state_product = self._get_union_product(other, trap_state=trap_state)
         for self_state, other_state in state_product:
 
             new_start_state = self.__class__._stringify_states((
@@ -142,11 +177,14 @@ class DFA(automaton.Automaton):
                 union_final_states.add(new_start_state)
 
             for symbol in union_symbols:
-                new_end_state = self.__class__._stringify_states((
-                    self.transitions[self_state][symbol],
-                    other.transitions[other_state][symbol]))
-                union_transitions[new_start_state][symbol] = (
-                    new_end_state)
+
+                new_end_state = self._get_union_end_state(
+                    other,
+                    self_state=self_state,
+                    other_state=other_state,
+                    trap_state=trap_state,
+                    symbol=symbol)
+                union_transitions[new_start_state][symbol] = new_end_state
 
         return DFA(
             states=union_states, symbols=union_symbols,

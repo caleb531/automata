@@ -3,7 +3,6 @@
 
 import nose.tools as nose
 
-import automata.automaton as automaton
 import tests.test_automaton as test_automaton
 from automata.dfa import DFA
 
@@ -71,31 +70,31 @@ class TestDFAOperations(test_automaton.TestAutomaton):
             union.final_states,
             {'{q1s0}', '{q1s1}', '{q1s2}', '{q0s2}'})
 
-    def test_union_symbol_mismatch(self):
-        """Should raise error if symbol sets are not equal when unioning."""
-        self.dfa2.symbols.add('2')
-        with nose.assert_raises(automaton.SymbolMismatchError):
-            self.dfa1 | self.dfa2
-
-    # def test_union_different_symbol_sets(self):
-    #     """Should union symbol sets of operands when unioning."""
-    #     dfa3 = DFA(
-    #         states={'q0', 'q1'},
-    #         symbols={'a'},
-    #         transitions={'q0': {'a': 'q1'}, 'q1': {'a': 'q1'}},
-    #         initial_state='q0',
-    #         final_states={'q1'}
-    #     )
-    #     dfa4 = DFA(
-    #         states={'s0', 's1'},
-    #         symbols={'b'},
-    #         transitions={'s0': {'b': 's1'}, 's1': {'b': 's1'}},
-    #         initial_state='s0',
-    #         final_states={'s1'}
-    #     )
-    #     union = dfa3 | dfa4
-    #     nose.assert_equal(
-    #         union.states, {'{q0s0}', '{q0s1}', '{q1s0}', '{q1s1}'})
+    def test_union_different_symbol_sets(self):
+        """Should union symbol sets of operands when unioning."""
+        dfa3 = DFA(
+            states={'q0'},
+            symbols={'a'},
+            transitions={'q0': {'a': 'q0'}},
+            initial_state='q0',
+            final_states={'q0'}
+        )
+        nose.assert_equal(dfa3.validate_input(''), 'q0')
+        nose.assert_equal(dfa3.validate_input('aaa'), 'q0')
+        dfa4 = DFA(
+            states={'s0', 's1'},
+            symbols={'b'},
+            transitions={'s0': {'b': 's1'}, 's1': {'b': 's1'}},
+            initial_state='s0',
+            final_states={'s1'}
+        )
+        union = dfa3 | dfa4
+        nose.assert_equal(
+            union.states,
+            {'{q0s0}', '{q0s1}', '{q0{}}', '{{}s0}', '{{}s1}', '{{}{}}'})
+        nose.assert_equal(union.symbols, {'a', 'b'})
+        nose.assert_equal(
+            union.final_states, {'{q0s0}', '{q0s1}', '{q0{}}', '{{}s1}'})
 
     def test_intersection(self):
         """Should compute intersection of two DFAs."""
