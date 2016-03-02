@@ -79,8 +79,6 @@ class TestDFAOperations(test_automaton.TestAutomaton):
             initial_state='q0',
             final_states={'q0'}
         )
-        nose.assert_equal(dfa3.validate_input(''), 'q0')
-        nose.assert_equal(dfa3.validate_input('aaa'), 'q0')
         dfa4 = DFA(
             states={'s0', 's1'},
             symbols={'b'},
