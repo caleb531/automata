@@ -94,35 +94,6 @@ class Automaton(metaclass=abc.ABCMeta):
         """Compute the union of two automata via the | operator."""
         return self.union(other)
 
-    def intersection(self, other):
-        """Compute the intersection of two automata."""
-        inter = self | other
-        inter.final_states = set()
-        final_state_product = itertools.product(
-            self.final_states, other.final_states)
-        for self_final_state, other_final_state in final_state_product:
-            inter.final_states.add(self.__class__._stringify_states((
-                self_final_state, other_final_state)))
-        return inter
-
-    def __and__(self, other):
-        """Compute the intersection of two automata via the & operator."""
-        return self.intersection(other)
-
-    def difference(self, other):
-        """Compute the difference of two automata."""
-        diff = self | other
-        excluded_state_product = itertools.product(
-            self.states, other.final_states)
-        for self_state, other_final_state in excluded_state_product:
-            diff.final_states.discard(self.__class__._stringify_states((
-                self_state, other_final_state)))
-        return diff
-
-    def __sub__(self, other):
-        """Compute the difference of two automata via the - operator."""
-        return self.difference(other)
-
 
 class AutomatonError(Exception):
     """The base class for all automaton-related errors."""
