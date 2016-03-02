@@ -186,7 +186,7 @@ class DFA(automaton.Automaton):
                     symbol=symbol)
                 union_transitions[new_start_state][symbol] = new_end_state
 
-        return DFA(
+        return self.__class__(
             states=union_states, symbols=union_symbols,
             transitions=union_transitions, initial_state=union_initial_state,
             final_states=union_final_states)
