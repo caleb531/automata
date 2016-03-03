@@ -49,7 +49,7 @@ a state (the value).
 All of these properties must be supplied when the DFA is
 instantiated (see the examples below).
 
-#### Validating input
+#### DFA.validate_input(self, input_str)
 
 The `validate_input()` method checks whether or not the given string is accepted
 by the DFA. If the string is accepted, the method returns the state the
@@ -57,13 +57,53 @@ automaton stopped on (which presumably is a valid final state). If the string is
 rejected by the DFA, the method will raise the appropriate exception (see
 **Exception classes**).
 
-#### Validating a DFA
+#### DFA.validate_automaton(self)
 
 The `validate_automaton()` method checks whether the DFA is actually a valid
 DFA. For instance, the method will raise an error if the a state transition is
 missing for a particular symbol. This method is automatically called when the
 DFA is initialized, so it's only really useful after modifying an
 already-instantiated DFA.
+
+#### DFA.complement(self, other)
+
+The `complement()` method returns the complement of the DFA. You can also use
+the `~` operator to compute the complement.
+
+```python
+my_dfa.complement()
+~my_dfa  # equivalent to the above
+```
+
+#### DFA.union(self, other)
+
+The `union()` method returns the union of two DFAs. You can also use the `|`
+operator to compute the union.
+
+```python
+dfa1.union(dfa2)
+dfa1 | dfa2  # equivalent to the above
+```
+
+#### DFA.intersection(self, other)
+
+The `intersection()` method returns the intersection of two DFAs. You can also
+use the `&` operator to compute the intersection.
+
+```python
+dfa1.intersection(dfa2)
+dfa1 & dfa2  # equivalent to the above
+```
+
+#### DFA.difference(self, other)
+
+The `difference()` method returns the difference of two DFAs. You can also use
+the `-` operator to compute the difference.
+
+```python
+dfa1.difference(dfa2)
+dfa1 - dfa2  # equivalent to the above
+```
 
 #### Copying a DFA
 
@@ -86,9 +126,9 @@ dfa = DFA(
     initial_state='q0',
     final_states={'q1'}
 )
-dfa_copy = DFA(dfa) # returns an exact copy of dfa
-dfa.validate_input('01') # returns 'q1'
-dfa.validate_input('011') # raises FinalStateError
+dfa_copy = DFA(dfa)  # returns an exact copy of dfa
+dfa.validate_input('01')  # returns 'q1'
+dfa.validate_input('011')  # raises FinalStateError
 ```
 
 ### class NFA
@@ -106,7 +146,7 @@ that a single state can have more than one transition for the same symbol.
 Therefore, instead of mapping a symbol to *one* end state in each sub-dict, each
 symbol is mapped to a *set* of end states.
 
-#### Validating input
+#### NFA.validate_input(self, input_str)
 
 The `validate_input()` method checks whether or not the given string is accepted
 by the NFA. If the string is accepted, the method returns a `set` of states the
@@ -114,12 +154,32 @@ automaton stopped on (which presumably contains at least one valid final state).
 If the string is rejected by the NFA, the method will raise the appropriate
 exception (see **Exception classes**).
 
-#### Validating an NFA
+#### NFA.validate_automaton(self)
 
 The `validate_automaton()` method checks whether the NFA is actually a valid
 NFA. The method has the same basic behavior and prescribed use case as the
 `DFA.validate_automaton()` method, despite being less restrictive (since NFAs
 are naturally less restrictive than DFAs).
+
+#### NFA.complement(self, other)
+
+The `complement()` method returns the complement of the NFA. You can also use
+the `~` operator to compute the complement.
+
+```python
+my_nfa.complement()
+~my_nfa  # equivalent to the above
+```
+
+#### NFA.union(self, other)
+
+The `union()` method returns the union of two NFAs. You can also use the `|`
+operator to compute the union.
+
+```python
+nfa1.union(nfa2)
+nfa1 | nfa2  # equivalent to the above
+```
 
 #### Converting an NFA to a DFA
 
@@ -150,10 +210,9 @@ nfa = NFA(
     initial_state='q0',
     final_states={'q1'}
 )
-nfa_copy = NFA(nfa) # returns an exact copy of nfa
-dfa = DFA(nfa) # returns an equivalent DFA
-nfa.validate_input('aba') # returns {'q1', 'q2'}
-nfa.validate_input('abba') # raises FinalStateError
+dfa = DFA(nfa)  # returns an equivalent DFA
+nfa.validate_input('aba')  # returns {'q1', 'q2'}
+nfa.validate_input('abba')  # raises FinalStateError
 ```
 
 ### Exception classes

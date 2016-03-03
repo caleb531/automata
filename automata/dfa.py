@@ -191,10 +191,6 @@ class DFA(automaton.Automaton):
             transitions=union_transitions, initial_state=union_initial_state,
             final_states=union_final_states)
 
-    def __or__(self, other):
-        """Compute the union of two DFAs via the | operator."""
-        return self.union(other)
-
     def intersection(self, other):
         """Compute the intersection of two DFAs."""
         inter = self | other
