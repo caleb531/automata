@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of NFAs."""
 
+from unittest.mock import patch
+
 import nose.tools as nose
 
 import automata.automaton as automaton
@@ -32,6 +34,12 @@ class TestNFA(test_automaton.TestAutomaton):
             'q2': {'0': {'q2'}, '1': {'q1'}}
         })
         nose.assert_equal(nfa.initial_state, 'q0')
+
+    @patch('automata.nfa.NFA.validate_automaton')
+    def test_init_validation(self, validate_automaton):
+        """Should validate NFA when initialized."""
+        NFA(self.nfa)
+        validate_automaton.assert_called_once_with()
 
     def test_nfa_equal(self):
         """Should correctly determine if two NFAs are equal."""

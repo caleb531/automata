@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of DFAs."""
 
+from unittest.mock import patch
+
 import nose.tools as nose
 
 import automata.automaton as automaton
@@ -21,6 +23,12 @@ class TestDFA(test_automaton.TestAutomaton):
         """Should create exact copy of DFA if copy() method is called."""
         new_dfa = self.dfa.copy()
         self.assert_is_copy(new_dfa, self.dfa)
+
+    @patch('automata.dfa.DFA.validate_automaton')
+    def test_init_validation(self, validate_automaton):
+        """Should validate DFA when initialized."""
+        DFA(self.dfa)
+        validate_automaton.assert_called_once_with()
 
     def test_dfa_equal(self):
         """Should correctly determine if two DFAs are equal."""
