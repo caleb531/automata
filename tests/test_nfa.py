@@ -113,13 +113,3 @@ class TestNFA(test_automaton.TestAutomaton):
         )
         nose.assert_equal(nfa.validate_input(''), {'q0', 'q1', 'q3'})
         nose.assert_equal(nfa.validate_input('a'), {'q0', 'q1', 'q2', 'q3'})
-
-    def test_complement(self):
-        """Should compute complement of an NFA."""
-        nfa_comp = ~self.nfa
-        nose.assert_equal(nfa_comp.states, self.nfa.states)
-        nose.assert_equal(nfa_comp.symbols, self.nfa.symbols)
-        nose.assert_equal(nfa_comp.transitions, self.nfa.transitions)
-        nose.assert_equal(nfa_comp.initial_state, self.nfa.initial_state)
-        nose.assert_equal(
-            nfa_comp.final_states, self.nfa.states - self.nfa.final_states)

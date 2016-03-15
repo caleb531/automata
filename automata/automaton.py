@@ -2,6 +2,7 @@
 """Classes and methods for working with all finite automata."""
 
 import abc
+import itertools
 
 
 class Automaton(metaclass=abc.ABCMeta):
@@ -64,7 +65,7 @@ class Automaton(metaclass=abc.ABCMeta):
         if isinstance(states, set):
             states = sorted(states)
         """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(''.join(states))
+        return '{{{}}}'.format(','.join(states))
 
     def copy(self):
         """Create an exact copy of the automaton."""
@@ -83,6 +84,15 @@ class Automaton(metaclass=abc.ABCMeta):
     def __invert__(self):
         """Compute the complement of the automaton via the ~ operator."""
         return self.complement()
+
+    @abc.abstractmethod
+    def union(self, other):
+        """Compute the union of two automata."""
+        pass
+
+    def __or__(self, other):
+        """Compute the union of two automata via the | operator."""
+        return self.union(other)
 
 
 class AutomatonError(Exception):
