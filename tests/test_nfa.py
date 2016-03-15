@@ -44,12 +44,6 @@ class TestNFA(test_automaton.TestAutomaton):
         new_nfa.final_states.add('q2')
         nose.assert_true(self.nfa != new_nfa, 'NFAs are not equal')
 
-    def test_validate_automaton_missing_state(self):
-        """Should raise error if a state has no transitions defined."""
-        with nose.assert_raises(automaton.MissingStateError):
-            del self.nfa.transitions['q1']
-            self.nfa.validate_automaton()
-
     def test_validate_automaton_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
         with nose.assert_raises(automaton.InvalidSymbolError):
@@ -77,6 +71,12 @@ class TestNFA(test_automaton.TestAutomaton):
     def test_validate_input_valid(self):
         """Should return correct stop states if valid NFA input is given."""
         nose.assert_equal(self.nfa.validate_input('aba'), {'q1', 'q2'})
+
+    def test_validate_automaton_missing_state(self):
+        """Should silently ignore states without transitions defined."""
+        self.nfa.states.add('q3')
+        self.nfa.transitions['q0']['a'].add('q3')
+        nose.assert_equal(self.nfa.validate_automaton(), True)
 
     def test_validate_input_invalid_symbol(self):
         """Should raise error if an invalid symbol is read."""

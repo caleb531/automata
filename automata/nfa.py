@@ -57,8 +57,6 @@ class NFA(automaton.Automaton):
 
     def validate_automaton(self):
         """Return True if this NFA is internally consistent."""
-        self._validate_transition_start_states()
-
         for start_state, paths in self.transitions.items():
             self._validate_transition_symbols(start_state, paths)
             path_states = set().union(*paths.values())
