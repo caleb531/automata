@@ -250,4 +250,4 @@ Raised if a symbol is missing from the transition map for this automaton.
 
 #### class FinalStateError
 
-Raised if the automaton stopped at a non-final state after validating input.
+Raised if the automaton stopped on a non-final state after validating input.

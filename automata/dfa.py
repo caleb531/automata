@@ -61,7 +61,7 @@ class DFA(automaton.Automaton):
         """
         Check if the given string is accepted by this DFA.
 
-        Return the state the NFA stopped at if string is valid.
+        Return the state the NFA stopped on if string is valid.
         """
         current_state = self.initial_state
 
@@ -71,7 +71,7 @@ class DFA(automaton.Automaton):
 
         if current_state not in self.final_states:
             raise automaton.FinalStateError(
-                'the automaton stopped at a non-final state ({})'.format(
+                'the automaton stopped on a non-final state ({})'.format(
                     current_state))
 
         return current_state

@@ -106,7 +106,7 @@ class NFA(automaton.Automaton):
         """
         Check if the given string is accepted by this NFA.
 
-        Return a set of states the NFA stopped at if string is valid.
+        Return a set of states the NFA stopped on if string is valid.
         """
         current_states = self._get_lambda_closure(self.initial_state)
 
@@ -117,7 +117,7 @@ class NFA(automaton.Automaton):
 
         if not (current_states & self.final_states):
             raise automaton.FinalStateError(
-                'the automaton stopped at all non-final states ({})'.format(
+                'the automaton stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 
         return current_states

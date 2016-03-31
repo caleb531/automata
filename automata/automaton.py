@@ -126,6 +126,6 @@ class MissingSymbolError(AutomatonError):
 
 
 class FinalStateError(AutomatonError):
-    """The automaton stopped at a non-final state."""
+    """The automaton stopped on a non-final state."""
 
     pass
