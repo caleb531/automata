@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 
-import collections
 import copy
 
 import automata.automaton as automaton
@@ -121,20 +120,3 @@ class NFA(automaton.Automaton):
                     ', '.join(current_states)))
 
         return current_states
-
-    def union(self, other):
-        """Compute the union of two NFAs."""
-        union_states = self.states | other.states
-        union_symbols = self.symbols | other.symbols
-        union_transitions = dict(collections.ChainMap(
-            self.transitions, other.transitions))
-        union_initial_state = self.__class__._stringify_states((
-            self.initial_state, other.initial_state))
-        union_states.add(union_initial_state)
-        union_transitions[union_initial_state] = {
-            '': {self.initial_state, other.initial_state}}
-        union_final_states = self.final_states | other.final_states
-        return self.__class__(
-            states=union_states, symbols=union_symbols,
-            transitions=union_transitions, initial_state=union_initial_state,
-            final_states=union_final_states)

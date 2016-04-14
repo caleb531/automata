@@ -65,46 +65,6 @@ missing for a particular symbol. This method is automatically called when the
 DFA is initialized, so it's only really useful after modifying an
 already-instantiated DFA.
 
-#### DFA.complement(self, other)
-
-The `complement()` method returns the complement of the DFA. You can also use
-the `~` operator to compute the complement.
-
-```python
-my_dfa.complement()
-~my_dfa  # equivalent to the above
-```
-
-#### DFA.union(self, other)
-
-The `union()` method returns the union of two DFAs. You can also use the `|`
-operator to compute the union.
-
-```python
-dfa1.union(dfa2)
-dfa1 | dfa2  # equivalent to the above
-```
-
-#### DFA.intersection(self, other)
-
-The `intersection()` method returns the intersection of two DFAs. You can also
-use the `&` operator to compute the intersection.
-
-```python
-dfa1.intersection(dfa2)
-dfa1 & dfa2  # equivalent to the above
-```
-
-#### DFA.difference(self, other)
-
-The `difference()` method returns the difference of two DFAs. You can also use
-the `-` operator to compute the difference.
-
-```python
-dfa1.difference(dfa2)
-dfa1 - dfa2  # equivalent to the above
-```
-
 #### Copying a DFA
 
 To create an exact copy of a DFA, simply pass an `DFA` instance into the `DFA`
@@ -160,26 +120,6 @@ The `validate_automaton()` method checks whether the NFA is actually a valid
 NFA. The method has the same basic behavior and prescribed use case as the
 `DFA.validate_automaton()` method, despite being less restrictive (since NFAs
 are naturally less restrictive than DFAs).
-
-#### NFA.complement(self, other)
-
-The `complement()` method returns the complement of the NFA. You can also use
-the `~` operator to compute the complement.
-
-```python
-my_nfa.complement()
-~my_nfa  # equivalent to the above
-```
-
-#### NFA.union(self, other)
-
-The `union()` method returns the union of two NFAs. You can also use the `|`
-operator to compute the union.
-
-```python
-nfa1.union(nfa2)
-nfa1 | nfa2  # equivalent to the above
-```
 
 #### Converting an NFA to a DFA
 

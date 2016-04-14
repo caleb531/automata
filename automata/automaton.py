@@ -2,7 +2,6 @@
 """Classes and methods for working with all finite automata."""
 
 import abc
-import itertools
 
 
 class Automaton(metaclass=abc.ABCMeta):
@@ -74,25 +73,6 @@ class Automaton(metaclass=abc.ABCMeta):
     def __eq__(self, other):
         """Check if two automata are equal."""
         return self.__dict__ == other.__dict__
-
-    def complement(self):
-        """Compute the complement of the automaton."""
-        comp = self.__class__(self)
-        comp.final_states = comp.states - comp.final_states
-        return comp
-
-    def __invert__(self):
-        """Compute the complement of the automaton via the ~ operator."""
-        return self.complement()
-
-    @abc.abstractmethod
-    def union(self, other):
-        """Compute the union of two automata."""
-        pass
-
-    def __or__(self, other):
-        """Compute the union of two automata via the | operator."""
-        return self.union(other)
 
 
 class AutomatonError(Exception):
