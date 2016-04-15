@@ -180,13 +180,9 @@ Raised if a state is not a valid state for this automaton.
 
 Raised if a symbol is not a valid symbol for this automaton.
 
-#### class MissingStateError
+#### class MissingTransitionError
 
-Raised if a state is missing from the transition map for this automaton.
-
-#### class MissingSymbolError
-
-Raised if a symbol is missing from the transition map for this automaton.
+Raised if a transition is missing from the transition map for this automaton.
 
 #### class FinalStateError
 

@@ -16,7 +16,7 @@ class Automaton(metaclass=abc.ABCMeta):
         """Raise an error if transition start states are missing."""
         missing_states = self.states - set(self.transitions.keys())
         if missing_states:
-            raise MissingStateError(
+            raise MissingTransitionError(
                 'transition start states are missing ({})'.format(
                     ', '.join(missing_states)))
 
@@ -85,14 +85,8 @@ class InvalidSymbolError(AutomatonError):
     pass
 
 
-class MissingStateError(AutomatonError):
-    """A state is missing from the transition map."""
-
-    pass
-
-
-class MissingSymbolError(AutomatonError):
-    """A symbol is missing from the transition map."""
+class MissingTransitionError(AutomatonError):
+    """A transition is missing from the transition map."""
 
     pass
 
