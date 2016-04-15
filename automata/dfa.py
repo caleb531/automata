@@ -60,7 +60,7 @@ class DFA(automaton.Automaton):
         """
         Check if the given string is accepted by this DFA.
 
-        Return the state the NFA stopped on if string is valid.
+        Return the state the DFA stopped on if string is valid.
         """
         current_state = self.initial_state
 
