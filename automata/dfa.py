@@ -82,6 +82,13 @@ class DFA(automaton.Automaton):
             transitions=dfa.transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)
 
+    @staticmethod
+    def _stringify_states(states):
+        if isinstance(states, set):
+            states = sorted(states)
+        """Stringify the given set of states as a single state name."""
+        return '{{{}}}'.format(','.join(states))
+
     def _init_from_nfa(self, nfa):
         """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states = set()
