@@ -8,8 +8,7 @@ class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for finite automata."""
 
     @abc.abstractmethod
-    def __init__(self, states, symbols, transitions, initial_state,
-                 final_states):
+    def __init__(self, **kwargs):
         """Initialize a complete finite automaton."""
         pass
 
