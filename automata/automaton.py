@@ -50,7 +50,7 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def _validate_input_symbol(self, symbol):
         """Raise an error if the given input symbol is invalid."""
-        if symbol not in self.symbols:
+        if symbol not in self.input_symbols:
             raise InvalidSymbolError(
                 '{} is not a valid input symbol'.format(symbol))
 

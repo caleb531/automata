@@ -27,7 +27,7 @@ class TestNFA(test_automaton.TestAutomaton):
         """Should convert DFA to NFA if passed into NFA constructor."""
         nfa = NFA(self.dfa)
         nose.assert_equal(nfa.states, {'q0', 'q1', 'q2'})
-        nose.assert_equal(nfa.symbols, {'0', '1'})
+        nose.assert_equal(nfa.input_symbols, {'0', '1'})
         nose.assert_equal(nfa.transitions, {
             'q0': {'0': {'q0'}, '1': {'q1'}},
             'q1': {'0': {'q0'}, '1': {'q2'}},
@@ -101,7 +101,7 @@ class TestNFA(test_automaton.TestAutomaton):
         # NFA which matches zero or more occurrences of 'a'
         nfa = NFA(
             states={'q0', 'q1', 'q2', 'q3'},
-            symbols={'a'},
+            input_symbols={'a'},
             transitions={
                 'q0': {'': {'q1', 'q3'}},
                 'q1': {'a': {'q2'}},

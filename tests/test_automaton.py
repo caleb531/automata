@@ -15,7 +15,7 @@ class TestAutomaton(object):
         # DFA which matches all binary strings ending in an odd number of '1's
         self.dfa = DFA(
             states={'q0', 'q1', 'q2'},
-            symbols={'0', '1'},
+            input_symbols={'0', '1'},
             transitions={
                 'q0': {'0': 'q0', '1': 'q1'},
                 'q1': {'0': 'q0', '1': 'q2'},
@@ -28,7 +28,7 @@ class TestAutomaton(object):
         # containing no consecutive 'b's
         self.nfa = NFA(
             states={'q0', 'q1', 'q2'},
-            symbols={'a', 'b'},
+            input_symbols={'a', 'b'},
             transitions={
                 'q0': {'a': {'q1'}},
                 'q1': {'a': {'q1'}, '': {'q2'}},
@@ -42,8 +42,8 @@ class TestAutomaton(object):
         """Assert that the first automaton is an exact copy of the second."""
         nose.assert_is_not(first.states, second.states)
         nose.assert_equal(first.states, second.states)
-        nose.assert_is_not(first.symbols, second.symbols)
-        nose.assert_equal(first.symbols, second.symbols)
+        nose.assert_is_not(first.input_symbols, second.input_symbols)
+        nose.assert_equal(first.input_symbols, second.input_symbols)
         nose.assert_is_not(first.transitions, second.transitions)
         nose.assert_equal(first.transitions, second.transitions)
         nose.assert_equal(first.initial_state, second.initial_state)

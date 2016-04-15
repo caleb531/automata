@@ -10,7 +10,7 @@ import automata.dfa
 class NFA(automaton.Automaton):
     """Create a nondeterministic finite automaton."""
 
-    def __init__(self, obj=None, *, states=None, symbols=None,
+    def __init__(self, obj=None, *, states=None, input_symbols=None,
                  transitions=None, initial_state=None, final_states=None):
         """Initialize a complete NFA."""
         if isinstance(obj, automata.dfa.DFA):
@@ -19,7 +19,7 @@ class NFA(automaton.Automaton):
             self._init_from_nfa(obj)
         else:
             self.states = states.copy()
-            self.symbols = symbols.copy()
+            self.input_symbols = input_symbols.copy()
             self.transitions = copy.deepcopy(transitions)
             self.initial_state = initial_state
             self.final_states = final_states.copy()
@@ -28,7 +28,7 @@ class NFA(automaton.Automaton):
     def _init_from_nfa(self, nfa):
         """Initialize this NFA as an exact copy of the given NFA."""
         self.__init__(
-            states=nfa.states, symbols=nfa.symbols,
+            states=nfa.states, input_symbols=nfa.input_symbols,
             transitions=nfa.transitions, initial_state=nfa.initial_state,
             final_states=nfa.final_states)
 
@@ -42,14 +42,14 @@ class NFA(automaton.Automaton):
                 nfa_transitions[start_state][symbol] = {end_state}
 
         self.__init__(
-            states=dfa.states, symbols=dfa.symbols,
+            states=dfa.states, input_symbols=dfa.input_symbols,
             transitions=nfa_transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)
 
     def _validate_transition_symbols(self, start_state, paths):
         """Raise an error if the transition symbols are missing or invalid."""
         path_symbols = set(paths.keys())
-        invalid_symbols = path_symbols - self.symbols.union({''})
+        invalid_symbols = path_symbols - self.input_symbols.union({''})
         if invalid_symbols:
             raise automaton.InvalidSymbolError(
                 'state {} has invalid transition symbols ({})'.format(
