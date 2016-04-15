@@ -115,7 +115,7 @@ class NFA(automaton.Automaton):
                 current_states, symbol)
 
         if not (current_states & self.final_states):
-            raise automaton.FinalStateError(
+            raise automaton.RejectionError(
                 'the automaton stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 

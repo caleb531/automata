@@ -69,7 +69,7 @@ class DFA(automaton.Automaton):
             current_state = self.transitions[current_state][symbol]
 
         if current_state not in self.final_states:
-            raise automaton.FinalStateError(
+            raise automaton.RejectionError(
                 'the automaton stopped on a non-final state ({})'.format(
                     current_state))
 

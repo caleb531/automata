@@ -86,9 +86,9 @@ class TestDFA(test_automaton.TestAutomaton):
         with nose.assert_raises(automaton.InvalidSymbolError):
             self.dfa.validate_input('01112')
 
-    def test_validate_input_nonfinal_state(self):
+    def test_validate_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
-        with nose.assert_raises(automaton.FinalStateError):
+        with nose.assert_raises(automaton.RejectionError):
             self.dfa.validate_input('011')
 
     def test_init_nfa_simple(self):

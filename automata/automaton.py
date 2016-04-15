@@ -91,7 +91,7 @@ class MissingTransitionError(AutomatonError):
     pass
 
 
-class FinalStateError(AutomatonError):
+class RejectionError(AutomatonError):
     """The automaton stopped on a non-final state."""
 
     pass

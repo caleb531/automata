@@ -88,7 +88,7 @@ dfa = DFA(
 )
 dfa_copy = DFA(dfa)  # returns an exact copy of dfa
 dfa.validate_input('01')  # returns 'q1'
-dfa.validate_input('011')  # raises FinalStateError
+dfa.validate_input('011')  # raises RejectionError
 ```
 
 ### class NFA
@@ -152,7 +152,7 @@ nfa = NFA(
 )
 dfa = DFA(nfa)  # returns an equivalent DFA
 nfa.validate_input('aba')  # returns {'q1', 'q2'}
-nfa.validate_input('abba')  # raises FinalStateError
+nfa.validate_input('abba')  # raises RejectionError
 ```
 
 ### Exception classes
@@ -184,6 +184,6 @@ Raised if a symbol is not a valid symbol for this automaton.
 
 Raised if a transition is missing from the transition map for this automaton.
 
-#### class FinalStateError
+#### class RejectionError
 
 Raised if the automaton stopped on a non-final state after validating input.
