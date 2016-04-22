@@ -56,15 +56,16 @@ class DFA(automaton.Automaton):
 
         return True
 
-    def validate_input(self, input_str):
+    def _validate_input_yield(self, input_str):
         """
         Check if the given string is accepted by this DFA.
 
-        Return the state the DFA stopped on if string is valid.
+        Yield the current configuration of the automaton at each step.
         """
         current_state = self.initial_state
 
         for symbol in input_str:
+            yield current_state
             self._validate_input_symbol(symbol)
             current_state = self.transitions[current_state][symbol]
 
@@ -73,7 +74,30 @@ class DFA(automaton.Automaton):
                 'the automaton stopped on a non-final state ({})'.format(
                     current_state))
 
+        yield current_state
+
+    def _validate_input_return(self, input_str):
+        """
+        Check if the given string is accepted by this DFA.
+
+        Return the state the machine stopped on if the string is valid.
+        """
+        validation_generator = self._validate_input_yield(input_str)
+        for current_state in validation_generator:
+            pass
         return current_state
+
+    def validate_input(self, input_str, step=False):
+        """
+        Check if the given string is accepted by this DFA.
+
+        If step is True, yield the configuration at each step. Otherwise,
+        return the final configuration.
+        """
+        if step:
+            return self._validate_input_yield(input_str)
+        else:
+            return self._validate_input_return(input_str)
 
     def _init_from_dfa(self, dfa):
         """Initialize this DFA as an exact copy of the given DFA."""
