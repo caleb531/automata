@@ -102,7 +102,7 @@ class TestNFA(test_automaton.TestAutomaton):
         validation_generator = self.nfa.validate_input('aba', step=True)
         nose.assert_is_instance(validation_generator, types.GeneratorType)
         nose.assert_equal(list(validation_generator), [
-            {'q0'}, {'q1', 'q2'}, {'q0'}, {'q1', 'q2'}, {'q1', 'q2'}
+            {'q0'}, {'q1', 'q2'}, {'q0'}, {'q1', 'q2'}
         ])
 
     def test_cyclic_lambda_transitions(self):

@@ -121,8 +121,6 @@ class NFA(automaton.Automaton):
                 'the automaton stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 
-        yield current_states
-
     def _validate_input_return(self, input_str):
         """
         Check if the given string is accepted by this NFA.
