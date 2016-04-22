@@ -85,6 +85,20 @@ If the string is rejected by the DFA, the method will raise a `RejectionError`.
 dfa.validate_input('011')  # raises RejectionError
 ```
 
+If you supply the `step` keyword argument with a value of `True`, the method
+will return a generator which yields each state reached as the DFA reads
+characters from the input string.
+
+```python
+list(dfa.validate_input('0111', step=True))
+# returns ['q0', 'q0', 'q1', 'q2', 'q1']
+```
+
+Note that the first yielded state is always the DFA's initial state (before any
+input has been read) and the last yielded state is always the DFA's final state
+(after all input has been read). If the string is rejected by the DFA, the
+method still raises a `RejectionError`.
+
 #### DFA.validate_automaton(self)
 
 The `validate_automaton()` method checks whether the DFA is actually a valid
@@ -153,6 +167,20 @@ If the string is rejected by the NFA, the method will raise a `RejectionError`.
 ```python
 nfa.validate_input('abba')  # raises RejectionError
 ```
+
+If you supply the `step` keyword argument with a value of `True`, the method
+will return a generator which yields each set of states reached as the NFA reads
+characters from the input string.
+
+```python
+list(nfa.validate_input('aba', step=True))
+# returns [{'q0'}, {'q1', 'q2'}, {'q0'}, {'q1', 'q2'}]
+```
+
+Note that the first yielded set is always the lambda closure of the NFA's
+initial state, and the last yielded set always contains the lambda closure of at
+least one of the NFA's final states (after all input has been read). If the
+string is rejected by the NFA, the method still raises a `RejectionError`.
 
 #### NFA.validate_automaton(self)
 
