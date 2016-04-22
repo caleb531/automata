@@ -64,17 +64,16 @@ class DFA(automaton.Automaton):
         """
         current_state = self.initial_state
 
+        yield current_state
         for symbol in input_str:
-            yield current_state
             self._validate_input_symbol(symbol)
             current_state = self.transitions[current_state][symbol]
+            yield current_state
 
         if current_state not in self.final_states:
             raise automaton.RejectionError(
                 'the automaton stopped on a non-final state ({})'.format(
                     current_state))
-
-        yield current_state
 
     def _validate_input_return(self, input_str):
         """

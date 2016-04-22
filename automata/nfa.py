@@ -109,11 +109,12 @@ class NFA(automaton.Automaton):
         """
         current_states = self._get_lambda_closure(self.initial_state)
 
+        yield current_states
         for symbol in input_str:
-            yield current_states
             self._validate_input_symbol(symbol)
             current_states = self._get_next_current_states(
                 current_states, symbol)
+            yield current_states
 
         if not (current_states & self.final_states):
             raise automaton.RejectionError(
