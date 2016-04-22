@@ -49,29 +49,6 @@ a state (the value).
 All of these properties must be supplied when the DFA is
 instantiated (see the examples below).
 
-#### DFA.validate_input(self, input_str)
-
-The `validate_input()` method checks whether or not the given string is accepted
-by the DFA. If the string is accepted, the method returns the state the
-automaton stopped on (which presumably is a valid final state). If the string is
-rejected by the DFA, the method will raise the appropriate exception (see
-**Exception classes**).
-
-#### DFA.validate_automaton(self)
-
-The `validate_automaton()` method checks whether the DFA is actually a valid
-DFA. For instance, the method will raise an error if the a state transition is
-missing for a particular symbol. This method is automatically called when the
-DFA is initialized, so it's only really useful after modifying an
-already-instantiated DFA.
-
-#### Copying a DFA
-
-To create an exact copy of a DFA, simply pass an `DFA` instance into the `DFA`
-constructor.
-
-#### Complete example
-
 ```python
 from automata.dfa import DFA
 # DFA which matches all binary strings ending in an odd number of '1's
@@ -86,9 +63,43 @@ dfa = DFA(
     initial_state='q0',
     final_states={'q1'}
 )
-dfa_copy = DFA(dfa)  # returns an exact copy of dfa
+```
+
+Please note that the below DFA code examples reference the above `dfa` object.
+
+#### DFA.validate_input(self, input_str, step=False)
+
+The `validate_input()` method checks whether or not the given string is accepted
+by the DFA.
+
+If the string is accepted, the method returns the state the automaton stopped on
+(which presumably is a valid final state).
+
+```python
 dfa.validate_input('01')  # returns 'q1'
+```
+
+If the string is rejected by the DFA, the method will raise a `RejectionError`.
+
+```python
 dfa.validate_input('011')  # raises RejectionError
+```
+
+#### DFA.validate_automaton(self)
+
+The `validate_automaton()` method checks whether the DFA is actually a valid
+DFA. The method returns `True` if the DFA is valid; otherwise, it will raise the
+appropriate exception (*e.g.* the state transition is missing for a particular
+symbol). This method is automatically called when the DFA is initialized, so
+it's only really useful if a DFA object is modified after instantiation.
+
+#### Copying a DFA
+
+To create an exact copy of a DFA, simply pass an `DFA` instance into the `DFA`
+constructor.
+
+```python
+dfa_copy = DFA(dfa)  # returns an exact copy of dfa
 ```
 
 ### class NFA
@@ -106,13 +117,42 @@ that a single state can have more than one transition for the same symbol.
 Therefore, instead of mapping a symbol to *one* end state in each sub-dict, each
 symbol is mapped to a *set* of end states.
 
-#### NFA.validate_input(self, input_str)
+```python
+from automata.dfa import DFA
+from automata.nfa import NFA
+# NFA which matches strings beginning with 'a', ending with 'a', and containing
+# no consecutive 'b's
+nfa = NFA(
+    states={'q0', 'q1', 'q2'},
+    input_symbols={'a', 'b'},
+    transitions={
+        'q0': {'a': {'q1'}},
+        # Use '' as the key name for empty string (lambda/epsilon) transitions
+        'q1': {'a': {'q1'}, '': {'q2'}},
+        'q2': {'b': {'q0'}}
+    },
+    initial_state='q0',
+    final_states={'q1'}
+)
+```
+
+#### NFA.validate_input(self, input_str, step=False)
 
 The `validate_input()` method checks whether or not the given string is accepted
-by the NFA. If the string is accepted, the method returns a `set` of states the
+by the NFA.
+
+If the string is accepted, the method returns a `set` of states the
 automaton stopped on (which presumably contains at least one valid final state).
-If the string is rejected by the NFA, the method will raise the appropriate
-exception (see **Exception classes**).
+
+```python
+nfa.validate_input('aba')  # returns {'q1', 'q2'}
+```
+
+If the string is rejected by the NFA, the method will raise a `RejectionError`.
+
+```python
+nfa.validate_input('abba')  # raises RejectionError
+```
 
 #### NFA.validate_automaton(self)
 
@@ -126,33 +166,17 @@ are naturally less restrictive than DFAs).
 To create a DFA that is equivalent to an existing NFA, simply pass the `NFA`
 instance to the `DFA` constructor.
 
+```python
+dfa = DFA(nfa)  # returns an equivalent DFA
+```
+
 #### Copying an NFA
 
 To create an exact copy of an NFA, simply pass an `NFA` instance into the `NFA`
 constructor.
 
-#### Complete example
-
 ```python
-from automata.dfa import DFA
-from automata.nfa import NFA
-# NFA which matches strings beginning with 'a', ending with 'a', and containing
-# no consecutive 'b's
-nfa = NFA(
-    states={'q0', 'q1', 'q2'},
-    input_symbols={'a', 'b'},
-    transitions={
-        'q0': {'a': {'q1'}},
-        # Use '' as the key name for empty string (lambda) transitions
-        'q1': {'a': {'q1'}, '': {'q2'}},
-        'q2': {'b': {'q0'}}
-    },
-    initial_state='q0',
-    final_states={'q1'}
-)
-dfa = DFA(nfa)  # returns an equivalent DFA
-nfa.validate_input('aba')  # returns {'q1', 'q2'}
-nfa.validate_input('abba')  # raises RejectionError
+nfa_copy = NFA(nfa)  # returns an exact copy of nfa
 ```
 
 ### Exception classes
