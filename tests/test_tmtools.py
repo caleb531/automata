@@ -55,3 +55,12 @@ class TestTMTools(test_tm.TestTM):
             call('q1', tape2, -1),
             call('q2', tape3, -1)
         ])
+
+    def test_tape_iteration(self):
+        """Should be able to iterate over a Turing machine tape."""
+        tape = TuringMachineTape(
+            tape='abcdef',
+            current_position=2,
+            position_offset=-1
+        )
+        nose.assert_equal(tuple(tape), ('a', 'b', 'c', 'd', 'e', 'f'))
