@@ -22,8 +22,8 @@ class TestTMTools(test_tm.TestTM):
             tmtools.print_config(
                 current_state='q2', tape=TuringMachineTape(
                     tape='abcdefghij', blank_symbol='.',
-                    current_position=2, position_offset=-1),
-                min_position_offset=-3)
+                    current_position=2, position_offset=1),
+                max_position_offset=3)
         nose.assert_equal(out.getvalue().rstrip(), '{}: {}\n{}'.format(
             'q2', '..abcdefghij', '^'.rjust(10)))
 
@@ -43,7 +43,7 @@ class TestTMTools(test_tm.TestTM):
         tape3 = TuringMachineTape(
             tape='yx1010101',
             current_position=-2,
-            position_offset=-1
+            position_offset=1
         )
         tmtools.print_configs([
             ('q0', tape1),
@@ -51,9 +51,9 @@ class TestTMTools(test_tm.TestTM):
             ('q2', tape3)
         ])
         nose.assert_equal(print_config.call_args_list, [
-            call('q0', tape1, -1),
-            call('q1', tape2, -1),
-            call('q2', tape3, -1)
+            call('q0', tape1, 1),
+            call('q1', tape2, 1),
+            call('q2', tape3, 1)
         ])
 
     def test_tape_iteration(self):
@@ -61,6 +61,6 @@ class TestTMTools(test_tm.TestTM):
         tape = TuringMachineTape(
             tape='abcdef',
             current_position=2,
-            position_offset=-1
+            position_offset=1
         )
         nose.assert_equal(tuple(tape), ('a', 'b', 'c', 'd', 'e', 'f'))

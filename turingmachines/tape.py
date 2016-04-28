@@ -25,7 +25,7 @@ class TuringMachineTape(object):
 
     def read_symbol(self):
         """Read the symbol at the current position in the tape."""
-        actual_position = self.current_position - self.position_offset
+        actual_position = self.current_position + self.position_offset
         if actual_position == -1 or actual_position == len(self.tape):
             return self.blank_symbol
         else:
@@ -33,10 +33,10 @@ class TuringMachineTape(object):
 
     def write_symbol(self, new_tape_symbol):
         """Write the given symbol at the current position in the tape."""
-        actual_position = self.current_position - self.position_offset
+        actual_position = self.current_position + self.position_offset
         if actual_position == -1:
             self.tape.insert(0, new_tape_symbol)
-            self.position_offset -= 1
+            self.position_offset += 1
         elif actual_position == len(self.tape):
             self.tape.append(new_tape_symbol)
         else:
