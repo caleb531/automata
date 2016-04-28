@@ -19,3 +19,7 @@ include =
     automata/automaton.py
     automata/dfa.py
     automata/nfa.py
+    turingmachines/dtm.py
+    turingmachines/tape.py
+    turingmachines/tm.py
+    turingmachines/tools.py
