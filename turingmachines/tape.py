@@ -46,7 +46,7 @@ class Tape(object):
         """Move the tape to the next symbol in the given direction."""
         if direction == 'R':
             self.current_position += 1
-        elif direction == 'L':
+        elif direction == 'L':  # pragma: no branch
             self.current_position -= 1
 
     def copy(self):
