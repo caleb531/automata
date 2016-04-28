@@ -64,3 +64,7 @@ class TuringMachineTape(object):
     def __repr__(self):
         """Return a string representation of the tape."""
         return ''.join(self.tape)
+
+    def __eq__(self, other):
+        """Check if two tapes are equal."""
+        return self.__dict__ == other.__dict__
