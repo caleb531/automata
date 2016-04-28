@@ -30,7 +30,8 @@ class DTM(object):
         self.__init__(
             states=tm.states, input_symbols=tm.input_symbols,
             tape_symbols=tm.tape_symbols, transitions=tm.transitions,
-            initial_state=tm.initial_state, final_states=tm.final_states)
+            initial_state=tm.initial_state, blank_symbol=tm.blank_symbol,
+            final_states=tm.final_states)
 
     def get_transition(self, state, tape_symbol):
         """Get the transiton tuple for the given state and tape symbol."""

@@ -6,69 +6,12 @@ import types
 import nose.tools as nose
 
 import turingmachines.tm as tm
+import tests.test_tm as test_tm
 from turingmachines.dtm import DTM
 
 
-class TestDTM(object):
+class TestDTM(test_tm.TestTM):
     """A test class for testing deterministic Turing machines."""
-
-    def setup(self):
-        """Reset test machines before every test function."""
-        # TM which matches all strings beginning with '0's, and followed by the
-        # same number of '1's
-        self.dtm1 = DTM(
-            states={'q0', 'q1', 'q2', 'q3', 'q4'},
-            input_symbols={'0', '1'},
-            tape_symbols={'0', '1', 'x', 'y', '.'},
-            transitions={
-                'q0': {
-                    '0': ('q1', 'x', 'R'),
-                    'y': ('q3', 'y', 'R')
-                },
-                'q1': {
-                    '0': ('q1', '0', 'R'),
-                    '1': ('q2', 'y', 'L'),
-                    'y': ('q1', 'y', 'R')
-                },
-                'q2': {
-                    '0': ('q2', '0', 'L'),
-                    'x': ('q0', 'x', 'R'),
-                    'y': ('q2', 'y', 'L')
-                },
-                'q3': {
-                    'y': ('q3', 'y', 'R'),
-                    '.': ('q4', '.', 'R')
-                }
-            },
-            initial_state='q0',
-            blank_symbol='.',
-            final_states={'q4'}
-        )
-        # TM which matches any binary string, but is designed to test the
-        # tape's position offsetting algorithm
-        self.dtm2 = DTM(
-            states={'q0', 'q1', 'q2', 'q3', 'q4'},
-            input_symbols={'0', '1'},
-            tape_symbols={'0', '1', 'x', 'y', '.'},
-            transitions={
-                'q0': {
-                    '0': ('q1', 'x', 'L')
-                },
-                'q1': {
-                    '.': ('q2', 'y', 'L')
-                },
-                'q2': {
-                    '.': ('q3', 'y', 'R')
-                },
-                'q3': {
-                    'y': ('q3', 'y', 'R'),
-                    'x': ('q4', 'x', 'R')
-                }
-            },
-            initial_state='q0',
-            blank_symbol='.',
-            final_states={'q4'}
-        )
 
     def test_init_dtm(self):
         """Should copy DTM if passed into DTM constructor."""
@@ -77,9 +20,12 @@ class TestDTM(object):
         nose.assert_equal(new_dtm.states, self.dtm1.states)
         nose.assert_is_not(new_dtm.input_symbols, self.dtm1.input_symbols)
         nose.assert_equal(new_dtm.input_symbols, self.dtm1.input_symbols)
+        nose.assert_is_not(new_dtm.tape_symbols, self.dtm1.tape_symbols)
+        nose.assert_equal(new_dtm.tape_symbols, self.dtm1.tape_symbols)
         nose.assert_is_not(new_dtm.transitions, self.dtm1.transitions)
         nose.assert_equal(new_dtm.transitions, self.dtm1.transitions)
         nose.assert_equal(new_dtm.initial_state, self.dtm1.initial_state)
+        nose.assert_equal(new_dtm.blank_symbol, self.dtm1.blank_symbol)
         nose.assert_is_not(new_dtm.final_states, self.dtm1.final_states)
         nose.assert_equal(new_dtm.final_states, self.dtm1.final_states)
 
