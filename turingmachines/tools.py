@@ -15,16 +15,13 @@ def print_config(current_state, tape, min_position_offset):
     ))
 
 
-def _get_min_position_offset(configs):
-    """Return the smallest position offset the tape reached at any point."""
-    return min(tape.position_offset for current_state, tape in configs)
-
-
 def print_configs(validation_generator):
     """Print each machine configuration represented by the given generator."""
     configs = []
     for current_state, tape in validation_generator:
         configs.append((current_state, tape.copy()))
-    min_position_offset = _get_min_position_offset(configs)
+    # The minimum position offset is also the position offset of the last
+    # configuration's tape
+    min_position_offset = configs[-1][1].position_offset
     for current_state, tape in configs:
         print_config(current_state, tape, min_position_offset)
