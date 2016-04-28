@@ -101,22 +101,45 @@ class NFA(automaton.Automaton):
 
         return next_current_states
 
-    def validate_input(self, input_str):
+    def _validate_input_yield(self, input_str):
         """
         Check if the given string is accepted by this NFA.
 
-        Return a set of states the NFA stopped on if string is valid.
+        Yield the current configuration of the automaton at each step.
         """
         current_states = self._get_lambda_closure(self.initial_state)
 
+        yield current_states
         for symbol in input_str:
             self._validate_input_symbol(symbol)
             current_states = self._get_next_current_states(
                 current_states, symbol)
+            yield current_states
 
         if not (current_states & self.final_states):
             raise automaton.RejectionError(
                 'the automaton stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 
+    def _validate_input_return(self, input_str):
+        """
+        Check if the given string is accepted by this NFA.
+
+        Return the state the machine stopped on if the string is valid.
+        """
+        validation_generator = self._validate_input_yield(input_str)
+        for current_states in validation_generator:
+            pass
         return current_states
+
+    def validate_input(self, input_str, step=False):
+        """
+        Check if the given string is accepted by this NFA.
+
+        If step is True, yield the configuration at each step. Otherwise,
+        return the final configuration.
+        """
+        if step:
+            return self._validate_input_yield(input_str)
+        else:
+            return self._validate_input_return(input_str)

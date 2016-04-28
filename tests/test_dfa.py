@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of DFAs."""
 
+import types
 from unittest.mock import patch
 
 import nose.tools as nose
@@ -90,6 +91,14 @@ class TestDFA(test_automaton.TestAutomaton):
         """Should raise error if the stop state is not a final state."""
         with nose.assert_raises(automaton.RejectionError):
             self.dfa.validate_input('011')
+
+    def test_validate_input_step(self):
+        """Should return validation generator if step flag is supplied."""
+        validation_generator = self.dfa.validate_input('0111', step=True)
+        nose.assert_is_instance(validation_generator, types.GeneratorType)
+        nose.assert_equal(list(validation_generator), [
+            'q0', 'q0', 'q1', 'q2', 'q1'
+        ])
 
     def test_init_nfa_simple(self):
         """Should convert to a DFA a simple NFA."""

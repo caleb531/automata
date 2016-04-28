@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of NFAs."""
 
+import types
 from unittest.mock import patch
 
 import nose.tools as nose
@@ -95,6 +96,14 @@ class TestNFA(test_automaton.TestAutomaton):
         """Should raise error if the stop state is not a final state."""
         with nose.assert_raises(automaton.RejectionError):
             self.nfa.validate_input('abba')
+
+    def test_validate_input_step(self):
+        """Should return validation generator if step flag is supplied."""
+        validation_generator = self.nfa.validate_input('aba', step=True)
+        nose.assert_is_instance(validation_generator, types.GeneratorType)
+        nose.assert_equal(list(validation_generator), [
+            {'q0'}, {'q1', 'q2'}, {'q0'}, {'q1', 'q2'}
+        ])
 
     def test_cyclic_lambda_transitions(self):
         """Should traverse NFA containing cyclic lambda transitions."""
