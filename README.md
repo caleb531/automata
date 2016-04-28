@@ -35,8 +35,8 @@ Every DFA instance has the following properties:
 1. `states`: a `set` of the DFA's valid states, each of which must be
 represented as a string
 
-2. `symbols`: a `set` of the DFA's valid symbols, each of which must also be
-represented as a string
+2. `input_symbols`: a `set` of the DFA's valid symbols, each of which must also
+be represented as a string
 
 3. `transitions`: a `dict` consisting of the transitions for each state. Each
 key is a state name and each value is a `dict` which maps a symbol (the key) to
@@ -124,7 +124,7 @@ nondeterministic finite automaton. The `NFA` class can be found under
 
 #### NFA properties
 
-Every NFA contains the same five DFA properties: `state`, `symbols`,
+Every NFA contains the same five DFA properties: `state`, `input_symbols`,
 `transitions`, `initial_state`, and `final_states`. However, the structure of
 the  `transitions` object has been modified slightly to accommodate the fact
 that a single state can have more than one transition for the same symbol.
