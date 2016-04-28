@@ -11,7 +11,7 @@ am learning in my Automata Theory class. The project is still under development,
 so the API is not yet stable, nor is the code complete in terms of
 functionality.
 
-Automata requires Python 3.3 or newer.
+Automata requires Python 3.4 or newer.
 
 ## API
 
