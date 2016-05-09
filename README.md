@@ -13,7 +13,7 @@ functionality.
 
 Automata requires Python 3.4 or newer.
 
-## API
+## Automaton API
 
 ### class Automaton
 
@@ -35,8 +35,8 @@ Every DFA instance has the following properties:
 1. `states`: a `set` of the DFA's valid states, each of which must be
 represented as a string
 
-2. `input_symbols`: a `set` of the DFA's valid symbols, each of which must also
-be represented as a string
+2. `input_symbols`: a `set` of the DFA's valid input symbols, each of which must
+also be represented as a string
 
 3. `transitions`: a `dict` consisting of the transitions for each state. Each
 key is a state name and each value is a `dict` which maps a symbol (the key) to
@@ -207,7 +207,7 @@ constructor.
 nfa_copy = NFA(nfa)  # returns an exact copy of nfa
 ```
 
-### Exception classes
+### Automaton exception classes
 
 The library also includes a number of exception classes to ensure that errors
 never pass silently (unless explicitly silenced). See `automata/automaton.py`
@@ -239,3 +239,81 @@ Raised if a transition is missing from the transition map for this automaton.
 #### class RejectionError
 
 Raised if the automaton stopped on a non-final state after validating input.
+
+## Turing Machine API
+
+In addition to working with finite automata, this library can also simulate
+deterministic Turing machines (DTMs).
+
+### class TuringMachine
+
+The `TuringMachine` class is an abstract base class from which all finite
+automata inherit. As such, it cannot be instantiated on its own; you must use
+the `DTM` class or create your own subclass instead. The `TuringMachine` class
+can be found under `turingmachines/tm.py`.
+
+### class DTM
+
+The `DTM` class is a subclass of class `Automaton` which represents a
+deterministic finite automaton. The `DTM` class can be found under
+`automata/dtm.py`.
+
+#### DTM properties
+
+Every DTM instance has the following properties:
+
+1. `states`: a `set` of the DTM's valid states, each of which must be
+represented as a string
+
+2. `input_symbols`: a `set` of the DTM's valid input symbols represented as
+strings
+
+3. `tape_symbols`: a `set` of the DTM's valid tape symbols represented as
+strings
+
+4. `transitions`: a `dict` consisting of the transitions for each state. Each
+key is a state name and each value is a `dict` which maps a symbol (the key) to
+a state (the value).
+
+5. `initial_state`: the name of the initial state for this DTM
+
+6. `final_states`: a `set` of final states for this DTM
+
+All of these properties must be supplied when the DTM is
+instantiated (see the examples below).
+
+```python
+from automata.dtm import DTM
+# DTM which matches all strings beginning with '0's, and followed by
+# the same number of '1's
+dtm = DTM(
+    states={'q0', 'q1', 'q2', 'q3', 'q4'},
+    input_symbols={'0', '1'},
+    tape_symbols={'0', '1', 'x', 'y', '.'},
+    transitions={
+        'q0': {
+            '0': ('q1', 'x', 'R'),
+            'y': ('q3', 'y', 'R')
+        },
+        'q1': {
+            '0': ('q1', '0', 'R'),
+            '1': ('q2', 'y', 'L'),
+            'y': ('q1', 'y', 'R')
+        },
+        'q2': {
+            '0': ('q2', '0', 'L'),
+            'x': ('q0', 'x', 'R'),
+            'y': ('q2', 'y', 'L')
+        },
+        'q3': {
+            'y': ('q3', 'y', 'R'),
+            '.': ('q4', '.', 'R')
+        }
+    },
+    initial_state='q0',
+    blank_symbol='.',
+    final_states={'q4'}
+)
+```
+
+Please note that the below DTM code examples reference the above `dtm` object.
