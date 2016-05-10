@@ -4,6 +4,7 @@
 import copy
 
 import automata.fa.fa as fa
+import automata.shared.exceptions as exceptions
 import automata.fa.dfa
 
 
@@ -51,7 +52,7 @@ class NFA(fa.FA):
         path_symbols = set(paths.keys())
         invalid_symbols = path_symbols - self.input_symbols.union({''})
         if invalid_symbols:
-            raise fa.InvalidSymbolError(
+            raise exceptions.InvalidSymbolError(
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
@@ -117,7 +118,7 @@ class NFA(fa.FA):
             yield current_states
 
         if not (current_states & self.final_states):
-            raise fa.RejectionError(
+            raise exceptions.RejectionError(
                 'the FA stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 

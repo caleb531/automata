@@ -5,7 +5,8 @@ import types
 
 import nose.tools as nose
 
-import automata.tm.tm as tm
+import automata.shared.exceptions as exceptions
+import automata.tm.exceptions as tmexceptions
 import tests.test_tm as test_tm
 from automata.tm.dtm import DTM
 
@@ -36,55 +37,55 @@ class TestDTM(test_tm.TestTM):
 
     def test_validate_self_input_symbol_subset(self):
         """Should raise error if any input symbols are not tape symbols."""
-        with nose.assert_raises(tm.MissingSymbolError):
+        with nose.assert_raises(exceptions.MissingSymbolError):
             self.dtm1.input_symbols.add('2')
             self.dtm1.validate_self()
 
     def test_validate_self_invalid_transition_state(self):
         """Should raise error if a transition state is invalid."""
-        with nose.assert_raises(tm.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.dtm1.transitions['q5'] = self.dtm1.transitions['q0']
             self.dtm1.validate_self()
 
     def test_validate_self_invalid_transition_symbol(self):
         """Should raise error if a transition symbol is invalid."""
-        with nose.assert_raises(tm.InvalidSymbolError):
+        with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dtm1.transitions['q0']['2'] = ('q0', '0' 'R')
             self.dtm1.validate_self()
 
     def test_validate_self_invalid_transition_result_state(self):
         """Should raise error if a transition result state is invalid."""
-        with nose.assert_raises(tm.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.dtm1.transitions['q0']['y'] = ('q5', 'y', 'R')
             self.dtm1.validate_self()
 
     def test_validate_self_invalid_transition_result_symbol(self):
         """Should raise error if a transition result symbol is invalid."""
-        with nose.assert_raises(tm.InvalidSymbolError):
+        with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dtm1.transitions['q0']['y'] = ('q3', 'z', 'R')
             self.dtm1.validate_self()
 
     def test_validate_self_invalid_transition_result_direction(self):
         """Should raise error if a transition result direction is invalid."""
-        with nose.assert_raises(tm.InvalidDirectionError):
+        with nose.assert_raises(tmexceptions.InvalidDirectionError):
             self.dtm1.transitions['q0']['y'] = ('q3', 'y', 'U')
             self.dtm1.validate_self()
 
     def test_validate_self_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
-        with nose.assert_raises(tm.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.dtm1.initial_state = 'q5'
             self.dtm1.validate_self()
 
     def test_validate_self_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
-        with nose.assert_raises(tm.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.dtm1.final_states = {'q5'}
             self.dtm1.validate_self()
 
     def test_validate_self_nonfinal_initial_state(self):
         """Should raise error if the initial state is a final state."""
-        with nose.assert_raises(tm.InitialStateError):
+        with nose.assert_raises(tmexceptions.InitialStateError):
             self.dtm1.final_states.add('q0')
             self.dtm1.validate_self()
 
@@ -114,5 +115,5 @@ class TestDTM(test_tm.TestTM):
 
     def test_validate_input_rejection(self):
         """Should raise error if the machine halts."""
-        with nose.assert_raises(tm.RejectionError):
+        with nose.assert_raises(exceptions.RejectionError):
             self.dtm1.validate_input('000011')

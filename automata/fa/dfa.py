@@ -5,6 +5,7 @@ import copy
 import queue
 
 import automata.fa.fa as fa
+import automata.shared.exceptions as exceptions
 import automata.fa.nfa
 
 
@@ -32,13 +33,13 @@ class DFA(fa.FA):
 
         missing_symbols = self.input_symbols - path_symbols
         if missing_symbols:
-            raise fa.MissingSymbolError(
+            raise exceptions.MissingSymbolError(
                 'state {} is missing transitions for symbols ({})'.format(
                     start_state, ', '.join(missing_symbols)))
 
         invalid_symbols = path_symbols - self.input_symbols
         if invalid_symbols:
-            raise fa.InvalidSymbolError(
+            raise exceptions.InvalidSymbolError(
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
@@ -71,7 +72,7 @@ class DFA(fa.FA):
             yield current_state
 
         if current_state not in self.final_states:
-            raise fa.RejectionError(
+            raise exceptions.RejectionError(
                 'the FA stopped on a non-final state ({})'.format(
                     current_state))
 

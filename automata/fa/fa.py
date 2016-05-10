@@ -3,6 +3,8 @@
 
 import abc
 
+import automata.shared.exceptions as exceptions
+
 
 class FA(metaclass=abc.ABCMeta):
     """An abstract base class for finite automata."""
@@ -16,7 +18,7 @@ class FA(metaclass=abc.ABCMeta):
         """Raise an error if transition start states are missing."""
         missing_states = self.states - set(self.transitions.keys())
         if missing_states:
-            raise MissingStateError(
+            raise exceptions.MissingStateError(
                 'transition start states are missing ({})'.format(
                     ', '.join(missing_states)))
 
@@ -24,21 +26,21 @@ class FA(metaclass=abc.ABCMeta):
         """Raise an error if transition end states are invalid."""
         invalid_states = path_states - self.states
         if invalid_states:
-            raise InvalidStateError(
+            raise exceptions.InvalidStateError(
                 'transition end states are not valid ({})'.format(
                     ', '.join(invalid_states)))
 
     def _validate_initial_state(self):
         """Raise an error if an initial state is invalid."""
         if self.initial_state not in self.states:
-            raise InvalidStateError(
+            raise exceptions.InvalidStateError(
                 '{} is not a valid initial state'.format(self.initial_state))
 
     def _validate_final_states(self):
         """Raise an error if any final states are invalid."""
         invalid_states = self.final_states - self.states
         if invalid_states:
-            raise InvalidStateError(
+            raise exceptions.InvalidStateError(
                 'final states are not valid ({})'.format(
                     ', '.join(invalid_states)))
 
@@ -50,7 +52,7 @@ class FA(metaclass=abc.ABCMeta):
     def _validate_input_symbol(self, symbol):
         """Raise an error if the given input symbol is invalid."""
         if symbol not in self.input_symbols:
-            raise InvalidSymbolError(
+            raise exceptions.InvalidSymbolError(
                 '{} is not a valid input symbol'.format(symbol))
 
     @abc.abstractmethod
@@ -65,39 +67,3 @@ class FA(metaclass=abc.ABCMeta):
     def __eq__(self, other):
         """Check if two automata are equal."""
         return self.__dict__ == other.__dict__
-
-
-class FAError(Exception):
-    """The base class for all FA-related errors."""
-
-    pass
-
-
-class InvalidStateError(FAError):
-    """A state is not a valid state for this FA."""
-
-    pass
-
-
-class InvalidSymbolError(FAError):
-    """A symbol is not a valid symbol for this FA."""
-
-    pass
-
-
-class MissingStateError(FAError):
-    """A state is missing from the machine definition."""
-
-    pass
-
-
-class MissingSymbolError(FAError):
-    """A symbol is missing from the machine definition."""
-
-    pass
-
-
-class RejectionError(FAError):
-    """The FA stopped on a non-final state."""
-
-    pass

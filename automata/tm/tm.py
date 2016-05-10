@@ -3,6 +3,9 @@
 
 import abc
 
+import automata.shared.exceptions as exceptions
+import automata.tm.exceptions as tmexceptions
+
 
 class TM(metaclass=abc.ABCMeta):
     """An abstract base class for Turing machines."""
@@ -14,7 +17,7 @@ class TM(metaclass=abc.ABCMeta):
 
     def _validate_input_symbol_subset(self):
         if not (self.input_symbols < self.tape_symbols):
-            raise MissingSymbolError(
+            raise exceptions.MissingSymbolError(
                 'The set of tape symbols is missing symbols from the input '
                 'symbol set ({})'.format(
                     self.tape_symbols - self.input_symbols))
@@ -22,21 +25,21 @@ class TM(metaclass=abc.ABCMeta):
     def _validate_initial_state(self):
         """Raise an error if an initial state is invalid."""
         if self.initial_state not in self.states:
-            raise InvalidStateError(
+            raise exceptions.InvalidStateError(
                 '{} is not a valid initial state'.format(self.initial_state))
 
     def _validate_final_states(self):
         """Raise an error if any final states are invalid."""
         invalid_states = self.final_states - self.states
         if invalid_states:
-            raise InvalidStateError(
+            raise exceptions.InvalidStateError(
                 'final states are not valid ({})'.format(
                     ', '.join(invalid_states)))
 
     def _validate_nonfinal_initial_state(self):
         """Raise an error if the initial state is a final state."""
         if self.initial_state in self.final_states:
-            raise InitialStateError(
+            raise tmexceptions.InitialStateError(
                 'initial state {} cannot be a final state'.format(
                     self.initial_state))
 
@@ -57,45 +60,3 @@ class TM(metaclass=abc.ABCMeta):
     def __eq__(self, other):
         """Check if two machines are equal."""
         return self.__dict__ == other.__dict__
-
-
-class TMError(Exception):
-    """The base class for all machine-related errors."""
-
-    pass
-
-
-class InvalidStateError(TMError):
-    """A state is not a valid state for this machine."""
-
-    pass
-
-
-class InvalidSymbolError(TMError):
-    """A symbol is not a valid symbol for this machine."""
-
-    pass
-
-
-class InvalidDirectionError(TMError):
-    """A direction is not a valid direction for this machine."""
-
-    pass
-
-
-class MissingSymbolError(TMError):
-    """Symbols are missing from the machine definition."""
-
-    pass
-
-
-class InitialStateError(TMError):
-    """The initial state is a final state."""
-
-    pass
-
-
-class RejectionError(TMError):
-    """The machine halted on a non-final state."""
-
-    pass
