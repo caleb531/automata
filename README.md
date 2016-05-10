@@ -230,9 +230,13 @@ Raised if a state is not a valid state for this FA.
 
 Raised if a symbol is not a valid symbol for this FA.
 
-#### class MissingTransitionError
+#### class MissingStateError
 
-Raised if a transition is missing from the transition map for this FA.
+Raised if a state is missing from the machine definition.
+
+#### class MissingSymbolError
+
+Raised if a symbol is missing from the machine definition.
 
 #### class RejectionError
 

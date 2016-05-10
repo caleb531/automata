@@ -16,7 +16,7 @@ class FA(metaclass=abc.ABCMeta):
         """Raise an error if transition start states are missing."""
         missing_states = self.states - set(self.transitions.keys())
         if missing_states:
-            raise MissingTransitionError(
+            raise MissingStateError(
                 'transition start states are missing ({})'.format(
                     ', '.join(missing_states)))
 
@@ -85,8 +85,14 @@ class InvalidSymbolError(FAError):
     pass
 
 
-class MissingTransitionError(FAError):
-    """A transition is missing from the transition map."""
+class MissingStateError(FAError):
+    """A state is missing from the machine definition."""
+
+    pass
+
+
+class MissingSymbolError(FAError):
+    """A symbol is missing from the machine definition."""
 
     pass
 

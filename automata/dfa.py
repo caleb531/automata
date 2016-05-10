@@ -32,7 +32,7 @@ class DFA(FA.FA):
 
         missing_symbols = self.input_symbols - path_symbols
         if missing_symbols:
-            raise FA.MissingTransitionError(
+            raise FA.MissingSymbolError(
                 'state {} is missing transitions for symbols ({})'.format(
                     start_state, ', '.join(missing_symbols)))
 

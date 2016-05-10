@@ -44,13 +44,13 @@ class TestDFA(test_fa.TestFA):
 
     def test_validate_self_missing_state(self):
         """Should raise error if a state has no transitions defined."""
-        with nose.assert_raises(FA.MissingTransitionError):
+        with nose.assert_raises(FA.MissingStateError):
             del self.dfa.transitions['q1']
             self.dfa.validate_self()
 
     def test_validate_self_missing_symbol(self):
         """Should raise error if a symbol transition is missing."""
-        with nose.assert_raises(FA.MissingTransitionError):
+        with nose.assert_raises(FA.MissingSymbolError):
             del self.dfa.transitions['q1']['1']
             self.dfa.validate_self()
 
