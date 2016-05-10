@@ -359,3 +359,10 @@ Also note that the first yielded state is always the DTM's initial state (before
 any input has been read) and the last yielded state is always the DTM's final
 state (after all input has been read). If the string is rejected by the DTM, the
 method still raises a `RejectionError`.
+
+#### DTM.validate_self(self)
+
+The `validate_self()` method checks whether the DTM is actually a valid DTM. The
+method has the same basic behavior and prescribed use case as the
+`DFA.validate_self()` and `NFA.validate_self()` methods, while (naturally)
+containing validation checks specific to DTMs.
