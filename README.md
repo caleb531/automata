@@ -7,9 +7,9 @@
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=master)](https://coveralls.io/r/caleb531/automata?branch=master)
 
 Automata is a Python 3 library which implements the structures and algorithms I
-am learning in my Automata Theory class. The project is still under development,
-so the API is not yet stable, nor is the code complete in terms of
-functionality.
+am learning in my Automata Theory class, particularly finite automata and Turing
+machines. The project is still under development, so the API is not yet stable,
+nor is the code complete in terms of functionality.
 
 Automata requires Python 3.4 or newer.
 
