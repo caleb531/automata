@@ -36,6 +36,7 @@ class DTM(tm.TM):
 
     def validate_self(self):
         """Return True if this DTM is internally consistent."""
+        self._validate_input_symbol_subset()
         self._validate_initial_state()
         self._validate_final_states()
         self._validate_nonfinal_initial_state()

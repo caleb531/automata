@@ -34,6 +34,12 @@ class TestDTM(test_tm.TestTM):
         new_dtm.final_states.add('q2')
         nose.assert_true(self.dtm1 != new_dtm, 'DTMs are equal')
 
+    def test_validate_self_input_symbol_subset(self):
+        """Should raise error if any input symbols are not tape symbols."""
+        with nose.assert_raises(tm.MissingSymbolError):
+            self.dtm1.input_symbols.add('2')
+            self.dtm1.validate_self()
+
     def test_validate_self_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(tm.InvalidStateError):

@@ -12,6 +12,13 @@ class TM(metaclass=abc.ABCMeta):
         """Initialize a complete Turing machine."""
         pass
 
+    def _validate_input_symbol_subset(self):
+        if not (self.input_symbols < self.tape_symbols):
+            raise MissingSymbolError(
+                'The set of tape symbols is missing symbols from the input '
+                'symbol set ({})'.format(
+                    self.tape_symbols - self.input_symbols))
+
     def _validate_initial_state(self):
         """Raise an error if an initial state is invalid."""
         if self.initial_state not in self.states:
@@ -60,6 +67,12 @@ class TMError(Exception):
 
 class InvalidStateError(TMError):
     """A state is not a valid state for this machine."""
+
+    pass
+
+
+class MissingSymbolError(TMError):
+    """Symbols are missing from the machine definition."""
 
     pass
 
