@@ -84,7 +84,7 @@ class TestDTM(test_tm.TestTM):
 
     def test_validate_self_nonfinal_initial_state(self):
         """Should raise error if the initial state is a final state."""
-        with nose.assert_raises(tm.FinalStateError):
+        with nose.assert_raises(tm.InitialStateError):
             self.dtm1.final_states.add('q0')
             self.dtm1.validate_self()
 

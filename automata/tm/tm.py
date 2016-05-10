@@ -36,7 +36,7 @@ class TM(metaclass=abc.ABCMeta):
     def _validate_nonfinal_initial_state(self):
         """Raise an error if the initial state is a final state."""
         if self.initial_state in self.final_states:
-            raise FinalStateError(
+            raise InitialStateError(
                 'initial state {} cannot be a final state'.format(
                     self.initial_state))
 
@@ -89,7 +89,7 @@ class MissingSymbolError(TMError):
     pass
 
 
-class FinalStateError(TMError):
+class InitialStateError(TMError):
     """The initial state is a final state."""
 
     pass
