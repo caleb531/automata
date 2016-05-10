@@ -5,11 +5,11 @@
 class TMTape(object):
     """A Turing machine tape."""
 
-    def __init__(self, obj=None, *, tape=None, blank_symbol=None,
+    def __init__(self, tape=None, *, blank_symbol=None,
                  current_position=0, position_offset=0):
         """Initialize the new Turing machine tape."""
-        if isinstance(obj, TMTape):
-            return self._init_from_tape_obj(obj)
+        if isinstance(tape, TMTape):
+            return self._init_from_tape_obj(tape)
         else:
             self.tape = list(tape)
             self.blank_symbol = blank_symbol
