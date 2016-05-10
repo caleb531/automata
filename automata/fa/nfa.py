@@ -112,7 +112,6 @@ class NFA(fa.FA):
 
         yield current_states
         for symbol in input_str:
-            self._validate_input_symbol(symbol)
             current_states = self._get_next_current_states(
                 current_states, symbol)
             yield current_states

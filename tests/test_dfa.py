@@ -82,15 +82,15 @@ class TestDFA(test_fa.TestFA):
         """Should return correct stop state if valid DFA input is given."""
         nose.assert_equal(self.dfa.validate_input('0111'), 'q1')
 
-    def test_validate_input_invalid_symbol(self):
-        """Should raise error if an invalid symbol is read."""
-        with nose.assert_raises(exceptions.InvalidSymbolError):
-            self.dfa.validate_input('01112')
-
     def test_validate_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
         with nose.assert_raises(exceptions.RejectionError):
             self.dfa.validate_input('011')
+
+    def test_validate_input_rejection_invalid_symbol(self):
+        """Should raise error if an invalid symbol is read."""
+        with nose.assert_raises(exceptions.RejectionError):
+            self.dfa.validate_input('01112')
 
     def test_validate_input_step(self):
         """Should return validation generator if step flag is supplied."""

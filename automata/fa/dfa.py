@@ -57,6 +57,12 @@ class DFA(fa.FA):
 
         return True
 
+    def _validate_input_symbol(self, symbol):
+        """Raise an error if the given input symbol is invalid."""
+        if symbol not in self.input_symbols:
+            raise exceptions.RejectionError(
+                '{} is not a valid input symbol'.format(symbol))
+
     def _validate_input_yield(self, input_str):
         """
         Check if the given string is accepted by this DFA.

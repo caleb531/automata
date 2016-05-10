@@ -25,9 +25,3 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             raise exceptions.InvalidStateError(
                 'transition end states are not valid ({})'.format(
                     ', '.join(invalid_states)))
-
-    def _validate_input_symbol(self, symbol):
-        """Raise an error if the given input symbol is invalid."""
-        if symbol not in self.input_symbols:
-            raise exceptions.InvalidSymbolError(
-                '{} is not a valid input symbol'.format(symbol))

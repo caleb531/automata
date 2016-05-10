@@ -117,3 +117,8 @@ class TestDTM(test_tm.TestTM):
         """Should raise error if the machine halts."""
         with nose.assert_raises(exceptions.RejectionError):
             self.dtm1.validate_input('000011')
+
+    def test_validate_input_rejection_invalid_symbol(self):
+        """Should raise error if an invalid symbol is read."""
+        with nose.assert_raises(exceptions.RejectionError):
+            self.dtm1.validate_input('02')
