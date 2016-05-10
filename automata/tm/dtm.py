@@ -3,8 +3,8 @@
 
 import copy
 
-import turingmachines.tm as tm
-from turingmachines.tape import TMTape
+import automata.tm.tm as tm
+from automata.tm.tape import TMTape
 
 
 class DTM(tm.TM):

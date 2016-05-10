@@ -20,7 +20,7 @@ Automata requires Python 3.4 or newer.
 The `FA` class is an abstract base class from which all finite automata inherit.
 As such, it cannot be instantiated on its own; you must use the `DFA` and `NFA`
 classes instead (or you may create your own subclass if you're feeling
-adventurous). The `FA` class can be found under `automata/FA.py`.
+adventurous). The `FA` class can be found under `automata/fa.py`.
 
 ### class DFA
 
@@ -49,7 +49,7 @@ All of these properties must be supplied when the DFA is
 instantiated (see the examples below).
 
 ```python
-from automata.dfa import DFA
+from automata.fa.dfa import DFA
 # DFA which matches all binary strings ending in an odd number of '1's
 dfa = DFA(
     states={'q0', 'q1', 'q2'},
@@ -130,8 +130,8 @@ Therefore, instead of mapping a symbol to *one* end state in each sub-dict, each
 symbol is mapped to a *set* of end states.
 
 ```python
-from automata.dfa import DFA
-from automata.nfa import NFA
+from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
 # NFA which matches strings beginning with 'a', ending with 'a', and containing
 # no consecutive 'b's
 nfa = NFA(
@@ -208,14 +208,14 @@ nfa_copy = NFA(nfa)  # returns an exact copy of nfa
 ### FA exception classes
 
 The library also includes a number of exception classes to ensure that errors
-never pass silently (unless explicitly silenced). See `automata/FA.py` for these
+never pass silently (unless explicitly silenced). See `automata/fa.py` for these
 class definitions.
 
 To reference these exceptions (so as to catch them in a `try..except` block or
-whatnot), simply import `automata.fa` however you'd like:
+whatnot), simply import `automata.fa.fa` however you'd like:
 
 ```python
-import automata.fa as FA
+import automata.fa.fa as fa
 ```
 
 #### class FAError
@@ -252,7 +252,7 @@ deterministic Turing machines (DTMs).
 The `TM` class is an abstract base class from which all turing machines inherit.
 As such, it cannot be instantiated on its own; you must use the `DTM` class or
 create your own subclass instead. The `TM` class can be found under
-`turingmachines/tm.py`.
+`automata/tm/tm.py`.
 
 ### class DTM
 
@@ -284,7 +284,7 @@ All of these properties must be supplied when the DTM is instantiated (see the
 examples below).
 
 ```python
-from automata.dtm import DTM
+from automata.tm.dtm import DTM
 # DTM which matches all strings beginning with '0's, and followed by
 # the same number of '1's
 dtm = DTM(

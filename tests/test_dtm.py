@@ -5,9 +5,9 @@ import types
 
 import nose.tools as nose
 
-import turingmachines.tm as tm
+import automata.tm.tm as tm
 import tests.test_tm as test_tm
-from turingmachines.dtm import DTM
+from automata.tm.dtm import DTM
 
 
 class TestDTM(test_tm.TestTM):

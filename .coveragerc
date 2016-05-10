@@ -16,10 +16,10 @@ exclude_lines =
 
 # Only check coverage for source files
 include =
-    automata/FA.py
-    automata/dfa.py
-    automata/nfa.py
-    turingmachines/dtm.py
-    turingmachines/tape.py
-    turingmachines/tm.py
-    turingmachines/tools.py
+    automata/fa/fa.py
+    automata/fa/dfa.py
+    automata/fa/nfa.py
+    automata/tm/dtm.py
+    automata/tm/tape.py
+    automata/tm/tm.py
+    automata/tm/tools.py

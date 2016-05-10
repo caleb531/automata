@@ -4,17 +4,17 @@
 import copy
 import queue
 
-import automata.fa as FA
-import automata.nfa
+import automata.fa.fa as fa
+import automata.fa.nfa
 
 
-class DFA(FA.FA):
-    """A deterministic finite FA."""
+class DFA(fa.FA):
+    """A deterministic finite automaton."""
 
     def __init__(self, obj=None, *, states=None, input_symbols=None,
                  transitions=None, initial_state=None, final_states=None):
         """Initialize a complete DFA."""
-        if isinstance(obj, automata.nfa.NFA):
+        if isinstance(obj, automata.fa.nfa.NFA):
             self._init_from_nfa(obj)
         elif isinstance(obj, DFA):
             self._init_from_dfa(obj)
@@ -32,13 +32,13 @@ class DFA(FA.FA):
 
         missing_symbols = self.input_symbols - path_symbols
         if missing_symbols:
-            raise FA.MissingSymbolError(
+            raise fa.MissingSymbolError(
                 'state {} is missing transitions for symbols ({})'.format(
                     start_state, ', '.join(missing_symbols)))
 
         invalid_symbols = path_symbols - self.input_symbols
         if invalid_symbols:
-            raise FA.InvalidSymbolError(
+            raise fa.InvalidSymbolError(
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
@@ -71,7 +71,7 @@ class DFA(FA.FA):
             yield current_state
 
         if current_state not in self.final_states:
-            raise FA.RejectionError(
+            raise fa.RejectionError(
                 'the FA stopped on a non-final state ({})'.format(
                     current_state))
 

@@ -3,8 +3,8 @@
 
 import nose.tools as nose
 
-from automata.dfa import DFA
-from automata.nfa import NFA
+from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
 
 
 class TestFA(object):

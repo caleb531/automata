@@ -3,17 +3,17 @@
 
 import copy
 
-import automata.fa as FA
-import automata.dfa
+import automata.fa.fa as fa
+import automata.fa.dfa
 
 
-class NFA(FA.FA):
-    """Create a nondeterministic finite FA."""
+class NFA(fa.FA):
+    """A nondeterministic finite automaton."""
 
     def __init__(self, obj=None, *, states=None, input_symbols=None,
                  transitions=None, initial_state=None, final_states=None):
         """Initialize a complete NFA."""
-        if isinstance(obj, automata.dfa.DFA):
+        if isinstance(obj, automata.fa.dfa.DFA):
             self._init_from_dfa(obj)
         elif isinstance(obj, NFA):
             self._init_from_nfa(obj)
@@ -51,7 +51,7 @@ class NFA(FA.FA):
         path_symbols = set(paths.keys())
         invalid_symbols = path_symbols - self.input_symbols.union({''})
         if invalid_symbols:
-            raise FA.InvalidSymbolError(
+            raise fa.InvalidSymbolError(
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
@@ -117,7 +117,7 @@ class NFA(FA.FA):
             yield current_states
 
         if not (current_states & self.final_states):
-            raise FA.RejectionError(
+            raise fa.RejectionError(
                 'the FA stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 
