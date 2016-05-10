@@ -39,7 +39,7 @@ class DTM(object):
                 tape_symbol in self.transitions[state]):
             return self.transitions[state][tape_symbol]
         else:
-            raise tm.HaltError(
+            raise tm.RejectionError(
                 'The machine entered a non-final configuration for which no '
                 'transition is defined ({}, {})'.format(
                     state, tape_symbol))

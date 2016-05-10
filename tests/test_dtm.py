@@ -55,5 +55,5 @@ class TestDTM(test_tm.TestTM):
 
     def test_validate_input_rejection(self):
         """Should raise error if the machine halts."""
-        with nose.assert_raises(tm.HaltError):
+        with nose.assert_raises(tm.RejectionError):
             self.dtm1.validate_input('000011')

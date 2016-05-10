@@ -29,7 +29,7 @@ class TuringMachineError(Exception):
     pass
 
 
-class HaltError(TuringMachineError):
-    """The machine halted at an undefined configuration."""
+class RejectionError(TuringMachineError):
+    """The machine halted on a non-final state."""
 
     pass
