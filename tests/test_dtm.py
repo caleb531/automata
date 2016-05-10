@@ -16,18 +16,23 @@ class TestDTM(test_tm.TestTM):
     def test_init_dtm(self):
         """Should copy DTM if passed into DTM constructor."""
         new_dtm = DTM(self.dtm1)
-        nose.assert_is_not(new_dtm.states, self.dtm1.states)
-        nose.assert_equal(new_dtm.states, self.dtm1.states)
-        nose.assert_is_not(new_dtm.input_symbols, self.dtm1.input_symbols)
-        nose.assert_equal(new_dtm.input_symbols, self.dtm1.input_symbols)
-        nose.assert_is_not(new_dtm.tape_symbols, self.dtm1.tape_symbols)
-        nose.assert_equal(new_dtm.tape_symbols, self.dtm1.tape_symbols)
-        nose.assert_is_not(new_dtm.transitions, self.dtm1.transitions)
-        nose.assert_equal(new_dtm.transitions, self.dtm1.transitions)
-        nose.assert_equal(new_dtm.initial_state, self.dtm1.initial_state)
-        nose.assert_equal(new_dtm.blank_symbol, self.dtm1.blank_symbol)
-        nose.assert_is_not(new_dtm.final_states, self.dtm1.final_states)
-        nose.assert_equal(new_dtm.final_states, self.dtm1.final_states)
+        self.assert_is_copy(new_dtm, self.dtm1)
+
+    def test_copy_dtm(self):
+        """Should create exact copy of DTM if copy() method is called."""
+        new_dtm = self.dtm1.copy()
+        self.assert_is_copy(new_dtm, self.dtm1)
+
+    def test_dtm_equal(self):
+        """Should correctly determine if two DTMs are equal."""
+        new_dtm = self.dtm1.copy()
+        nose.assert_true(self.dtm1 == new_dtm, 'DTMs are not equal')
+
+    def test_dtm_not_equal(self):
+        """Should correctly determine if two DTMs are not equal."""
+        new_dtm = self.dtm1.copy()
+        new_dtm.final_states.add('q2')
+        nose.assert_true(self.dtm1 != new_dtm, 'DTMs are equal')
 
     def test_validate_input_valid(self):
         """Should return correct stop state if valid TM input is given."""

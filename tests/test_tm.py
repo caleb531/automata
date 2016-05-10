@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of DTMs."""
 
+import nose.tools as nose
+
 from turingmachines.dtm import DTM
 
 
@@ -64,3 +66,18 @@ class TestTM(object):
             blank_symbol='.',
             final_states={'q4'}
         )
+
+    def assert_is_copy(self, first, second):
+        """Assert that the first FA is an exact copy of the second."""
+        nose.assert_is_not(first.states, second.states)
+        nose.assert_equal(first.states, second.states)
+        nose.assert_is_not(first.input_symbols, second.input_symbols)
+        nose.assert_equal(first.input_symbols, second.input_symbols)
+        nose.assert_is_not(first.tape_symbols, second.tape_symbols)
+        nose.assert_equal(first.tape_symbols, second.tape_symbols)
+        nose.assert_is_not(first.transitions, second.transitions)
+        nose.assert_equal(first.transitions, second.transitions)
+        nose.assert_equal(first.initial_state, second.initial_state)
+        nose.assert_equal(first.blank_symbol, second.blank_symbol)
+        nose.assert_is_not(first.final_states, second.final_states)
+        nose.assert_equal(first.final_states, second.final_states)

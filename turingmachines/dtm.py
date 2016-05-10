@@ -7,7 +7,7 @@ import turingmachines.tm as tm
 from turingmachines.tape import TMTape
 
 
-class DTM(object):
+class DTM(tm.TM):
     """A deterministic Turing machine."""
 
     def __init__(self, obj=None, *, states=None, input_symbols=None,
@@ -24,6 +24,7 @@ class DTM(object):
             self.initial_state = initial_state
             self.blank_symbol = blank_symbol
             self.final_states = final_states.copy()
+            self.validate_self()
 
     def _init_from_dtm(self, tm):
         """Initialize this DTM as an exact copy of the given DTM."""
@@ -32,6 +33,11 @@ class DTM(object):
             tape_symbols=tm.tape_symbols, transitions=tm.transitions,
             initial_state=tm.initial_state, blank_symbol=tm.blank_symbol,
             final_states=tm.final_states)
+
+    def validate_self(self):
+        """Return True if this DTM is internally consistent."""
+        self._validate_initial_state()
+        self._validate_final_states()
 
     def _get_transition(self, state, tape_symbol):
         """Get the transiton tuple for the given state and tape symbol."""
