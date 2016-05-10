@@ -25,11 +25,11 @@ class TestDFA(test_fa.TestFA):
         new_dfa = self.dfa.copy()
         self.assert_is_copy(new_dfa, self.dfa)
 
-    @patch('automata.dfa.DFA.validate_FA')
-    def test_init_validation(self, validate_FA):
+    @patch('automata.dfa.DFA.validate_self')
+    def test_init_validation(self, validate_self):
         """Should validate DFA when initialized."""
         DFA(self.dfa)
-        validate_FA.assert_called_once_with()
+        validate_self.assert_called_once_with()
 
     def test_dfa_equal(self):
         """Should correctly determine if two DFAs are equal."""
@@ -42,41 +42,41 @@ class TestDFA(test_fa.TestFA):
         new_dfa.final_states.add('q2')
         nose.assert_true(self.dfa != new_dfa, 'DFAs are not equal')
 
-    def test_validate_FA_missing_state(self):
+    def test_validate_self_missing_state(self):
         """Should raise error if a state has no transitions defined."""
         with nose.assert_raises(FA.MissingTransitionError):
             del self.dfa.transitions['q1']
-            self.dfa.validate_FA()
+            self.dfa.validate_self()
 
-    def test_validate_FA_missing_symbol(self):
+    def test_validate_self_missing_symbol(self):
         """Should raise error if a symbol transition is missing."""
         with nose.assert_raises(FA.MissingTransitionError):
             del self.dfa.transitions['q1']['1']
-            self.dfa.validate_FA()
+            self.dfa.validate_self()
 
-    def test_validate_FA_invalid_symbol(self):
+    def test_validate_self_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
         with nose.assert_raises(FA.InvalidSymbolError):
             self.dfa.transitions['q1']['2'] = 'q2'
-            self.dfa.validate_FA()
+            self.dfa.validate_self()
 
-    def test_validate_FA_invalid_state(self):
+    def test_validate_self_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
         with nose.assert_raises(FA.InvalidStateError):
             self.dfa.transitions['q1']['1'] = 'q3'
-            self.dfa.validate_FA()
+            self.dfa.validate_self()
 
-    def test_validate_FA_invalid_initial_state(self):
+    def test_validate_self_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(FA.InvalidStateError):
             self.dfa.initial_state = 'q3'
-            self.dfa.validate_FA()
+            self.dfa.validate_self()
 
-    def test_validate_FA_invalid_final_state(self):
+    def test_validate_self_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with nose.assert_raises(FA.InvalidStateError):
             self.dfa.final_states = {'q3'}
-            self.dfa.validate_FA()
+            self.dfa.validate_self()
 
     def test_validate_input_valid(self):
         """Should return correct stop state if valid DFA input is given."""

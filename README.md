@@ -99,9 +99,9 @@ input has been read) and the last yielded state is always the DFA's final state
 (after all input has been read). If the string is rejected by the DFA, the
 method still raises a `RejectionError`.
 
-#### DFA.validate_FA(self)
+#### DFA.validate_self(self)
 
-The `validate_FA()` method checks whether the DFA is actually a valid
+The `validate_self()` method checks whether the DFA is actually a valid
 DFA. The method returns `True` if the DFA is valid; otherwise, it will raise the
 appropriate exception (*e.g.* the state transition is missing for a particular
 symbol). This method is automatically called when the DFA is initialized, so
@@ -182,11 +182,11 @@ initial state, and the last yielded set always contains the lambda closure of at
 least one of the NFA's final states (after all input has been read). If the
 string is rejected by the NFA, the method still raises a `RejectionError`.
 
-#### NFA.validate_FA(self)
+#### NFA.validate_self(self)
 
-The `validate_FA()` method checks whether the NFA is actually a valid
+The `validate_self()` method checks whether the NFA is actually a valid
 NFA. The method has the same basic behavior and prescribed use case as the
-`DFA.validate_FA()` method, despite being less restrictive (since NFAs
+`DFA.validate_self()` method, despite being less restrictive (since NFAs
 are naturally less restrictive than DFAs).
 
 #### Converting an NFA to a DFA

@@ -43,7 +43,7 @@ class FA(metaclass=abc.ABCMeta):
                     ', '.join(invalid_states)))
 
     @abc.abstractmethod
-    def validate_FA(self):
+    def validate_self(self):
         """Return True if this FA is internally consistent."""
         pass
 

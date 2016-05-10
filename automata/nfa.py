@@ -23,7 +23,7 @@ class NFA(FA.FA):
             self.transitions = copy.deepcopy(transitions)
             self.initial_state = initial_state
             self.final_states = final_states.copy()
-            self.validate_FA()
+            self.validate_self()
 
     def _init_from_nfa(self, nfa):
         """Initialize this NFA as an exact copy of the given NFA."""
@@ -55,7 +55,7 @@ class NFA(FA.FA):
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
-    def validate_FA(self):
+    def validate_self(self):
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_symbols(start_state, paths)

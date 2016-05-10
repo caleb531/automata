@@ -24,7 +24,7 @@ class DFA(FA.FA):
             self.transitions = copy.deepcopy(transitions)
             self.initial_state = initial_state
             self.final_states = final_states.copy()
-            self.validate_FA()
+            self.validate_self()
 
     def _validate_transition_symbols(self, start_state, paths):
         """Raise an error if the transition symbols are missing or invalid."""
@@ -42,7 +42,7 @@ class DFA(FA.FA):
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
-    def validate_FA(self):
+    def validate_self(self):
         """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
 
