@@ -3,8 +3,10 @@
 
 import copy
 
-import turingmachines.tm as tm
-from turingmachines.tape import TMTape
+import automata.tm.tm as tm
+import automata.shared.exceptions as exceptions
+import automata.tm.exceptions as tmexceptions
+from automata.tm.tape import TMTape
 
 
 class DTM(tm.TM):
@@ -36,29 +38,29 @@ class DTM(tm.TM):
 
     def _validate_transition_state(self, transition_state):
         if transition_state not in self.states:
-            raise tm.InvalidStateError(
+            raise exceptions.InvalidStateError(
                 'transition state is not valid ({})'.format(transition_state))
 
     def _validate_transition_symbols(self, transition_symbols):
         invalid_states = transition_symbols - self.tape_symbols
         if invalid_states:
-            raise tm.InvalidSymbolError(
+            raise exceptions.InvalidSymbolError(
                 'transition symbols are not valid ({})'.format(
                     ', '.join(invalid_states)))
 
     def _validate_transition_result_direction(self, result_direction):
         if not (result_direction == 'L' or result_direction == 'R'):
-            raise tm.InvalidDirectionError(
+            raise tmexceptions.InvalidDirectionError(
                 'result direction is not valid ({})'.format(
                     result_direction))
 
     def _validate_transition_result(self, result):
         result_state, result_symbol, result_direction = result
         if result_state not in self.states:
-            raise tm.InvalidStateError(
+            raise exceptions.InvalidStateError(
                 'result state is not valid ({})'.format(result_state))
         if result_symbol not in self.tape_symbols:
-            raise tm.InvalidSymbolError(
+            raise exceptions.InvalidSymbolError(
                 'result symbol is not valid ({})'.format(result_symbol))
         self._validate_transition_result_direction(result_direction)
 
@@ -87,7 +89,7 @@ class DTM(tm.TM):
                 tape_symbol in self.transitions[state]):
             return self.transitions[state][tape_symbol]
         else:
-            raise tm.RejectionError(
+            raise exceptions.RejectionError(
                 'The machine entered a non-final configuration for which no '
                 'transition is defined ({}, {})'.format(
                     state, tape_symbol))

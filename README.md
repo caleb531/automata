@@ -13,19 +13,40 @@ nor is the code complete in terms of functionality.
 
 Automata requires Python 3.4 or newer.
 
-## FA API
+## API
+
+### class Automaton
+
+The `Automaton` class is an abstract base class from which all automata
+(including Turing machines) inherit. As such, it cannot be instantiated on its
+own; you must use a defined subclasses instead (or you may create your own
+subclass if you're feeling adventurous). The `Automaton` class can be found
+under `automata/shared/automaton.py`.
+
+If you wish to subclass `Automaton`, you can import it like so:
+
+```python
+from automata.shared.automaton import Automaton
+```
+
 
 ### class FA
 
 The `FA` class is an abstract base class from which all finite automata inherit.
 As such, it cannot be instantiated on its own; you must use the `DFA` and `NFA`
 classes instead (or you may create your own subclass if you're feeling
-adventurous). The `FA` class can be found under `automata/FA.py`.
+adventurous). The `FA` class can be found under `automata/fa/fa.py`.
+
+If you wish to subclass `FA`, you can import it like so:
+
+```python
+from automata.fa.fa import FA
+```
 
 ### class DFA
 
 The `DFA` class is a subclass of class `FA` which represents a deterministic
-finite FA. The `DFA` class can be found under `automata/dfa.py`.
+finite FA. The `DFA` class can be found under `automata/fa/dfa.py`.
 
 #### DFA properties
 
@@ -49,7 +70,7 @@ All of these properties must be supplied when the DFA is
 instantiated (see the examples below).
 
 ```python
-from automata.dfa import DFA
+from automata.fa.dfa import DFA
 # DFA which matches all binary strings ending in an odd number of '1's
 dfa = DFA(
     states={'q0', 'q1', 'q2'},
@@ -118,7 +139,7 @@ dfa_copy = DFA(dfa)  # returns an exact copy of dfa
 ### class NFA
 
 The `NFA` class is a subclass of class `FA` which represents a nondeterministic
-finite FA. The `NFA` class can be found under `automata/nfa.py`.
+finite FA. The `NFA` class can be found under `automata/fa/nfa.py`.
 
 #### NFA properties
 
@@ -130,8 +151,7 @@ Therefore, instead of mapping a symbol to *one* end state in each sub-dict, each
 symbol is mapped to a *set* of end states.
 
 ```python
-from automata.dfa import DFA
-from automata.nfa import NFA
+from automata.fa.nfa import NFA
 # NFA which matches strings beginning with 'a', ending with 'a', and containing
 # no consecutive 'b's
 nfa = NFA(
@@ -193,6 +213,7 @@ To create a DFA that is equivalent to an existing NFA, simply pass the `NFA`
 instance to the `DFA` constructor.
 
 ```python
+from automata.fa.dfa import DFA
 dfa = DFA(nfa)  # returns an equivalent DFA
 ```
 
@@ -205,59 +226,17 @@ constructor.
 nfa_copy = NFA(nfa)  # returns an exact copy of nfa
 ```
 
-### FA exception classes
-
-The library also includes a number of exception classes to ensure that errors
-never pass silently (unless explicitly silenced). See `automata/FA.py` for these
-class definitions.
-
-To reference these exceptions (so as to catch them in a `try..except` block or
-whatnot), simply import `automata.fa` however you'd like:
-
-```python
-import automata.fa as FA
-```
-
-#### class FAError
-
-A base class from which all other FA exceptions inherit.
-
-#### class InvalidStateError
-
-Raised if a state is not a valid state for this FA.
-
-#### class InvalidSymbolError
-
-Raised if a symbol is not a valid symbol for this FA.
-
-#### class MissingStateError
-
-Raised if a state is missing from the machine definition.
-
-#### class MissingSymbolError
-
-Raised if a symbol is missing from the machine definition.
-
-#### class RejectionError
-
-Raised if the FA stopped on a non-final state after validating input.
-
-## Turing Machine API
-
-In addition to working with finite automata, this library can also simulate
-deterministic Turing machines (DTMs).
-
 ### class TM
 
 The `TM` class is an abstract base class from which all turing machines inherit.
 As such, it cannot be instantiated on its own; you must use the `DTM` class or
 create your own subclass instead. The `TM` class can be found under
-`turingmachines/tm.py`.
+`automata/tm/tm.py`.
 
 ### class DTM
 
 The `DTM` class is a subclass of class `FA` which represents a deterministic
-finite FA. The `DTM` class can be found under `automata/dtm.py`.
+finite FA. The `DTM` class can be found under `automata/tm/dtm.py`.
 
 #### DTM properties
 
@@ -272,19 +251,22 @@ strings
 3. `tape_symbols`: a `set` of the DTM's valid tape symbols represented as
 strings
 
-4. `transitions`: a `dict` consisting of the transitions for each state. Each
+4. `transitions`: a `dict` consisting of the transitions for each state; each
 key is a state name and each value is a `dict` which maps a symbol (the key) to
-a state (the value).
+a state (the value)
 
 5. `initial_state`: the name of the initial state for this DTM
 
-6. `final_states`: a `set` of final states for this DTM
+6. `blank_symbol`: a symbol from `tape_symbols` to be used as the blank symbol
+for this DTM
+
+7. `final_states`: a `set` of final states for this DTM
 
 All of these properties must be supplied when the DTM is instantiated (see the
 examples below).
 
 ```python
-from automata.dtm import DTM
+from automata.tm.dtm import DTM
 # DTM which matches all strings beginning with '0's, and followed by
 # the same number of '1's
 dtm = DTM(
@@ -379,3 +361,65 @@ constructor.
 ```python
 dtm_copy = DTM(dtm)  # returns an exact copy of dtm
 ```
+
+### Shared exception classes
+
+The library also includes a number of exception classes to ensure that errors
+never pass silently (unless explicitly silenced). See `automata/fa.py` for these
+class definitions.
+
+To reference these exceptions (so as to catch them in a `try..except` block or
+whatnot), simply import `automata.shared.exceptions` however you'd like:
+
+```python
+import automata.shared.exceptions as exceptions
+```
+
+#### class AutomatonError
+
+A base class from which all other automata exceptions inherit (including finite
+automata and Turing machines).
+
+#### class InvalidStateError
+
+Raised if a state is not a valid state for this FA.
+
+#### class InvalidSymbolError
+
+Raised if a symbol is not a valid symbol for this FA.
+
+#### class MissingStateError
+
+Raised if a state is missing from the machine definition.
+
+#### class MissingSymbolError
+
+Raised if a symbol is missing from the machine definition.
+
+#### class RejectionError
+
+Raised if the FA stopped on a non-final state after validating input.
+
+### Turing machine exception classes
+
+The `automata.tm` package also includes a module for exceptions specific to
+Turing machines. You can reference these exception classes like so:
+
+```python
+import automata.tm.exceptions as tmexceptions
+```
+
+#### class TMError
+
+A base class from which all other Turing machine exceptions inherit.
+
+#### class InvalidDirectionError
+
+Raised if a direction specified in this machine's transition map is not a valid
+direction.
+
+#### class InitialStateError
+
+Raised if the initial state is also a final state (because the initial state
+must have at least one transition defined, whereas every final state must not
+have any transitions defined).

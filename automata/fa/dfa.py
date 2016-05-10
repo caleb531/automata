@@ -4,17 +4,18 @@
 import copy
 import queue
 
-import automata.fa as FA
-import automata.nfa
+import automata.fa.fa as fa
+import automata.shared.exceptions as exceptions
+import automata.fa.nfa
 
 
-class DFA(FA.FA):
-    """A deterministic finite FA."""
+class DFA(fa.FA):
+    """A deterministic finite automaton."""
 
     def __init__(self, obj=None, *, states=None, input_symbols=None,
                  transitions=None, initial_state=None, final_states=None):
         """Initialize a complete DFA."""
-        if isinstance(obj, automata.nfa.NFA):
+        if isinstance(obj, automata.fa.nfa.NFA):
             self._init_from_nfa(obj)
         elif isinstance(obj, DFA):
             self._init_from_dfa(obj)
@@ -32,13 +33,13 @@ class DFA(FA.FA):
 
         missing_symbols = self.input_symbols - path_symbols
         if missing_symbols:
-            raise FA.MissingSymbolError(
+            raise exceptions.MissingSymbolError(
                 'state {} is missing transitions for symbols ({})'.format(
                     start_state, ', '.join(missing_symbols)))
 
         invalid_symbols = path_symbols - self.input_symbols
         if invalid_symbols:
-            raise FA.InvalidSymbolError(
+            raise exceptions.InvalidSymbolError(
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
@@ -56,6 +57,12 @@ class DFA(FA.FA):
 
         return True
 
+    def _validate_input_symbol(self, symbol):
+        """Raise an error if the given input symbol is invalid."""
+        if symbol not in self.input_symbols:
+            raise exceptions.RejectionError(
+                '{} is not a valid input symbol'.format(symbol))
+
     def _validate_input_yield(self, input_str):
         """
         Check if the given string is accepted by this DFA.
@@ -71,7 +78,7 @@ class DFA(FA.FA):
             yield current_state
 
         if current_state not in self.final_states:
-            raise FA.RejectionError(
+            raise exceptions.RejectionError(
                 'the FA stopped on a non-final state ({})'.format(
                     current_state))
 

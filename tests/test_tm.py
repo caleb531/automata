@@ -3,7 +3,7 @@
 
 import nose.tools as nose
 
-from turingmachines.dtm import DTM
+from automata.tm.dtm import DTM
 
 
 class TestTM(object):

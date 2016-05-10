@@ -6,9 +6,9 @@ from unittest.mock import patch
 
 import nose.tools as nose
 
-import automata.fa as FA
+import automata.shared.exceptions as exceptions
 import tests.test_fa as test_fa
-from automata.nfa import NFA
+from automata.fa.nfa import NFA
 
 
 class TestNFA(test_fa.TestFA):
@@ -36,7 +36,7 @@ class TestNFA(test_fa.TestFA):
         })
         nose.assert_equal(nfa.initial_state, 'q0')
 
-    @patch('automata.nfa.NFA.validate_self')
+    @patch('automata.fa.nfa.NFA.validate_self')
     def test_init_validation(self, validate_self):
         """Should validate NFA when initialized."""
         NFA(self.nfa)
@@ -55,25 +55,25 @@ class TestNFA(test_fa.TestFA):
 
     def test_validate_self_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
-        with nose.assert_raises(FA.InvalidSymbolError):
+        with nose.assert_raises(exceptions.InvalidSymbolError):
             self.nfa.transitions['q1']['c'] = {'q2'}
             self.nfa.validate_self()
 
     def test_validate_self_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
-        with nose.assert_raises(FA.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.nfa.transitions['q1']['a'] = {'q3'}
             self.nfa.validate_self()
 
     def test_validate_self_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
-        with nose.assert_raises(FA.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.nfa.initial_state = 'q3'
             self.nfa.validate_self()
 
     def test_validate_self_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
-        with nose.assert_raises(FA.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.nfa.final_states = {'q3'}
             self.nfa.validate_self()
 
@@ -87,15 +87,15 @@ class TestNFA(test_fa.TestFA):
         self.nfa.transitions['q0']['a'].add('q3')
         nose.assert_equal(self.nfa.validate_self(), True)
 
-    def test_validate_input_invalid_symbol(self):
-        """Should raise error if an invalid symbol is read."""
-        with nose.assert_raises(FA.InvalidSymbolError):
-            self.nfa.validate_input('abc')
-
     def test_validate_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
-        with nose.assert_raises(FA.RejectionError):
+        with nose.assert_raises(exceptions.RejectionError):
             self.nfa.validate_input('abba')
+
+    def test_validate_input_rejection_invalid_symbol(self):
+        """Should raise error if an invalid symbol is read."""
+        with nose.assert_raises(exceptions.RejectionError):
+            self.nfa.validate_input('abc')
 
     def test_validate_input_step(self):
         """Should return validation generator if step flag is supplied."""

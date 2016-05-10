@@ -6,10 +6,10 @@ from unittest.mock import patch
 
 import nose.tools as nose
 
-import automata.fa as FA
+import automata.shared.exceptions as exceptions
 import tests.test_fa as test_fa
-from automata.dfa import DFA
-from automata.nfa import NFA
+from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
 
 
 class TestDFA(test_fa.TestFA):
@@ -25,7 +25,7 @@ class TestDFA(test_fa.TestFA):
         new_dfa = self.dfa.copy()
         self.assert_is_copy(new_dfa, self.dfa)
 
-    @patch('automata.dfa.DFA.validate_self')
+    @patch('automata.fa.dfa.DFA.validate_self')
     def test_init_validation(self, validate_self):
         """Should validate DFA when initialized."""
         DFA(self.dfa)
@@ -44,37 +44,37 @@ class TestDFA(test_fa.TestFA):
 
     def test_validate_self_missing_state(self):
         """Should raise error if a state has no transitions defined."""
-        with nose.assert_raises(FA.MissingStateError):
+        with nose.assert_raises(exceptions.MissingStateError):
             del self.dfa.transitions['q1']
             self.dfa.validate_self()
 
     def test_validate_self_missing_symbol(self):
         """Should raise error if a symbol transition is missing."""
-        with nose.assert_raises(FA.MissingSymbolError):
+        with nose.assert_raises(exceptions.MissingSymbolError):
             del self.dfa.transitions['q1']['1']
             self.dfa.validate_self()
 
     def test_validate_self_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
-        with nose.assert_raises(FA.InvalidSymbolError):
+        with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dfa.transitions['q1']['2'] = 'q2'
             self.dfa.validate_self()
 
     def test_validate_self_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
-        with nose.assert_raises(FA.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.transitions['q1']['1'] = 'q3'
             self.dfa.validate_self()
 
     def test_validate_self_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
-        with nose.assert_raises(FA.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.initial_state = 'q3'
             self.dfa.validate_self()
 
     def test_validate_self_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
-        with nose.assert_raises(FA.InvalidStateError):
+        with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.final_states = {'q3'}
             self.dfa.validate_self()
 
@@ -82,15 +82,15 @@ class TestDFA(test_fa.TestFA):
         """Should return correct stop state if valid DFA input is given."""
         nose.assert_equal(self.dfa.validate_input('0111'), 'q1')
 
-    def test_validate_input_invalid_symbol(self):
-        """Should raise error if an invalid symbol is read."""
-        with nose.assert_raises(FA.InvalidSymbolError):
-            self.dfa.validate_input('01112')
-
     def test_validate_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
-        with nose.assert_raises(FA.RejectionError):
+        with nose.assert_raises(exceptions.RejectionError):
             self.dfa.validate_input('011')
+
+    def test_validate_input_rejection_invalid_symbol(self):
+        """Should raise error if an invalid symbol is read."""
+        with nose.assert_raises(exceptions.RejectionError):
+            self.dfa.validate_input('01112')
 
     def test_validate_input_step(self):
         """Should return validation generator if step flag is supplied."""

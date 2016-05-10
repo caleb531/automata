@@ -7,9 +7,9 @@ from unittest.mock import call, patch
 
 import nose.tools as nose
 
-import turingmachines.tools as tmtools
+import automata.tm.tools as tmtools
 import tests.test_tm as test_tm
-from turingmachines.tape import TMTape
+from automata.tm.tape import TMTape
 
 
 class TestTMTools(test_tm.TestTM):
@@ -27,7 +27,7 @@ class TestTMTools(test_tm.TestTM):
         nose.assert_equal(out.getvalue().rstrip(), '{}: {}\n{}'.format(
             'q2', '..abcdefghij', '^'.rjust(10)))
 
-    @patch('turingmachines.tools.print_config')
+    @patch('automata.tm.tools.print_config')
     def test_print_configs(self, print_config):
         """Should print each machine configuration to stdout."""
         tape1 = TMTape(
