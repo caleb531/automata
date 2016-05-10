@@ -9,30 +9,30 @@ class AutomatonError(Exception):
 
 
 class InvalidStateError(AutomatonError):
-    """A state is not a valid state for this FA."""
+    """A state is not a valid state for this automaton."""
 
     pass
 
 
 class InvalidSymbolError(AutomatonError):
-    """A symbol is not a valid symbol for this FA."""
+    """A symbol is not a valid symbol for this automaton."""
 
     pass
 
 
 class MissingStateError(AutomatonError):
-    """A state is missing from the machine definition."""
+    """A state is missing from the automaton definition."""
 
     pass
 
 
 class MissingSymbolError(AutomatonError):
-    """A symbol is missing from the machine definition."""
+    """A symbol is missing from the automaton definition."""
 
     pass
 
 
 class RejectionError(AutomatonError):
-    """The FA stopped on a non-final state."""
+    """The input was rejected by the automaton after validation."""
 
     pass
