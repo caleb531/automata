@@ -6,12 +6,12 @@ from unittest.mock import patch
 
 import nose.tools as nose
 
-import automata.automaton as automaton
-import tests.test_automaton as test_automaton
+import automata.fa as FA
+import tests.test_fa as test_fa
 from automata.nfa import NFA
 
 
-class TestNFA(test_automaton.TestAutomaton):
+class TestNFA(test_fa.TestFA):
     """A test class for testing nondeterministic finite automata."""
 
     def test_init_nfa(self):
@@ -36,11 +36,11 @@ class TestNFA(test_automaton.TestAutomaton):
         })
         nose.assert_equal(nfa.initial_state, 'q0')
 
-    @patch('automata.nfa.NFA.validate_automaton')
-    def test_init_validation(self, validate_automaton):
+    @patch('automata.nfa.NFA.validate_FA')
+    def test_init_validation(self, validate_FA):
         """Should validate NFA when initialized."""
         NFA(self.nfa)
-        validate_automaton.assert_called_once_with()
+        validate_FA.assert_called_once_with()
 
     def test_nfa_equal(self):
         """Should correctly determine if two NFAs are equal."""
@@ -53,48 +53,48 @@ class TestNFA(test_automaton.TestAutomaton):
         new_nfa.final_states.add('q2')
         nose.assert_true(self.nfa != new_nfa, 'NFAs are not equal')
 
-    def test_validate_automaton_invalid_symbol(self):
+    def test_validate_FA_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
-        with nose.assert_raises(automaton.InvalidSymbolError):
+        with nose.assert_raises(FA.InvalidSymbolError):
             self.nfa.transitions['q1']['c'] = {'q2'}
-            self.nfa.validate_automaton()
+            self.nfa.validate_FA()
 
-    def test_validate_automaton_invalid_state(self):
+    def test_validate_FA_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
-        with nose.assert_raises(automaton.InvalidStateError):
+        with nose.assert_raises(FA.InvalidStateError):
             self.nfa.transitions['q1']['a'] = {'q3'}
-            self.nfa.validate_automaton()
+            self.nfa.validate_FA()
 
-    def test_validate_automaton_invalid_initial_state(self):
+    def test_validate_FA_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
-        with nose.assert_raises(automaton.InvalidStateError):
+        with nose.assert_raises(FA.InvalidStateError):
             self.nfa.initial_state = 'q3'
-            self.nfa.validate_automaton()
+            self.nfa.validate_FA()
 
-    def test_validate_automaton_invalid_final_state(self):
+    def test_validate_FA_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
-        with nose.assert_raises(automaton.InvalidStateError):
+        with nose.assert_raises(FA.InvalidStateError):
             self.nfa.final_states = {'q3'}
-            self.nfa.validate_automaton()
+            self.nfa.validate_FA()
 
     def test_validate_input_valid(self):
         """Should return correct stop states if valid NFA input is given."""
         nose.assert_equal(self.nfa.validate_input('aba'), {'q1', 'q2'})
 
-    def test_validate_automaton_missing_state(self):
+    def test_validate_FA_missing_state(self):
         """Should silently ignore states without transitions defined."""
         self.nfa.states.add('q3')
         self.nfa.transitions['q0']['a'].add('q3')
-        nose.assert_equal(self.nfa.validate_automaton(), True)
+        nose.assert_equal(self.nfa.validate_FA(), True)
 
     def test_validate_input_invalid_symbol(self):
         """Should raise error if an invalid symbol is read."""
-        with nose.assert_raises(automaton.InvalidSymbolError):
+        with nose.assert_raises(FA.InvalidSymbolError):
             self.nfa.validate_input('abc')
 
     def test_validate_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
-        with nose.assert_raises(automaton.RejectionError):
+        with nose.assert_raises(FA.RejectionError):
             self.nfa.validate_input('abba')
 
     def test_validate_input_step(self):

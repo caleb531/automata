@@ -4,12 +4,12 @@
 import abc
 
 
-class Automaton(metaclass=abc.ABCMeta):
+class FA(metaclass=abc.ABCMeta):
     """An abstract base class for finite automata."""
 
     @abc.abstractmethod
     def __init__(self, **kwargs):
-        """Initialize a complete finite automaton."""
+        """Initialize a complete finite FA."""
         pass
 
     def _validate_transition_start_states(self):
@@ -43,8 +43,8 @@ class Automaton(metaclass=abc.ABCMeta):
                     ', '.join(invalid_states)))
 
     @abc.abstractmethod
-    def validate_automaton(self):
-        """Return True if this automaton is internally consistent."""
+    def validate_FA(self):
+        """Return True if this FA is internally consistent."""
         pass
 
     def _validate_input_symbol(self, symbol):
@@ -55,11 +55,11 @@ class Automaton(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def validate_input(self, input_str):
-        """Check if the given string is accepted by this automaton."""
+        """Check if the given string is accepted by this FA."""
         pass
 
     def copy(self):
-        """Create an exact copy of the automaton."""
+        """Create an exact copy of the FA."""
         return self.__class__(self)
 
     def __eq__(self, other):
@@ -67,31 +67,31 @@ class Automaton(metaclass=abc.ABCMeta):
         return self.__dict__ == other.__dict__
 
 
-class AutomatonError(Exception):
-    """The base class for all automaton-related errors."""
+class FAError(Exception):
+    """The base class for all FA-related errors."""
 
     pass
 
 
-class InvalidStateError(AutomatonError):
-    """A state is not a valid state for this automaton."""
+class InvalidStateError(FAError):
+    """A state is not a valid state for this FA."""
 
     pass
 
 
-class InvalidSymbolError(AutomatonError):
-    """A symbol is not a valid symbol for this automaton."""
+class InvalidSymbolError(FAError):
+    """A symbol is not a valid symbol for this FA."""
 
     pass
 
 
-class MissingTransitionError(AutomatonError):
+class MissingTransitionError(FAError):
     """A transition is missing from the transition map."""
 
     pass
 
 
-class RejectionError(AutomatonError):
-    """The automaton stopped on a non-final state."""
+class RejectionError(FAError):
+    """The FA stopped on a non-final state."""
 
     pass

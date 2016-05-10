@@ -13,19 +13,19 @@ functionality.
 
 Automata requires Python 3.4 or newer.
 
-## Automaton API
+## FA API
 
-### class Automaton
+### class FA
 
-The `Automaton` class is an abstract base class from which all finite automata
+The `FA` class is an abstract base class from which all finite automata
 inherit. As such, it cannot be instantiated on its own; you must use the `DFA`
 and `NFA` classes instead (or you may create your own subclass if you're feeling
-adventurous). The `Automaton` class can be found under `automata/automaton.py`.
+adventurous). The `FA` class can be found under `automata/FA.py`.
 
 ### class DFA
 
-The `DFA` class is a subclass of class `Automaton` which represents a
-deterministic finite automaton. The `DFA` class can be found under
+The `DFA` class is a subclass of class `FA` which represents a
+deterministic finite FA. The `DFA` class can be found under
 `automata/dfa.py`.
 
 #### DFA properties
@@ -72,7 +72,7 @@ Please note that the below DFA code examples reference the above `dfa` object.
 The `validate_input()` method checks whether or not the given string is accepted
 by the DFA.
 
-If the string is accepted, the method returns the state the automaton stopped on
+If the string is accepted, the method returns the state the FA stopped on
 (which presumably is a valid final state).
 
 ```python
@@ -99,9 +99,9 @@ input has been read) and the last yielded state is always the DFA's final state
 (after all input has been read). If the string is rejected by the DFA, the
 method still raises a `RejectionError`.
 
-#### DFA.validate_automaton(self)
+#### DFA.validate_FA(self)
 
-The `validate_automaton()` method checks whether the DFA is actually a valid
+The `validate_FA()` method checks whether the DFA is actually a valid
 DFA. The method returns `True` if the DFA is valid; otherwise, it will raise the
 appropriate exception (*e.g.* the state transition is missing for a particular
 symbol). This method is automatically called when the DFA is initialized, so
@@ -118,8 +118,8 @@ dfa_copy = DFA(dfa)  # returns an exact copy of dfa
 
 ### class NFA
 
-The `NFA` class is a subclass of class `Automaton` which represents a
-nondeterministic finite automaton. The `NFA` class can be found under
+The `NFA` class is a subclass of class `FA` which represents a
+nondeterministic finite FA. The `NFA` class can be found under
 `automata/nfa.py`.
 
 #### NFA properties
@@ -156,7 +156,7 @@ The `validate_input()` method checks whether or not the given string is accepted
 by the NFA.
 
 If the string is accepted, the method returns a `set` of states the
-automaton stopped on (which presumably contains at least one valid final state).
+FA stopped on (which presumably contains at least one valid final state).
 
 ```python
 nfa.validate_input('aba')  # returns {'q1', 'q2'}
@@ -182,11 +182,11 @@ initial state, and the last yielded set always contains the lambda closure of at
 least one of the NFA's final states (after all input has been read). If the
 string is rejected by the NFA, the method still raises a `RejectionError`.
 
-#### NFA.validate_automaton(self)
+#### NFA.validate_FA(self)
 
-The `validate_automaton()` method checks whether the NFA is actually a valid
+The `validate_FA()` method checks whether the NFA is actually a valid
 NFA. The method has the same basic behavior and prescribed use case as the
-`DFA.validate_automaton()` method, despite being less restrictive (since NFAs
+`DFA.validate_FA()` method, despite being less restrictive (since NFAs
 are naturally less restrictive than DFAs).
 
 #### Converting an NFA to a DFA
@@ -207,38 +207,38 @@ constructor.
 nfa_copy = NFA(nfa)  # returns an exact copy of nfa
 ```
 
-### Automaton exception classes
+### FA exception classes
 
 The library also includes a number of exception classes to ensure that errors
-never pass silently (unless explicitly silenced). See `automata/automaton.py`
+never pass silently (unless explicitly silenced). See `automata/FA.py`
 for these class definitions.
 
 To reference these exceptions (so as to catch them in a `try..except` block or
-whatnot), simply import `automata.automaton` however you'd like:
+whatnot), simply import `automata.fa` however you'd like:
 
 ```python
-import automata.automaton as automaton
+import automata.fa as FA
 ```
 
-#### class AutomatonError
+#### class FAError
 
-A base class from which all other automaton exceptions inherit.
+A base class from which all other FA exceptions inherit.
 
 #### class InvalidStateError
 
-Raised if a state is not a valid state for this automaton.
+Raised if a state is not a valid state for this FA.
 
 #### class InvalidSymbolError
 
-Raised if a symbol is not a valid symbol for this automaton.
+Raised if a symbol is not a valid symbol for this FA.
 
 #### class MissingTransitionError
 
-Raised if a transition is missing from the transition map for this automaton.
+Raised if a transition is missing from the transition map for this FA.
 
 #### class RejectionError
 
-Raised if the automaton stopped on a non-final state after validating input.
+Raised if the FA stopped on a non-final state after validating input.
 
 ## Turing Machine API
 
@@ -254,8 +254,8 @@ can be found under `turingmachines/tm.py`.
 
 ### class DTM
 
-The `DTM` class is a subclass of class `Automaton` which represents a
-deterministic finite automaton. The `DTM` class can be found under
+The `DTM` class is a subclass of class `FA` which represents a
+deterministic finite FA. The `DTM` class can be found under
 `automata/dtm.py`.
 
 #### DTM properties

@@ -3,12 +3,12 @@
 
 import copy
 
-import automata.automaton as automaton
+import automata.fa as FA
 import automata.dfa
 
 
-class NFA(automaton.Automaton):
-    """Create a nondeterministic finite automaton."""
+class NFA(FA.FA):
+    """Create a nondeterministic finite FA."""
 
     def __init__(self, obj=None, *, states=None, input_symbols=None,
                  transitions=None, initial_state=None, final_states=None):
@@ -23,7 +23,7 @@ class NFA(automaton.Automaton):
             self.transitions = copy.deepcopy(transitions)
             self.initial_state = initial_state
             self.final_states = final_states.copy()
-            self.validate_automaton()
+            self.validate_FA()
 
     def _init_from_nfa(self, nfa):
         """Initialize this NFA as an exact copy of the given NFA."""
@@ -51,11 +51,11 @@ class NFA(automaton.Automaton):
         path_symbols = set(paths.keys())
         invalid_symbols = path_symbols - self.input_symbols.union({''})
         if invalid_symbols:
-            raise automaton.InvalidSymbolError(
+            raise FA.InvalidSymbolError(
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
-    def validate_automaton(self):
+    def validate_FA(self):
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_symbols(start_state, paths)
@@ -105,7 +105,7 @@ class NFA(automaton.Automaton):
         """
         Check if the given string is accepted by this NFA.
 
-        Yield the current configuration of the automaton at each step.
+        Yield the current configuration of the FA at each step.
         """
         current_states = self._get_lambda_closure(self.initial_state)
 
@@ -117,8 +117,8 @@ class NFA(automaton.Automaton):
             yield current_states
 
         if not (current_states & self.final_states):
-            raise automaton.RejectionError(
-                'the automaton stopped on all non-final states ({})'.format(
+            raise FA.RejectionError(
+                'the FA stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 
     def _validate_input_return(self, input_str):

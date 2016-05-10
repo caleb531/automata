@@ -6,13 +6,13 @@ from unittest.mock import patch
 
 import nose.tools as nose
 
-import automata.automaton as automaton
-import tests.test_automaton as test_automaton
+import automata.fa as FA
+import tests.test_fa as test_fa
 from automata.dfa import DFA
 from automata.nfa import NFA
 
 
-class TestDFA(test_automaton.TestAutomaton):
+class TestDFA(test_fa.TestFA):
     """A test class for testing deterministic finite automata."""
 
     def test_init_dfa(self):
@@ -25,11 +25,11 @@ class TestDFA(test_automaton.TestAutomaton):
         new_dfa = self.dfa.copy()
         self.assert_is_copy(new_dfa, self.dfa)
 
-    @patch('automata.dfa.DFA.validate_automaton')
-    def test_init_validation(self, validate_automaton):
+    @patch('automata.dfa.DFA.validate_FA')
+    def test_init_validation(self, validate_FA):
         """Should validate DFA when initialized."""
         DFA(self.dfa)
-        validate_automaton.assert_called_once_with()
+        validate_FA.assert_called_once_with()
 
     def test_dfa_equal(self):
         """Should correctly determine if two DFAs are equal."""
@@ -42,41 +42,41 @@ class TestDFA(test_automaton.TestAutomaton):
         new_dfa.final_states.add('q2')
         nose.assert_true(self.dfa != new_dfa, 'DFAs are not equal')
 
-    def test_validate_automaton_missing_state(self):
+    def test_validate_FA_missing_state(self):
         """Should raise error if a state has no transitions defined."""
-        with nose.assert_raises(automaton.MissingTransitionError):
+        with nose.assert_raises(FA.MissingTransitionError):
             del self.dfa.transitions['q1']
-            self.dfa.validate_automaton()
+            self.dfa.validate_FA()
 
-    def test_validate_automaton_missing_symbol(self):
+    def test_validate_FA_missing_symbol(self):
         """Should raise error if a symbol transition is missing."""
-        with nose.assert_raises(automaton.MissingTransitionError):
+        with nose.assert_raises(FA.MissingTransitionError):
             del self.dfa.transitions['q1']['1']
-            self.dfa.validate_automaton()
+            self.dfa.validate_FA()
 
-    def test_validate_automaton_invalid_symbol(self):
+    def test_validate_FA_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
-        with nose.assert_raises(automaton.InvalidSymbolError):
+        with nose.assert_raises(FA.InvalidSymbolError):
             self.dfa.transitions['q1']['2'] = 'q2'
-            self.dfa.validate_automaton()
+            self.dfa.validate_FA()
 
-    def test_validate_automaton_invalid_state(self):
+    def test_validate_FA_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
-        with nose.assert_raises(automaton.InvalidStateError):
+        with nose.assert_raises(FA.InvalidStateError):
             self.dfa.transitions['q1']['1'] = 'q3'
-            self.dfa.validate_automaton()
+            self.dfa.validate_FA()
 
-    def test_validate_automaton_invalid_initial_state(self):
+    def test_validate_FA_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
-        with nose.assert_raises(automaton.InvalidStateError):
+        with nose.assert_raises(FA.InvalidStateError):
             self.dfa.initial_state = 'q3'
-            self.dfa.validate_automaton()
+            self.dfa.validate_FA()
 
-    def test_validate_automaton_invalid_final_state(self):
+    def test_validate_FA_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
-        with nose.assert_raises(automaton.InvalidStateError):
+        with nose.assert_raises(FA.InvalidStateError):
             self.dfa.final_states = {'q3'}
-            self.dfa.validate_automaton()
+            self.dfa.validate_FA()
 
     def test_validate_input_valid(self):
         """Should return correct stop state if valid DFA input is given."""
@@ -84,12 +84,12 @@ class TestDFA(test_automaton.TestAutomaton):
 
     def test_validate_input_invalid_symbol(self):
         """Should raise error if an invalid symbol is read."""
-        with nose.assert_raises(automaton.InvalidSymbolError):
+        with nose.assert_raises(FA.InvalidSymbolError):
             self.dfa.validate_input('01112')
 
     def test_validate_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
-        with nose.assert_raises(automaton.RejectionError):
+        with nose.assert_raises(FA.RejectionError):
             self.dfa.validate_input('011')
 
     def test_validate_input_step(self):
