@@ -2,6 +2,7 @@
 """Functions for testing the compliance of project files."""
 
 import glob
+import itertools
 
 import isort
 import nose.tools as nose
@@ -11,7 +12,9 @@ import radon.complexity as radon
 
 def test_pep8():
     """All source files should comply with PEP 8."""
-    file_paths = glob.iglob('*/*.py')
+    file_paths = itertools.chain(
+        glob.iglob('automata/*/*.py'),
+        glob.iglob('tests/*.py'))
     for file_path in file_paths:
         style_guide = pep8.StyleGuide(quiet=True)
         total_errors = style_guide.input_file(file_path)
@@ -22,7 +25,9 @@ def test_pep8():
 
 def test_complexity():
     """All source file functions should have a low cyclomatic complexity."""
-    file_paths = glob.iglob('*/*.py')
+    file_paths = itertools.chain(
+        glob.iglob('automata/*/*.py'),
+        glob.iglob('tests/*.py'))
     for file_path in file_paths:
         with open(file_path, 'r') as file_obj:
             blocks = radon.cc_visit(file_obj.read())
@@ -37,7 +42,9 @@ def test_complexity():
 
 def test_import_order():
     """All source file imports should be ordered and formatted properly."""
-    file_paths = glob.iglob('*/*.py')
+    file_paths = itertools.chain(
+        glob.iglob('automata/*/*.py'),
+        glob.iglob('tests/*.py'))
     for file_path in file_paths:
         with open(file_path, 'r') as file_obj:
             file_contents = file_obj.read()
