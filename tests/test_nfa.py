@@ -51,7 +51,7 @@ class TestNFA(test_fa.TestFA):
         """Should correctly determine if two NFAs are not equal."""
         new_nfa = self.nfa.copy()
         new_nfa.final_states.add('q2')
-        nose.assert_true(self.nfa != new_nfa, 'NFAs are not equal')
+        nose.assert_true(self.nfa != new_nfa, 'NFAs are equal')
 
     def test_validate_self_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""

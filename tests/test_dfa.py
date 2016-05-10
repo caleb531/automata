@@ -40,7 +40,7 @@ class TestDFA(test_fa.TestFA):
         """Should correctly determine if two DFAs are not equal."""
         new_dfa = self.dfa.copy()
         new_dfa.final_states.add('q2')
-        nose.assert_true(self.dfa != new_dfa, 'DFAs are not equal')
+        nose.assert_true(self.dfa != new_dfa, 'DFAs are equal')
 
     def test_validate_self_missing_state(self):
         """Should raise error if a state has no transitions defined."""
