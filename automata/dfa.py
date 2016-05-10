@@ -4,12 +4,12 @@
 import copy
 import queue
 
-import automata.automaton as automaton
+import automata.fa as FA
 import automata.nfa
 
 
-class DFA(automaton.Automaton):
-    """A deterministic finite automaton."""
+class DFA(FA.FA):
+    """A deterministic finite FA."""
 
     def __init__(self, obj=None, *, states=None, input_symbols=None,
                  transitions=None, initial_state=None, final_states=None):
@@ -24,7 +24,7 @@ class DFA(automaton.Automaton):
             self.transitions = copy.deepcopy(transitions)
             self.initial_state = initial_state
             self.final_states = final_states.copy()
-            self.validate_automaton()
+            self.validate_self()
 
     def _validate_transition_symbols(self, start_state, paths):
         """Raise an error if the transition symbols are missing or invalid."""
@@ -32,17 +32,17 @@ class DFA(automaton.Automaton):
 
         missing_symbols = self.input_symbols - path_symbols
         if missing_symbols:
-            raise automaton.MissingTransitionError(
+            raise FA.MissingTransitionError(
                 'state {} is missing transitions for symbols ({})'.format(
                     start_state, ', '.join(missing_symbols)))
 
         invalid_symbols = path_symbols - self.input_symbols
         if invalid_symbols:
-            raise automaton.InvalidSymbolError(
+            raise FA.InvalidSymbolError(
                 'state {} has invalid transition symbols ({})'.format(
                     start_state, ', '.join(invalid_symbols)))
 
-    def validate_automaton(self):
+    def validate_self(self):
         """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
 
@@ -60,7 +60,7 @@ class DFA(automaton.Automaton):
         """
         Check if the given string is accepted by this DFA.
 
-        Yield the current configuration of the automaton at each step.
+        Yield the current configuration of the FA at each step.
         """
         current_state = self.initial_state
 
@@ -71,8 +71,8 @@ class DFA(automaton.Automaton):
             yield current_state
 
         if current_state not in self.final_states:
-            raise automaton.RejectionError(
-                'the automaton stopped on a non-final state ({})'.format(
+            raise FA.RejectionError(
+                'the FA stopped on a non-final state ({})'.format(
                     current_state))
 
     def _validate_input_return(self, input_str):

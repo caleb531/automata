@@ -7,7 +7,7 @@ from automata.dfa import DFA
 from automata.nfa import NFA
 
 
-class TestAutomaton(object):
+class TestFA(object):
     """A test class for testing all finite automata."""
 
     def setup(self):
@@ -39,7 +39,7 @@ class TestAutomaton(object):
         )
 
     def assert_is_copy(self, first, second):
-        """Assert that the first automaton is an exact copy of the second."""
+        """Assert that the first FA is an exact copy of the second."""
         nose.assert_is_not(first.states, second.states)
         nose.assert_equal(first.states, second.states)
         nose.assert_is_not(first.input_symbols, second.input_symbols)
