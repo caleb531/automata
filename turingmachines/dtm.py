@@ -38,6 +38,7 @@ class DTM(tm.TM):
         """Return True if this DTM is internally consistent."""
         self._validate_initial_state()
         self._validate_final_states()
+        self._validate_nonfinal_initial_state()
 
     def _get_transition(self, state, tape_symbol):
         """Get the transiton tuple for the given state and tape symbol."""

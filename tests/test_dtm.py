@@ -34,6 +34,24 @@ class TestDTM(test_tm.TestTM):
         new_dtm.final_states.add('q2')
         nose.assert_true(self.dtm1 != new_dtm, 'DTMs are equal')
 
+    def test_validate_self_invalid_initial_state(self):
+        """Should raise error if the initial state is invalid."""
+        with nose.assert_raises(tm.InvalidStateError):
+            self.dtm1.initial_state = 'q5'
+            self.dtm1.validate_self()
+
+    def test_validate_self_invalid_final_state(self):
+        """Should raise error if the final state is invalid."""
+        with nose.assert_raises(tm.InvalidStateError):
+            self.dtm1.final_states = {'q5'}
+            self.dtm1.validate_self()
+
+    def test_validate_self_nonfinal_initial_state(self):
+        """Should raise error if the initial state is a final state."""
+        with nose.assert_raises(tm.FinalStateError):
+            self.dtm1.final_states.add('q0')
+            self.dtm1.validate_self()
+
     def test_validate_input_valid(self):
         """Should return correct stop state if valid TM input is given."""
         final_config = self.dtm1.validate_input('00001111')

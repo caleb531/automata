@@ -26,6 +26,13 @@ class TM(metaclass=abc.ABCMeta):
                 'final states are not valid ({})'.format(
                     ', '.join(invalid_states)))
 
+    def _validate_nonfinal_initial_state(self):
+        """Raise an error if the initial state is a final state."""
+        if self.initial_state in self.final_states:
+            raise FinalStateError(
+                'initial state {} cannot be a final state'.format(
+                    self.initial_state))
+
     @abc.abstractmethod
     def validate_self(self):
         """Return True if this machine is internally consistent."""
@@ -53,6 +60,12 @@ class TMError(Exception):
 
 class InvalidStateError(TMError):
     """A state is not a valid state for this machine."""
+
+    pass
+
+
+class FinalStateError(TMError):
+    """The initial state is a final state."""
 
     pass
 
