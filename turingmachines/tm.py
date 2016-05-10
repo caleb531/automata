@@ -4,7 +4,7 @@
 import abc
 
 
-class TuringMachine(object):
+class TM(object):
     """An abstract base class for Turing machines."""
 
     @abc.abstractmethod
@@ -23,13 +23,13 @@ class TuringMachine(object):
         pass
 
 
-class TuringMachineError(Exception):
+class TMError(Exception):
     """The base class for all machine-related errors."""
 
     pass
 
 
-class RejectionError(TuringMachineError):
+class RejectionError(TMError):
     """The machine halted on a non-final state."""
 
     pass

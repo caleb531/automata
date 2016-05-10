@@ -9,7 +9,7 @@ import nose.tools as nose
 
 import turingmachines.tools as tmtools
 import tests.test_tm as test_tm
-from turingmachines.tape import TuringMachineTape
+from turingmachines.tape import TMTape
 
 
 class TestTMTools(test_tm.TestTM):
@@ -20,7 +20,7 @@ class TestTMTools(test_tm.TestTM):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             tmtools.print_config(
-                current_state='q2', tape=TuringMachineTape(
+                current_state='q2', tape=TMTape(
                     tape='abcdefghij', blank_symbol='.',
                     current_position=2, position_offset=1),
                 max_position_offset=3)
@@ -30,17 +30,17 @@ class TestTMTools(test_tm.TestTM):
     @patch('turingmachines.tools.print_config')
     def test_print_configs(self, print_config):
         """Should print each machine configuration to stdout."""
-        tape1 = TuringMachineTape(
+        tape1 = TMTape(
             tape='01010101',
             current_position=0,
             position_offset=0
         )
-        tape2 = TuringMachineTape(
+        tape2 = TMTape(
             tape='x1010101',
             current_position=-1,
             position_offset=0
         )
-        tape3 = TuringMachineTape(
+        tape3 = TMTape(
             tape='yx1010101',
             current_position=-2,
             position_offset=1
@@ -58,7 +58,7 @@ class TestTMTools(test_tm.TestTM):
 
     def test_tape_iteration(self):
         """Should be able to iterate over a Turing machine tape."""
-        tape = TuringMachineTape(
+        tape = TMTape(
             tape='abcdef',
             current_position=2,
             position_offset=1

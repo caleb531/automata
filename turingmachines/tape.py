@@ -2,13 +2,13 @@
 """Classes and methods for working with Turing machine tapes."""
 
 
-class TuringMachineTape(object):
+class TMTape(object):
     """A Turing machine tape."""
 
     def __init__(self, obj=None, *, tape=None, blank_symbol=None,
                  current_position=0, position_offset=0):
         """Initialize the new Turing machine tape."""
-        if isinstance(obj, TuringMachineTape):
+        if isinstance(obj, TMTape):
             return self._init_from_tape_obj(obj)
         else:
             self.tape = list(tape)

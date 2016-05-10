@@ -4,7 +4,7 @@
 import copy
 
 import turingmachines.tm as tm
-from turingmachines.tape import TuringMachineTape
+from turingmachines.tape import TMTape
 
 
 class DTM(object):
@@ -52,7 +52,7 @@ class DTM(object):
         """
         current_state = self.initial_state
         current_direction = None
-        tape = TuringMachineTape(
+        tape = TMTape(
             tape=input_str, blank_symbol=self.blank_symbol)
         yield current_state, tape
 

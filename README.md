@@ -245,11 +245,11 @@ Raised if the automaton stopped on a non-final state after validating input.
 In addition to working with finite automata, this library can also simulate
 deterministic Turing machines (DTMs).
 
-### class TuringMachine
+### class TM
 
-The `TuringMachine` class is an abstract base class from which all finite
+The `TM` class is an abstract base class from which all finite
 automata inherit. As such, it cannot be instantiated on its own; you must use
-the `DTM` class or create your own subclass instead. The `TuringMachine` class
+the `DTM` class or create your own subclass instead. The `TM` class
 can be found under `turingmachines/tm.py`.
 
 ### class DTM
@@ -325,7 +325,7 @@ by the DTM.
 
 If the string is accepted, the method returns a tuple containing the state the
 machine stopped on (which presumably is a valid final state), as well as a
-`TuringMachineTape` object representing the DTM's internal tape.
+`TMTape` object representing the DTM's internal tape.
 
 ```python
 dtm.validate_input('01')  # returns ('q4', xy.)
@@ -339,7 +339,7 @@ dtm.validate_input('011')  # raises RejectionError
 
 If you supply the `step` keyword argument with a value of `True`, the method
 will return a generator which yields a tuple containing the current state and
-the current tape as a `TuringMachineTape` object.
+the current tape as a `TMTape` object.
 
 ```python
 [state, tape.copy() for state, tape in dtm.validate_input('01', step=True)]
@@ -354,7 +354,7 @@ the current tape as a `TuringMachineTape` object.
 ```
 
 Please note that each tuple contains a reference to (not a copy of) the current
-`TuringMachineTape` object. Therefore, if you wish to store the tape at every
+`TMTape` object. Therefore, if you wish to store the tape at every
 step, you must copy the tape as you iterate over the machine configurations (as
 shown above).
 
