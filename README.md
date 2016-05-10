@@ -366,3 +366,12 @@ The `validate_self()` method checks whether the DTM is actually a valid DTM. The
 method has the same basic behavior and prescribed use case as the
 `DFA.validate_self()` and `NFA.validate_self()` methods, while (naturally)
 containing validation checks specific to DTMs.
+
+#### Copying a DTM
+
+To create an exact copy of a DTM, simply pass a `DTM` instance into the `DTM`
+constructor.
+
+```python
+dtm_copy = DTM(dtm)  # returns an exact copy of dtm
+```
