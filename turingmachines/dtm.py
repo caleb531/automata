@@ -33,7 +33,7 @@ class DTM(object):
             initial_state=tm.initial_state, blank_symbol=tm.blank_symbol,
             final_states=tm.final_states)
 
-    def get_transition(self, state, tape_symbol):
+    def _get_transition(self, state, tape_symbol):
         """Get the transiton tuple for the given state and tape symbol."""
         if (state in self.transitions and
                 tape_symbol in self.transitions[state]):
@@ -60,7 +60,7 @@ class DTM(object):
 
             input_symbol = tape.read_symbol()
             (current_state, new_tape_symbol,
-                current_direction) = self.get_transition(
+                current_direction) = self._get_transition(
                     current_state, input_symbol)
             tape.write_symbol(new_tape_symbol)
             tape.move(current_direction)
