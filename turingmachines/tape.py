@@ -63,7 +63,7 @@ class TMTape(object):
 
     def __repr__(self):
         """Return a string representation of the tape."""
-        return ''.join(self.tape)
+        return '{}(\'{}\')'.format(self.__class__.__name__, ''.join(self.tape))
 
     def __eq__(self, other):
         """Check if two tapes are equal."""

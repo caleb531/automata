@@ -6,7 +6,7 @@ def print_config(current_state, tape, max_position_offset):
     """Print the machine's current configuration in a readable form."""
     print('{current_state}: {tape}\n{current_position}'.format(
         current_state=current_state,
-        tape=str(tape).rjust(
+        tape=''.join(tape).rjust(
             len(tape) + max_position_offset - tape.position_offset,
             tape.blank_symbol),
         current_position='^'.rjust(

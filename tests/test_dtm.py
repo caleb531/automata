@@ -33,7 +33,7 @@ class TestDTM(test_tm.TestTM):
         """Should return correct stop state if valid TM input is given."""
         final_config = self.dtm1.validate_input('00001111')
         nose.assert_equal(final_config[0], 'q4')
-        nose.assert_equal(str(final_config[1]), 'xxxxyyyy.')
+        nose.assert_equal(str(final_config[1]), 'TMTape(\'xxxxyyyy.\')')
 
     def test_validate_input_step(self):
         """Should return validation generator if step flag is supplied."""
@@ -43,15 +43,15 @@ class TestDTM(test_tm.TestTM):
         for current_state, tape in validation_generator:
             configs.append((current_state, tape.copy()))
         nose.assert_equal(configs[0][0], 'q0')
-        nose.assert_equal(str(configs[0][1]), '00001111')
+        nose.assert_equal(str(configs[0][1]), 'TMTape(\'00001111\')')
         nose.assert_equal(configs[-1][0], 'q4')
-        nose.assert_equal(str(configs[-1][1]), 'xxxxyyyy.')
+        nose.assert_equal(str(configs[-1][1]), 'TMTape(\'xxxxyyyy.\')')
 
     def test_validate_input_offset(self):
         """Should valdiate input when tape is offset."""
         final_config = self.dtm2.validate_input('01010101')
         nose.assert_equal(final_config[0], 'q4')
-        nose.assert_equal(str(final_config[1]), 'yyx1010101')
+        nose.assert_equal(str(final_config[1]), 'TMTape(\'yyx1010101\')')
 
     def test_validate_input_rejection(self):
         """Should raise error if the machine halts."""
