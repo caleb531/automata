@@ -17,16 +17,15 @@ Automata requires Python 3.4 or newer.
 
 ### class FA
 
-The `FA` class is an abstract base class from which all finite automata
-inherit. As such, it cannot be instantiated on its own; you must use the `DFA`
-and `NFA` classes instead (or you may create your own subclass if you're feeling
+The `FA` class is an abstract base class from which all finite automata inherit.
+As such, it cannot be instantiated on its own; you must use the `DFA` and `NFA`
+classes instead (or you may create your own subclass if you're feeling
 adventurous). The `FA` class can be found under `automata/FA.py`.
 
 ### class DFA
 
-The `DFA` class is a subclass of class `FA` which represents a
-deterministic finite FA. The `DFA` class can be found under
-`automata/dfa.py`.
+The `DFA` class is a subclass of class `FA` which represents a deterministic
+finite FA. The `DFA` class can be found under `automata/dfa.py`.
 
 #### DFA properties
 
@@ -72,8 +71,8 @@ Please note that the below DFA code examples reference the above `dfa` object.
 The `validate_input()` method checks whether or not the given string is accepted
 by the DFA.
 
-If the string is accepted, the method returns the state the FA stopped on
-(which presumably is a valid final state).
+If the string is accepted, the method returns the state the FA stopped on (which
+presumably is a valid final state).
 
 ```python
 dfa.validate_input('01')  # returns 'q1'
@@ -101,8 +100,8 @@ method still raises a `RejectionError`.
 
 #### DFA.validate_self(self)
 
-The `validate_self()` method checks whether the DFA is actually a valid
-DFA. The method returns `True` if the DFA is valid; otherwise, it will raise the
+The `validate_self()` method checks whether the DFA is actually a valid DFA. The
+method returns `True` if the DFA is valid; otherwise, it will raise the
 appropriate exception (*e.g.* the state transition is missing for a particular
 symbol). This method is automatically called when the DFA is initialized, so
 it's only really useful if a DFA object is modified after instantiation.
@@ -118,9 +117,8 @@ dfa_copy = DFA(dfa)  # returns an exact copy of dfa
 
 ### class NFA
 
-The `NFA` class is a subclass of class `FA` which represents a
-nondeterministic finite FA. The `NFA` class can be found under
-`automata/nfa.py`.
+The `NFA` class is a subclass of class `FA` which represents a nondeterministic
+finite FA. The `NFA` class can be found under `automata/nfa.py`.
 
 #### NFA properties
 
@@ -155,8 +153,8 @@ nfa = NFA(
 The `validate_input()` method checks whether or not the given string is accepted
 by the NFA.
 
-If the string is accepted, the method returns a `set` of states the
-FA stopped on (which presumably contains at least one valid final state).
+If the string is accepted, the method returns a `set` of states the FA stopped
+on (which presumably contains at least one valid final state).
 
 ```python
 nfa.validate_input('aba')  # returns {'q1', 'q2'}
@@ -184,10 +182,10 @@ string is rejected by the NFA, the method still raises a `RejectionError`.
 
 #### NFA.validate_self(self)
 
-The `validate_self()` method checks whether the NFA is actually a valid
-NFA. The method has the same basic behavior and prescribed use case as the
-`DFA.validate_self()` method, despite being less restrictive (since NFAs
-are naturally less restrictive than DFAs).
+The `validate_self()` method checks whether the NFA is actually a valid NFA. The
+method has the same basic behavior and prescribed use case as the
+`DFA.validate_self()` method, despite being less restrictive (since NFAs are
+naturally less restrictive than DFAs).
 
 #### Converting an NFA to a DFA
 
@@ -210,8 +208,8 @@ nfa_copy = NFA(nfa)  # returns an exact copy of nfa
 ### FA exception classes
 
 The library also includes a number of exception classes to ensure that errors
-never pass silently (unless explicitly silenced). See `automata/FA.py`
-for these class definitions.
+never pass silently (unless explicitly silenced). See `automata/FA.py` for these
+class definitions.
 
 To reference these exceptions (so as to catch them in a `try..except` block or
 whatnot), simply import `automata.fa` however you'd like:
@@ -247,16 +245,15 @@ deterministic Turing machines (DTMs).
 
 ### class TM
 
-The `TM` class is an abstract base class from which all finite
-automata inherit. As such, it cannot be instantiated on its own; you must use
-the `DTM` class or create your own subclass instead. The `TM` class
-can be found under `turingmachines/tm.py`.
+The `TM` class is an abstract base class from which all turing machines inherit.
+As such, it cannot be instantiated on its own; you must use the `DTM` class or
+create your own subclass instead. The `TM` class can be found under
+`turingmachines/tm.py`.
 
 ### class DTM
 
-The `DTM` class is a subclass of class `FA` which represents a
-deterministic finite FA. The `DTM` class can be found under
-`automata/dtm.py`.
+The `DTM` class is a subclass of class `FA` which represents a deterministic
+finite FA. The `DTM` class can be found under `automata/dtm.py`.
 
 #### DTM properties
 
@@ -279,8 +276,8 @@ a state (the value).
 
 6. `final_states`: a `set` of final states for this DTM
 
-All of these properties must be supplied when the DTM is
-instantiated (see the examples below).
+All of these properties must be supplied when the DTM is instantiated (see the
+examples below).
 
 ```python
 from automata.dtm import DTM
@@ -354,9 +351,9 @@ the current tape as a `TMTape` object.
 ```
 
 Please note that each tuple contains a reference to (not a copy of) the current
-`TMTape` object. Therefore, if you wish to store the tape at every
-step, you must copy the tape as you iterate over the machine configurations (as
-shown above).
+`TMTape` object. Therefore, if you wish to store the tape at every step, you
+must copy the tape as you iterate over the machine configurations (as shown
+above).
 
 Also note that the first yielded state is always the DTM's initial state (before
 any input has been read) and the last yielded state is always the DTM's final
