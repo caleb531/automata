@@ -317,3 +317,48 @@ dtm = DTM(
 ```
 
 Please note that the below DTM code examples reference the above `dtm` object.
+
+#### DTM.validate_input(self, input_str, step=False)
+
+The `validate_input()` method checks whether or not the given string is accepted
+by the DTM.
+
+If the string is accepted, the method returns a tuple containing the state the
+machine stopped on (which presumably is a valid final state), as well as a
+`TuringMachineTape` object representing the DTM's internal tape.
+
+```python
+dtm.validate_input('01')  # returns ('q4', xy.)
+```
+
+If the string is rejected by the DTM, the method will raise a `RejectionError`.
+
+```python
+dtm.validate_input('011')  # raises RejectionError
+```
+
+If you supply the `step` keyword argument with a value of `True`, the method
+will return a generator which yields a tuple containing the current state and
+the current tape as a `TuringMachineTape` object.
+
+```python
+[state, tape.copy() for state, tape in dtm.validate_input('01', step=True)]
+# returns [
+#   ('q0', 01)
+#   ('q1', x1)
+#   ('q2', xy)
+#   ('q0', xy)
+#   ('q3', xy)
+#   ('q3', xy.)
+# ]
+```
+
+Please note that each tuple contains a reference to (not a copy of) the current
+`TuringMachineTape` object. Therefore, if you wish to store the tape at every
+step, you must copy the tape as you iterate over the machine configurations (as
+shown above).
+
+Also note that the first yielded state is always the DTM's initial state (before
+any input has been read) and the last yielded state is always the DTM's final
+state (after all input has been read). If the string is rejected by the DTM, the
+method still raises a `RejectionError`.
