@@ -40,6 +40,36 @@ class TestDTM(test_tm.TestTM):
             self.dtm1.input_symbols.add('2')
             self.dtm1.validate_self()
 
+    def test_validate_self_invalid_transition_state(self):
+        """Should raise error if a transition state is invalid."""
+        with nose.assert_raises(tm.InvalidStateError):
+            self.dtm1.transitions['q5'] = self.dtm1.transitions['q0']
+            self.dtm1.validate_self()
+
+    def test_validate_self_invalid_transition_symbol(self):
+        """Should raise error if a transition symbol is invalid."""
+        with nose.assert_raises(tm.InvalidSymbolError):
+            self.dtm1.transitions['q0']['2'] = ('q0', '0' 'R')
+            self.dtm1.validate_self()
+
+    def test_validate_self_invalid_transition_result_state(self):
+        """Should raise error if a transition result state is invalid."""
+        with nose.assert_raises(tm.InvalidStateError):
+            self.dtm1.transitions['q0']['y'] = ('q5', 'y', 'R')
+            self.dtm1.validate_self()
+
+    def test_validate_self_invalid_transition_result_symbol(self):
+        """Should raise error if a transition result symbol is invalid."""
+        with nose.assert_raises(tm.InvalidSymbolError):
+            self.dtm1.transitions['q0']['y'] = ('q3', 'z', 'R')
+            self.dtm1.validate_self()
+
+    def test_validate_self_invalid_transition_result_direction(self):
+        """Should raise error if a transition result direction is invalid."""
+        with nose.assert_raises(tm.InvalidDirectionError):
+            self.dtm1.transitions['q0']['y'] = ('q3', 'y', 'U')
+            self.dtm1.validate_self()
+
     def test_validate_self_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(tm.InvalidStateError):

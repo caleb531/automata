@@ -71,6 +71,18 @@ class InvalidStateError(TMError):
     pass
 
 
+class InvalidSymbolError(TMError):
+    """A symbol is not a valid symbol for this machine."""
+
+    pass
+
+
+class InvalidDirectionError(TMError):
+    """A direction is not a valid direction for this machine."""
+
+    pass
+
+
 class MissingSymbolError(TMError):
     """Symbols are missing from the machine definition."""
 

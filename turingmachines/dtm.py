@@ -34,12 +34,52 @@ class DTM(tm.TM):
             initial_state=tm.initial_state, blank_symbol=tm.blank_symbol,
             final_states=tm.final_states)
 
+    def _validate_transition_state(self, transition_state):
+        if transition_state not in self.states:
+            raise tm.InvalidStateError(
+                'transition state is not valid ({})'.format(transition_state))
+
+    def _validate_transition_symbols(self, transition_symbols):
+        invalid_states = transition_symbols - self.tape_symbols
+        if invalid_states:
+            raise tm.InvalidSymbolError(
+                'transition symbols are not valid ({})'.format(
+                    ', '.join(invalid_states)))
+
+    def _validate_transition_result_direction(self, result_direction):
+        if not (result_direction == 'L' or result_direction == 'R'):
+            raise tm.InvalidDirectionError(
+                'result direction is not valid ({})'.format(
+                    result_direction))
+
+    def _validate_transition_result(self, result):
+        result_state, result_symbol, result_direction = result
+        if result_state not in self.states:
+            raise tm.InvalidStateError(
+                'result state is not valid ({})'.format(result_state))
+        if result_symbol not in self.tape_symbols:
+            raise tm.InvalidSymbolError(
+                'result symbol is not valid ({})'.format(result_symbol))
+        self._validate_transition_result_direction(result_direction)
+
+    def _validate_transition_results(self, results):
+        for result in results:
+            self._validate_transition_result(result)
+
+    def _validate_transitions(self):
+        for state, transition_symbols in self.transitions.items():
+            self._validate_transition_state(state)
+            self._validate_transition_symbols(set(transition_symbols.keys()))
+            self._validate_transition_results(set(transition_symbols.values()))
+
     def validate_self(self):
         """Return True if this DTM is internally consistent."""
         self._validate_input_symbol_subset()
+        self._validate_transitions()
         self._validate_initial_state()
         self._validate_final_states()
         self._validate_nonfinal_initial_state()
+        return True
 
     def _get_transition(self, state, tape_symbol):
         """Get the transiton tuple for the given state and tape symbol."""
