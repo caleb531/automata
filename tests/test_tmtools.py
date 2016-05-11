@@ -32,16 +32,19 @@ class TestTMTools(test_tm.TestTM):
         """Should print each machine configuration to stdout."""
         tape1 = TMTape(
             tape='01010101',
+            blank_symbol='.',
             current_position=0,
             position_offset=0
         )
         tape2 = TMTape(
             tape='x1010101',
+            blank_symbol='.',
             current_position=-1,
             position_offset=0
         )
         tape3 = TMTape(
             tape='yx1010101',
+            blank_symbol='.',
             current_position=-2,
             position_offset=1
         )
@@ -60,6 +63,7 @@ class TestTMTools(test_tm.TestTM):
         """Should be able to iterate over a Turing machine tape."""
         tape = TMTape(
             tape='abcdef',
+            blank_symbol='.',
             current_position=2,
             position_offset=1
         )

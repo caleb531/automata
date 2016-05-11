@@ -5,16 +5,19 @@
 class TMTape(object):
     """A Turing machine tape."""
 
-    def __init__(self, tape=None, *, blank_symbol=None,
-                 current_position=0, position_offset=0):
+    def __init__(self, tape, **kwargs):
         """Initialize the new Turing machine tape."""
         if isinstance(tape, TMTape):
             return self._init_from_tape_obj(tape)
         else:
-            self.tape = list(tape)
-            self.blank_symbol = blank_symbol
-            self.current_position = current_position
-            self.position_offset = position_offset
+            self._init_from_tape_params(tape, **kwargs)
+
+    def _init_from_tape_params(self, tape, *, blank_symbol, current_position=0,
+                               position_offset=0):
+        self.tape = list(tape)
+        self.blank_symbol = blank_symbol
+        self.current_position = current_position
+        self.position_offset = position_offset
 
     def _init_from_tape_obj(self, tape_obj):
         """Initialize this Tape as an exact copy of the given Tape."""
