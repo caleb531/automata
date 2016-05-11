@@ -21,7 +21,7 @@ class DFA(fa.FA):
         else:
             self._init_from_formal_params(**kwargs)
 
-    def _init_from_formal_params(self, states, input_symbols, transitions,
+    def _init_from_formal_params(self, *, states, input_symbols, transitions,
                                  initial_state, final_states):
         """Initialize a DFA from the formal definition parameters."""
         self.states = states.copy()

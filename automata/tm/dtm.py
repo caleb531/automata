@@ -19,7 +19,7 @@ class DTM(tm.TM):
         else:
             self._init_from_formal_params(**kwargs)
 
-    def _init_from_formal_params(self, states, input_symbols, tape_symbols,
+    def _init_from_formal_params(self, *, states, input_symbols, tape_symbols,
                                  transitions, initial_state, blank_symbol,
                                  final_states):
         """Initialize a DTM from the formal definition parameters."""
