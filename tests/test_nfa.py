@@ -19,6 +19,16 @@ class TestNFA(test_fa.TestFA):
         new_nfa = NFA(self.nfa)
         self.assert_is_copy(new_nfa, self.nfa)
 
+    def test_init_nfa_missing_formal_params(self):
+        """Should raise an error if formal NFA parameters are missing."""
+        with nose.assert_raises(TypeError):
+            NFA(
+                states={'q0', 'q1'},
+                input_symbols={'0', '1'},
+                initial_state='q0',
+                final_states={'q1'}
+            )
+
     def test_copy_nfa(self):
         """Should create exact copy of NFA if copy() method is called."""
         new_nfa = self.nfa.copy()

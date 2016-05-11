@@ -11,20 +11,24 @@ import automata.fa.dfa
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
 
-    def __init__(self, obj=None, *, states=None, input_symbols=None,
-                 transitions=None, initial_state=None, final_states=None):
+    def __init__(self, obj=None, *args, **kwargs):
         """Initialize a complete NFA."""
         if isinstance(obj, automata.fa.dfa.DFA):
             self._init_from_dfa(obj)
         elif isinstance(obj, NFA):
             self._init_from_nfa(obj)
         else:
-            self.states = states.copy()
-            self.input_symbols = input_symbols.copy()
-            self.transitions = copy.deepcopy(transitions)
-            self.initial_state = initial_state
-            self.final_states = final_states.copy()
-            self.validate_self()
+            self._init_from_formal_params(*args, **kwargs)
+
+    def _init_from_formal_params(self, states, input_symbols, transitions,
+                                 initial_state, final_states):
+        """Initialize an NFA from the formal definition parameters."""
+        self.states = states.copy()
+        self.input_symbols = input_symbols.copy()
+        self.transitions = copy.deepcopy(transitions)
+        self.initial_state = initial_state
+        self.final_states = final_states.copy()
+        self.validate_self()
 
     def _init_from_nfa(self, nfa):
         """Initialize this NFA as an exact copy of the given NFA."""

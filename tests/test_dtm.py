@@ -19,6 +19,18 @@ class TestDTM(test_tm.TestTM):
         new_dtm = DTM(self.dtm1)
         self.assert_is_copy(new_dtm, self.dtm1)
 
+    def test_init_dtm_missing_formal_params(self):
+        """Should raise an error if formal DTM parameters are missing."""
+        with nose.assert_raises(TypeError):
+            DTM(
+                states={'q0', 'q1', 'q2', 'q3', 'q4'},
+                input_symbols={'0', '1'},
+                tape_symbols={'0', '1', 'x', 'y', '.'},
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q4'}
+            )
+
     def test_copy_dtm(self):
         """Should create exact copy of DTM if copy() method is called."""
         new_dtm = self.dtm1.copy()

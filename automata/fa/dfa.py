@@ -12,20 +12,24 @@ import automata.fa.nfa
 class DFA(fa.FA):
     """A deterministic finite automaton."""
 
-    def __init__(self, obj=None, *, states=None, input_symbols=None,
-                 transitions=None, initial_state=None, final_states=None):
+    def __init__(self, obj=None, *args, **kwargs):
         """Initialize a complete DFA."""
         if isinstance(obj, automata.fa.nfa.NFA):
             self._init_from_nfa(obj)
         elif isinstance(obj, DFA):
             self._init_from_dfa(obj)
         else:
-            self.states = states.copy()
-            self.input_symbols = input_symbols.copy()
-            self.transitions = copy.deepcopy(transitions)
-            self.initial_state = initial_state
-            self.final_states = final_states.copy()
-            self.validate_self()
+            self._init_from_formal_params(*args, **kwargs)
+
+    def _init_from_formal_params(self, states, input_symbols, transitions,
+                                 initial_state, final_states):
+        """Initialize a DFA from the formal definition parameters."""
+        self.states = states.copy()
+        self.input_symbols = input_symbols.copy()
+        self.transitions = copy.deepcopy(transitions)
+        self.initial_state = initial_state
+        self.final_states = final_states.copy()
+        self.validate_self()
 
     def _validate_transition_symbols(self, start_state, paths):
         """Raise an error if the transition symbols are missing or invalid."""

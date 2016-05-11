@@ -20,6 +20,16 @@ class TestDFA(test_fa.TestFA):
         new_dfa = DFA(self.dfa)
         self.assert_is_copy(new_dfa, self.dfa)
 
+    def test_init_dfa_missing_formal_params(self):
+        """Should raise an error if formal DFA parameters are missing."""
+        with nose.assert_raises(TypeError):
+            DFA(
+                states={'q0', 'q1'},
+                input_symbols={'0', '1'},
+                initial_state='q0',
+                final_states={'q1'}
+            )
+
     def test_copy_dfa(self):
         """Should create exact copy of DFA if copy() method is called."""
         new_dfa = self.dfa.copy()

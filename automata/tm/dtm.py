@@ -12,21 +12,25 @@ from automata.tm.tape import TMTape
 class DTM(tm.TM):
     """A deterministic Turing machine."""
 
-    def __init__(self, obj=None, *, states=None, input_symbols=None,
-                 tape_symbols=None, transitions=None, initial_state=None,
-                 blank_symbol=None, final_states=None):
+    def __init__(self, obj=None, *args, **kwargs):
         """Initialize a complete Turing machine."""
         if isinstance(obj, DTM):
             self._init_from_dtm(obj)
         else:
-            self.states = states.copy()
-            self.input_symbols = input_symbols.copy()
-            self.tape_symbols = tape_symbols.copy()
-            self.transitions = copy.deepcopy(transitions)
-            self.initial_state = initial_state
-            self.blank_symbol = blank_symbol
-            self.final_states = final_states.copy()
-            self.validate_self()
+            self._init_from_formal_params(*args, **kwargs)
+
+    def _init_from_formal_params(self, states, input_symbols, tape_symbols,
+                                 transitions, initial_state, blank_symbol,
+                                 final_states):
+        """Initialize a DTM from the formal definition parameters."""
+        self.states = states.copy()
+        self.input_symbols = input_symbols.copy()
+        self.tape_symbols = tape_symbols.copy()
+        self.transitions = copy.deepcopy(transitions)
+        self.initial_state = initial_state
+        self.blank_symbol = blank_symbol
+        self.final_states = final_states.copy()
+        self.validate_self()
 
     def _init_from_dtm(self, tm):
         """Initialize this DTM as an exact copy of the given DTM."""
