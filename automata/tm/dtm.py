@@ -12,12 +12,12 @@ from automata.tm.tape import TMTape
 class DTM(tm.TM):
     """A deterministic Turing machine."""
 
-    def __init__(self, obj=None, *args, **kwargs):
+    def __init__(self, obj=None, **kwargs):
         """Initialize a complete Turing machine."""
         if isinstance(obj, DTM):
             self._init_from_dtm(obj)
         else:
-            self._init_from_formal_params(*args, **kwargs)
+            self._init_from_formal_params(**kwargs)
 
     def _init_from_formal_params(self, states, input_symbols, tape_symbols,
                                  transitions, initial_state, blank_symbol,

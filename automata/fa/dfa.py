@@ -12,14 +12,14 @@ import automata.fa.nfa
 class DFA(fa.FA):
     """A deterministic finite automaton."""
 
-    def __init__(self, obj=None, *args, **kwargs):
+    def __init__(self, obj=None, **kwargs):
         """Initialize a complete DFA."""
         if isinstance(obj, automata.fa.nfa.NFA):
             self._init_from_nfa(obj)
         elif isinstance(obj, DFA):
             self._init_from_dfa(obj)
         else:
-            self._init_from_formal_params(*args, **kwargs)
+            self._init_from_formal_params(**kwargs)
 
     def _init_from_formal_params(self, states, input_symbols, transitions,
                                  initial_state, final_states):
