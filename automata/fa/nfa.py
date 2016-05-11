@@ -124,26 +124,3 @@ class NFA(fa.FA):
             raise exceptions.RejectionError(
                 'the FA stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
-
-    def _validate_input_return(self, input_str):
-        """
-        Check if the given string is accepted by this NFA.
-
-        Return the state the machine stopped on if the string is valid.
-        """
-        validation_generator = self._validate_input_yield(input_str)
-        for current_states in validation_generator:
-            pass
-        return current_states
-
-    def validate_input(self, input_str, step=False):
-        """
-        Check if the given string is accepted by this NFA.
-
-        If step is True, yield the configuration at each step. Otherwise,
-        return the final configuration.
-        """
-        if step:
-            return self._validate_input_yield(input_str)
-        else:
-            return self._validate_input_return(input_str)
