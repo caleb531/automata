@@ -78,13 +78,21 @@ class DTM(tm.TM):
             self._validate_transition_symbols(set(transition_symbols.keys()))
             self._validate_transition_results(set(transition_symbols.values()))
 
+    def _validate_final_state_transitions(self):
+        for final_state in self.final_states:
+            if final_state in self.transitions:
+                raise tmexceptions.FinalStateError(
+                    'final state {} has transitions defined'.format(
+                        final_state))
+
     def validate_self(self):
         """Return True if this DTM is internally consistent."""
         self._validate_input_symbol_subset()
         self._validate_transitions()
         self._validate_initial_state()
-        self._validate_final_states()
         self._validate_nonfinal_initial_state()
+        self._validate_final_states()
+        self._validate_final_state_transitions()
         return True
 
     def _get_transition(self, state, tape_symbol):

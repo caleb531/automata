@@ -20,3 +20,9 @@ class InitialStateError(TMError):
     """The initial state is a final state."""
 
     pass
+
+
+class FinalStateError(TMError):
+    """A final state has any transitions defined."""
+
+    pass

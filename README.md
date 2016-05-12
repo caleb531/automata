@@ -423,3 +423,8 @@ direction.
 Raised if the initial state is also a final state (because the initial state
 must have at least one transition defined, whereas every final state must not
 have any transitions defined).
+
+#### class FinalStateError
+
+Raised if a final state has any transitions defined (because no final state can
+have any transitions defined for a DTM).
