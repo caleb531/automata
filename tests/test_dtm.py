@@ -91,7 +91,7 @@ class TestDTM(test_tm.TestTM):
 
     def test_validate_self_initial_state_transitions(self):
         """Should raise error if the initial state has no transitions."""
-        with nose.assert_raises(exceptions.InitialStateError):
+        with nose.assert_raises(exceptions.MissingStateError):
             del self.dtm1.transitions[self.dtm1.initial_state]
             self.dtm1.validate_self()
 
