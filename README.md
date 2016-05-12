@@ -46,7 +46,7 @@ from automata.fa.fa import FA
 ### class DFA
 
 The `DFA` class is a subclass of class `FA` which represents a deterministic
-finite FA. The `DFA` class can be found under `automata/fa/dfa.py`.
+finite automaton. The `DFA` class can be found under `automata/fa/dfa.py`.
 
 #### DFA properties
 
@@ -139,7 +139,7 @@ dfa_copy = DFA(dfa)  # returns an exact copy of dfa
 ### class NFA
 
 The `NFA` class is a subclass of class `FA` which represents a nondeterministic
-finite FA. The `NFA` class can be found under `automata/fa/nfa.py`.
+finite automaton. The `NFA` class can be found under `automata/fa/nfa.py`.
 
 #### NFA properties
 
@@ -235,8 +235,8 @@ create your own subclass instead. The `TM` class can be found under
 
 ### class DTM
 
-The `DTM` class is a subclass of class `FA` which represents a deterministic
-finite FA. The `DTM` class can be found under `automata/tm/dtm.py`.
+The `DTM` class is a subclass of class `TM` which represents a deterministic
+Turing machine. The `DTM` class can be found under `automata/tm/dtm.py`.
 
 #### DTM properties
 
