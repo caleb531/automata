@@ -68,6 +68,7 @@ class NFA(fa.FA):
             self._validate_transition_end_states(path_states)
 
         self._validate_initial_state()
+        self._validate_initial_state_transitions()
         self._validate_final_states()
 
         return True

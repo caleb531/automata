@@ -81,7 +81,7 @@ class DTM(tm.TM):
     def _validate_final_state_transitions(self):
         for final_state in self.final_states:
             if final_state in self.transitions:
-                raise tmexceptions.FinalStateError(
+                raise exceptions.FinalStateError(
                     'final state {} has transitions defined'.format(
                         final_state))
 
@@ -90,6 +90,7 @@ class DTM(tm.TM):
         self._validate_input_symbol_subset()
         self._validate_transitions()
         self._validate_initial_state()
+        self._validate_initial_state_transitions()
         self._validate_nonfinal_initial_state()
         self._validate_final_states()
         self._validate_final_state_transitions()

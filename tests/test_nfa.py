@@ -81,6 +81,12 @@ class TestNFA(test_fa.TestFA):
             self.nfa.initial_state = 'q3'
             self.nfa.validate_self()
 
+    def test_validate_self_initial_state_transitions(self):
+        """Should raise error if the initial state has no transitions."""
+        with nose.assert_raises(exceptions.InitialStateError):
+            del self.nfa.transitions[self.nfa.initial_state]
+            self.nfa.validate_self()
+
     def test_validate_self_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):

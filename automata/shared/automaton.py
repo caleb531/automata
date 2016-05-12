@@ -48,10 +48,17 @@ class Automaton(metaclass=abc.ABCMeta):
             return self._validate_input_return(input_str)
 
     def _validate_initial_state(self):
-        """Raise an error if an initial state is invalid."""
+        """Raise an error if the initial state is invalid."""
         if self.initial_state not in self.states:
             raise exceptions.InvalidStateError(
                 '{} is not a valid initial state'.format(self.initial_state))
+
+    def _validate_initial_state_transitions(self):
+        """Raise an error if the initial state has no transitions defined."""
+        if self.initial_state not in self.transitions:
+            raise exceptions.InitialStateError(
+                'initial state {} has no transitions defined'.format(
+                    self.initial_state))
 
     def _validate_final_states(self):
         """Raise an error if any final states are invalid."""

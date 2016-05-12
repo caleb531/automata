@@ -32,6 +32,18 @@ class MissingSymbolError(AutomatonError):
     pass
 
 
+class InitialStateError(AutomatonError):
+    """The initial state fails to meet some required condition."""
+
+    pass
+
+
+class FinalStateError(AutomatonError):
+    """A final state fails to meet some required condition."""
+
+    pass
+
+
 class RejectionError(AutomatonError):
     """The input was rejected by the automaton after validation."""
 

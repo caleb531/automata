@@ -89,9 +89,15 @@ class TestDTM(test_tm.TestTM):
             self.dtm1.initial_state = 'q5'
             self.dtm1.validate_self()
 
+    def test_validate_self_initial_state_transitions(self):
+        """Should raise error if the initial state has no transitions."""
+        with nose.assert_raises(exceptions.InitialStateError):
+            del self.dtm1.transitions[self.dtm1.initial_state]
+            self.dtm1.validate_self()
+
     def test_validate_self_nonfinal_initial_state(self):
         """Should raise error if the initial state is a final state."""
-        with nose.assert_raises(tmexceptions.InitialStateError):
+        with nose.assert_raises(exceptions.InitialStateError):
             self.dtm1.final_states.add('q0')
             self.dtm1.validate_self()
 
@@ -103,7 +109,7 @@ class TestDTM(test_tm.TestTM):
 
     def test_validate_self_final_state_transitions(self):
         """Should raise error if a final state has any transitions."""
-        with nose.assert_raises(tmexceptions.FinalStateError):
+        with nose.assert_raises(exceptions.FinalStateError):
             self.dtm1.transitions['q4'] = {'0': ('q4', '0', 'L')}
             self.dtm1.validate_self()
 

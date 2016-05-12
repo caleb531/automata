@@ -21,6 +21,6 @@ class TM(Automaton, metaclass=abc.ABCMeta):
     def _validate_nonfinal_initial_state(self):
         """Raise an error if the initial state is a final state."""
         if self.initial_state in self.final_states:
-            raise tmexceptions.InitialStateError(
+            raise exceptions.InitialStateError(
                 'initial state {} cannot be a final state'.format(
                     self.initial_state))

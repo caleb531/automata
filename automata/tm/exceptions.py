@@ -14,15 +14,3 @@ class InvalidDirectionError(TMError):
     """A direction is not a valid direction for this machine."""
 
     pass
-
-
-class InitialStateError(TMError):
-    """The initial state is a final state."""
-
-    pass
-
-
-class FinalStateError(TMError):
-    """A final state has any transitions defined."""
-
-    pass

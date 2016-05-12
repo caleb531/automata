@@ -396,6 +396,16 @@ Raised if a state is missing from the machine definition.
 
 Raised if a symbol is missing from the machine definition.
 
+#### class InitialStateError
+
+Raised if the initial state fails to meet some required condition for this type
+of machine.
+
+#### class FinalStateError
+
+Raised if a final state fails to meet some required condition for this type of
+machine.
+
 #### class RejectionError
 
 Raised if the FA stopped on a non-final state after validating input.
@@ -417,14 +427,3 @@ A base class from which all other Turing machine exceptions inherit.
 
 Raised if a direction specified in this machine's transition map is not a valid
 direction.
-
-#### class InitialStateError
-
-Raised if the initial state is also a final state (because the initial state
-must have at least one transition defined, whereas every final state must not
-have any transitions defined).
-
-#### class FinalStateError
-
-Raised if a final state has any transitions defined (because no final state can
-have any transitions defined for a DTM).
