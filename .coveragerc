@@ -19,7 +19,11 @@ include =
     automata/fa/fa.py
     automata/fa/dfa.py
     automata/fa/nfa.py
+    automata/shared/automaton.py
+    automata/shared/exceptions.py
     automata/tm/dtm.py
+    automata/tm/exceptions.py
     automata/tm/tape.py
     automata/tm/tm.py
+    automata/tm/tools.py
     automata/tm/tools.py
