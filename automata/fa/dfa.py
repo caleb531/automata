@@ -100,7 +100,7 @@ class DFA(fa.FA):
 
         if current_state not in self.final_states:
             raise exceptions.RejectionError(
-                'the FA stopped on a non-final state ({})'.format(
+                'the DFA stopped on a non-final state ({})'.format(
                     current_state))
 
     def _init_from_dfa(self, dfa):
