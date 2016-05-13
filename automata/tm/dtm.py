@@ -45,12 +45,12 @@ class DTM(tm.TM):
             raise exceptions.InvalidStateError(
                 'transition state is not valid ({})'.format(transition_state))
 
-    def _validate_transition_symbols(self, transition_symbols):
-        invalid_states = transition_symbols - self.tape_symbols
-        if invalid_states:
-            raise exceptions.InvalidSymbolError(
-                'transition symbols are not valid ({})'.format(
-                    ', '.join(invalid_states)))
+    def _validate_transition_symbols(self, state, symbols):
+        for symbol in symbols.keys():
+            if symbol not in self.tape_symbols:
+                raise exceptions.InvalidSymbolError(
+                    'transition symbol {} for state {} is not valid'.format(
+                        symbol, state))
 
     def _validate_transition_result_direction(self, result_direction):
         if not (result_direction == 'L' or result_direction == 'R'):
@@ -68,15 +68,15 @@ class DTM(tm.TM):
                 'result symbol is not valid ({})'.format(result_symbol))
         self._validate_transition_result_direction(result_direction)
 
-    def _validate_transition_results(self, results):
-        for result in results:
+    def _validate_transition_results(self, paths):
+        for result in paths.values():
             self._validate_transition_result(result)
 
     def _validate_transitions(self):
-        for state, transition_symbols in self.transitions.items():
+        for state, paths in self.transitions.items():
             self._validate_transition_state(state)
-            self._validate_transition_symbols(set(transition_symbols.keys()))
-            self._validate_transition_results(set(transition_symbols.values()))
+            self._validate_transition_symbols(state, paths)
+            self._validate_transition_results(paths)
 
     def _validate_final_state_transitions(self):
         for final_state in self.final_states:
