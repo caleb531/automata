@@ -32,7 +32,7 @@ class DFA(fa.FA):
         self.validate_self()
 
     def _validate_transition_missing_symbols(self, start_state, paths):
-        """Raise an error if the transition symbols are missing or invalid."""
+        """Raise an error if the transition symbols are missing."""
         for symbol in self.input_symbols:
             if symbol not in paths:
                 raise exceptions.MissingSymbolError(
@@ -40,6 +40,7 @@ class DFA(fa.FA):
                         start_state, symbol))
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
+        """Raise an error if transition input symbols are invalid."""
         for path_symbol in paths.keys():
             if path_symbol not in self.input_symbols:
                 raise exceptions.InvalidSymbolError(
