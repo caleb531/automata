@@ -14,6 +14,7 @@ class TMTape(object):
 
     def _init_from_tape_params(self, tape, *, blank_symbol, current_position=0,
                                position_offset=0):
+        """Initialize a TM tape from the defined tape parameters."""
         self.tape = list(tape)
         self.blank_symbol = blank_symbol
         self.current_position = current_position
