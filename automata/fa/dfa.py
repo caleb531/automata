@@ -31,34 +31,50 @@ class DFA(fa.FA):
         self.final_states = final_states.copy()
         self.validate_self()
 
-    def _validate_transition_symbols(self, start_state, paths):
+    def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition symbols are missing or invalid."""
-        path_symbols = set(paths.keys())
+        for symbol in self.input_symbols:
+            if symbol not in paths:
+                raise exceptions.MissingSymbolError(
+                    'state {} is missing transitions for symbol {}'.format(
+                        start_state, symbol))
 
-        missing_symbols = self.input_symbols - path_symbols
-        if missing_symbols:
-            raise exceptions.MissingSymbolError(
-                'state {} is missing transitions for symbols ({})'.format(
-                    start_state, ', '.join(missing_symbols)))
+    def _validate_transition_invalid_symbols(self, start_state, paths):
+        for path_symbol in paths.keys():
+            if path_symbol not in self.input_symbols:
+                raise exceptions.InvalidSymbolError(
+                    'state {} has invalid transition symbol {}'.format(
+                        start_state, path_symbol))
 
-        invalid_symbols = path_symbols - self.input_symbols
-        if invalid_symbols:
-            raise exceptions.InvalidSymbolError(
-                'state {} has invalid transition symbols ({})'.format(
-                    start_state, ', '.join(invalid_symbols)))
+    def _validate_transition_start_states(self):
+        """Raise an error if transition start states are missing."""
+        for state in self.states:
+            if state not in self.transitions:
+                raise exceptions.MissingStateError(
+                    'transition start state {} is missing'.format(
+                        state))
+
+    def _validate_transition_end_states(self, start_state, paths):
+        """Raise an error if transition end states are invalid."""
+        for end_state in paths.values():
+            if end_state not in self.states:
+                raise exceptions.InvalidStateError(
+                    'end state {} for transition on {} is not valid'.format(
+                        end_state, start_state))
+
+    def _validate_transitions(self, start_state, paths):
+        """Raise an error if transitions are missing or invalid."""
+        self._validate_transition_missing_symbols(start_state, paths)
+        self._validate_transition_invalid_symbols(start_state, paths)
+        self._validate_transition_end_states(start_state, paths)
 
     def validate_self(self):
         """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
-
         for start_state, paths in self.transitions.items():
-            self._validate_transition_symbols(start_state, paths)
-            path_states = set(paths.values())
-            self._validate_transition_end_states(path_states)
-
+            self._validate_transitions(start_state, paths)
         self._validate_initial_state()
         self._validate_final_states()
-
         return True
 
     def _validate_input_symbol(self, symbol):

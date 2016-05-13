@@ -51,26 +51,30 @@ class NFA(fa.FA):
             transitions=nfa_transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)
 
-    def _validate_transition_symbols(self, start_state, paths):
-        """Raise an error if the transition symbols are missing or invalid."""
-        path_symbols = set(paths.keys())
-        invalid_symbols = path_symbols - self.input_symbols.union({''})
-        if invalid_symbols:
-            raise exceptions.InvalidSymbolError(
-                'state {} has invalid transition symbols ({})'.format(
-                    start_state, ', '.join(invalid_symbols)))
+    def _validate_transition_invalid_symbols(self, start_state, paths):
+        for path_symbol in paths.keys():
+            if path_symbol not in self.input_symbols and path_symbol != '':
+                raise exceptions.InvalidSymbolError(
+                    'state {} has invalid transition symbol {}'.format(
+                        start_state, path_symbol))
+
+    def _validate_transition_end_states(self, start_state, paths):
+        """Raise an error if transition end states are invalid."""
+        for end_states in paths.values():
+            for end_state in end_states:
+                if end_state not in self.states:
+                    raise exceptions.InvalidStateError(
+                        'end state {} for transition on {} is '
+                        'not valid'.format(end_state, start_state))
 
     def validate_self(self):
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
-            self._validate_transition_symbols(start_state, paths)
-            path_states = set().union(*paths.values())
-            self._validate_transition_end_states(path_states)
-
+            self._validate_transition_invalid_symbols(start_state, paths)
+            self._validate_transition_end_states(start_state, paths)
         self._validate_initial_state()
         self._validate_initial_state_transitions()
         self._validate_final_states()
-
         return True
 
     def _get_lambda_closure(self, start_state):
