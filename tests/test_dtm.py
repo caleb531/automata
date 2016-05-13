@@ -2,6 +2,7 @@
 """Classes and functions for testing the behavior of DTMs."""
 
 import types
+from unittest.mock import patch
 
 import nose.tools as nose
 
@@ -30,6 +31,12 @@ class TestDTM(test_tm.TestTM):
                 blank_symbol='.',
                 final_states={'q4'}
             )
+
+    @patch('automata.tm.dtm.DTM.validate_self')
+    def test_init_validation(self, validate_self):
+        """Should validate DTM when initialized."""
+        DTM(self.dtm1)
+        validate_self.assert_called_once_with()
 
     def test_copy_dtm(self):
         """Should create exact copy of DTM if copy() method is called."""
