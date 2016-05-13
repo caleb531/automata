@@ -58,6 +58,22 @@ class TestDPDA(test_pda.TestPDA):
             self.dpda.final_states = {'q4'}
             self.dpda.validate_self()
 
-    def test_validate_input_valid(self):
-        """Should return correct configuration if valid DPDA input is given."""
-        # nose.assert_equal(self.dpda.validate_input('aabb'), ('q3', ['0']))
+    def test_validate_input_valid_accept_by_final_state(self):
+        """Should return correct config if DPDA accepts by final state."""
+        nose.assert_equal(self.dpda.validate_input('aabb'), ('q3', ['0']))
+
+    def test_validate_input_valid_accept_by_empty_stack(self):
+        """Should return correct config if DPDA accepts by empty stack."""
+        self.dpda.transitions['q2']['']['0'] = ('q2', '')
+        nose.assert_equal(self.dpda.validate_input('aabb'), ('q2', []))
+
+    def test_validate_input_invalid_accept_by_final_state(self):
+        """Should reject strings if DPDA accepts by final state."""
+        with nose.assert_raises(exceptions.RejectionError):
+            self.dpda.validate_input('aab')
+
+    def test_validate_input_invalid_accept_by_empty_stack(self):
+        """Should reject strings if DPDA accepts by empty stack."""
+        with nose.assert_raises(exceptions.RejectionError):
+            self.dpda.transitions['q2']['']['0'] = ('q2', '')
+            self.dpda.validate_input('aab')

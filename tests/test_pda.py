@@ -12,7 +12,7 @@ class TestPDA(object):
     def setup(self):
         """Reset test automata before every test function."""
         # DPDA which which matches zero or more 'a's, followed by the same
-        # number of 'b's
+        # number of 'b's (accepting by final state)
         self.dpda = DPDA(
             states={'q0', 'q1', 'q2', 'q3'},
             input_symbols={'a', 'b'},
@@ -27,7 +27,7 @@ class TestPDA(object):
                 },
                 'q2': {
                     'b': {'1': ('q2', '')},
-                    '': {'0': ('q3', '')}
+                    '': {'0': ('q3', ('0',))}
                 }
             },
             initial_state='q0',

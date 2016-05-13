@@ -79,6 +79,12 @@ class DPDA(pda.PDA):
         self._validate_final_states()
         return True
 
+    def _has_lambda_transition(self, state, stack_symbol):
+        """Return True if the current config has any lambda transitions."""
+        return (state in self.transitions and
+                '' in self.transitions[state] and
+                stack_symbol in self.transitions[state][''])
+
     def _get_transition(self, state, input_symbol, stack_symbol):
         """Get the transiton tuple for the given state and symbols."""
         if (state in self.transitions and
@@ -107,7 +113,18 @@ class DPDA(pda.PDA):
 
         yield current_state, stack
         for input_symbol in input_str:
-            current_state, new_stack_top = (
-                self._get_transition(current_state, input_symbol, stack[-1]))
+            current_state, new_stack_top = self._get_transition(
+                current_state, input_symbol, stack[-1])
             self._replace_stack_top(stack, new_stack_top)
+            # Follow any lambda transitions from the current configuration
+            if self._has_lambda_transition(current_state, stack[-1]):
+                current_state, new_stack_top = (
+                    self._get_transition(current_state, '', stack[-1]))
+                self._replace_stack_top(stack, new_stack_top)
             yield current_state, stack
+
+        # If current state is not a final state and stack is not empty
+        if current_state not in self.final_states and stack:
+            raise exceptions.RejectionError(
+                'the DPDA stopped in a non-accepting configuration '
+                '({}, {})'.format(current_state, stack))
