@@ -79,10 +79,35 @@ class DPDA(pda.PDA):
         self._validate_final_states()
         return True
 
+    def _get_transition(self, state, input_symbol, stack_symbol):
+        """Get the transiton tuple for the given state and symbols."""
+        if (state in self.transitions and
+                input_symbol in self.transitions[state] and
+                stack_symbol in self.transitions[state][input_symbol]):
+            return self.transitions[state][input_symbol][stack_symbol]
+        else:
+            raise exceptions.RejectionError(
+                'The automaton entered a configuration for which no '
+                'transition is defined ({}, {}, {})'.format(
+                    state, input_symbol, stack_symbol))
+
+    def _replace_stack_top(self, stack, new_stack_top):
+        stack.pop()
+        if new_stack_top != '':
+            stack.extend(reversed(new_stack_top))
+
     def _validate_input_yield(self, input_str):
         """
         Check if the given string is accepted by this DPDA.
 
-        Yield the current state of the DPDA at each step.
+        Yield the DPDA's current state and current stack at each step.
         """
-        pass
+        current_state = self.initial_state
+        stack = [self.initial_stack_symbol]
+
+        yield current_state, stack
+        for input_symbol in input_str:
+            current_state, new_stack_top = (
+                self._get_transition(current_state, input_symbol, stack[-1]))
+            self._replace_stack_top(stack, new_stack_top)
+            yield current_state, stack

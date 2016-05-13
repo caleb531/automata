@@ -43,7 +43,7 @@ class TestDPDA(test_pda.TestPDA):
     def test_validate_self_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
-            self.dpda.initial_state = 'q3'
+            self.dpda.initial_state = 'q4'
             self.dpda.validate_self()
 
     def test_validate_self_invalid_initial_stack_symbol(self):
@@ -55,5 +55,9 @@ class TestDPDA(test_pda.TestPDA):
     def test_validate_self_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
-            self.dpda.final_states = {'q3'}
+            self.dpda.final_states = {'q4'}
             self.dpda.validate_self()
+
+    def test_validate_input_valid(self):
+        """Should return correct configuration if valid DPDA input is given."""
+        # nose.assert_equal(self.dpda.validate_input('aabb'), ('q3', ['0']))
