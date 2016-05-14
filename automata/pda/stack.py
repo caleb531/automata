@@ -18,7 +18,10 @@ class PDAStack(object):
 
     def top(self):
         """Return the symbol at the top of the stack."""
-        return self.stack[-1]
+        if self.stack:
+            return self.stack[-1]
+        else:
+            return ''
 
     def pop(self):
         """Pop the stack top from the stack."""

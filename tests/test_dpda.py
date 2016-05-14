@@ -70,6 +70,17 @@ class TestDPDA(test_pda.TestPDA):
         nose.assert_equal(
             self.dpda.validate_input('aabb'), ('q2', PDAStack([])))
 
+    def test_validate_input_valid_consecutive_lambda_transitions(self):
+        """Should follow consecutive lambda transitions when validating."""
+        self.dpda.states = {'q4'}
+        self.dpda.final_states = {'q4'}
+        self.dpda.transitions['q2']['']['0'] = ('q3', ('0',))
+        self.dpda.transitions['q3'] = {
+            '': {'0': ('q4', ('0',))}
+        }
+        nose.assert_equal(
+            self.dpda.validate_input('aabb'), ('q4', PDAStack(['0'])))
+
     def test_validate_input_invalid_accept_by_final_state(self):
         """Should reject strings if DPDA accepts by final state."""
         with nose.assert_raises(exceptions.RejectionError):

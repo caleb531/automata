@@ -119,7 +119,7 @@ class DPDA(pda.PDA):
                 current_state, input_symbol, stack.top())
             self._replace_stack_top(stack, new_stack_top)
             # Follow any lambda transitions from the current configuration
-            if self._has_lambda_transition(current_state, stack.top()):
+            while self._has_lambda_transition(current_state, stack.top()):
                 current_state, new_stack_top = (
                     self._get_transition(current_state, '', stack.top()))
                 self._replace_stack_top(stack, new_stack_top)
@@ -129,4 +129,4 @@ class DPDA(pda.PDA):
         if current_state not in self.final_states and stack:
             raise exceptions.RejectionError(
                 'the DPDA stopped in a non-accepting configuration '
-                '({}, {})'.format(current_state, stack))
+                '({}, {})'.format(current_state, ''.join(stack)))
