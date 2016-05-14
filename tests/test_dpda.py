@@ -8,6 +8,7 @@ import nose.tools as nose
 import automata.shared.exceptions as exceptions
 import tests.test_pda as test_pda
 from automata.pda.dpda import DPDA
+from automata.pda.stack import PDAStack
 
 
 class TestDPDA(test_pda.TestPDA):
@@ -60,12 +61,14 @@ class TestDPDA(test_pda.TestPDA):
 
     def test_validate_input_valid_accept_by_final_state(self):
         """Should return correct config if DPDA accepts by final state."""
-        nose.assert_equal(self.dpda.validate_input('aabb'), ('q3', ['0']))
+        nose.assert_equal(
+            self.dpda.validate_input('aabb'), ('q3', PDAStack(['0'])))
 
     def test_validate_input_valid_accept_by_empty_stack(self):
         """Should return correct config if DPDA accepts by empty stack."""
         self.dpda.transitions['q2']['']['0'] = ('q2', '')
-        nose.assert_equal(self.dpda.validate_input('aabb'), ('q2', []))
+        nose.assert_equal(
+            self.dpda.validate_input('aabb'), ('q2', PDAStack([])))
 
     def test_validate_input_invalid_accept_by_final_state(self):
         """Should reject strings if DPDA accepts by final state."""

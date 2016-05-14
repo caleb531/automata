@@ -5,6 +5,7 @@ import copy
 
 import automata.pda.pda as pda
 import automata.shared.exceptions as exceptions
+from automata.pda.stack import PDAStack
 
 
 class DPDA(pda.PDA):
@@ -98,9 +99,10 @@ class DPDA(pda.PDA):
                     state, input_symbol, stack_symbol))
 
     def _replace_stack_top(self, stack, new_stack_top):
-        stack.pop()
-        if new_stack_top != '':
-            stack.extend(reversed(new_stack_top))
+        if new_stack_top == '':
+            stack.pop()
+        else:
+            stack.replace(new_stack_top)
 
     def _validate_input_yield(self, input_str):
         """
@@ -109,17 +111,17 @@ class DPDA(pda.PDA):
         Yield the DPDA's current state and current stack at each step.
         """
         current_state = self.initial_state
-        stack = [self.initial_stack_symbol]
+        stack = PDAStack([self.initial_stack_symbol])
 
         yield current_state, stack
         for input_symbol in input_str:
             current_state, new_stack_top = self._get_transition(
-                current_state, input_symbol, stack[-1])
+                current_state, input_symbol, stack.top())
             self._replace_stack_top(stack, new_stack_top)
             # Follow any lambda transitions from the current configuration
-            if self._has_lambda_transition(current_state, stack[-1]):
+            if self._has_lambda_transition(current_state, stack.top()):
                 current_state, new_stack_top = (
-                    self._get_transition(current_state, '', stack[-1]))
+                    self._get_transition(current_state, '', stack.top()))
                 self._replace_stack_top(stack, new_stack_top)
             yield current_state, stack
 
