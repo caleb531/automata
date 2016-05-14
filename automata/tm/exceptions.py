@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exception classes shared by call automata."""
+"""Exception classes specific to Turing machines."""
 
 from automata.shared.exceptions import AutomatonError
 
