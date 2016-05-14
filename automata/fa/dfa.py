@@ -32,19 +32,20 @@ class DFA(fa.FA):
         self.validate_self()
 
     def _validate_transition_missing_symbols(self, start_state, paths):
-        """Raise an error if the transition symbols are missing or invalid."""
-        for symbol in self.input_symbols:
-            if symbol not in paths:
+        """Raise an error if the transition input_symbols are missing."""
+        for input_symbol in self.input_symbols:
+            if input_symbol not in paths:
                 raise exceptions.MissingSymbolError(
                     'state {} is missing transitions for symbol {}'.format(
-                        start_state, symbol))
+                        start_state, input_symbol))
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
-        for path_symbol in paths.keys():
-            if path_symbol not in self.input_symbols:
+        """Raise an error if transition input symbols are invalid."""
+        for input_symbol in paths.keys():
+            if input_symbol not in self.input_symbols:
                 raise exceptions.InvalidSymbolError(
                     'state {} has invalid transition symbol {}'.format(
-                        start_state, path_symbol))
+                        start_state, input_symbol))
 
     def _validate_transition_start_states(self):
         """Raise an error if transition start states are missing."""
@@ -77,11 +78,11 @@ class DFA(fa.FA):
         self._validate_final_states()
         return True
 
-    def _validate_input_symbol(self, symbol):
+    def _validate_input_symbol(self, input_symbol):
         """Raise an error if the given input symbol is invalid."""
-        if symbol not in self.input_symbols:
+        if input_symbol not in self.input_symbols:
             raise exceptions.RejectionError(
-                '{} is not a valid input symbol'.format(symbol))
+                '{} is not a valid input symbol'.format(input_symbol))
 
     def _validate_input_yield(self, input_str):
         """
@@ -92,14 +93,14 @@ class DFA(fa.FA):
         current_state = self.initial_state
 
         yield current_state
-        for symbol in input_str:
-            self._validate_input_symbol(symbol)
-            current_state = self.transitions[current_state][symbol]
+        for input_symbol in input_str:
+            self._validate_input_symbol(input_symbol)
+            current_state = self.transitions[current_state][input_symbol]
             yield current_state
 
         if current_state not in self.final_states:
             raise exceptions.RejectionError(
-                'the FA stopped on a non-final state ({})'.format(
+                'the DFA stopped on a non-final state ({})'.format(
                     current_state))
 
     def _init_from_dfa(self, dfa):
@@ -140,10 +141,10 @@ class DFA(fa.FA):
                 dfa_final_states.add(self.__class__._stringify_states(
                     current_states))
 
-            for symbol in nfa.input_symbols:
+            for input_symbol in nfa.input_symbols:
                 next_current_states = nfa._get_next_current_states(
-                    current_states, symbol)
-                dfa_transitions[current_state_name][symbol] = (
+                    current_states, input_symbol)
+                dfa_transitions[current_state_name][input_symbol] = (
                     self.__class__._stringify_states(next_current_states))
                 state_queue.put(next_current_states)
 

@@ -16,9 +16,12 @@ exclude_lines =
 
 # Only check coverage for source files
 include =
-    automata/fa/fa.py
     automata/fa/dfa.py
+    automata/fa/fa.py
     automata/fa/nfa.py
+    automata/pda/dpda.py
+    automata/pda/pda.py
+    automata/pda/stack.py
     automata/shared/automaton.py
     automata/shared/exceptions.py
     automata/tm/dtm.py

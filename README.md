@@ -92,8 +92,8 @@ Please note that the below DFA code examples reference the above `dfa` object.
 The `validate_input()` method checks whether or not the given string is accepted
 by the DFA.
 
-If the string is accepted, the method returns the state the FA stopped on (which
-presumably is a valid final state).
+If the string is accepted, the method returns the state the DFA stopped on
+(which presumably is a valid final state).
 
 ```python
 dfa.validate_input('01')  # returns 'q1'
@@ -226,12 +226,128 @@ constructor.
 nfa_copy = NFA(nfa)  # returns an exact copy of nfa
 ```
 
+#### class PDA
+
+The `PDA` class is an abstract base class from which all pushdown automata
+inherit. The `PDA` class can be found under `automata/pda/pda.py`.
+
+### class DPDA
+
+The `DPDA` class is a subclass of class `PDA` which represents a deterministic
+finite automaton. The `DPDA` class can be found under `automata/pda/dpda.py`.
+
+#### DPDA properties
+
+Every DPDA instance has the following properties:
+
+1. `states`: a `set` of the DPDA's valid states, each of which must be
+represented as a string
+
+2. `input_symbols`: a `set` of the DPDA's valid input symbols, each of which
+must also be represented as a string
+
+3. `stack_symbols`: a `set` of the DPDA's valid stack symbols
+
+4. `transitions`: a `dict` consisting of the transitions for each state; see the
+example below for the exact syntax
+
+5. `initial_state`: the name of the initial state for this DPDA
+
+6. `initial_stack_symbol`: the name of the initial symbol on the stack for this
+DPDA
+
+7. `final_states`: a `set` of final states for this DPDA
+
+All of these properties must be supplied when the DPDA is
+instantiated (see the examples below).
+
+```python
+from automata.pda.dpda import DPDA
+# DPDA which which matches zero or more 'a's, followed by the same
+# number of 'b's (accepting by final state)
+dpda = DPDA(
+    states={'q0', 'q1', 'q2', 'q3'},
+    input_symbols={'a', 'b'},
+    stack_symbols={'0', '1'},
+    transitions={
+        'q0': {
+            'a': {'0': ('q1', ('1', '0'))}
+        },
+        'q1': {
+            'a': {'1': ('q1', ('1', '1'))},
+            'b': {'1': ('q2', '')}
+        },
+        'q2': {
+            'b': {'1': ('q2', '')},
+            '': {'0': ('q3', ('0',))}
+        }
+    },
+    initial_state='q0',
+    initial_stack_symbol='0',
+    final_states={'q3'}
+)
+```
+
+Please note that the below DPDA code examples reference the above `dpda` object.
+
+#### DPDA.validate_input(self, input_str, step=False)
+
+The `validate_input()` method checks whether or not the given string is accepted
+by the DPDA.
+
+If the string is accepted, the method returns a tuple containing the state the
+DPDA stopped on (which presumably is a valid final state), as well as a
+`PDAStack` object representing the DPDA's internal stack.
+
+```python
+dpda.validate_input('ab')  # returns PDAStack(['0'])
+```
+
+If the string is rejected by the DPDA, the method will raise a `RejectionError`.
+
+```python
+dpda.validate_input('aab')  # raises RejectionError
+```
+
+If you supply the `step` keyword argument with a value of `True`, the method
+will return a generator which yields a tuple containing the current state and
+the current tape as a `PDAStack` object.
+
+```python
+[(state, stack.copy()) for state, stack in dpda.validate_input('ab', step=True)]
+# returns [
+#   ('q0', PDAStack(['0'])),
+#   ('q1', PDAStack(['0', '1'])),
+#   ('q3', PDAStack(['0'])),
+# ]
+```
+
+Note that the first yielded state is always the DPDA's initial state (before any
+input has been read) and the last yielded state is always the DPDA's final state
+(after all input has been read) (or possibly a non-final state if the stack is
+empty). If the string is rejected by the DPDA, the method still raises a
+`RejectionError`.
+
+#### DPDA.validate_self(self)
+
+The `validate_self()` method checks whether the DPDA is actually a valid DPDA.
+The method has the same basic behavior and prescribed use case as the
+`DFA.validate_self()` and `NFA.validate_self()` methods, while (naturally)
+containing validation checks specific to DPDAs.
+
+#### Copying a DPDA
+
+To create an exact copy of a DPDA, simply pass an `DPDA` instance into the
+`DPDA` constructor.
+
+```python
+dpda_copy = DPDA(dpda)  # returns an exact copy of dpda
+```
+
 ### class TM
 
-The `TM` class is an abstract base class from which all turing machines inherit.
-As such, it cannot be instantiated on its own; you must use the `DTM` class or
-create your own subclass instead. The `TM` class can be found under
-`automata/tm/tm.py`.
+The `TM` class is an abstract base class from which all Turing machines inherit.
+The `TM` class can be found under `automata/tm/tm.py`.
 
 ### class DTM
 
@@ -311,7 +427,7 @@ machine stopped on (which presumably is a valid final state), as well as a
 `TMTape` object representing the DTM's internal tape.
 
 ```python
-dtm.validate_input('01')  # returns ('q4', xy.)
+dtm.validate_input('01')  # returns ('q4', TMTape('xy.'))
 ```
 
 If the string is rejected by the DTM, the method will raise a `RejectionError`.
@@ -325,14 +441,14 @@ will return a generator which yields a tuple containing the current state and
 the current tape as a `TMTape` object.
 
 ```python
-[state, tape.copy() for state, tape in dtm.validate_input('01', step=True)]
+[(state, tape.copy()) for state, tape in dtm.validate_input('01', step=True)]
 # returns [
-#   ('q0', 01)
-#   ('q1', x1)
-#   ('q2', xy)
-#   ('q0', xy)
-#   ('q3', xy)
-#   ('q3', xy.)
+#   ('q0', TMTape('01'))
+#   ('q1', TMTape('x1'))
+#   ('q2', TMTape('xy'))
+#   ('q0', TMTape('xy'))
+#   ('q3', TMTape('xy'))
+#   ('q3', TMTape('xy.'))
 # ]
 ```
 

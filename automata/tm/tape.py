@@ -8,7 +8,7 @@ class TMTape(object):
     def __init__(self, tape, **kwargs):
         """Initialize the new Turing machine tape."""
         if isinstance(tape, TMTape):
-            return self._init_from_tape_obj(tape)
+            self._init_from_tape_obj(tape)
         else:
             self._init_from_tape_params(tape, **kwargs)
 
