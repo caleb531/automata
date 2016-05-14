@@ -45,12 +45,12 @@ class DTM(tm.TM):
             raise exceptions.InvalidStateError(
                 'transition state is not valid ({})'.format(transition_state))
 
-    def _validate_transition_symbols(self, state, symbols):
-        for symbol in symbols.keys():
-            if symbol not in self.tape_symbols:
+    def _validate_transition_symbols(self, state, paths):
+        for tape_symbol in paths.keys():
+            if tape_symbol not in self.tape_symbols:
                 raise exceptions.InvalidSymbolError(
                     'transition symbol {} for state {} is not valid'.format(
-                        symbol, state))
+                        tape_symbol, state))
 
     def _validate_transition_result_direction(self, result_direction):
         if not (result_direction == 'L' or result_direction == 'R'):

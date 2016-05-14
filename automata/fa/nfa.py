@@ -43,8 +43,8 @@ class NFA(fa.FA):
 
         for start_state, paths in dfa.transitions.items():
             nfa_transitions[start_state] = {}
-            for symbol, end_state in paths.items():
-                nfa_transitions[start_state][symbol] = {end_state}
+            for input_symbol, end_state in paths.items():
+                nfa_transitions[start_state][input_symbol] = {end_state}
 
         self.__init__(
             states=dfa.states, input_symbols=dfa.input_symbols,
@@ -52,11 +52,11 @@ class NFA(fa.FA):
             final_states=dfa.final_states)
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
-        for path_symbol in paths.keys():
-            if path_symbol not in self.input_symbols and path_symbol != '':
+        for input_symbol in paths.keys():
+            if input_symbol not in self.input_symbols and input_symbol != '':
                 raise exceptions.InvalidSymbolError(
                     'state {} has invalid transition symbol {}'.format(
-                        start_state, path_symbol))
+                        start_state, input_symbol))
 
     def _validate_transition_end_states(self, start_state, paths):
         """Raise an error if transition end states are invalid."""
@@ -98,12 +98,13 @@ class NFA(fa.FA):
 
         return encountered_states
 
-    def _get_next_current_states(self, current_states, symbol):
+    def _get_next_current_states(self, current_states, input_symbol):
         """Return the next set of current states given the current set."""
         next_current_states = set()
 
         for current_state in current_states:
-            symbol_end_states = self.transitions[current_state].get(symbol)
+            symbol_end_states = self.transitions[current_state].get(
+                input_symbol)
             if symbol_end_states:
                 for end_state in symbol_end_states:
                     next_current_states.update(
@@ -120,9 +121,9 @@ class NFA(fa.FA):
         current_states = self._get_lambda_closure(self.initial_state)
 
         yield current_states
-        for symbol in input_str:
+        for input_symbol in input_str:
             current_states = self._get_next_current_states(
-                current_states, symbol)
+                current_states, input_symbol)
             yield current_states
 
         if not (current_states & self.final_states):
