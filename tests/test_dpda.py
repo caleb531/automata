@@ -103,3 +103,15 @@ class TestDPDA(test_pda.TestPDA):
         """Should reject strings which lead to an undefined transition."""
         with nose.assert_raises(exceptions.RejectionError):
             self.dpda.validate_input('01')
+
+    def test_stack_copy(self):
+        """Should create an exact of the PDA stack."""
+        stack = PDAStack(['a', 'b'])
+        stack_copy = stack.copy()
+        nose.assert_is_not(stack, stack_copy)
+        nose.assert_equal(stack, stack_copy)
+
+    def test_stack_repr(self):
+        """Should create proper string representation of PDA stack."""
+        stack = PDAStack(['a', 'b'])
+        nose.assert_equal(repr(stack), 'PDAStack([\'a\', \'b\'])')
