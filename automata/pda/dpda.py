@@ -4,6 +4,7 @@
 import copy
 
 import automata.pda.pda as pda
+import automata.pda.exceptions as pdaexceptions
 import automata.shared.exceptions as exceptions
 from automata.pda.stack import PDAStack
 
@@ -42,27 +43,51 @@ class DPDA(pda.PDA):
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
-        for path_symbol, symbol_paths in paths.items():
+        for input_symbol, symbol_paths in paths.items():
             self._validate_transition_invalid_input_symbols(
-                start_state, path_symbol)
-            self._validate_transition_invalid_stack_symbols(
-                start_state, symbol_paths)
+                start_state, input_symbol)
+            for stack_symbol in symbol_paths:
+                self._validate_transition_isolated_lambda_transitions(
+                    start_state, input_symbol, stack_symbol)
+                self._validate_transition_invalid_stack_symbols(
+                    start_state, stack_symbol)
+
+    def _validate_transition_lambda_transition_sibling(self, start_state,
+                                                       sib_path):
+        """Check the given sibling path for adjacent lambda transitions."""
+        for other_stack_symbol in sib_path:
+            if (other_stack_symbol in
+                    self.transitions[start_state]['']):
+                raise pdaexceptions.NondeterminismError(
+                    'A symbol transition is adjacent to a '
+                    'lambda transition for this DPDA.')
+
+    def _validate_transition_isolated_lambda_transitions(self, start_state,
+                                                         input_symbol,
+                                                         stack_symbol):
+        """Raise an error if a lambda transition has no sibling transitions."""
+        if input_symbol == '':
+            sib_transitions = self.transitions[start_state]
+            for sib_input_symbol, sib_path in sib_transitions.items():
+                if sib_input_symbol != '':
+                    self._validate_transition_lambda_transition_sibling(
+                        start_state, sib_path)
 
     def _validate_transition_invalid_input_symbols(self, start_state,
-                                                   path_symbol):
+                                                   input_symbol):
         """Raise an error if transition input symbols are invalid."""
-        if path_symbol not in self.input_symbols and path_symbol != '':
+        if input_symbol not in self.input_symbols and input_symbol != '':
             raise exceptions.InvalidSymbolError(
                 'state {} has invalid transition input symbol {}'.format(
-                    start_state, path_symbol))
+                    start_state, input_symbol))
 
-    def _validate_transition_invalid_stack_symbols(self, start_state, paths):
+    def _validate_transition_invalid_stack_symbols(self, start_state,
+                                                   stack_symbol):
         """Raise an error if transition stack symbols are invalid."""
-        for path_symbol in paths.keys():
-            if path_symbol not in self.stack_symbols:
-                raise exceptions.InvalidSymbolError(
-                    'state {} has invalid transition stack symbol {}'.format(
-                        start_state, path_symbol))
+        if stack_symbol not in self.stack_symbols:
+            raise exceptions.InvalidSymbolError(
+                'state {} has invalid transition stack symbol {}'.format(
+                    start_state, stack_symbol))
 
     def _validate_initial_stack_symbol(self):
         """Raise an error if initial stack symbol is invalid."""

@@ -5,6 +5,7 @@
 
 import nose.tools as nose
 
+import automata.pda.exceptions as pdaexceptions
 import automata.shared.exceptions as exceptions
 import tests.test_pda as test_pda
 from automata.pda.dpda import DPDA
@@ -39,6 +40,12 @@ class TestDPDA(test_pda.TestPDA):
         """Should raise error if a transition has an invalid stack symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dpda.transitions['q1']['a']['2'] = ('q1', ('1', '1'))
+            self.dpda.validate_self()
+
+    def test_validate_self_nondeterminism(self):
+        """Should raise error if DPDA exhibits nondeterminism."""
+        with nose.assert_raises(pdaexceptions.NondeterminismError):
+            self.dpda.transitions['q2']['b']['0'] = ('q2', '0')
             self.dpda.validate_self()
 
     def test_validate_self_invalid_initial_state(self):
