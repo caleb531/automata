@@ -80,3 +80,8 @@ class TestDPDA(test_pda.TestPDA):
         with nose.assert_raises(exceptions.RejectionError):
             self.dpda.transitions['q2']['']['0'] = ('q2', '')
             self.dpda.validate_input('aab')
+
+    def test_validate_input_invalid_undefined_transition(self):
+        """Should reject strings which lead to an undefined transition."""
+        with nose.assert_raises(exceptions.RejectionError):
+            self.dpda.validate_input('01')
