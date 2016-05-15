@@ -123,7 +123,7 @@ class NFA(fa.FA):
         """
         Check if the given string is accepted by this NFA.
 
-        Yield the current configuration of the FA at each step.
+        Yield the current configuration of the NFA at each step.
         """
         current_states = self._get_lambda_closure(self.initial_state)
 

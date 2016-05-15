@@ -95,7 +95,7 @@ class DFA(fa.FA):
         """
         Check if the given string is accepted by this DFA.
 
-        Yield the current configuration of the FA at each step.
+        Yield the current configuration of the DFA at each step.
         """
         current_state = self.initial_state
 
