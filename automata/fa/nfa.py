@@ -128,5 +128,5 @@ class NFA(fa.FA):
 
         if not (current_states & self.final_states):
             raise exceptions.RejectionError(
-                'the FA stopped on all non-final states ({})'.format(
+                'the NFA stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
