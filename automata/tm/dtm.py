@@ -115,11 +115,12 @@ class DTM(tm.TM):
         """
         current_state = self.initial_state
         current_direction = None
-        tape = TMTape(
-            tape=input_str, blank_symbol=self.blank_symbol)
+        tape = TMTape(input_str, blank_symbol=self.blank_symbol)
         yield current_state, tape
 
-        while True:
+        # The initial state cannot be a final state for a DTM, so the first
+        # iteration is always guaranteed to run (as it should)
+        while current_state not in self.final_states:
 
             input_symbol = tape.read_symbol()
             (current_state, new_tape_symbol,
@@ -129,5 +130,3 @@ class DTM(tm.TM):
             tape.move(current_direction)
 
             yield current_state, tape
-            if current_state in self.final_states:
-                return

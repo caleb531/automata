@@ -129,6 +129,14 @@ class DPDA(pda.PDA):
         else:
             stack.replace(new_stack_top)
 
+    def _check_for_input_rejection(self, current_state, stack):
+        """Raise an error if the given config indicates rejected input."""
+        # If current state is not a final state and stack is not empty
+        if current_state not in self.final_states and stack:
+            raise exceptions.RejectionError(
+                'the DPDA stopped in a non-accepting configuration '
+                '({}, {})'.format(current_state, ''.join(stack)))
+
     def _validate_input_yield(self, input_str):
         """
         Check if the given string is accepted by this DPDA.
@@ -150,8 +158,4 @@ class DPDA(pda.PDA):
                 self._replace_stack_top(stack, new_stack_top)
             yield current_state, stack
 
-        # If current state is not a final state and stack is not empty
-        if current_state not in self.final_states and stack:
-            raise exceptions.RejectionError(
-                'the DPDA stopped in a non-accepting configuration '
-                '({}, {})'.format(current_state, ''.join(stack)))
+        self._check_for_input_rejection(current_state, stack)

@@ -112,6 +112,13 @@ class NFA(fa.FA):
 
         return next_current_states
 
+    def _check_for_input_rejection(self, current_states):
+        """Raise an error if the given config indicates rejected input."""
+        if not (current_states & self.final_states):
+            raise exceptions.RejectionError(
+                'the NFA stopped on all non-final states ({})'.format(
+                    ', '.join(current_states)))
+
     def _validate_input_yield(self, input_str):
         """
         Check if the given string is accepted by this NFA.
@@ -126,7 +133,4 @@ class NFA(fa.FA):
                 current_states, input_symbol)
             yield current_states
 
-        if not (current_states & self.final_states):
-            raise exceptions.RejectionError(
-                'the NFA stopped on all non-final states ({})'.format(
-                    ', '.join(current_states)))
+        self._check_for_input_rejection(current_states)

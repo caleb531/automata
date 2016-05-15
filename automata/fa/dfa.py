@@ -84,6 +84,13 @@ class DFA(fa.FA):
             raise exceptions.RejectionError(
                 '{} is not a valid input symbol'.format(input_symbol))
 
+    def _check_for_input_rejection(self, current_state):
+        """Raise an error if the given config indicates rejected input."""
+        if current_state not in self.final_states:
+            raise exceptions.RejectionError(
+                'the DFA stopped on a non-final state ({})'.format(
+                    current_state))
+
     def _validate_input_yield(self, input_str):
         """
         Check if the given string is accepted by this DFA.
@@ -98,10 +105,7 @@ class DFA(fa.FA):
             current_state = self.transitions[current_state][input_symbol]
             yield current_state
 
-        if current_state not in self.final_states:
-            raise exceptions.RejectionError(
-                'the DFA stopped on a non-final state ({})'.format(
-                    current_state))
+        self._check_for_input_rejection(current_state)
 
     def _init_from_dfa(self, dfa):
         """Initialize this DFA as an exact copy of the given DFA."""
