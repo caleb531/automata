@@ -33,7 +33,7 @@ class DTM(tm.TM):
         self.validate_self()
 
     def _init_from_dtm(self, tm):
-        """Initialize this DTM as an exact copy of the given DTM."""
+        """Initialize this DTM as a deep copy of the given DTM."""
         self.__init__(
             states=tm.states, input_symbols=tm.input_symbols,
             tape_symbols=tm.tape_symbols, transitions=tm.transitions,

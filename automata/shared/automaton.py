@@ -69,7 +69,7 @@ class Automaton(metaclass=abc.ABCMeta):
                     ', '.join(invalid_states)))
 
     def copy(self):
-        """Create an exact copy of the automaton."""
+        """Create a deep copy of the automaton."""
         return self.__class__(self)
 
     def __eq__(self, other):

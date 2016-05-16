@@ -36,7 +36,7 @@ class TestPDA(object):
         )
 
     def assert_is_copy(self, first, second):
-        """Assert that the first PDA is an exact copy of the second."""
+        """Assert that the first PDA is a deep copy of the second."""
         nose.assert_is_not(first.states, second.states)
         nose.assert_equal(first.states, second.states)
         nose.assert_is_not(first.input_symbols, second.input_symbols)

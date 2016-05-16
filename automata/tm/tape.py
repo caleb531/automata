@@ -21,7 +21,7 @@ class TMTape(object):
         self.position_offset = position_offset
 
     def _init_from_tape_obj(self, tape_obj):
-        """Initialize this Tape as an exact copy of the given Tape."""
+        """Initialize this Tape as a deep copy of the given Tape."""
         self.__init__(
             tape=tape_obj.tape, blank_symbol=tape_obj.blank_symbol,
             current_position=tape_obj.current_position,
@@ -54,7 +54,7 @@ class TMTape(object):
             self.current_position -= 1
 
     def copy(self):
-        """Return an exact copy of the tape."""
+        """Return a deep copy of the tape."""
         return self.__class__(self)
 
     def __len__(self):

@@ -31,7 +31,7 @@ class NFA(fa.FA):
         self.validate_self()
 
     def _init_from_nfa(self, nfa):
-        """Initialize this NFA as an exact copy of the given NFA."""
+        """Initialize this NFA as a deep copy of the given NFA."""
         self.__init__(
             states=nfa.states, input_symbols=nfa.input_symbols,
             transitions=nfa.transitions, initial_state=nfa.initial_state,

@@ -114,7 +114,7 @@ class DFA(fa.FA):
         self._check_for_input_rejection(current_state)
 
     def _init_from_dfa(self, dfa):
-        """Initialize this DFA as an exact copy of the given DFA."""
+        """Initialize this DFA as a deep copy of the given DFA."""
         self.__init__(
             states=dfa.states, input_symbols=dfa.input_symbols,
             transitions=dfa.transitions, initial_state=dfa.initial_state,

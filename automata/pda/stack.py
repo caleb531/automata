@@ -13,7 +13,7 @@ class PDAStack(object):
             self.stack = list(stack)
 
     def _init_from_stack_obj(self, stack_obj):
-        """Initialize this Stack as an exact copy of the given Stack."""
+        """Initialize this Stack as a deep copy of the given Stack."""
         self.__init__(stack_obj.stack)
 
     def top(self):
@@ -37,7 +37,7 @@ class PDAStack(object):
         self.stack.extend(reversed(symbols))
 
     def copy(self):
-        """Return an exact copy of the stack."""
+        """Return a deep copy of the stack."""
         return self.__class__(self)
 
     def __len__(self):

@@ -129,11 +129,11 @@ it's only really useful if a DFA object is modified after instantiation.
 
 #### Copying a DFA
 
-To create an exact copy of a DFA, simply pass an `DFA` instance into the `DFA`
+To create a deep copy of a DFA, simply pass an `DFA` instance into the `DFA`
 constructor.
 
 ```python
-dfa_copy = DFA(dfa)  # returns an exact copy of dfa
+dfa_copy = DFA(dfa)  # returns a deep copy of dfa
 ```
 
 ### class NFA
@@ -219,11 +219,11 @@ dfa = DFA(nfa)  # returns an equivalent DFA
 
 #### Copying an NFA
 
-To create an exact copy of an NFA, simply pass an `NFA` instance into the `NFA`
+To create a deep copy of an NFA, simply pass an `NFA` instance into the `NFA`
 constructor.
 
 ```python
-nfa_copy = NFA(nfa)  # returns an exact copy of nfa
+nfa_copy = NFA(nfa)  # returns a deep copy of nfa
 ```
 
 #### class PDA
@@ -337,11 +337,11 @@ containing validation checks specific to DPDAs.
 
 #### Copying a DPDA
 
-To create an exact copy of a DPDA, simply pass an `DPDA` instance into the
+To create a deep copy of a DPDA, simply pass an `DPDA` instance into the
 `DPDA` constructor.
 
 ```python
-dpda_copy = DPDA(dpda)  # returns an exact copy of dpda
+dpda_copy = DPDA(dpda)  # returns a deep copy of dpda
 ```
 
 ### class TM
@@ -471,11 +471,11 @@ containing validation checks specific to DTMs.
 
 #### Copying a DTM
 
-To create an exact copy of a DTM, simply pass a `DTM` instance into the `DTM`
+To create a deep copy of a DTM, simply pass a `DTM` instance into the `DTM`
 constructor.
 
 ```python
-dtm_copy = DTM(dtm)  # returns an exact copy of dtm
+dtm_copy = DTM(dtm)  # returns a deep copy of dtm
 ```
 
 ### Shared exception classes

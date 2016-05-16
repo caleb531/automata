@@ -20,7 +20,7 @@ class DPDA(pda.PDA):
             self._init_from_formal_params(**kwargs)
 
     def _init_from_dpda(self, dpda):
-        """Initialize this DPDA as an exact copy of the given DPDA."""
+        """Initialize this DPDA as a deep copy of the given DPDA."""
         self.__init__(
             states=dpda.states, input_symbols=dpda.input_symbols,
             stack_symbols=dpda.stack_symbols, transitions=dpda.transitions,
