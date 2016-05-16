@@ -78,9 +78,15 @@ class DFA(fa.FA):
         self._validate_final_states()
         return True
 
-    def _validate_input_symbol(self, input_symbol):
-        """Raise an error if the given input symbol is invalid."""
-        if input_symbol not in self.input_symbols:
+    def _get_next_current_state(self, current_state, input_symbol):
+        """
+        Follow the transition for the given input symbol on the current state.
+
+        Raise an error if the transition does not exist.
+        """
+        if input_symbol in self.transitions[current_state]:
+            return self.transitions[current_state][input_symbol]
+        else:
             raise exceptions.RejectionError(
                 '{} is not a valid input symbol'.format(input_symbol))
 
@@ -101,8 +107,8 @@ class DFA(fa.FA):
 
         yield current_state
         for input_symbol in input_str:
-            self._validate_input_symbol(input_symbol)
-            current_state = self.transitions[current_state][input_symbol]
+            current_state = self._get_next_current_state(
+                current_state, input_symbol)
             yield current_state
 
         self._check_for_input_rejection(current_state)
