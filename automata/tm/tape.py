@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Classes and methods for working with Turing machine tapes."""
 
+import collections
+
 
 class TMTape(object):
     """A Turing machine tape."""
@@ -15,7 +17,7 @@ class TMTape(object):
     def _init_from_tape_params(self, tape, *, blank_symbol, current_position=0,
                                position_offset=0):
         """Initialize a TM tape from the defined tape parameters."""
-        self.tape = list(tape)
+        self.tape = collections.deque(tape)
         self.blank_symbol = blank_symbol
         self.current_position = current_position
         self.position_offset = position_offset
@@ -39,7 +41,7 @@ class TMTape(object):
         """Write the given symbol at the current position in the tape."""
         actual_position = self.current_position + self.position_offset
         if actual_position == -1:
-            self.tape.insert(0, new_tape_symbol)
+            self.tape.appendleft(new_tape_symbol)
             self.position_offset += 1
         elif actual_position == len(self.tape):
             self.tape.append(new_tape_symbol)
