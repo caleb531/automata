@@ -17,7 +17,7 @@ Automata requires Python 3.4 or newer.
 You can install the latest version of Automata via pip:
 
 ```
-pip install git+https://github.com/caleb531/automata.git
+pip install automata
 ```
 
 ## API
