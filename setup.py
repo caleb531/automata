@@ -15,7 +15,7 @@ def get_long_description():
 
 
 setup(
-    name='automata',
+    name='automata-lib',
     version='1.0.0',
     description='A Python library for simulating automata and Turing machines',
     long_description=get_long_description(),
