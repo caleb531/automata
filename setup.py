@@ -24,5 +24,5 @@ setup(
     author_email='caleb@calebevans.me',
     license='MIT',
     keywords='automata turing machine',
-    packages=['automata'],
+    packages=['automata']
 )
