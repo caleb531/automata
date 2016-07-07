@@ -5,6 +5,11 @@
 __pycache__/
 *.py[cod]
 
+# Packaging
+build/
+dist/
+*.egg-info/
+
 # Unit test / coverage reports
 cover/
 htmlcov/
