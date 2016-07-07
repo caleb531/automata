@@ -16,7 +16,7 @@ def get_long_description():
 
 setup(
     name='automata-lib',
-    version='1.0.0',
+    version='1.0.0r1',
     description='A Python library for simulating automata and Turing machines',
     long_description=get_long_description(),
     url='https://github.com/caleb531/automata',
@@ -24,5 +24,7 @@ setup(
     author_email='caleb@calebevans.me',
     license='MIT',
     keywords='automata turing machine',
-    packages=['automata']
+    packages=['automata'],
+    install_requires=[],
+    entry_points={}
 )
