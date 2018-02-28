@@ -75,3 +75,7 @@ class Automaton(metaclass=abc.ABCMeta):
     def __eq__(self, other):
         """Check if two automata are equal."""
         return self.__dict__ == other.__dict__
+
+    def render(self):
+        """Draw the automaton"""
+        pass
