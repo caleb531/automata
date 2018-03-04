@@ -90,18 +90,18 @@ class TestDPDA(test_pda.TestPDA):
 
     def test_validate_input_invalid_accept_by_final_state(self):
         """Should reject strings if DPDA accepts by final state."""
-        with nose.assert_raises(exceptions.RejectionError):
+        with nose.assert_raises(exceptions.RejectionException):
             self.dpda.validate_input('aab')
 
     def test_validate_input_invalid_accept_by_empty_stack(self):
         """Should reject strings if DPDA accepts by empty stack."""
-        with nose.assert_raises(exceptions.RejectionError):
+        with nose.assert_raises(exceptions.RejectionException):
             self.dpda.transitions['q2']['']['0'] = ('q2', '')
             self.dpda.validate_input('aab')
 
     def test_validate_input_invalid_undefined_transition(self):
         """Should reject strings which lead to an undefined transition."""
-        with nose.assert_raises(exceptions.RejectionError):
+        with nose.assert_raises(exceptions.RejectionException):
             self.dpda.validate_input('01')
 
     def test_stack_copy(self):

@@ -2,49 +2,49 @@
 """Exception classes shared by all automata."""
 
 
-class AutomatonError(Exception):
+class AutomatonException(Exception):
     """The base class for all automaton-related errors."""
 
     pass
 
 
-class InvalidStateError(AutomatonError):
+class InvalidStateError(AutomatonException):
     """A state is not a valid state for this automaton."""
 
     pass
 
 
-class InvalidSymbolError(AutomatonError):
+class InvalidSymbolError(AutomatonException):
     """A symbol is not a valid symbol for this automaton."""
 
     pass
 
 
-class MissingStateError(AutomatonError):
+class MissingStateError(AutomatonException):
     """A state is missing from the automaton definition."""
 
     pass
 
 
-class MissingSymbolError(AutomatonError):
+class MissingSymbolError(AutomatonException):
     """A symbol is missing from the automaton definition."""
 
     pass
 
 
-class InitialStateError(AutomatonError):
+class InitialStateError(AutomatonException):
     """The initial state fails to meet some required condition."""
 
     pass
 
 
-class FinalStateError(AutomatonError):
+class FinalStateError(AutomatonException):
     """A final state fails to meet some required condition."""
 
     pass
 
 
-class RejectionError(AutomatonError):
+class RejectionException(AutomatonException):
     """The input was rejected by the automaton after validation."""
 
     pass

@@ -118,7 +118,7 @@ class DPDA(pda.PDA):
                 stack_symbol in self.transitions[state][input_symbol]):
             return self.transitions[state][input_symbol][stack_symbol]
         else:
-            raise exceptions.RejectionError(
+            raise exceptions.RejectionException(
                 'The automaton entered a configuration for which no '
                 'transition is defined ({}, {}, {})'.format(
                     state, input_symbol, stack_symbol))
@@ -133,7 +133,7 @@ class DPDA(pda.PDA):
         """Raise an error if the given config indicates rejected input."""
         # If current state is not a final state and stack is not empty
         if current_state not in self.final_states and stack:
-            raise exceptions.RejectionError(
+            raise exceptions.RejectionException(
                 'the DPDA stopped in a non-accepting configuration '
                 '({}, {})'.format(current_state, ''.join(stack)))
 

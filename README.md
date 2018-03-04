@@ -106,10 +106,10 @@ If the string is accepted, the method returns the state the DFA stopped on
 dfa.validate_input('01')  # returns 'q1'
 ```
 
-If the string is rejected by the DFA, the method will raise a `RejectionError`.
+If the string is rejected by the DFA, the method will raise a `RejectionException`.
 
 ```python
-dfa.validate_input('011')  # raises RejectionError
+dfa.validate_input('011')  # raises RejectionException
 ```
 
 If you supply the `step` keyword argument with a value of `True`, the method
@@ -124,7 +124,7 @@ list(dfa.validate_input('0111', step=True))
 Note that the first yielded state is always the DFA's initial state (before any
 input has been read) and the last yielded state is always the DFA's final state
 (after all input has been read). If the string is rejected by the DFA, the
-method still raises a `RejectionError`.
+method still raises a `RejectionException`.
 
 #### DFA.validate_self(self)
 
@@ -187,10 +187,10 @@ on (which presumably contains at least one valid final state).
 nfa.validate_input('aba')  # returns {'q1', 'q2'}
 ```
 
-If the string is rejected by the NFA, the method will raise a `RejectionError`.
+If the string is rejected by the NFA, the method will raise a `RejectionException`.
 
 ```python
-nfa.validate_input('abba')  # raises RejectionError
+nfa.validate_input('abba')  # raises RejectionException
 ```
 
 If you supply the `step` keyword argument with a value of `True`, the method
@@ -205,7 +205,7 @@ list(nfa.validate_input('aba', step=True))
 Note that the first yielded set is always the lambda closure of the NFA's
 initial state, and the last yielded set always contains the lambda closure of at
 least one of the NFA's final states (after all input has been read). If the
-string is rejected by the NFA, the method still raises a `RejectionError`.
+string is rejected by the NFA, the method still raises a `RejectionException`.
 
 #### NFA.validate_self(self)
 
@@ -310,10 +310,10 @@ DPDA stopped on (which presumably is a valid final state), as well as a
 dpda.validate_input('ab')  # returns PDAStack(['0'])
 ```
 
-If the string is rejected by the DPDA, the method will raise a `RejectionError`.
+If the string is rejected by the DPDA, the method will raise a `RejectionException`.
 
 ```python
-dpda.validate_input('aab')  # raises RejectionError
+dpda.validate_input('aab')  # raises RejectionException
 ```
 
 If you supply the `step` keyword argument with a value of `True`, the method
@@ -333,7 +333,7 @@ Note that the first yielded state is always the DPDA's initial state (before any
 input has been read) and the last yielded state is always the DPDA's final state
 (after all input has been read) (or possibly a non-final state if the stack is
 empty). If the string is rejected by the DPDA, the method still raises a
-`RejectionError`.
+`RejectionException`.
 
 #### DPDA.validate_self(self)
 
@@ -437,10 +437,10 @@ machine stopped on (which presumably is a valid final state), as well as a
 dtm.validate_input('01')  # returns ('q4', TMTape('xy.'))
 ```
 
-If the string is rejected by the DTM, the method will raise a `RejectionError`.
+If the string is rejected by the DTM, the method will raise a `RejectionException`.
 
 ```python
-dtm.validate_input('011')  # raises RejectionError
+dtm.validate_input('011')  # raises RejectionException
 ```
 
 If you supply the `step` keyword argument with a value of `True`, the method
@@ -467,7 +467,7 @@ above).
 Also note that the first yielded state is always the DTM's initial state (before
 any input has been read) and the last yielded state is always the DTM's final
 state (after all input has been read). If the string is rejected by the DTM, the
-method still raises a `RejectionError`.
+method still raises a `RejectionException`.
 
 #### DTM.validate_self(self)
 
@@ -498,7 +498,7 @@ whatnot), simply import `automata.base.exceptions` however you'd like:
 import automata.base.exceptions as exceptions
 ```
 
-#### class AutomatonError
+#### class AutomatonException
 
 A base class from which all other automata exceptions inherit (including finite
 automata and Turing machines).
@@ -529,7 +529,7 @@ of machine.
 Raised if a final state fails to meet some required condition for this type of
 machine.
 
-#### class RejectionError
+#### class RejectionException
 
 Raised if the FA stopped on a non-final state after validating input.
 
@@ -542,7 +542,7 @@ Turing machines. You can reference these exception classes like so:
 import automata.tm.exceptions as tmexceptions
 ```
 
-#### class TMError
+#### class TMException
 
 A base class from which all other Turing machine exceptions inherit.
 

@@ -115,7 +115,7 @@ class NFA(fa.FA):
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
         if not (current_states & self.final_states):
-            raise exceptions.RejectionError(
+            raise exceptions.RejectionException(
                 'the NFA stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 

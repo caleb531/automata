@@ -94,12 +94,12 @@ class TestDFA(test_fa.TestFA):
 
     def test_validate_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
-        with nose.assert_raises(exceptions.RejectionError):
+        with nose.assert_raises(exceptions.RejectionException):
             self.dfa.validate_input('011')
 
     def test_validate_input_rejection_invalid_symbol(self):
         """Should raise error if an invalid symbol is read."""
-        with nose.assert_raises(exceptions.RejectionError):
+        with nose.assert_raises(exceptions.RejectionException):
             self.dfa.validate_input('01112')
 
     def test_validate_input_step(self):
