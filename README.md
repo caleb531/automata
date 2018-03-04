@@ -106,7 +106,8 @@ If the string is accepted, the method returns the state the DFA stopped on
 dfa.validate_input('01')  # returns 'q1'
 ```
 
-If the string is rejected by the DFA, the method will raise a `RejectionException`.
+If the string is rejected by the DFA, the method will raise a
+`RejectionException`.
 
 ```python
 dfa.validate_input('011')  # raises RejectionException
@@ -193,7 +194,8 @@ on (which presumably contains at least one valid final state).
 nfa.validate_input('aba')  # returns {'q1', 'q2'}
 ```
 
-If the string is rejected by the NFA, the method will raise a `RejectionException`.
+If the string is rejected by the NFA, the method will raise a
+`RejectionException`.
 
 ```python
 nfa.validate_input('abba')  # raises RejectionException
@@ -321,7 +323,8 @@ DPDA stopped on (which presumably is a valid final state), as well as a
 dpda.validate_input('ab')  # returns PDAStack(['0'])
 ```
 
-If the string is rejected by the DPDA, the method will raise a `RejectionException`.
+If the string is rejected by the DPDA, the method will raise a
+`RejectionException`.
 
 ```python
 dpda.validate_input('aab')  # raises RejectionException
@@ -448,7 +451,8 @@ machine stopped on (which presumably is a valid final state), as well as a
 dtm.validate_input('01')  # returns ('q4', TMTape('xy.'))
 ```
 
-If the string is rejected by the DTM, the method will raise a `RejectionException`.
+If the string is rejected by the DTM, the method will raise a
+`RejectionException`.
 
 ```python
 dtm.validate_input('011')  # raises RejectionException
