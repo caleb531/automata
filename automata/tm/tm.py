@@ -4,7 +4,6 @@
 import abc
 
 import automata.base.exceptions as exceptions
-import automata.tm.exceptions as tmexceptions
 from automata.base.automaton import Automaton
 
 
