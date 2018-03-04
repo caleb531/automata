@@ -3,9 +3,9 @@
 
 import abc
 
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tmexceptions
-from automata.shared.automaton import Automaton
+from automata.base.automaton import Automaton
 
 
 class TM(Automaton, metaclass=abc.ABCMeta):

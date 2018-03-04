@@ -22,8 +22,8 @@ include =
     automata/pda/dpda.py
     automata/pda/pda.py
     automata/pda/stack.py
-    automata/shared/automaton.py
-    automata/shared/exceptions.py
+    automata/base/automaton.py
+    automata/base/exceptions.py
     automata/tm/dtm.py
     automata/tm/exceptions.py
     automata/tm/tape.py

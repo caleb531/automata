@@ -28,7 +28,7 @@ setup(
         'automata',
         'automata.fa',
         'automata.pda',
-        'automata.shared',
+        'automata.base',
         'automata.tm'
     ],
     install_requires=[],

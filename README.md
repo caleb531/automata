@@ -28,12 +28,12 @@ The `Automaton` class is an abstract base class from which all automata
 (including Turing machines) inherit. As such, it cannot be instantiated on its
 own; you must use a defined subclasses instead (or you may create your own
 subclass if you're feeling adventurous). The `Automaton` class can be found
-under `automata/shared/automaton.py`.
+under `automata/base/automaton.py`.
 
 If you wish to subclass `Automaton`, you can import it like so:
 
 ```python
-from automata.shared.automaton import Automaton
+from automata.base.automaton import Automaton
 ```
 
 
@@ -485,17 +485,17 @@ constructor.
 dtm_copy = DTM(dtm)  # returns a deep copy of dtm
 ```
 
-### Shared exception classes
+### base exception classes
 
 The library also includes a number of exception classes to ensure that errors
 never pass silently (unless explicitly silenced). See `automata/fa.py` for these
 class definitions.
 
 To reference these exceptions (so as to catch them in a `try..except` block or
-whatnot), simply import `automata.shared.exceptions` however you'd like:
+whatnot), simply import `automata.base.exceptions` however you'd like:
 
 ```python
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 ```
 
 #### class AutomatonError

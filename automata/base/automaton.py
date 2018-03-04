@@ -3,7 +3,7 @@
 
 import abc
 
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 
 
 class Automaton(metaclass=abc.ABCMeta):

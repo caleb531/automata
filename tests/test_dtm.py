@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import nose.tools as nose
 
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tmexceptions
 import tests.test_tm as test_tm
 from automata.tm.dtm import DTM

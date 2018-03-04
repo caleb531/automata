@@ -4,7 +4,7 @@
 import copy
 
 import automata.tm.tm as tm
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tmexceptions
 from automata.tm.tape import TMTape
 

@@ -5,7 +5,7 @@ import copy
 import queue
 
 import automata.fa.fa as fa
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 import automata.fa.nfa
 
 

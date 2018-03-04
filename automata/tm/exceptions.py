@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Exception classes specific to Turing machines."""
 
-from automata.shared.exceptions import AutomatonError
+from automata.base.exceptions import AutomatonError
 
 
 class TMError(AutomatonError):

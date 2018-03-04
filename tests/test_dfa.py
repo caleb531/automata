@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import nose.tools as nose
 
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
