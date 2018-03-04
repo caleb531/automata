@@ -117,8 +117,14 @@ will return a generator which yields each state reached as the DFA reads
 characters from the input string.
 
 ```python
-list(dfa.validate_input('0111', step=True))
-# returns ['q0', 'q0', 'q1', 'q2', 'q1']
+dfa.validate_input('0111', step=True)
+# yields (
+#   'q0'
+#   'q0',
+#   'q1',
+#   'q2',
+#   'q1'
+# )
 ```
 
 Note that the first yielded state is always the DFA's initial state (before any
@@ -198,8 +204,13 @@ will return a generator which yields each set of states reached as the NFA reads
 characters from the input string.
 
 ```python
-list(nfa.validate_input('aba', step=True))
-# returns [{'q0'}, {'q1', 'q2'}, {'q0'}, {'q1', 'q2'}]
+nfa.validate_input('aba', step=True)
+# yields (
+#   {'q0'},
+#   {'q1', 'q2'},
+#   {'q0'},
+#   {'q1', 'q2'}
+# )
 ```
 
 Note that the first yielded set is always the lambda closure of the NFA's
@@ -321,12 +332,12 @@ will return a generator which yields a tuple containing the current state and
 the current tape as a `PDAStack` object.
 
 ```python
-[(state, stack.copy()) for state, stack in dpda.validate_input('ab', step=True)]
-# returns [
+((state, stack.copy()) for state, stack in dpda.validate_input('ab', step=True))
+# yields (
 #   ('q0', PDAStack(['0'])),
 #   ('q1', PDAStack(['0', '1'])),
 #   ('q3', PDAStack(['0'])),
-# ]
+# )
 ```
 
 Note that the first yielded state is always the DPDA's initial state (before any
@@ -448,15 +459,15 @@ will return a generator which yields a tuple containing the current state and
 the current tape as a `TMTape` object.
 
 ```python
-[(state, tape.copy()) for state, tape in dtm.validate_input('01', step=True)]
-# returns [
+(state, tape.copy()) for state, tape in dtm.validate_input('01', step=True)
+# yields (
 #   ('q0', TMTape('01'))
 #   ('q1', TMTape('x1'))
 #   ('q2', TMTape('xy'))
 #   ('q0', TMTape('xy'))
 #   ('q3', TMTape('xy'))
 #   ('q3', TMTape('xy.'))
-# ]
+# )
 ```
 
 Please note that each tuple contains a reference to (not a copy of) the current
