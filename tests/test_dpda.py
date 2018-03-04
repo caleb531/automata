@@ -5,7 +5,7 @@
 
 import nose.tools as nose
 
-import automata.pda.exceptions as pdaexceptions
+import automata.pda.exceptions as pda_exceptions
 import automata.base.exceptions as exceptions
 import tests.test_pda as test_pda
 from automata.pda.dpda import DPDA
@@ -44,7 +44,7 @@ class TestDPDA(test_pda.TestPDA):
 
     def test_validate_self_nondeterminism(self):
         """Should raise error if DPDA exhibits nondeterminism."""
-        with nose.assert_raises(pdaexceptions.NondeterminismError):
+        with nose.assert_raises(pda_exceptions.NondeterminismError):
             self.dpda.transitions['q2']['b']['0'] = ('q2', '0')
             self.dpda.validate_self()
 

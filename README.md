@@ -554,7 +554,7 @@ The `automata.tm` package also includes a module for exceptions specific to
 Turing machines. You can reference these exception classes like so:
 
 ```python
-import automata.tm.exceptions as tmexceptions
+import automata.tm.exceptions as tm_exceptions
 ```
 
 #### class TMException

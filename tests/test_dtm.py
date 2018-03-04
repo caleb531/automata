@@ -7,7 +7,7 @@ from unittest.mock import patch
 import nose.tools as nose
 
 import automata.base.exceptions as exceptions
-import automata.tm.exceptions as tmexceptions
+import automata.tm.exceptions as tm_exceptions
 import tests.test_tm as test_tm
 from automata.tm.dtm import DTM
 
@@ -86,7 +86,7 @@ class TestDTM(test_tm.TestTM):
 
     def test_validate_self_invalid_transition_result_direction(self):
         """Should raise error if a transition result direction is invalid."""
-        with nose.assert_raises(tmexceptions.InvalidDirectionError):
+        with nose.assert_raises(tm_exceptions.InvalidDirectionError):
             self.dtm1.transitions['q0']['y'] = ('q3', 'y', 'U')
             self.dtm1.validate_self()
 

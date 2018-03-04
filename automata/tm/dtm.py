@@ -5,7 +5,7 @@ import copy
 
 import automata.tm.tm as tm
 import automata.base.exceptions as exceptions
-import automata.tm.exceptions as tmexceptions
+import automata.tm.exceptions as tm_exceptions
 from automata.tm.tape import TMTape
 
 
@@ -54,7 +54,7 @@ class DTM(tm.TM):
 
     def _validate_transition_result_direction(self, result_direction):
         if not (result_direction == 'L' or result_direction == 'R'):
-            raise tmexceptions.InvalidDirectionError(
+            raise tm_exceptions.InvalidDirectionError(
                 'result direction is not valid ({})'.format(
                     result_direction))
 

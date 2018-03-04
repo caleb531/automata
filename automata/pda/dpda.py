@@ -4,7 +4,7 @@
 import copy
 
 import automata.pda.pda as pda
-import automata.pda.exceptions as pdaexceptions
+import automata.pda.exceptions as pda_exceptions
 import automata.base.exceptions as exceptions
 from automata.pda.stack import PDAStack
 
@@ -58,7 +58,7 @@ class DPDA(pda.PDA):
         for other_stack_symbol in sib_path:
             if (other_stack_symbol in
                     self.transitions[start_state]['']):
-                raise pdaexceptions.NondeterminismError(
+                raise pda_exceptions.NondeterminismError(
                     'A symbol transition is adjacent to a '
                     'lambda transition for this DPDA.')
 
