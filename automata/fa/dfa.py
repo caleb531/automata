@@ -4,8 +4,8 @@
 import copy
 import queue
 
-import automata.fa.fa as fa
 import automata.base.exceptions as exceptions
+import automata.fa.fa as fa
 import automata.fa.nfa
 
 

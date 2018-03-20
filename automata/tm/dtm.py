@@ -3,9 +3,9 @@
 
 import copy
 
-import automata.tm.tm as tm
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
+import automata.tm.tm as tm
 from automata.tm.tape import TMTape
 
 

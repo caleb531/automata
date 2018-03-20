@@ -3,9 +3,9 @@
 
 import copy
 
-import automata.fa.fa as fa
 import automata.base.exceptions as exceptions
 import automata.fa.dfa
+import automata.fa.fa as fa
 
 
 class NFA(fa.FA):
