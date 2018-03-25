@@ -15,6 +15,11 @@ class Automaton(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
+    def _init_from_formal_params(self):
+        """Initialize a complete automaton from its formal parameters."""
+        raise NotImplementedError()
+
+    @abc.abstractmethod
     def validate_self(self):
         """Return True if this automaton is internally consistent."""
         raise NotImplementedError()
