@@ -8,11 +8,12 @@ from automata.base.automaton import Automaton
 
 def test_abstract_methods_not_implemented():
     """Should raise NotImplementedError when calling abstract methods."""
-    with nose.assert_raises(NotImplementedError):
-        Automaton.__init__(Automaton)
-    with nose.assert_raises(NotImplementedError):
-        Automaton._init_from_formal_params(Automaton)
-    with nose.assert_raises(NotImplementedError):
-        Automaton.validate_self(Automaton)
-    with nose.assert_raises(NotImplementedError):
-        Automaton._validate_input_yield(Automaton, None)
+    abstract_methods = {
+        '__init__': (Automaton,),
+        '_init_from_formal_params': (Automaton,),
+        'validate_self': (Automaton,),
+        '_validate_input_yield': (Automaton, '')
+    }
+    for method_name, method_args in abstract_methods.items():
+        with nose.assert_raises(NotImplementedError):
+            getattr(Automaton, method_name)(*method_args)
