@@ -12,17 +12,17 @@ class Automaton(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self, obj=None, **kwargs):
         """Initialize a complete automaton."""
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def validate_self(self):
         """Return True if this automaton is internally consistent."""
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _validate_input_yield(self, input_str):
         """Check if the given string is accepted by this automaton."""
-        pass
+        raise NotImplementedError
 
     def _validate_input_return(self, input_str):
         """
