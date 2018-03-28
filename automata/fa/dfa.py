@@ -3,6 +3,7 @@
 
 import copy
 import queue
+import itertools
 
 import automata.fa.fa as fa
 import automata.shared.exceptions as exceptions
@@ -162,3 +163,12 @@ class DFA(fa.FA):
             states=dfa_states, input_symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
+
+    def num_accepted(self, length):
+        accepted = []
+        symbol_permutations = list(itertools.product(self.input_symbols, repeat=length))
+        for symbol_perm in symbol_permutations:
+            w = ''.join(symbol_perm)
+            if self.input_accepted(w):
+                accepted.append(w)
+        return len(accepted), accepted
