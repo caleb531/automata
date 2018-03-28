@@ -75,3 +75,19 @@ class Automaton(metaclass=abc.ABCMeta):
     def __eq__(self, other):
         """Check if two automata are equal."""
         return self.__dict__ == other.__dict__
+
+    def input_accepted(self, input_str):
+        """Boolean function: true if the input word is accepted, false otherwise"""
+        try:
+            self.validate_input(input_str)
+            return True
+        except exceptions.RejectionError:
+            return False
+
+    def render(self):
+        """Draw the automaton"""
+        pass
+
+    def num_accepted(self, len):
+        """Compute the number of words accepted of length 'len' """
+        pass
