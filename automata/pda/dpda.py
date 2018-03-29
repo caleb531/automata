@@ -12,26 +12,10 @@ from automata.pda.stack import PDAStack
 class DPDA(pda.PDA):
     """A deterministic pushdown automaton."""
 
-    def __init__(self, obj=None, **kwargs):
+    def __init__(self, *, states, input_symbols, stack_symbols,
+                 transitions, initial_state,
+                 initial_stack_symbol, final_states):
         """Initialize a complete DPDA."""
-        if isinstance(obj, DPDA):
-            self._init_from_dpda(obj)
-        else:
-            self._init_from_formal_params(**kwargs)
-
-    def _init_from_dpda(self, dpda):
-        """Initialize this DPDA as a deep copy of the given DPDA."""
-        self.__init__(
-            states=dpda.states, input_symbols=dpda.input_symbols,
-            stack_symbols=dpda.stack_symbols, transitions=dpda.transitions,
-            initial_state=dpda.initial_state,
-            initial_stack_symbol=dpda.initial_stack_symbol,
-            final_states=dpda.final_states)
-
-    def _init_from_formal_params(self, *, states, input_symbols, stack_symbols,
-                                 transitions, initial_state,
-                                 initial_stack_symbol, final_states):
-        """Initialize a DPDA from the formal definition parameters."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
         self.stack_symbols = stack_symbols.copy()

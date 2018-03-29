@@ -12,17 +12,10 @@ from automata.tm.tape import TMTape
 class DTM(tm.TM):
     """A deterministic Turing machine."""
 
-    def __init__(self, obj=None, **kwargs):
+    def __init__(self, *, states, input_symbols, tape_symbols,
+                 transitions, initial_state, blank_symbol,
+                 final_states):
         """Initialize a complete Turing machine."""
-        if isinstance(obj, DTM):
-            self._init_from_dtm(obj)
-        else:
-            self._init_from_formal_params(**kwargs)
-
-    def _init_from_formal_params(self, *, states, input_symbols, tape_symbols,
-                                 transitions, initial_state, blank_symbol,
-                                 final_states):
-        """Initialize a DTM from the formal definition parameters."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
         self.tape_symbols = tape_symbols.copy()
@@ -31,14 +24,6 @@ class DTM(tm.TM):
         self.blank_symbol = blank_symbol
         self.final_states = final_states.copy()
         self.validate_self()
-
-    def _init_from_dtm(self, tm):
-        """Initialize this DTM as a deep copy of the given DTM."""
-        self.__init__(
-            states=tm.states, input_symbols=tm.input_symbols,
-            tape_symbols=tm.tape_symbols, transitions=tm.transitions,
-            initial_state=tm.initial_state, blank_symbol=tm.blank_symbol,
-            final_states=tm.final_states)
 
     def _validate_transition_state(self, transition_state):
         if transition_state not in self.states:

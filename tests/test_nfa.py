@@ -16,7 +16,7 @@ class TestNFA(test_fa.TestFA):
 
     def test_init_nfa(self):
         """Should copy NFA if passed into NFA constructor."""
-        new_nfa = NFA(self.nfa)
+        new_nfa = NFA.copy(self.nfa)
         self.assert_is_copy(new_nfa, self.nfa)
 
     def test_init_nfa_missing_formal_params(self):
@@ -36,7 +36,7 @@ class TestNFA(test_fa.TestFA):
 
     def test_init_dfa(self):
         """Should convert DFA to NFA if passed into NFA constructor."""
-        nfa = NFA(self.dfa)
+        nfa = NFA.from_dfa(self.dfa)
         nose.assert_equal(nfa.states, {'q0', 'q1', 'q2'})
         nose.assert_equal(nfa.input_symbols, {'0', '1'})
         nose.assert_equal(nfa.transitions, {
@@ -49,7 +49,7 @@ class TestNFA(test_fa.TestFA):
     @patch('automata.fa.nfa.NFA.validate_self')
     def test_init_validation(self, validate_self):
         """Should validate NFA when initialized."""
-        NFA(self.nfa)
+        NFA.copy(self.nfa)
         validate_self.assert_called_once_with()
 
     def test_nfa_equal(self):

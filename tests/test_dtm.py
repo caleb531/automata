@@ -17,7 +17,7 @@ class TestDTM(test_tm.TestTM):
 
     def test_init_dtm(self):
         """Should copy DTM if passed into DTM constructor."""
-        new_dtm = DTM(self.dtm1)
+        new_dtm = DTM.copy(self.dtm1)
         self.assert_is_copy(new_dtm, self.dtm1)
 
     def test_init_dtm_missing_formal_params(self):
@@ -35,7 +35,7 @@ class TestDTM(test_tm.TestTM):
     @patch('automata.tm.dtm.DTM.validate_self')
     def test_init_validation(self, validate_self):
         """Should validate DTM when initialized."""
-        DTM(self.dtm1)
+        DTM.copy(self.dtm1)
         validate_self.assert_called_once_with()
 
     def test_copy_dtm(self):

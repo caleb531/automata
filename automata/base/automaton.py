@@ -15,11 +15,6 @@ class Automaton(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _init_from_formal_params(self):
-        """Initialize a complete automaton from its formal parameters."""
-        raise NotImplementedError()
-
-    @abc.abstractmethod
     def validate_self(self):
         """Return True if this automaton is internally consistent."""
         raise NotImplementedError()
@@ -75,7 +70,7 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def copy(self):
         """Create a deep copy of the automaton."""
-        return self.__class__(self)
+        return self.__class__(**self.__dict__)
 
     def __eq__(self, other):
         """Check if two automata are equal."""

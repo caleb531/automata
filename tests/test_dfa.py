@@ -17,7 +17,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_dfa(self):
         """Should copy DFA if passed into DFA constructor."""
-        new_dfa = DFA(self.dfa)
+        new_dfa = DFA.copy(self.dfa)
         self.assert_is_copy(new_dfa, self.dfa)
 
     def test_init_dfa_missing_formal_params(self):
@@ -38,7 +38,7 @@ class TestDFA(test_fa.TestFA):
     @patch('automata.fa.dfa.DFA.validate_self')
     def test_init_validation(self, validate_self):
         """Should validate DFA when initialized."""
-        DFA(self.dfa)
+        DFA.copy(self.dfa)
         validate_self.assert_called_once_with()
 
     def test_dfa_equal(self):
@@ -123,7 +123,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q2'}
         )
-        dfa = DFA(nfa)
+        dfa = DFA.from_nfa(nfa)
         nose.assert_equal(dfa.states, {'{}', '{q0}', '{q0,q1}', '{q2}'})
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
@@ -137,7 +137,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
-        dfa = DFA(self.nfa)
+        dfa = DFA.from_nfa(self.nfa)
         nose.assert_equal(dfa.states, {'{}', '{q0}', '{q1,q2}'})
         nose.assert_equal(dfa.input_symbols, {'a', 'b'})
         nose.assert_equal(dfa.transitions, {

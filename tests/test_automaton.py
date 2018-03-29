@@ -10,7 +10,6 @@ def test_abstract_methods_not_implemented():
     """Should raise NotImplementedError when calling abstract methods."""
     abstract_methods = {
         '__init__': (Automaton,),
-        '_init_from_formal_params': (Automaton,),
         'validate_self': (Automaton,),
         '_validate_input_yield': (Automaton, '')
     }

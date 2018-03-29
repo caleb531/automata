@@ -4,25 +4,15 @@
 import copy
 
 import automata.base.exceptions as exceptions
-import automata.fa.dfa
 import automata.fa.fa as fa
 
 
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
 
-    def __init__(self, obj=None, **kwargs):
+    def __init__(self, *, states, input_symbols, transitions,
+                 initial_state, final_states):
         """Initialize a complete NFA."""
-        if isinstance(obj, automata.fa.dfa.DFA):
-            self._init_from_dfa(obj)
-        elif isinstance(obj, NFA):
-            self._init_from_nfa(obj)
-        else:
-            self._init_from_formal_params(**kwargs)
-
-    def _init_from_formal_params(self, *, states, input_symbols, transitions,
-                                 initial_state, final_states):
-        """Initialize an NFA from the formal definition parameters."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
         self.transitions = copy.deepcopy(transitions)
@@ -30,14 +20,8 @@ class NFA(fa.FA):
         self.final_states = final_states.copy()
         self.validate_self()
 
-    def _init_from_nfa(self, nfa):
-        """Initialize this NFA as a deep copy of the given NFA."""
-        self.__init__(
-            states=nfa.states, input_symbols=nfa.input_symbols,
-            transitions=nfa.transitions, initial_state=nfa.initial_state,
-            final_states=nfa.final_states)
-
-    def _init_from_dfa(self, dfa):
+    @classmethod
+    def from_dfa(cls, dfa):
         """Initialize this NFA as one equivalent to the given DFA."""
         nfa_transitions = {}
 
@@ -46,7 +30,7 @@ class NFA(fa.FA):
             for input_symbol, end_state in paths.items():
                 nfa_transitions[start_state][input_symbol] = {end_state}
 
-        self.__init__(
+        return cls(
             states=dfa.states, input_symbols=dfa.input_symbols,
             transitions=nfa_transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)

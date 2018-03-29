@@ -147,7 +147,7 @@ To create a deep copy of a DFA, simply pass an `DFA` instance into the `DFA`
 constructor.
 
 ```python
-dfa_copy = DFA(dfa)  # returns a deep copy of dfa
+dfa_copy = DFA.copy(dfa)  # returns a deep copy of dfa
 ```
 
 ### class NFA
@@ -234,7 +234,7 @@ instance to the `DFA` constructor.
 
 ```python
 from automata.fa.dfa import DFA
-dfa = DFA(nfa)  # returns an equivalent DFA
+dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
 ```
 
 #### Copying an NFA
@@ -243,7 +243,7 @@ To create a deep copy of an NFA, simply pass an `NFA` instance into the `NFA`
 constructor.
 
 ```python
-nfa_copy = NFA(nfa)  # returns a deep copy of nfa
+nfa_copy = NFA.copy(nfa)  # returns a deep copy of nfa
 ```
 
 #### class PDA
@@ -497,7 +497,7 @@ To create a deep copy of a DTM, simply pass a `DTM` instance into the `DTM`
 constructor.
 
 ```python
-dtm_copy = DTM(dtm)  # returns a deep copy of dtm
+dtm_copy = DTM.copy(dtm)  # returns a deep copy of dtm
 ```
 
 ### base exception classes
