@@ -21,7 +21,7 @@ class Automaton(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def read_input_stepwise(self, input_str):
-        """Check if the given string is accepted by this automaton."""
+        """Return a generator that yields each step while reading input."""
         raise NotImplementedError()
 
     def read_input(self, input_str):
