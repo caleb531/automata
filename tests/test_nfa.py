@@ -93,8 +93,8 @@ class TestNFA(test_fa.TestFA):
             self.nfa.final_states = {'q3'}
             self.nfa.validate()
 
-    def test_read_input_valid(self):
-        """Should return correct stop states if valid NFA input is given."""
+    def test_read_input_accepted(self):
+        """Should return correct states if acceptable NFA input is given."""
         nose.assert_equal(self.nfa.read_input('aba'), {'q1', 'q2'})
 
     def test_validate_missing_state(self):

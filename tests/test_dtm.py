@@ -120,8 +120,8 @@ class TestDTM(test_tm.TestTM):
             self.dtm1.transitions['q4'] = {'0': ('q4', '0', 'L')}
             self.dtm1.validate()
 
-    def test_read_input_valid(self):
-        """Should return correct stop state if valid TM input is given."""
+    def test_read_input_accepted(self):
+        """Should return correct state if acceptable TM input is given."""
         final_config = self.dtm1.read_input('00001111')
         nose.assert_equal(final_config[0], 'q4')
         nose.assert_equal(str(final_config[1]), 'TMTape(\'xxxxyyyy.\')')
