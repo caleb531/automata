@@ -104,6 +104,14 @@ class TestDPDA(test_pda.TestPDA):
         with nose.assert_raises(exceptions.RejectionException):
             self.dpda.read_input('01')
 
+    def test_accepts_input_true(self):
+        """Should return False if DPDA input is not accepted."""
+        nose.assert_equal(self.dpda.accepts_input('aabb'), True)
+
+    def test_accepts_input_false(self):
+        """Should return False if DPDA input is rejected."""
+        nose.assert_equal(self.dpda.accepts_input('aab'), False)
+
     def test_stack_copy(self):
         """Should create an exact of the PDA stack."""
         stack = PDAStack(['a', 'b'])

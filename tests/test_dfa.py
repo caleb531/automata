@@ -102,6 +102,14 @@ class TestDFA(test_fa.TestFA):
         with nose.assert_raises(exceptions.RejectionException):
             self.dfa.read_input('01112')
 
+    def test_accepts_input_true(self):
+        """Should return True if DFA input is accepted."""
+        nose.assert_equal(self.dfa.accepts_input('0111'), True)
+
+    def test_accepts_input_false(self):
+        """Should return False if DFA input is rejected."""
+        nose.assert_equal(self.dfa.accepts_input('011'), False)
+
     def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""
         validation_generator = self.dfa.read_input_stepwise('0111')

@@ -153,3 +153,11 @@ class TestDTM(test_tm.TestTM):
         """Should raise error if an invalid symbol is read."""
         with nose.assert_raises(exceptions.RejectionException):
             self.dtm1.read_input('02')
+
+    def test_accepts_input_true(self):
+        """Should return False if DTM input is not accepted."""
+        nose.assert_equal(self.dtm1.accepts_input('00001111'), True)
+
+    def test_accepts_input_false(self):
+        """Should return False if DTM input is rejected."""
+        nose.assert_equal(self.dtm1.accepts_input('000011'), False)

@@ -35,6 +35,14 @@ class Automaton(metaclass=abc.ABCMeta):
             pass
         return config
 
+    def accepts_input(self, input_str):
+        """Return True if this automaton accepts the given input."""
+        try:
+            self.read_input(input_str)
+            return True
+        except exceptions.RejectionException:
+            return False
+
     def _validate_initial_state(self):
         """Raise an error if the initial state is invalid."""
         if self.initial_state not in self.states:

@@ -121,6 +121,14 @@ class TestNFA(test_fa.TestFA):
             {'q0'}, {'q1', 'q2'}, {'q0'}, {'q1', 'q2'}
         ])
 
+    def test_accepts_input_true(self):
+        """Should return True if NFA input is accepted."""
+        nose.assert_equal(self.nfa.accepts_input('aba'), True)
+
+    def test_accepts_input_false(self):
+        """Should return False if NFA input is rejected."""
+        nose.assert_equal(self.nfa.accepts_input('abba'), False)
+
     def test_cyclic_lambda_transitions(self):
         """Should traverse NFA containing cyclic lambda transitions."""
         # NFA which matches zero or more occurrences of 'a'
