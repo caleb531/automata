@@ -94,31 +94,33 @@ dfa = DFA(
 
 Please note that the below DFA code examples reference the above `dfa` object.
 
-#### DFA.validate_input(self, input_str, step=False)
+#### DFA.read_input(self, input_str)
 
-The `validate_input()` method checks whether or not the given string is accepted
+The `read_input()` method checks whether or not the given string is accepted
 by the DFA.
 
 If the string is accepted, the method returns the state the DFA stopped on
 (which presumably is a valid final state).
 
 ```python
-dfa.validate_input('01')  # returns 'q1'
+dfa.read_input('01')  # returns 'q1'
 ```
 
 If the string is rejected by the DFA, the method will raise a
 `RejectionException`.
 
 ```python
-dfa.validate_input('011')  # raises RejectionException
+dfa.read_input('011')  # raises RejectionException
 ```
+
+## DFA.read_input_stepwise(self, input_str)
 
 If you supply the `step` keyword argument with a value of `True`, the method
 will return a generator which yields each state reached as the DFA reads
 characters from the input string.
 
 ```python
-dfa.validate_input('0111', step=True)
+dfa.read_input_stepwise('0111')
 # yields (
 #   'q0'
 #   'q0',
@@ -133,9 +135,9 @@ input has been read) and the last yielded state is always the DFA's final state
 (after all input has been read). If the string is rejected by the DFA, the
 method still raises a `RejectionException`.
 
-#### DFA.validate_self(self)
+#### DFA.validate(self)
 
-The `validate_self()` method checks whether the DFA is actually a valid DFA. The
+The `validate()` method checks whether the DFA is actually a valid DFA. The
 method returns `True` if the DFA is valid; otherwise, it will raise the
 appropriate exception (*e.g.* the state transition is missing for a particular
 symbol). This method is automatically called when the DFA is initialized, so
@@ -182,31 +184,33 @@ nfa = NFA(
 )
 ```
 
-#### NFA.validate_input(self, input_str, step=False)
+#### NFA.read_input(self, input_str, step=False)
 
-The `validate_input()` method checks whether or not the given string is accepted
+The `read_input()` method checks whether or not the given string is accepted
 by the NFA.
 
 If the string is accepted, the method returns a `set` of states the FA stopped
 on (which presumably contains at least one valid final state).
 
 ```python
-nfa.validate_input('aba')  # returns {'q1', 'q2'}
+nfa.read_input('aba')  # returns {'q1', 'q2'}
 ```
 
 If the string is rejected by the NFA, the method will raise a
 `RejectionException`.
 
 ```python
-nfa.validate_input('abba')  # raises RejectionException
+nfa.read_input('abba')  # raises RejectionException
 ```
+
+## NFA.read_input_stepwise(self, input_str)
 
 If you supply the `step` keyword argument with a value of `True`, the method
 will return a generator which yields each set of states reached as the NFA reads
 characters from the input string.
 
 ```python
-nfa.validate_input('aba', step=True)
+nfa.read_input_stepwise('aba')
 # yields (
 #   {'q0'},
 #   {'q1', 'q2'},
@@ -220,11 +224,11 @@ initial state, and the last yielded set always contains the lambda closure of at
 least one of the NFA's final states (after all input has been read). If the
 string is rejected by the NFA, the method still raises a `RejectionException`.
 
-#### NFA.validate_self(self)
+#### NFA.validate(self)
 
-The `validate_self()` method checks whether the NFA is actually a valid NFA. The
+The `validate()` method checks whether the NFA is actually a valid NFA. The
 method has the same basic behavior and prescribed use case as the
-`DFA.validate_self()` method, despite being less restrictive (since NFAs are
+`DFA.validate()` method, despite being less restrictive (since NFAs are
 naturally less restrictive than DFAs).
 
 #### Converting an NFA to a DFA
@@ -310,9 +314,9 @@ dpda = DPDA(
 
 Please note that the below DPDA code examples reference the above `dpda` object.
 
-#### DPDA.validate_input(self, input_str, step=False)
+#### DPDA.read_input(self, input_str, step=False)
 
-The `validate_input()` method checks whether or not the given string is accepted
+The `read_input()` method checks whether or not the given string is accepted
 by the DPDA.
 
 If the string is accepted, the method returns a tuple containing the state the
@@ -320,22 +324,24 @@ DPDA stopped on (which presumably is a valid final state), as well as a
 `PDAStack` object representing the DPDA's internal stack.
 
 ```python
-dpda.validate_input('ab')  # returns PDAStack(['0'])
+dpda.read_input('ab')  # returns PDAStack(['0'])
 ```
 
 If the string is rejected by the DPDA, the method will raise a
 `RejectionException`.
 
 ```python
-dpda.validate_input('aab')  # raises RejectionException
+dpda.read_input('aab')  # raises RejectionException
 ```
+
+## DPDA.read_input_stepwise(self, input_str)
 
 If you supply the `step` keyword argument with a value of `True`, the method
 will return a generator which yields a tuple containing the current state and
 the current tape as a `PDAStack` object.
 
 ```python
-((state, stack.copy()) for state, stack in dpda.validate_input('ab', step=True))
+((state, stack.copy()) for state, stack in dpda.read_input_stepwise('ab'))
 # yields (
 #   ('q0', PDAStack(['0'])),
 #   ('q1', PDAStack(['0', '1'])),
@@ -349,11 +355,11 @@ input has been read) and the last yielded state is always the DPDA's final state
 empty). If the string is rejected by the DPDA, the method still raises a
 `RejectionException`.
 
-#### DPDA.validate_self(self)
+#### DPDA.validate(self)
 
-The `validate_self()` method checks whether the DPDA is actually a valid DPDA.
+The `validate()` method checks whether the DPDA is actually a valid DPDA.
 The method has the same basic behavior and prescribed use case as the
-`DFA.validate_self()` and `NFA.validate_self()` methods, while (naturally)
+`DFA.validate()` and `NFA.validate()` methods, while (naturally)
 containing validation checks specific to DPDAs.
 
 #### Copying a DPDA
@@ -438,9 +444,9 @@ dtm = DTM(
 
 Please note that the below DTM code examples reference the above `dtm` object.
 
-#### DTM.validate_input(self, input_str, step=False)
+#### DTM.read_input(self, input_str, step=False)
 
-The `validate_input()` method checks whether or not the given string is accepted
+The `read_input()` method checks whether or not the given string is accepted
 by the DTM.
 
 If the string is accepted, the method returns a tuple containing the state the
@@ -448,22 +454,24 @@ machine stopped on (which presumably is a valid final state), as well as a
 `TMTape` object representing the DTM's internal tape.
 
 ```python
-dtm.validate_input('01')  # returns ('q4', TMTape('xy.'))
+dtm.read_input('01')  # returns ('q4', TMTape('xy.'))
 ```
 
 If the string is rejected by the DTM, the method will raise a
 `RejectionException`.
 
 ```python
-dtm.validate_input('011')  # raises RejectionException
+dtm.read_input('011')  # raises RejectionException
 ```
+
+## DTM.read_input_stepwise(self, input_str)
 
 If you supply the `step` keyword argument with a value of `True`, the method
 will return a generator which yields a tuple containing the current state and
 the current tape as a `TMTape` object.
 
 ```python
-(state, tape.copy()) for state, tape in dtm.validate_input('01', step=True)
+(state, tape.copy()) for state, tape in dtm.read_input_stepwise('01')
 # yields (
 #   ('q0', TMTape('01'))
 #   ('q1', TMTape('x1'))
@@ -484,11 +492,11 @@ any input has been read) and the last yielded state is always the DTM's final
 state (after all input has been read). If the string is rejected by the DTM, the
 method still raises a `RejectionException`.
 
-#### DTM.validate_self(self)
+#### DTM.validate(self)
 
-The `validate_self()` method checks whether the DTM is actually a valid DTM. The
+The `validate()` method checks whether the DTM is actually a valid DTM. The
 method has the same basic behavior and prescribed use case as the
-`DFA.validate_self()` and `NFA.validate_self()` methods, while (naturally)
+`DFA.validate()` and `NFA.validate()` methods, while (naturally)
 containing validation checks specific to DTMs.
 
 #### Copying a DTM

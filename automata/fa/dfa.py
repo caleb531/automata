@@ -19,7 +19,7 @@ class DFA(fa.FA):
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = final_states.copy()
-        self.validate_self()
+        self.validate()
 
     def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition input_symbols are missing."""
@@ -59,7 +59,7 @@ class DFA(fa.FA):
         self._validate_transition_invalid_symbols(start_state, paths)
         self._validate_transition_end_states(start_state, paths)
 
-    def validate_self(self):
+    def validate(self):
         """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
         for start_state, paths in self.transitions.items():
@@ -87,7 +87,7 @@ class DFA(fa.FA):
                 'the DFA stopped on a non-final state ({})'.format(
                     current_state))
 
-    def _validate_input_yield(self, input_str):
+    def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this DFA.
 

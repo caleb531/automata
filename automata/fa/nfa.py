@@ -18,7 +18,7 @@ class NFA(fa.FA):
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = final_states.copy()
-        self.validate_self()
+        self.validate()
 
     @classmethod
     def from_dfa(cls, dfa):
@@ -51,7 +51,7 @@ class NFA(fa.FA):
                         'end state {} for transition on {} is '
                         'not valid'.format(end_state, start_state))
 
-    def validate_self(self):
+    def validate(self):
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
@@ -103,7 +103,7 @@ class NFA(fa.FA):
                 'the NFA stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 
-    def _validate_input_yield(self, input_str):
+    def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this NFA.
 

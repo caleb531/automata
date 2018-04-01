@@ -10,7 +10,7 @@ from automata.base.automaton import Automaton
 class TM(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for Turing machines."""
 
-    def _validate_input_symbol_subset(self):
+    def _read_input_symbol_subset(self):
         if not (self.input_symbols < self.tape_symbols):
             raise exceptions.MissingSymbolError(
                 'The set of tape symbols is missing symbols from the input '

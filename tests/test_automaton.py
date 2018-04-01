@@ -10,8 +10,8 @@ def test_abstract_methods_not_implemented():
     """Should raise NotImplementedError when calling abstract methods."""
     abstract_methods = {
         '__init__': (Automaton,),
-        'validate_self': (Automaton,),
-        '_validate_input_yield': (Automaton, '')
+        'validate': (Automaton,),
+        'read_input_stepwise': (Automaton, '')
     }
     for method_name, method_args in abstract_methods.items():
         with nose.assert_raises(NotImplementedError):

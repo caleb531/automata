@@ -15,37 +15,25 @@ class Automaton(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def validate_self(self):
+    def validate(self):
         """Return True if this automaton is internally consistent."""
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _validate_input_yield(self, input_str):
+    def read_input_stepwise(self, input_str):
         """Check if the given string is accepted by this automaton."""
         raise NotImplementedError()
 
-    def _validate_input_return(self, input_str):
+    def read_input(self, input_str):
         """
         Check if the given string is accepted by this automaton.
 
         Return the automaton's final configuration if this string is valid.
         """
-        validation_generator = self._validate_input_yield(input_str)
+        validation_generator = self.read_input_stepwise(input_str)
         for config in validation_generator:
             pass
         return config
-
-    def validate_input(self, input_str, step=False):
-        """
-        Check if the given string is accepted by this automaton.
-
-        If step is True, yield the configuration at each step. Otherwise,
-        return the final configuration.
-        """
-        if step:
-            return self._validate_input_yield(input_str)
-        else:
-            return self._validate_input_return(input_str)
 
     def _validate_initial_state(self):
         """Raise an error if the initial state is invalid."""

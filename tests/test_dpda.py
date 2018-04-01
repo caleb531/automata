@@ -30,54 +30,54 @@ class TestDPDA(test_pda.TestPDA):
                 final_states={'q0'}
             )
 
-    def test_validate_self_invalid_input_symbol(self):
+    def test_validate_invalid_input_symbol(self):
         """Should raise error if a transition has an invalid input symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dpda.transitions['q1']['c'] = 'q2'
-            self.dpda.validate_self()
+            self.dpda.validate()
 
-    def test_validate_self_invalid_stack_symbol(self):
+    def test_validate_invalid_stack_symbol(self):
         """Should raise error if a transition has an invalid stack symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dpda.transitions['q1']['a']['2'] = ('q1', ('1', '1'))
-            self.dpda.validate_self()
+            self.dpda.validate()
 
-    def test_validate_self_nondeterminism(self):
+    def test_validate_nondeterminism(self):
         """Should raise error if DPDA exhibits nondeterminism."""
         with nose.assert_raises(pda_exceptions.NondeterminismError):
             self.dpda.transitions['q2']['b']['0'] = ('q2', '0')
-            self.dpda.validate_self()
+            self.dpda.validate()
 
-    def test_validate_self_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dpda.initial_state = 'q4'
-            self.dpda.validate_self()
+            self.dpda.validate()
 
-    def test_validate_self_invalid_initial_stack_symbol(self):
+    def test_validate_invalid_initial_stack_symbol(self):
         """Should raise error if the initial stack symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dpda.initial_stack_symbol = '2'
-            self.dpda.validate_self()
+            self.dpda.validate()
 
-    def test_validate_self_invalid_final_state(self):
+    def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dpda.final_states = {'q4'}
-            self.dpda.validate_self()
+            self.dpda.validate()
 
-    def test_validate_input_valid_accept_by_final_state(self):
+    def test_read_input_valid_accept_by_final_state(self):
         """Should return correct config if DPDA accepts by final state."""
         nose.assert_equal(
-            self.dpda.validate_input('aabb'), ('q3', PDAStack(['0'])))
+            self.dpda.read_input('aabb'), ('q3', PDAStack(['0'])))
 
-    def test_validate_input_valid_accept_by_empty_stack(self):
+    def test_read_input_valid_accept_by_empty_stack(self):
         """Should return correct config if DPDA accepts by empty stack."""
         self.dpda.transitions['q2']['']['0'] = ('q2', '')
         nose.assert_equal(
-            self.dpda.validate_input('aabb'), ('q2', PDAStack([])))
+            self.dpda.read_input('aabb'), ('q2', PDAStack([])))
 
-    def test_validate_input_valid_consecutive_lambda_transitions(self):
+    def test_read_input_valid_consecutive_lambda_transitions(self):
         """Should follow consecutive lambda transitions when validating."""
         self.dpda.states = {'q4'}
         self.dpda.final_states = {'q4'}
@@ -86,23 +86,23 @@ class TestDPDA(test_pda.TestPDA):
             '': {'0': ('q4', ('0',))}
         }
         nose.assert_equal(
-            self.dpda.validate_input('aabb'), ('q4', PDAStack(['0'])))
+            self.dpda.read_input('aabb'), ('q4', PDAStack(['0'])))
 
-    def test_validate_input_invalid_accept_by_final_state(self):
+    def test_read_input_invalid_accept_by_final_state(self):
         """Should reject strings if DPDA accepts by final state."""
         with nose.assert_raises(exceptions.RejectionException):
-            self.dpda.validate_input('aab')
+            self.dpda.read_input('aab')
 
-    def test_validate_input_invalid_accept_by_empty_stack(self):
+    def test_read_input_invalid_accept_by_empty_stack(self):
         """Should reject strings if DPDA accepts by empty stack."""
         with nose.assert_raises(exceptions.RejectionException):
             self.dpda.transitions['q2']['']['0'] = ('q2', '')
-            self.dpda.validate_input('aab')
+            self.dpda.read_input('aab')
 
-    def test_validate_input_invalid_undefined_transition(self):
+    def test_read_input_invalid_undefined_transition(self):
         """Should reject strings which lead to an undefined transition."""
         with nose.assert_raises(exceptions.RejectionException):
-            self.dpda.validate_input('01')
+            self.dpda.read_input('01')
 
     def test_stack_copy(self):
         """Should create an exact of the PDA stack."""

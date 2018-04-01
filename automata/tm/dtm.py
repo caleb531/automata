@@ -23,7 +23,7 @@ class DTM(tm.TM):
         self.initial_state = initial_state
         self.blank_symbol = blank_symbol
         self.final_states = final_states.copy()
-        self.validate_self()
+        self.validate()
 
     def _validate_transition_state(self, transition_state):
         if transition_state not in self.states:
@@ -70,9 +70,9 @@ class DTM(tm.TM):
                     'final state {} has transitions defined'.format(
                         final_state))
 
-    def validate_self(self):
+    def validate(self):
         """Return True if this DTM is internally consistent."""
-        self._validate_input_symbol_subset()
+        self._read_input_symbol_subset()
         self._validate_transitions()
         self._validate_initial_state()
         self._validate_initial_state_transitions()
@@ -92,7 +92,7 @@ class DTM(tm.TM):
                 'transition is defined ({}, {})'.format(
                     state, tape_symbol))
 
-    def _validate_input_yield(self, input_str):
+    def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this Turing machine.
 

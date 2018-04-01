@@ -23,7 +23,7 @@ class DPDA(pda.PDA):
         self.initial_state = initial_state
         self.initial_stack_symbol = initial_stack_symbol
         self.final_states = final_states.copy()
-        self.validate_self()
+        self.validate()
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
@@ -80,7 +80,7 @@ class DPDA(pda.PDA):
                 'initial stack symbol {} is invalid'.format(
                     self.initial_stack_symbol))
 
-    def validate_self(self):
+    def validate(self):
         """Return True if this DPDA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
@@ -121,7 +121,7 @@ class DPDA(pda.PDA):
                 'the DPDA stopped in a non-accepting configuration '
                 '({}, {})'.format(current_state, ''.join(stack)))
 
-    def _validate_input_yield(self, input_str):
+    def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this DPDA.
 
