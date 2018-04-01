@@ -10,7 +10,7 @@ class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
 
     @abc.abstractmethod
-    def __init__(self, obj=None, **kwargs):
+    def __init__(self):
         """Initialize a complete automaton."""
         raise NotImplementedError()
 
