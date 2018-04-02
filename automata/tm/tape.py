@@ -5,27 +5,13 @@
 class TMTape(object):
     """A Turing machine tape."""
 
-    def __init__(self, tape, **kwargs):
-        """Initialize the new Turing machine tape."""
-        if isinstance(tape, TMTape):
-            self._init_from_tape_obj(tape)
-        else:
-            self._init_from_tape_params(tape, **kwargs)
-
-    def _init_from_tape_params(self, tape, *, blank_symbol, current_position=0,
-                               position_offset=0):
-        """Initialize a TM tape from the defined tape parameters."""
+    def __init__(self, tape, *, blank_symbol, current_position=0,
+                 position_offset=0):
+        """Initialize a new Turing machine tape."""
         self.tape = list(tape)
         self.blank_symbol = blank_symbol
         self.current_position = current_position
         self.position_offset = position_offset
-
-    def _init_from_tape_obj(self, tape_obj):
-        """Initialize this Tape as a deep copy of the given Tape."""
-        self.__init__(
-            tape=tape_obj.tape, blank_symbol=tape_obj.blank_symbol,
-            current_position=tape_obj.current_position,
-            position_offset=tape_obj.position_offset)
 
     def read_symbol(self):
         """Read the symbol at the current position in the tape."""
@@ -55,7 +41,7 @@ class TMTape(object):
 
     def copy(self):
         """Return a deep copy of the tape."""
-        return self.__class__(self)
+        return self.__class__(**self.__dict__)
 
     def __len__(self):
         """Return the number of symbols on the tape."""
