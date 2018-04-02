@@ -141,13 +141,12 @@ the input is accepted.
 
 ```python
 dfa.read_input_stepwise('0111')
-# yields (
-#   'q0'
-#   'q0',
-#   'q1',
-#   'q2',
-#   'q1'
-# )
+# yields:
+# 'q0'
+# 'q0'
+# 'q1'
+# 'q2'
+# 'q1'
 ```
 
 #### DFA.accepts_input(self, input_str)
@@ -231,12 +230,11 @@ string, if the input is accepted.
 
 ```python
 nfa.read_input_stepwise('aba')
-# yields (
-#   {'q0'},
-#   {'q1', 'q2'},
-#   {'q0'},
-#   {'q1', 'q2'}
-# )
+# yields:
+# {'q0'}
+# {'q1', 'q2'}
+# {'q0'}
+# {'q1', 'q2'}
 ```
 
 #### NFA.accepts_input(self, input_str)
@@ -337,11 +335,10 @@ object, if the input is accepted.
 
 ```python
 ((state, stack.copy()) for state, stack in dpda.read_input_stepwise('ab'))
-# yields (
-#   ('q0', PDAStack(['0'])),
-#   ('q1', PDAStack(['0', '1'])),
-#   ('q3', PDAStack(['0'])),
-# )
+# yields:
+# ('q0', PDAStack(['0']))
+# ('q1', PDAStack(['0', '1']))
+# ('q3', PDAStack(['0']))
 ```
 
 Please note that each tuple contains a reference to (not a copy of) the current
@@ -456,14 +453,13 @@ object.
 
 ```python
 (state, tape.copy()) for state, tape in dtm.read_input_stepwise('01')
-# yields (
-#   ('q0', TMTape('01'))
-#   ('q1', TMTape('x1'))
-#   ('q2', TMTape('xy'))
-#   ('q0', TMTape('xy'))
-#   ('q3', TMTape('xy'))
-#   ('q3', TMTape('xy.'))
-# )
+# yields:
+# ('q0', TMTape('01'))
+# ('q1', TMTape('x1'))
+# ('q2', TMTape('xy'))
+# ('q0', TMTape('xy'))
+# ('q3', TMTape('xy'))
+# ('q3', TMTape('xy.'))
 ```
 
 Please note that each tuple contains a reference to (not a copy of) the current
