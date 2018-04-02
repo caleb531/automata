@@ -22,7 +22,7 @@ pip install automata-lib
 
 ## API
 
-### class Automaton
+### class Automaton(metaclass=ABCMeta)
 
 The `Automaton` class is an abstract base class from which all automata
 (including Turing machines) inherit. As such, it cannot be instantiated on its
@@ -36,7 +36,45 @@ If you wish to subclass `Automaton`, you can import it like so:
 from automata.base.automaton import Automaton
 ```
 
-### class FA
+The following methods are common to all Automaton subtypes:
+
+#### Automaton.read_input(self, input_str)
+
+Reads an input string into the automaton, returning the automaton's final
+configuration (according to its subtype). If the input is rejected, the method
+raises a `RejectionException`.
+
+#### Automaton.read_input_stepwise(self, input_str)
+
+Reads an input string like `read_input()`, except instead of returning the final
+configuration, the method returns a generator. The values yielded by this
+generator depend on the automaton's subtype.
+
+If the string is rejected by the automaton, the method still raises a
+`RejectionException`.
+
+#### Automaton.accepts_input(self, input_str)
+
+Reads an input string like `read_input()`, except it returns a boolean instead
+of returning the automaton's final configuration (or raising an exception). That
+is, the method always returns `True` if the input is accepted, and it always
+returns `False` if the input is rejected.
+
+#### Automaton.validate(self)
+
+Checks whether the automaton is actually a valid automaton (according to its
+subtype). It returns `True` if the automaton is valid; otherwise, it will raise
+the appropriate exception (*e.g.* the state transition is missing for a
+particular symbol).
+
+This method is automatically called when the automaton is initialized, so it's
+only really useful if a automaton object is modified after instantiation.
+
+#### Automaton.copy(self)
+
+Returns a deep copy of the automaton according to its subtype.
+
+### class FA(Automaton, metaclass=ABCMeta)
 
 The `FA` class is an abstract base class from which all finite automata inherit.
 As such, it cannot be instantiated on its own; you must use the `DFA` and `NFA`
@@ -49,12 +87,10 @@ If you wish to subclass `FA`, you can import it like so:
 from automata.fa.fa import FA
 ```
 
-### class DFA
+### class DFA(FA)
 
-The `DFA` class is a subclass of class `FA` which represents a deterministic
-finite automaton. The `DFA` class can be found under `automata/fa/dfa.py`.
-
-#### DFA properties
+The `DFA` class is a subclass of `FA` which represents a deterministic finite
+automaton. It can be found under `automata/fa/dfa.py`.
 
 Every DFA instance has the following properties:
 
@@ -95,18 +131,11 @@ Please note that the below DFA code examples reference the above `dfa` object.
 
 #### DFA.read_input(self, input_str)
 
-The `read_input()` method checks whether or not the given string is accepted
-by the DFA.
-
-If the string is accepted, the method returns the state the DFA stopped on
-(which presumably is a valid final state).
+Returns the final state the DFA stopped on, if the input is accepted.
 
 ```python
 dfa.read_input('01')  # returns 'q1'
 ```
-
-If the string is rejected by the DFA, the method will raise a
-`RejectionException`.
 
 ```python
 dfa.read_input('011')  # raises RejectionException
@@ -114,10 +143,8 @@ dfa.read_input('011')  # raises RejectionException
 
 #### DFA.read_input_stepwise(self, input_str)
 
-The `read_input_stepwise()` method reads an input string like `read_input()`,
-except instead of returning the final DFA state, it returns a generator. This
-generator yields each state reached as the DFA reads characters from the input
-string, allowing you to examine every step of the input-reading process.
+Yields each state reached as the DFA reads characters from the input string, if
+the input is accepted.
 
 ```python
 dfa.read_input_stepwise('0111')
@@ -130,48 +157,49 @@ dfa.read_input_stepwise('0111')
 # )
 ```
 
-Note that the first yielded state is always the DFA's initial state (before any
-input has been read) and the last yielded state is always the DFA's final state
-(after all input has been read). If the string is rejected by the DFA, the
-method still raises a `RejectionException`.
-
 #### DFA.accepts_input(self, input_str)
 
-The `accepts_input()` method reads an input string into the DFA like
-`read_input()` does, except it returns a boolean instead of returning a state or
-raising an exception. That is, it always returns `True` if the input is accepted
-by the DFA, and it always returns `False` if the input is rejected.
+```python
+if dfa.accepts_input(my_input_str):
+    print('accepted')
+else:
+    print('rejected')
+```
 
 #### DFA.validate(self)
 
-The `validate()` method checks whether the DFA is actually a valid DFA. The
-method returns `True` if the DFA is valid; otherwise, it will raise the
-appropriate exception (*e.g.* the state transition is missing for a particular
-symbol). This method is automatically called when the DFA is initialized, so
-it's only really useful if a DFA object is modified after instantiation.
+```python
+dfa.validate()  # returns True
+```
 
-#### Copying a DFA
-
-To create a deep copy of a DFA, simply pass an `DFA` instance into the `DFA`
-constructor.
+#### DFA.copy(self)
 
 ```python
-dfa_copy = DFA.copy(dfa)  # returns a deep copy of dfa
+dfa.copy()  # returns deep copy of dfa
+```
+
+#### DFA.from_nfa(self)
+
+To create a DFA that is equivalent to an existing NFA (documented below), pass
+the `NFA` instance to the `DFA.from_nfa()` method.
+
+```python
+from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
+dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
 ```
 
 ### class NFA
 
-The `NFA` class is a subclass of class `FA` which represents a nondeterministic
-finite automaton. The `NFA` class can be found under `automata/fa/nfa.py`.
-
-#### NFA properties
+The `NFA` class is a subclass of `FA` which represents a nondeterministic finite
+automaton. It can be found under `automata/fa/nfa.py`.
 
 Every NFA contains the same five DFA properties: `state`, `input_symbols`,
 `transitions`, `initial_state`, and `final_states`. However, the structure of
-the  `transitions` object has been modified slightly to accommodate the fact
-that a single state can have more than one transition for the same symbol.
-Therefore, instead of mapping a symbol to *one* end state in each sub-dict, each
-symbol is mapped to a *set* of end states.
+the `transitions` object has been modified slightly to accommodate the fact that
+a single state can have more than one transition for the same symbol. Therefore,
+instead of mapping a symbol to *one* end state in each sub-dict, each symbol is
+mapped to a *set* of end states.
 
 ```python
 from automata.fa.nfa import NFA
@@ -193,18 +221,11 @@ nfa = NFA(
 
 #### NFA.read_input(self, input_str, step=False)
 
-The `read_input()` method checks whether or not the given string is accepted
-by the NFA.
-
-If the string is accepted, the method returns a `set` of states the FA stopped
-on (which presumably contains at least one valid final state).
+Returns the `set` of final states the FA stopped on, if the input is accepted.
 
 ```python
 nfa.read_input('aba')  # returns {'q1', 'q2'}
 ```
-
-If the string is rejected by the NFA, the method will raise a
-`RejectionException`.
 
 ```python
 nfa.read_input('abba')  # raises RejectionException
@@ -212,10 +233,8 @@ nfa.read_input('abba')  # raises RejectionException
 
 #### NFA.read_input_stepwise(self, input_str)
 
-The `read_input_stepwise()` method reads an input string like `read_input()`,
-except instead of returning the final NFA states, it returns a generator. This
-generator yields each set of states reached as the NFA reads characters from the
-input string, allowing you to examine every step of the input-reading process.
+Yields each set of states reached as the NFA reads characters from the input
+string, if the input is accepted.
 
 ```python
 nfa.read_input_stepwise('aba')
@@ -227,42 +246,25 @@ nfa.read_input_stepwise('aba')
 # )
 ```
 
-Note that the first yielded set is always the lambda closure of the NFA's
-initial state, and the last yielded set always contains the lambda closure of at
-least one of the NFA's final states (after all input has been read). If the
-string is rejected by the NFA, the method still raises a `RejectionException`.
-
 #### NFA.accepts_input(self, input_str)
 
-The `accepts_input()` method reads an input string into the NFA like
-`read_input()` does, except it returns a boolean instead of returning a state or
-raising an exception. That is, it always returns `True` if the input is accepted
-by the NFA, and it always returns `False` if the input is rejected.
+```python
+if dfa.accepts_input(my_input_str):
+    print('accepted')
+else:
+    print('rejected')
+```
 
 #### NFA.validate(self)
 
-The `validate()` method checks whether the NFA is actually a valid NFA. The
-method has the same basic behavior and prescribed use case as the
-`DFA.validate()` method, despite being less restrictive (since NFAs are
-naturally less restrictive than DFAs).
-
-#### Converting an NFA to a DFA
-
-To create a DFA that is equivalent to an existing NFA, simply pass the `NFA`
-instance to the `DFA` constructor.
-
 ```python
-from automata.fa.dfa import DFA
-dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
+nfa.validate()  # returns True
 ```
 
-#### Copying an NFA
-
-To create a deep copy of an NFA, simply pass an `NFA` instance into the `NFA`
-constructor.
+#### NFA.copy(self)
 
 ```python
-nfa_copy = NFA.copy(nfa)  # returns a deep copy of nfa
+nfa.copy()  # returns deep copy of nfa
 ```
 
 #### class PDA
