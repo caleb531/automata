@@ -5,16 +5,9 @@
 class PDAStack(object):
     """A PDA stack."""
 
-    def __init__(self, stack, **kwargs):
+    def __init__(self, stack):
         """Initialize the new PDA stack."""
-        if isinstance(stack, PDAStack):
-            self._init_from_stack_obj(stack)
-        else:
-            self.stack = list(stack)
-
-    def _init_from_stack_obj(self, stack_obj):
-        """Initialize this Stack as a deep copy of the given Stack."""
-        self.__init__(stack_obj.stack)
+        self.stack = list(stack)
 
     def top(self):
         """Return the symbol at the top of the stack."""
@@ -38,7 +31,7 @@ class PDAStack(object):
 
     def copy(self):
         """Return a deep copy of the stack."""
-        return self.__class__(self)
+        return self.__class__(**self.__dict__)
 
     def __len__(self):
         """Return the number of symbols on the stack."""
