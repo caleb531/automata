@@ -189,7 +189,7 @@ from automata.fa.nfa import NFA
 dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
 ```
 
-### class NFA
+### class NFA(FA)
 
 The `NFA` class is a subclass of `FA` and represents a nondeterministic finite
 automaton. It can be found under `automata/fa/nfa.py`.
