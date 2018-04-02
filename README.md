@@ -89,7 +89,7 @@ from automata.fa.fa import FA
 
 ### class DFA(FA)
 
-The `DFA` class is a subclass of `FA` which represents a deterministic finite
+The `DFA` class is a subclass of `FA` and represents a deterministic finite
 automaton. It can be found under `automata/fa/dfa.py`.
 
 Every DFA instance has the following properties:
@@ -191,7 +191,7 @@ dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
 
 ### class NFA
 
-The `NFA` class is a subclass of `FA` which represents a nondeterministic finite
+The `NFA` class is a subclass of `FA` and represents a nondeterministic finite
 automaton. It can be found under `automata/fa/nfa.py`.
 
 Every NFA contains the same five DFA properties: `state`, `input_symbols`,
