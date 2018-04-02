@@ -12,17 +12,17 @@ class Automaton(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         """Initialize a complete automaton."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def validate(self):
         """Return True if this automaton is internally consistent."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def read_input_stepwise(self, input_str):
         """Return a generator that yields each step while reading input."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def read_input(self, input_str):
         """
