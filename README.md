@@ -36,7 +36,6 @@ If you wish to subclass `Automaton`, you can import it like so:
 from automata.base.automaton import Automaton
 ```
 
-
 ### class FA
 
 The `FA` class is an abstract base class from which all finite automata inherit.
@@ -113,11 +112,12 @@ If the string is rejected by the DFA, the method will raise a
 dfa.read_input('011')  # raises RejectionException
 ```
 
-## DFA.read_input_stepwise(self, input_str)
+#### DFA.read_input_stepwise(self, input_str)
 
-If you supply the `step` keyword argument with a value of `True`, the method
-will return a generator which yields each state reached as the DFA reads
-characters from the input string.
+The `read_input_stepwise()` method reads an input string like `read_input()`,
+except instead of returning the final DFA state, it returns a generator. This
+generator yields each state reached as the DFA reads characters from the input
+string, allowing you to examine every step of the input-reading process.
 
 ```python
 dfa.read_input_stepwise('0111')
@@ -134,6 +134,13 @@ Note that the first yielded state is always the DFA's initial state (before any
 input has been read) and the last yielded state is always the DFA's final state
 (after all input has been read). If the string is rejected by the DFA, the
 method still raises a `RejectionException`.
+
+#### DFA.accepts_input(self, input_str)
+
+The `accepts_input()` method reads an input string into the DFA like
+`read_input()` does, except it returns a boolean instead of returning a state or
+raising an exception. That is, it always returns `True` if the input is accepted
+by the DFA, and it always returns `False` if the input is rejected.
 
 #### DFA.validate(self)
 
@@ -203,11 +210,12 @@ If the string is rejected by the NFA, the method will raise a
 nfa.read_input('abba')  # raises RejectionException
 ```
 
-## NFA.read_input_stepwise(self, input_str)
+#### NFA.read_input_stepwise(self, input_str)
 
-If you supply the `step` keyword argument with a value of `True`, the method
-will return a generator which yields each set of states reached as the NFA reads
-characters from the input string.
+The `read_input_stepwise()` method reads an input string like `read_input()`,
+except instead of returning the final NFA states, it returns a generator. This
+generator yields each set of states reached as the NFA reads characters from the
+input string, allowing you to examine every step of the input-reading process.
 
 ```python
 nfa.read_input_stepwise('aba')
@@ -223,6 +231,13 @@ Note that the first yielded set is always the lambda closure of the NFA's
 initial state, and the last yielded set always contains the lambda closure of at
 least one of the NFA's final states (after all input has been read). If the
 string is rejected by the NFA, the method still raises a `RejectionException`.
+
+#### NFA.accepts_input(self, input_str)
+
+The `accepts_input()` method reads an input string into the NFA like
+`read_input()` does, except it returns a boolean instead of returning a state or
+raising an exception. That is, it always returns `True` if the input is accepted
+by the NFA, and it always returns `False` if the input is rejected.
 
 #### NFA.validate(self)
 
@@ -334,11 +349,13 @@ If the string is rejected by the DPDA, the method will raise a
 dpda.read_input('aab')  # raises RejectionException
 ```
 
-## DPDA.read_input_stepwise(self, input_str)
+#### DPDA.read_input_stepwise(self, input_str)
 
-If you supply the `step` keyword argument with a value of `True`, the method
-will return a generator which yields a tuple containing the current state and
-the current tape as a `PDAStack` object.
+The `read_input_stepwise()` method reads an input string like `read_input()`,
+except instead of returning the final DPDA state, it returns a generator. This
+generator yields a tuple containing the current state and the current tape as a
+`PDAStack` object, allowing you to examine every step of the input-reading
+process.
 
 ```python
 ((state, stack.copy()) for state, stack in dpda.read_input_stepwise('ab'))
@@ -354,6 +371,13 @@ input has been read) and the last yielded state is always the DPDA's final state
 (after all input has been read) (or possibly a non-final state if the stack is
 empty). If the string is rejected by the DPDA, the method still raises a
 `RejectionException`.
+
+#### DPDA.accepts_input(self, input_str)
+
+The `accepts_input()` method reads an input string into the DPDA like
+`read_input()` does, except it returns a boolean instead of returning a state or
+raising an exception. That is, it always returns `True` if the input is accepted
+by the DPDA, and it always returns `False` if the input is rejected.
 
 #### DPDA.validate(self)
 
@@ -464,11 +488,13 @@ If the string is rejected by the DTM, the method will raise a
 dtm.read_input('011')  # raises RejectionException
 ```
 
-## DTM.read_input_stepwise(self, input_str)
+#### DTM.read_input_stepwise(self, input_str)
 
-If you supply the `step` keyword argument with a value of `True`, the method
-will return a generator which yields a tuple containing the current state and
-the current tape as a `TMTape` object.
+The `read_input_stepwise()` method reads an input string like `read_input()`,
+except instead of returning the final DTM state, it returns a generator. This
+generator yields a tuple containing the current state and the current tape as a
+`TMTape` object, allowing you to examine every step of the input-reading
+process.
 
 ```python
 (state, tape.copy()) for state, tape in dtm.read_input_stepwise('01')
@@ -488,9 +514,16 @@ must copy the tape as you iterate over the machine configurations (as shown
 above).
 
 Also note that the first yielded state is always the DTM's initial state (before
-any input has been read) and the last yielded state is always the DTM's final
+any input has been read), and the last yielded state is always the DTM's final
 state (after all input has been read). If the string is rejected by the DTM, the
 method still raises a `RejectionException`.
+
+#### DTM.accepts_input(self, input_str)
+
+The `accepts_input()` method reads an input string into the DTM like
+`read_input()` does, except it returns a boolean instead of returning a state or
+raising an exception. That is, it always returns `True` if the input is accepted
+by the DTM, and it always returns `False` if the input is rejected.
 
 #### DTM.validate(self)
 
