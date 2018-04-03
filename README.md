@@ -21,6 +21,17 @@ pip install automata-lib
 
 ## API
 
+- [class Automaton](#class-automatonmetaclassabcmeta)
+  - [class FA](#class-faautomatonmetaclassabcmeta)
+    - [class DFA](#class-dfafa)
+    - [class NFA](#class-nfafa)
+  - [class PDA](#class-pdaautomatonmetaclassabcmeta)
+    - [class DPDA](#class-dpdapda)
+  - [class TM](#class-tmautomatonmetaclassabcmeta)
+    - [class DTM](#class-dtmtm)
+- [Exception classes](#base-exception-classes)
+    - [Turing machine exceptions](#turing-machine-exception-classes)
+
 ### class Automaton(metaclass=ABCMeta)
 
 The `Automaton` class is an abstract base class from which all automata
