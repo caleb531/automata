@@ -169,10 +169,9 @@ dfa.validate()  # returns True
 dfa.copy()  # returns deep copy of dfa
 ```
 
-#### DFA.from_nfa(self)
+#### DFA.from_nfa(cls, nfa)
 
-To create a DFA that is equivalent to an existing NFA (documented below), pass
-the `NFA` instance to the `DFA.from_nfa()` method.
+Creates a DFA that is equivalent to the given NFA.
 
 ```python
 from automata.fa.dfa import DFA
