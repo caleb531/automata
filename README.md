@@ -6,9 +6,8 @@
 [![Build Status](https://travis-ci.org/caleb531/automata.svg?branch=master)](https://travis-ci.org/caleb531/automata)
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=master)](https://coveralls.io/r/caleb531/automata?branch=master)
 
-Automata is a Python 3 library which implements the structures and algorithms I
-am learning in my Automata Theory class, particularly finite automata and Turing
-machines.
+Automata is a Python 3 library which implements the structures and algorithms
+for finite automata, pushdown automata, and Turing machines.
 
 Automata requires Python 3.4 or newer.
 
