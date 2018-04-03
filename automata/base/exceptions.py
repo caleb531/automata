@@ -45,6 +45,6 @@ class FinalStateError(AutomatonException):
 
 
 class RejectionException(AutomatonException):
-    """The input was rejected by the automaton after validation."""
+    """The input was rejected by the automaton."""
 
     pass
