@@ -119,6 +119,10 @@ class TestDPDA(test_pda.TestPDA):
         nose.assert_is_not(stack, stack_copy)
         nose.assert_equal(stack, stack_copy)
 
+    def test_stack_iter(self):
+        """Should loop through the PDA stack in some manner."""
+        nose.assert_equal(list(PDAStack(['a', 'b'])), ['a', 'b'])
+
     def test_stack_repr(self):
         """Should create proper string representation of PDA stack."""
         stack = PDAStack(['a', 'b'])

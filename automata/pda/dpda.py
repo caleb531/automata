@@ -119,7 +119,7 @@ class DPDA(pda.PDA):
         if current_state not in self.final_states and stack:
             raise exceptions.RejectionException(
                 'the DPDA stopped in a non-accepting configuration '
-                '({}, {})'.format(current_state, ''.join(stack)))
+                '({}, {})'.format(current_state, stack))
 
     def read_input_stepwise(self, input_str):
         """
