@@ -256,6 +256,16 @@ nfa.validate()  # returns True
 nfa.copy()  # returns deep copy of nfa
 ```
 
+#### NFA.from_dfa(cls, dfa)
+
+Creates an NFA that is equivalent to the given DFA.
+
+```python
+from automata.fa.nfa import NFA
+from automata.fa.dfa import DFA
+nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
+```
+
 #### class PDA(Automaton, metaclass=ABCMeta)
 
 The `PDA` class is an abstract base class from which all pushdown automata
