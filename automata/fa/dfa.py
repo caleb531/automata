@@ -138,8 +138,7 @@ class DFA(fa.FA):
         dfa_states = set()
         dfa_symbols = nfa.input_symbols
         dfa_transitions = {}
-        dfa_initial_state = cls._stringify_states(
-            (nfa.initial_state,))
+        dfa_initial_state = cls._stringify_states((nfa.initial_state,))
         dfa_final_states = set()
 
         state_queue = queue.Queue()
