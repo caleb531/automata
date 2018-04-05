@@ -11,6 +11,12 @@ for finite automata, pushdown automata, and Turing machines.
 
 Automata requires Python 3.4 or newer.
 
+## Migration to v2
+
+If you are using Automata v1, please note that there are some significant
+changes in v2 to refine the API. If you wish to upgrade, please follow the
+[migration guide](https://github.com/caleb531/automata/blob/v2/MIGRATION.md).
+
 ## Installing
 
 You can install the latest version of Automata via pip:
