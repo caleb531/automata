@@ -31,7 +31,8 @@ from automata.base.exceptions import FinalStateError
 #### Input validation methods
 
 The `validate_input()` method has been renamed to `read_input()`. The
-`validate_input(step=True)` form has also been converted to a standalone method.
+`validate_input(step=True)` form has also been converted to the standalone
+method `read_input_stepwise()`.
 
 **Before:**  
 ```python
