@@ -46,7 +46,7 @@ final_state = dfa.read_input('0011')
 steps = dfa.read_input_stepwise('0011')
 ```
 
-### Automaton validation methods
+#### Automaton validation methods
 
 The `validate_self()` method has been renamed to `validate()`.
 
@@ -82,7 +82,7 @@ from automata.base.exceptions import RejectionException
 In v1, you could copy an automaton (or convert it to another type) by passing it
 into the constructor for an Automaton subtype.
 
-### Copying an automaton
+#### Copying an automaton
 
 **Before:**  
 ```python
