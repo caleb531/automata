@@ -3,10 +3,10 @@
 *Copyright 2018 Caleb Evans*  
 *Released under the MIT license*
 
-## Changes from v1 to v2
+## Backwards-incompatible changes from v1 to v2
 
-There have been a number of changes from Automata v1 to v2 to clean up the API,
-including:
+There have been a number of backwards-incompatible changes from Automata v1 to
+v2 to clean up the API, including:
 
 ### Renames
 
