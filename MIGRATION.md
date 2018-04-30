@@ -62,19 +62,22 @@ dfa.validate()
 
 #### Exceptions
 
-The `AutomatonError` exception has been renamed to `AutomatonException`. The
-`RejectionError` exception has also been renamed to `RejectionException`.
+The top-level `*Error` exception classes has been renamed to `*Exception`.
 
 **Before:**  
 ```python
 from automata.shared.exceptions import AutomatonError
 from automata.shared.exceptions import RejectionError
+from automata.pda.exceptions import PDAError
+from automata.tm.exceptions import TMError
 ```
 
 **After:**  
 ```python
 from automata.base.exceptions import AutomatonException
 from automata.base.exceptions import RejectionException
+from automata.pda.exceptions import PDAException
+from automata.tm.exceptions import TMException
 ```
 
 ### Constructor polymorphism removed
