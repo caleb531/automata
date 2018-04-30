@@ -3,7 +3,7 @@
 
 import abc
 
-from automata.shared.automaton import Automaton
+from automata.base.automaton import Automaton
 
 
 class PDA(Automaton, metaclass=abc.ABCMeta):

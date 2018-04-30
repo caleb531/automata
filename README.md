@@ -1,16 +1,21 @@
 # Automata
 
-*Copyright 2016 Caleb Evans*  
+*Copyright 2018 Caleb Evans*  
 *Released under the MIT license*
 
 [![Build Status](https://travis-ci.org/caleb531/automata.svg?branch=master)](https://travis-ci.org/caleb531/automata)
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=master)](https://coveralls.io/r/caleb531/automata?branch=master)
 
-Automata is a Python 3 library which implements the structures and algorithms I
-am learning in my Automata Theory class, particularly finite automata and Turing
-machines.
+Automata is a Python 3 library which implements the structures and algorithms
+for finite automata, pushdown automata, and Turing machines.
 
 Automata requires Python 3.4 or newer.
+
+## Migration to v2
+
+If you are using Automata v1, please note that there are some significant
+changes in v2 to refine the API. If you wish to upgrade, please follow the
+[migration guide](https://github.com/caleb531/automata/blob/v2/MIGRATION.md).
 
 ## Installing
 
@@ -22,27 +27,73 @@ pip install automata-lib
 
 ## API
 
-### class Automaton
+- [class Automaton](#class-automatonmetaclassabcmeta)
+  - [class FA](#class-faautomatonmetaclassabcmeta)
+    - [class DFA](#class-dfafa)
+    - [class NFA](#class-nfafa)
+  - [class PDA](#class-pdaautomatonmetaclassabcmeta)
+    - [class DPDA](#class-dpdapda)
+  - [class TM](#class-tmautomatonmetaclassabcmeta)
+    - [class DTM](#class-dtmtm)
+- [Exception classes](#base-exception-classes)
+    - [Turing machine exceptions](#turing-machine-exception-classes)
+
+### class Automaton(metaclass=ABCMeta)
 
 The `Automaton` class is an abstract base class from which all automata
 (including Turing machines) inherit. As such, it cannot be instantiated on its
 own; you must use a defined subclasses instead (or you may create your own
 subclass if you're feeling adventurous). The `Automaton` class can be found
-under `automata/shared/automaton.py`.
+under `automata/base/automaton.py`.
 
 If you wish to subclass `Automaton`, you can import it like so:
 
 ```python
-from automata.shared.automaton import Automaton
+from automata.base.automaton import Automaton
 ```
 
+The following methods are common to all Automaton subtypes:
 
-### class FA
+#### Automaton.read_input(self, input_str)
+
+Reads an input string into the automaton, returning the automaton's final
+configuration (according to its subtype). If the input is rejected, the method
+raises a `RejectionException`.
+
+#### Automaton.read_input_stepwise(self, input_str)
+
+Reads an input string like `read_input()`, except instead of returning the final
+configuration, the method returns a generator. The values yielded by this
+generator depend on the automaton's subtype.
+
+If the string is rejected by the automaton, the method still raises a
+`RejectionException`.
+
+#### Automaton.accepts_input(self, input_str)
+
+Reads an input string like `read_input()`, except it returns a boolean instead
+of returning the automaton's final configuration (or raising an exception). That
+is, the method always returns `True` if the input is accepted, and it always
+returns `False` if the input is rejected.
+
+#### Automaton.validate(self)
+
+Checks whether the automaton is actually a valid automaton (according to its
+subtype). It returns `True` if the automaton is valid; otherwise, it will raise
+the appropriate exception (*e.g.* the state transition is missing for a
+particular symbol).
+
+This method is automatically called when the automaton is initialized, so it's
+only really useful if a automaton object is modified after instantiation.
+
+#### Automaton.copy(self)
+
+Returns a deep copy of the automaton according to its subtype.
+
+### class FA(Automaton, metaclass=ABCMeta)
 
 The `FA` class is an abstract base class from which all finite automata inherit.
-As such, it cannot be instantiated on its own; you must use the `DFA` and `NFA`
-classes instead (or you may create your own subclass if you're feeling
-adventurous). The `FA` class can be found under `automata/fa/fa.py`.
+The `FA` class can be found under `automata/fa/fa.py`.
 
 If you wish to subclass `FA`, you can import it like so:
 
@@ -50,14 +101,12 @@ If you wish to subclass `FA`, you can import it like so:
 from automata.fa.fa import FA
 ```
 
-### class DFA
+### class DFA(FA)
 
-The `DFA` class is a subclass of class `FA` which represents a deterministic
-finite automaton. The `DFA` class can be found under `automata/fa/dfa.py`.
+The `DFA` class is a subclass of `FA` and represents a deterministic finite
+automaton. It can be found under `automata/fa/dfa.py`.
 
-#### DFA properties
-
-Every DFA instance has the following properties:
+Every DFA has the following (required) properties:
 
 1. `states`: a `set` of the DFA's valid states, each of which must be
 represented as a string
@@ -72,9 +121,6 @@ a state (the value).
 4. `initial_state`: the name of the initial state for this DFA
 
 5. `final_states`: a `set` of final states for this DFA
-
-All of these properties must be supplied when the DFA is
-instantiated (see the examples below).
 
 ```python
 from automata.fa.dfa import DFA
@@ -92,70 +138,75 @@ dfa = DFA(
 )
 ```
 
-Please note that the below DFA code examples reference the above `dfa` object.
+#### DFA.read_input(self, input_str)
 
-#### DFA.validate_input(self, input_str, step=False)
-
-The `validate_input()` method checks whether or not the given string is accepted
-by the DFA.
-
-If the string is accepted, the method returns the state the DFA stopped on
-(which presumably is a valid final state).
+Returns the final state the DFA stopped on, if the input is accepted.
 
 ```python
-dfa.validate_input('01')  # returns 'q1'
+dfa.read_input('01')  # returns 'q1'
 ```
-
-If the string is rejected by the DFA, the method will raise a `RejectionError`.
 
 ```python
-dfa.validate_input('011')  # raises RejectionError
+dfa.read_input('011')  # raises RejectionException
 ```
 
-If you supply the `step` keyword argument with a value of `True`, the method
-will return a generator which yields each state reached as the DFA reads
-characters from the input string.
+#### DFA.read_input_stepwise(self, input_str)
+
+Yields each state reached as the DFA reads characters from the input string, if
+the input is accepted.
 
 ```python
-list(dfa.validate_input('0111', step=True))
-# returns ['q0', 'q0', 'q1', 'q2', 'q1']
+dfa.read_input_stepwise('0111')
+# yields:
+# 'q0'
+# 'q0'
+# 'q1'
+# 'q2'
+# 'q1'
 ```
 
-Note that the first yielded state is always the DFA's initial state (before any
-input has been read) and the last yielded state is always the DFA's final state
-(after all input has been read). If the string is rejected by the DFA, the
-method still raises a `RejectionError`.
-
-#### DFA.validate_self(self)
-
-The `validate_self()` method checks whether the DFA is actually a valid DFA. The
-method returns `True` if the DFA is valid; otherwise, it will raise the
-appropriate exception (*e.g.* the state transition is missing for a particular
-symbol). This method is automatically called when the DFA is initialized, so
-it's only really useful if a DFA object is modified after instantiation.
-
-#### Copying a DFA
-
-To create a deep copy of a DFA, simply pass an `DFA` instance into the `DFA`
-constructor.
+#### DFA.accepts_input(self, input_str)
 
 ```python
-dfa_copy = DFA(dfa)  # returns a deep copy of dfa
+if dfa.accepts_input(my_input_str):
+    print('accepted')
+else:
+    print('rejected')
 ```
 
-### class NFA
+#### DFA.validate(self)
 
-The `NFA` class is a subclass of class `FA` which represents a nondeterministic
-finite automaton. The `NFA` class can be found under `automata/fa/nfa.py`.
+```python
+dfa.validate()  # returns True
+```
 
-#### NFA properties
+#### DFA.copy(self)
 
-Every NFA contains the same five DFA properties: `state`, `input_symbols`,
+```python
+dfa.copy()  # returns deep copy of dfa
+```
+
+#### DFA.from_nfa(cls, nfa)
+
+Creates a DFA that is equivalent to the given NFA.
+
+```python
+from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
+dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
+```
+
+### class NFA(FA)
+
+The `NFA` class is a subclass of `FA` and represents a nondeterministic finite
+automaton. It can be found under `automata/fa/nfa.py`.
+
+Every NFA has the same five DFA properties: `state`, `input_symbols`,
 `transitions`, `initial_state`, and `final_states`. However, the structure of
-the  `transitions` object has been modified slightly to accommodate the fact
-that a single state can have more than one transition for the same symbol.
-Therefore, instead of mapping a symbol to *one* end state in each sub-dict, each
-symbol is mapped to a *set* of end states.
+the `transitions` object has been modified slightly to accommodate the fact that
+a single state can have more than one transition for the same symbol. Therefore,
+instead of mapping a symbol to *one* end state in each sub-dict, each symbol is
+mapped to a *set* of end states.
 
 ```python
 from automata.fa.nfa import NFA
@@ -175,77 +226,74 @@ nfa = NFA(
 )
 ```
 
-#### NFA.validate_input(self, input_str, step=False)
+#### NFA.read_input(self, input_str, step=False)
 
-The `validate_input()` method checks whether or not the given string is accepted
-by the NFA.
-
-If the string is accepted, the method returns a `set` of states the FA stopped
-on (which presumably contains at least one valid final state).
+Returns a set of final states the FA stopped on, if the input is accepted.
 
 ```python
-nfa.validate_input('aba')  # returns {'q1', 'q2'}
+nfa.read_input('aba')  # returns {'q1', 'q2'}
 ```
 
-If the string is rejected by the NFA, the method will raise a `RejectionError`.
-
 ```python
-nfa.validate_input('abba')  # raises RejectionError
+nfa.read_input('abba')  # raises RejectionException
 ```
 
-If you supply the `step` keyword argument with a value of `True`, the method
-will return a generator which yields each set of states reached as the NFA reads
-characters from the input string.
+#### NFA.read_input_stepwise(self, input_str)
+
+Yields each set of states reached as the NFA reads characters from the input
+string, if the input is accepted.
 
 ```python
-list(nfa.validate_input('aba', step=True))
-# returns [{'q0'}, {'q1', 'q2'}, {'q0'}, {'q1', 'q2'}]
+nfa.read_input_stepwise('aba')
+# yields:
+# {'q0'}
+# {'q1', 'q2'}
+# {'q0'}
+# {'q1', 'q2'}
 ```
 
-Note that the first yielded set is always the lambda closure of the NFA's
-initial state, and the last yielded set always contains the lambda closure of at
-least one of the NFA's final states (after all input has been read). If the
-string is rejected by the NFA, the method still raises a `RejectionError`.
-
-#### NFA.validate_self(self)
-
-The `validate_self()` method checks whether the NFA is actually a valid NFA. The
-method has the same basic behavior and prescribed use case as the
-`DFA.validate_self()` method, despite being less restrictive (since NFAs are
-naturally less restrictive than DFAs).
-
-#### Converting an NFA to a DFA
-
-To create a DFA that is equivalent to an existing NFA, simply pass the `NFA`
-instance to the `DFA` constructor.
+#### NFA.accepts_input(self, input_str)
 
 ```python
+if nfa.accepts_input(my_input_str):
+    print('accepted')
+else:
+    print('rejected')
+```
+
+#### NFA.validate(self)
+
+```python
+nfa.validate()  # returns True
+```
+
+#### NFA.copy(self)
+
+```python
+nfa.copy()  # returns deep copy of nfa
+```
+
+#### NFA.from_dfa(cls, dfa)
+
+Creates an NFA that is equivalent to the given DFA.
+
+```python
+from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
-dfa = DFA(nfa)  # returns an equivalent DFA
+nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
 ```
 
-#### Copying an NFA
-
-To create a deep copy of an NFA, simply pass an `NFA` instance into the `NFA`
-constructor.
-
-```python
-nfa_copy = NFA(nfa)  # returns a deep copy of nfa
-```
-
-#### class PDA
+#### class PDA(Automaton, metaclass=ABCMeta)
 
 The `PDA` class is an abstract base class from which all pushdown automata
-inherit. The `PDA` class can be found under `automata/pda/pda.py`.
+inherit. It can be found under `automata/pda/pda.py`.
 
-### class DPDA
+### class DPDA(PDA)
 
-The `DPDA` class is a subclass of class `PDA` which represents a deterministic
-finite automaton. The `DPDA` class can be found under `automata/pda/dpda.py`.
+The `DPDA` class is a subclass of `PDA` and represents a deterministic finite
+automaton. It can be found under `automata/pda/dpda.py`.
 
-#### DPDA properties
-
-Every DPDA instance has the following properties:
+Every DPDA has the following (required) properties:
 
 1. `states`: a `set` of the DPDA's valid states, each of which must be
 represented as a string
@@ -264,9 +312,6 @@ example below for the exact syntax
 DPDA
 
 7. `final_states`: a `set` of final states for this DPDA
-
-All of these properties must be supplied when the DPDA is
-instantiated (see the examples below).
 
 ```python
 from automata.pda.dpda import DPDA
@@ -295,75 +340,69 @@ dpda = DPDA(
 )
 ```
 
-Please note that the below DPDA code examples reference the above `dpda` object.
+#### DPDA.read_input(self, input_str, step=False)
 
-#### DPDA.validate_input(self, input_str, step=False)
-
-The `validate_input()` method checks whether or not the given string is accepted
-by the DPDA.
-
-If the string is accepted, the method returns a tuple containing the state the
-DPDA stopped on (which presumably is a valid final state), as well as a
-`PDAStack` object representing the DPDA's internal stack.
+Returns a tuple containing the final state the DPDA stopped on, as well as a
+`PDAStack` object representing the DPDA's stack (if the input is accepted).
 
 ```python
-dpda.validate_input('ab')  # returns PDAStack(['0'])
+dpda.read_input('ab')  # returns ('q3', PDAStack(['0']))
 ```
-
-If the string is rejected by the DPDA, the method will raise a `RejectionError`.
 
 ```python
-dpda.validate_input('aab')  # raises RejectionError
+dpda.read_input('aab')  # raises RejectionException
 ```
 
-If you supply the `step` keyword argument with a value of `True`, the method
-will return a generator which yields a tuple containing the current state and
-the current tape as a `PDAStack` object.
+#### DPDA.read_input_stepwise(self, input_str)
+
+Yields tuples containing the current state and the current stack as a `PDAStack`
+object, if the input is accepted.
 
 ```python
-[(state, stack.copy()) for state, stack in dpda.validate_input('ab', step=True)]
-# returns [
-#   ('q0', PDAStack(['0'])),
-#   ('q1', PDAStack(['0', '1'])),
-#   ('q3', PDAStack(['0'])),
-# ]
+((state, stack.copy()) for state, stack in dpda.read_input_stepwise('ab'))
+# yields:
+# ('q0', PDAStack(['0']))
+# ('q1', PDAStack(['0', '1']))
+# ('q3', PDAStack(['0']))
 ```
 
-Note that the first yielded state is always the DPDA's initial state (before any
-input has been read) and the last yielded state is always the DPDA's final state
-(after all input has been read) (or possibly a non-final state if the stack is
-empty). If the string is rejected by the DPDA, the method still raises a
-`RejectionError`.
+Please note that each tuple contains a reference to (not a copy of) the current
+`PDAStack` object. Therefore, if you wish to store the stack at every step, you
+must copy the stack as you iterate over the automaton configurations (as shown
+above).
 
-#### DPDA.validate_self(self)
-
-The `validate_self()` method checks whether the DPDA is actually a valid DPDA.
-The method has the same basic behavior and prescribed use case as the
-`DFA.validate_self()` and `NFA.validate_self()` methods, while (naturally)
-containing validation checks specific to DPDAs.
-
-#### Copying a DPDA
-
-To create a deep copy of a DPDA, simply pass an `DPDA` instance into the
-`DPDA` constructor.
+#### DPDA.accepts_input(self, input_str)
 
 ```python
-dpda_copy = DPDA(dpda)  # returns a deep copy of dpda
+if dpda.accepts_input(my_input_str):
+    print('accepted')
+else:
+    print('rejected')
 ```
 
-### class TM
+#### DPDA.validate(self)
+
+```python
+dpda.validate()  # returns True
+```
+
+#### DPDA.copy(self)
+
+```python
+dpda.copy()  # returns deep copy of dpda
+```
+
+### class TM(Automaton, metaclass=ABCMeta)
 
 The `TM` class is an abstract base class from which all Turing machines inherit.
-The `TM` class can be found under `automata/tm/tm.py`.
+It can be found under `automata/tm/tm.py`.
 
-### class DTM
+### class DTM(TM)
 
-The `DTM` class is a subclass of class `TM` which represents a deterministic
-Turing machine. The `DTM` class can be found under `automata/tm/dtm.py`.
+The `DTM` class is a subclass of `TM` and represents a deterministic Turing
+machine. It can be found under `automata/tm/dtm.py`.
 
-#### DTM properties
-
-Every DTM instance has the following properties:
+Every DTM has the following (required) properties:
 
 1. `states`: a `set` of the DTM's valid states, each of which must be
 represented as a string
@@ -384,9 +423,6 @@ a state (the value)
 for this DTM
 
 7. `final_states`: a `set` of final states for this DTM
-
-All of these properties must be supplied when the DTM is instantiated (see the
-examples below).
 
 ```python
 from automata.tm.dtm import DTM
@@ -422,41 +458,33 @@ dtm = DTM(
 )
 ```
 
-Please note that the below DTM code examples reference the above `dtm` object.
+#### DTM.read_input(self, input_str, step=False)
 
-#### DTM.validate_input(self, input_str, step=False)
-
-The `validate_input()` method checks whether or not the given string is accepted
-by the DTM.
-
-If the string is accepted, the method returns a tuple containing the state the
-machine stopped on (which presumably is a valid final state), as well as a
-`TMTape` object representing the DTM's internal tape.
+Returns a tuple containing the final state the machine stopped on, as well as a
+`TMTape` object representing the DTM's internal tape (if the input is accepted).
 
 ```python
-dtm.validate_input('01')  # returns ('q4', TMTape('xy.'))
+dtm.read_input('01')  # returns ('q4', TMTape('xy.'))
 ```
 
-If the string is rejected by the DTM, the method will raise a `RejectionError`.
-
 ```python
-dtm.validate_input('011')  # raises RejectionError
+dtm.read_input('011')  # raises RejectionException
 ```
 
-If you supply the `step` keyword argument with a value of `True`, the method
-will return a generator which yields a tuple containing the current state and
-the current tape as a `TMTape` object.
+#### DTM.read_input_stepwise(self, input_str)
+
+Yields a tuple containing the current state and the current tape as a `TMTape`
+object.
 
 ```python
-[(state, tape.copy()) for state, tape in dtm.validate_input('01', step=True)]
-# returns [
-#   ('q0', TMTape('01'))
-#   ('q1', TMTape('x1'))
-#   ('q2', TMTape('xy'))
-#   ('q0', TMTape('xy'))
-#   ('q3', TMTape('xy'))
-#   ('q3', TMTape('xy.'))
-# ]
+(state, tape.copy()) for state, tape in dtm.read_input_stepwise('01')
+# yields:
+# ('q0', TMTape('01'))
+# ('q1', TMTape('x1'))
+# ('q2', TMTape('xy'))
+# ('q0', TMTape('xy'))
+# ('q3', TMTape('xy'))
+# ('q3', TMTape('xy.'))
 ```
 
 Please note that each tuple contains a reference to (not a copy of) the current
@@ -464,74 +492,74 @@ Please note that each tuple contains a reference to (not a copy of) the current
 must copy the tape as you iterate over the machine configurations (as shown
 above).
 
-Also note that the first yielded state is always the DTM's initial state (before
-any input has been read) and the last yielded state is always the DTM's final
-state (after all input has been read). If the string is rejected by the DTM, the
-method still raises a `RejectionError`.
-
-#### DTM.validate_self(self)
-
-The `validate_self()` method checks whether the DTM is actually a valid DTM. The
-method has the same basic behavior and prescribed use case as the
-`DFA.validate_self()` and `NFA.validate_self()` methods, while (naturally)
-containing validation checks specific to DTMs.
-
-#### Copying a DTM
-
-To create a deep copy of a DTM, simply pass a `DTM` instance into the `DTM`
-constructor.
+#### DTM.accepts_input(self, input_str)
 
 ```python
-dtm_copy = DTM(dtm)  # returns a deep copy of dtm
+if dtm.accepts_input(my_input_str):
+    print('accepted')
+else:
+    print('rejected')
 ```
 
-### Shared exception classes
+#### DTM.validate(self)
+
+```python
+dtm.validate()  # returns True
+```
+
+#### DTM.copy(self)
+
+```python
+dtm.copy()  # returns deep copy of dtm
+```
+
+### Base exception classes
 
 The library also includes a number of exception classes to ensure that errors
-never pass silently (unless explicitly silenced). See `automata/fa.py` for these
-class definitions.
+never pass silently (unless explicitly silenced). See
+`automata/base/exceptions.py` for these class definitions.
 
 To reference these exceptions (so as to catch them in a `try..except` block or
-whatnot), simply import `automata.shared.exceptions` however you'd like:
+whatnot), simply import `automata.base.exceptions` however you'd like:
 
 ```python
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 ```
 
-#### class AutomatonError
+#### class AutomatonException
 
 A base class from which all other automata exceptions inherit (including finite
 automata and Turing machines).
 
 #### class InvalidStateError
 
-Raised if a state is not a valid state for this FA.
+Raised if a state is not a valid state for this automaton.
 
 #### class InvalidSymbolError
 
-Raised if a symbol is not a valid symbol for this FA.
+Raised if a symbol is not a valid symbol for this automaton.
 
 #### class MissingStateError
 
-Raised if a state is missing from the machine definition.
+Raised if a state is missing from the automaton definition.
 
 #### class MissingSymbolError
 
-Raised if a symbol is missing from the machine definition.
+Raised if a symbol is missing from the automaton definition.
 
 #### class InitialStateError
 
 Raised if the initial state fails to meet some required condition for this type
-of machine.
+of automaton.
 
 #### class FinalStateError
 
 Raised if a final state fails to meet some required condition for this type of
-machine.
+automaton.
 
-#### class RejectionError
+#### class RejectionException
 
-Raised if the FA stopped on a non-final state after validating input.
+Raised if the automaton stopped on a non-final state after validating input.
 
 ### Turing machine exception classes
 
@@ -539,10 +567,10 @@ The `automata.tm` package also includes a module for exceptions specific to
 Turing machines. You can reference these exception classes like so:
 
 ```python
-import automata.tm.exceptions as tmexceptions
+import automata.tm.exceptions as tm_exceptions
 ```
 
-#### class TMError
+#### class TMException
 
 A base class from which all other Turing machine exceptions inherit.
 

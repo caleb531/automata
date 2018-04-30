@@ -10,13 +10,13 @@ def get_long_description():
         # Use pandoc to create reStructuredText README if possible
         import pypandoc
         return pypandoc.convert('README.md', 'rst')
-    except:
+    except Exception:
         return None
 
 
 setup(
     name='automata-lib',
-    version='1.0.0r3',
+    version='2.0.0',
     description='A Python library for simulating automata and Turing machines',
     long_description=get_long_description(),
     url='https://github.com/caleb531/automata',
@@ -28,7 +28,7 @@ setup(
         'automata',
         'automata.fa',
         'automata.pda',
-        'automata.shared',
+        'automata.base',
         'automata.tm'
     ],
     install_requires=[],

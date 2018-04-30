@@ -3,49 +3,45 @@
 
 import abc
 
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 
 
 class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
 
     @abc.abstractmethod
-    def __init__(self, obj=None, **kwargs):
+    def __init__(self):
         """Initialize a complete automaton."""
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def validate_self(self):
+    def validate(self):
         """Return True if this automaton is internally consistent."""
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def _validate_input_yield(self, input_str):
-        """Check if the given string is accepted by this automaton."""
-        pass
+    def read_input_stepwise(self, input_str):
+        """Return a generator that yields each step while reading input."""
+        raise NotImplementedError
 
-    def _validate_input_return(self, input_str):
+    def read_input(self, input_str):
         """
         Check if the given string is accepted by this automaton.
 
         Return the automaton's final configuration if this string is valid.
         """
-        validation_generator = self._validate_input_yield(input_str)
+        validation_generator = self.read_input_stepwise(input_str)
         for config in validation_generator:
             pass
         return config
 
-    def validate_input(self, input_str, step=False):
-        """
-        Check if the given string is accepted by this automaton.
-
-        If step is True, yield the configuration at each step. Otherwise,
-        return the final configuration.
-        """
-        if step:
-            return self._validate_input_yield(input_str)
-        else:
-            return self._validate_input_return(input_str)
+    def accepts_input(self, input_str):
+        """Return True if this automaton accepts the given input."""
+        try:
+            self.read_input(input_str)
+            return True
+        except exceptions.RejectionException:
+            return False
 
     def _validate_initial_state(self):
         """Raise an error if the initial state is invalid."""
@@ -70,7 +66,7 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def copy(self):
         """Create a deep copy of the automaton."""
-        return self.__class__(self)
+        return self.__class__(**self.__dict__)
 
     def __eq__(self, other):
         """Check if two automata are equal."""

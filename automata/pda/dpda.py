@@ -3,35 +3,19 @@
 
 import copy
 
+import automata.base.exceptions as exceptions
+import automata.pda.exceptions as pda_exceptions
 import automata.pda.pda as pda
-import automata.pda.exceptions as pdaexceptions
-import automata.shared.exceptions as exceptions
 from automata.pda.stack import PDAStack
 
 
 class DPDA(pda.PDA):
     """A deterministic pushdown automaton."""
 
-    def __init__(self, obj=None, **kwargs):
+    def __init__(self, *, states, input_symbols, stack_symbols,
+                 transitions, initial_state,
+                 initial_stack_symbol, final_states):
         """Initialize a complete DPDA."""
-        if isinstance(obj, DPDA):
-            self._init_from_dpda(obj)
-        else:
-            self._init_from_formal_params(**kwargs)
-
-    def _init_from_dpda(self, dpda):
-        """Initialize this DPDA as a deep copy of the given DPDA."""
-        self.__init__(
-            states=dpda.states, input_symbols=dpda.input_symbols,
-            stack_symbols=dpda.stack_symbols, transitions=dpda.transitions,
-            initial_state=dpda.initial_state,
-            initial_stack_symbol=dpda.initial_stack_symbol,
-            final_states=dpda.final_states)
-
-    def _init_from_formal_params(self, *, states, input_symbols, stack_symbols,
-                                 transitions, initial_state,
-                                 initial_stack_symbol, final_states):
-        """Initialize a DPDA from the formal definition parameters."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
         self.stack_symbols = stack_symbols.copy()
@@ -39,7 +23,7 @@ class DPDA(pda.PDA):
         self.initial_state = initial_state
         self.initial_stack_symbol = initial_stack_symbol
         self.final_states = final_states.copy()
-        self.validate_self()
+        self.validate()
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
@@ -58,7 +42,7 @@ class DPDA(pda.PDA):
         for other_stack_symbol in sib_path:
             if (other_stack_symbol in
                     self.transitions[start_state]['']):
-                raise pdaexceptions.NondeterminismError(
+                raise pda_exceptions.NondeterminismError(
                     'A symbol transition is adjacent to a '
                     'lambda transition for this DPDA.')
 
@@ -96,7 +80,7 @@ class DPDA(pda.PDA):
                 'initial stack symbol {} is invalid'.format(
                     self.initial_stack_symbol))
 
-    def validate_self(self):
+    def validate(self):
         """Return True if this DPDA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
@@ -118,7 +102,7 @@ class DPDA(pda.PDA):
                 stack_symbol in self.transitions[state][input_symbol]):
             return self.transitions[state][input_symbol][stack_symbol]
         else:
-            raise exceptions.RejectionError(
+            raise exceptions.RejectionException(
                 'The automaton entered a configuration for which no '
                 'transition is defined ({}, {}, {})'.format(
                     state, input_symbol, stack_symbol))
@@ -133,11 +117,11 @@ class DPDA(pda.PDA):
         """Raise an error if the given config indicates rejected input."""
         # If current state is not a final state and stack is not empty
         if current_state not in self.final_states and stack:
-            raise exceptions.RejectionError(
+            raise exceptions.RejectionException(
                 'the DPDA stopped in a non-accepting configuration '
-                '({}, {})'.format(current_state, ''.join(stack)))
+                '({}, {})'.format(current_state, stack))
 
-    def _validate_input_yield(self, input_str):
+    def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this DPDA.
 

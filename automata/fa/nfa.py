@@ -3,41 +3,25 @@
 
 import copy
 
+import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-import automata.shared.exceptions as exceptions
-import automata.fa.dfa
 
 
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
 
-    def __init__(self, obj=None, **kwargs):
+    def __init__(self, *, states, input_symbols, transitions,
+                 initial_state, final_states):
         """Initialize a complete NFA."""
-        if isinstance(obj, automata.fa.dfa.DFA):
-            self._init_from_dfa(obj)
-        elif isinstance(obj, NFA):
-            self._init_from_nfa(obj)
-        else:
-            self._init_from_formal_params(**kwargs)
-
-    def _init_from_formal_params(self, *, states, input_symbols, transitions,
-                                 initial_state, final_states):
-        """Initialize an NFA from the formal definition parameters."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = final_states.copy()
-        self.validate_self()
+        self.validate()
 
-    def _init_from_nfa(self, nfa):
-        """Initialize this NFA as a deep copy of the given NFA."""
-        self.__init__(
-            states=nfa.states, input_symbols=nfa.input_symbols,
-            transitions=nfa.transitions, initial_state=nfa.initial_state,
-            final_states=nfa.final_states)
-
-    def _init_from_dfa(self, dfa):
+    @classmethod
+    def from_dfa(cls, dfa):
         """Initialize this NFA as one equivalent to the given DFA."""
         nfa_transitions = {}
 
@@ -46,7 +30,7 @@ class NFA(fa.FA):
             for input_symbol, end_state in paths.items():
                 nfa_transitions[start_state][input_symbol] = {end_state}
 
-        self.__init__(
+        return cls(
             states=dfa.states, input_symbols=dfa.input_symbols,
             transitions=nfa_transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)
@@ -67,7 +51,7 @@ class NFA(fa.FA):
                         'end state {} for transition on {} is '
                         'not valid'.format(end_state, start_state))
 
-    def validate_self(self):
+    def validate(self):
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
@@ -115,11 +99,11 @@ class NFA(fa.FA):
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
         if not (current_states & self.final_states):
-            raise exceptions.RejectionError(
+            raise exceptions.RejectionException(
                 'the NFA stopped on all non-final states ({})'.format(
                     ', '.join(current_states)))
 
-    def _validate_input_yield(self, input_str):
+    def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this NFA.
 

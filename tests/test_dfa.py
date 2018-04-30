@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import nose.tools as nose
 
-import automata.shared.exceptions as exceptions
+import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
@@ -17,7 +17,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_dfa(self):
         """Should copy DFA if passed into DFA constructor."""
-        new_dfa = DFA(self.dfa)
+        new_dfa = DFA.copy(self.dfa)
         self.assert_is_copy(new_dfa, self.dfa)
 
     def test_init_dfa_missing_formal_params(self):
@@ -35,11 +35,11 @@ class TestDFA(test_fa.TestFA):
         new_dfa = self.dfa.copy()
         self.assert_is_copy(new_dfa, self.dfa)
 
-    @patch('automata.fa.dfa.DFA.validate_self')
-    def test_init_validation(self, validate_self):
+    @patch('automata.fa.dfa.DFA.validate')
+    def test_init_validation(self, validate):
         """Should validate DFA when initialized."""
-        DFA(self.dfa)
-        validate_self.assert_called_once_with()
+        DFA.copy(self.dfa)
+        validate.assert_called_once_with()
 
     def test_dfa_equal(self):
         """Should correctly determine if two DFAs are equal."""
@@ -52,59 +52,67 @@ class TestDFA(test_fa.TestFA):
         new_dfa.final_states.add('q2')
         nose.assert_true(self.dfa != new_dfa, 'DFAs are equal')
 
-    def test_validate_self_missing_state(self):
+    def test_validate_missing_state(self):
         """Should raise error if a state has no transitions defined."""
         with nose.assert_raises(exceptions.MissingStateError):
             del self.dfa.transitions['q1']
-            self.dfa.validate_self()
+            self.dfa.validate()
 
-    def test_validate_self_missing_symbol(self):
+    def test_validate_missing_symbol(self):
         """Should raise error if a symbol transition is missing."""
         with nose.assert_raises(exceptions.MissingSymbolError):
             del self.dfa.transitions['q1']['1']
-            self.dfa.validate_self()
+            self.dfa.validate()
 
-    def test_validate_self_invalid_symbol(self):
+    def test_validate_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dfa.transitions['q1']['2'] = 'q2'
-            self.dfa.validate_self()
+            self.dfa.validate()
 
-    def test_validate_self_invalid_state(self):
+    def test_validate_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.transitions['q1']['1'] = 'q3'
-            self.dfa.validate_self()
+            self.dfa.validate()
 
-    def test_validate_self_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.initial_state = 'q3'
-            self.dfa.validate_self()
+            self.dfa.validate()
 
-    def test_validate_self_invalid_final_state(self):
+    def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.final_states = {'q3'}
-            self.dfa.validate_self()
+            self.dfa.validate()
 
-    def test_validate_input_valid(self):
-        """Should return correct stop state if valid DFA input is given."""
-        nose.assert_equal(self.dfa.validate_input('0111'), 'q1')
+    def test_read_input_accepted(self):
+        """Should return correct state if acceptable DFA input is given."""
+        nose.assert_equal(self.dfa.read_input('0111'), 'q1')
 
-    def test_validate_input_rejection(self):
+    def test_read_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
-        with nose.assert_raises(exceptions.RejectionError):
-            self.dfa.validate_input('011')
+        with nose.assert_raises(exceptions.RejectionException):
+            self.dfa.read_input('011')
 
-    def test_validate_input_rejection_invalid_symbol(self):
+    def test_read_input_rejection_invalid_symbol(self):
         """Should raise error if an invalid symbol is read."""
-        with nose.assert_raises(exceptions.RejectionError):
-            self.dfa.validate_input('01112')
+        with nose.assert_raises(exceptions.RejectionException):
+            self.dfa.read_input('01112')
 
-    def test_validate_input_step(self):
+    def test_accepts_input_true(self):
+        """Should return True if DFA input is accepted."""
+        nose.assert_equal(self.dfa.accepts_input('0111'), True)
+
+    def test_accepts_input_false(self):
+        """Should return False if DFA input is rejected."""
+        nose.assert_equal(self.dfa.accepts_input('011'), False)
+
+    def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""
-        validation_generator = self.dfa.validate_input('0111', step=True)
+        validation_generator = self.dfa.read_input_stepwise('0111')
         nose.assert_is_instance(validation_generator, types.GeneratorType)
         nose.assert_equal(list(validation_generator), [
             'q0', 'q0', 'q1', 'q2', 'q1'
@@ -123,7 +131,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q2'}
         )
-        dfa = DFA(nfa)
+        dfa = DFA.from_nfa(nfa)
         nose.assert_equal(dfa.states, {'{}', '{q0}', '{q0,q1}', '{q2}'})
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
@@ -137,7 +145,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
-        dfa = DFA(self.nfa)
+        dfa = DFA.from_nfa(self.nfa)
         nose.assert_equal(dfa.states, {'{}', '{q0}', '{q1,q2}'})
         nose.assert_equal(dfa.input_symbols, {'a', 'b'})
         nose.assert_equal(dfa.transitions, {
