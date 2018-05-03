@@ -143,11 +143,13 @@ class DFA(fa.FA):
 
         state_queue = queue.Queue()
         state_queue.put({nfa.initial_state})
-        max_num_dfa_states = 2**len(nfa.states)
-        for i in range(0, max_num_dfa_states):
+        while not state_queue.empty():
 
             current_states = state_queue.get()
             current_state_name = cls._stringify_states(current_states)
+            if current_state_name in dfa_states:
+                # We've been here before and nothing should have changed.
+                continue
             cls._add_nfa_states_from_queue(nfa, current_states,
                                            current_state_name, dfa_states,
                                            dfa_transitions, dfa_final_states)
