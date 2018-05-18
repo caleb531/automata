@@ -232,9 +232,9 @@ class DFA(fa.FA):
 
     @staticmethod
     def _stringify_states(states):
-        if isinstance(states, set):
-            states = sorted(states)
         """Stringify the given set of states as a single state name."""
+        if isinstance(states, (set, frozenset)):
+            states = sorted(states)
         return '{{{}}}'.format(','.join(states))
 
     @classmethod
