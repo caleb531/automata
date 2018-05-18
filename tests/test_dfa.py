@@ -118,6 +118,58 @@ class TestDFA(test_fa.TestFA):
             'q0', 'q0', 'q1', 'q2', 'q1'
         ])
 
+    def test_minify_dfa(self):
+        """Should minify a given DFA."""
+        # This DFA accepts all words which are at least two characters long.
+        # The states q1/q2 and q3/q4/q5/q6 are redundant.
+        # The state q7 is not reachable.
+        dfa = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q2'},
+                'q1': {'0': 'q3', '1': 'q4'},
+                'q2': {'0': 'q5', '1': 'q6'},
+                'q3': {'0': 'q3', '1': 'q3'},
+                'q4': {'0': 'q4', '1': 'q4'},
+                'q5': {'0': 'q5', '1': 'q5'},
+                'q6': {'0': 'q6', '1': 'q6'},
+                'q7': {'0': 'q7', '1': 'q7'},
+            },
+            initial_state='q0',
+            final_states={'q3', 'q4', 'q5', 'q6'}
+        )
+        minimal_dfa = dfa.minify()
+        nose.assert_equal(minimal_dfa.states, {'q0', '{q1,q2}', '{q3,q4,q5,q6}'})
+        nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
+        nose.assert_equal(minimal_dfa.transitions, {
+            'q0': {'0': '{q1,q2}', '1': '{q1,q2}'},
+            '{q1,q2}': {'0': '{q3,q4,q5,q6}', '1': '{q3,q4,q5,q6}'},
+            '{q3,q4,q5,q6}': {'0': '{q3,q4,q5,q6}', '1': '{q3,q4,q5,q6}'}
+        })
+        nose.assert_equal(minimal_dfa.initial_state, 'q0')
+        nose.assert_equal(minimal_dfa.final_states, {'{q3,q4,q5,q6}'})
+
+    def test_minify_minimal_dfa(self):
+        """Should minify an already minimal DFA."""
+        # This DFA just accepts words ending in 1.
+        dfa = DFA(
+            states={'q0', 'q1'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q1'}
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        minimal_dfa = dfa.minify()
+        nose.assert_equal(minimal_dfa.states, dfa.states)
+        nose.assert_equal(minimal_dfa.input_symbols, dfa.input_symbols)
+        nose.assert_equal(minimal_dfa.transitions, dfa.transitions)
+        nose.assert_equal(minimal_dfa.initial_state, dfa.initial_state)
+        nose.assert_equal(minimal_dfa.final_states, dfa.final_states)
+
     def test_init_nfa_simple(self):
         """Should convert to a DFA a simple NFA."""
         nfa = NFA(
