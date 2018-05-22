@@ -117,22 +117,18 @@ class DFA(fa.FA):
         new_dfa._mark_states_table_first(states_table)
         new_dfa._mark_states_table_second(states_table)
         new_dfa._join_non_marked_states(states_table)
-        assert new_dfa.validate()
         return new_dfa
 
     def _remove_unreachable_states(self):
         """Remove states which are not reachable from the initial state."""
-        assert self.validate()
         reachable_states = self._compute_reachable_states()
         unreachable_states = self.states - reachable_states
         for state in unreachable_states:
             self.states.remove(state)
             del self.transitions[state]
-        assert self.validate()
 
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
-        assert self.validate()
         reachable_states = set()
         states_to_check = queue.Queue()
         states_checked = set()
@@ -152,7 +148,6 @@ class DFA(fa.FA):
 
         This is a dict with frozensets of states as keys and `False` as value.
         """
-        assert self.validate()
         table = {
             frozenset(c): False
             for c in itertools.combinations(self.states, 2)
@@ -228,7 +223,6 @@ class DFA(fa.FA):
                     self.final_states.remove(state)
                 if state == self.initial_state:
                     self.initial_state = stringified
-        assert self.validate()
 
     @staticmethod
     def _stringify_states(states):
