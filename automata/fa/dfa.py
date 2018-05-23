@@ -195,11 +195,11 @@ class DFA(fa.FA):
                     continue
                 # merge them!
                 s3 = s.union(s2)
-                # add the new one
-                non_marked_states.add(s3)
                 # remove the old ones
                 non_marked_states.remove(s)
                 non_marked_states.remove(s2)
+                # add the new one
+                non_marked_states.add(s3)
                 # set the changed flag
                 changed = True
                 break
