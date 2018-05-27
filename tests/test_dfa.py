@@ -170,6 +170,29 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(minimal_dfa.initial_state, dfa.initial_state)
         nose.assert_equal(minimal_dfa.final_states, dfa.final_states)
 
+    def test_minify_dfa_initial_state(self):
+        """Should minify a DFA where the initial state is being changed."""
+        # This DFA accepts all words with ones and zeroes.
+        # The two states can be merged into one.
+        dfa = DFA(
+            states={'q0', 'q1'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q0'},
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'},
+        )
+        minimal_dfa = dfa.minify()
+        nose.assert_equal(minimal_dfa.states, {'{q0,q1}'})
+        nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
+        nose.assert_equal(minimal_dfa.transitions, {
+            '{q0,q1}': {'0': '{q0,q1}', '1': '{q0,q1}'},
+        })
+        nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
+        nose.assert_equal(minimal_dfa.final_states, {'{q0,q1}'})
+
     def test_init_nfa_simple(self):
         """Should convert to a DFA a simple NFA."""
         nfa = NFA(
