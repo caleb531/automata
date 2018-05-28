@@ -186,6 +186,15 @@ dfa.validate()  # returns True
 dfa.copy()  # returns deep copy of dfa
 ```
 
+#### DFA.minify(self)
+
+Creates a minimal DFA which accepts the same inputs as the old one.
+Unreachable states are removed and equivalent states are merged.
+
+```python
+minimal_dfa = dfa.minify()
+```
+
 #### DFA.from_nfa(cls, nfa)
 
 Creates a DFA that is equivalent to the given NFA.

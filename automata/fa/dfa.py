@@ -3,6 +3,7 @@
 
 import copy
 import queue
+import itertools
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
@@ -103,11 +104,131 @@ class DFA(fa.FA):
 
         self._check_for_input_rejection(current_state)
 
+    def minify(self):
+        """
+        Create a minimal DFA which accepts the same inputs as this DFA.
+
+        First, non-reachable states are removed.
+        Then, similiar states are merged.
+        """
+        new_dfa = self.copy()
+        new_dfa._remove_unreachable_states()
+        states_table = new_dfa._create_markable_states_table()
+        new_dfa._mark_states_table_first(states_table)
+        new_dfa._mark_states_table_second(states_table)
+        new_dfa._join_non_marked_states(states_table)
+        return new_dfa
+
+    def _remove_unreachable_states(self):
+        """Remove states which are not reachable from the initial state."""
+        reachable_states = self._compute_reachable_states()
+        unreachable_states = self.states - reachable_states
+        for state in unreachable_states:
+            self.states.remove(state)
+            del self.transitions[state]
+
+    def _compute_reachable_states(self):
+        """Compute the states which are reachable from the initial state."""
+        reachable_states = set()
+        states_to_check = queue.Queue()
+        states_checked = set()
+        states_to_check.put(self.initial_state)
+        while not states_to_check.empty():
+            state = states_to_check.get()
+            reachable_states.add(state)
+            for symbol, dst_state in self.transitions[state].items():
+                if dst_state not in states_checked:
+                    states_to_check.put(dst_state)
+            states_checked.add(state)
+        return reachable_states
+
+    def _create_markable_states_table(self):
+        """
+        Create a "markable table" with all combinatations of two states.
+
+        This is a dict with frozensets of states as keys and `False` as value.
+        """
+        table = {
+            frozenset(c): False
+            for c in itertools.combinations(self.states, 2)
+        }
+        return table
+
+    def _mark_states_table_first(self, table):
+        """Mark pairs of states if one is final and one is not."""
+        for s in table.keys():
+            if any((x in self.final_states for x in s)):
+                if any((x not in self.final_states for x in s)):
+                    table[s] = True
+
+    def _mark_states_table_second(self, table):
+        """
+        Mark additional state pairs.
+
+        A non-marked pair of two states q, q_ will be marked
+        if there is an input_symbol a for which the pair
+        transition(q, a), transition(q_, a) is marked.
+        """
+        changed = True
+        while changed:
+            changed = False
+            for s in filter(lambda s: not table[s], table.keys()):
+                s_ = tuple(s)
+                for a in self.input_symbols:
+                    s2 = frozenset({
+                        self._get_next_current_state(s_[0], a),
+                        self._get_next_current_state(s_[1], a)
+                    })
+                    if s2 in table and table[s2]:
+                        table[s] = True
+                        changed = True
+                        break
+
+    def _join_non_marked_states(self, table):
+        """Join all overlapping non-marked pairs of states to a new state."""
+        non_marked_states = set(filter(lambda s: not table[s], table.keys()))
+        changed = True
+        while changed:
+            changed = False
+            for s, s2 in itertools.combinations(non_marked_states, 2):
+                if s2.isdisjoint(s):
+                    continue
+                # merge them!
+                s3 = s.union(s2)
+                # remove the old ones
+                non_marked_states.remove(s)
+                non_marked_states.remove(s2)
+                # add the new one
+                non_marked_states.add(s3)
+                # set the changed flag
+                changed = True
+                break
+        # finally adjust the DFA
+        for s in non_marked_states:
+            stringified = DFA._stringify_states(s)
+            # add the new state
+            self.states.add(stringified)
+            # copy the transitions from one of the states
+            self.transitions[stringified] = self.transitions[tuple(s)[0]]
+            # replace all occurrences of the old states
+            for state in s:
+                self.states.remove(state)
+                del self.transitions[state]
+                for src_state, transition in self.transitions.items():
+                    for symbol in transition.keys():
+                        if transition[symbol] == state:
+                            transition[symbol] = stringified
+                if state in self.final_states:
+                    self.final_states.add(stringified)
+                    self.final_states.remove(state)
+                if state == self.initial_state:
+                    self.initial_state = stringified
+
     @staticmethod
     def _stringify_states(states):
-        if isinstance(states, set):
-            states = sorted(states)
         """Stringify the given set of states as a single state name."""
+        if isinstance(states, (set, frozenset)):
+            states = sorted(states)
         return '{{{}}}'.format(','.join(states))
 
     @classmethod
