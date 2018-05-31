@@ -6,6 +6,7 @@ import copy
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import automata.pda.pda as pda
+from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
 
@@ -107,39 +108,48 @@ class DPDA(pda.PDA):
                 'transition is defined ({}, {}, {})'.format(
                     state, input_symbol, stack_symbol))
 
-    def _replace_stack_top(self, stack, new_stack_top):
-        if new_stack_top == '':
-            stack.pop()
-        else:
-            stack.replace(new_stack_top)
-
-    def _check_for_input_rejection(self, current_state, stack):
+    def _check_for_input_rejection(self, current_configuration):
         """Raise an error if the given config indicates rejected input."""
         # If current state is not a final state and stack is not empty
-        if current_state not in self.final_states and stack:
-            raise exceptions.RejectionException(
-                'the DPDA stopped in a non-accepting configuration '
-                '({}, {})'.format(current_state, stack))
+        if current_configuration.state not in self.final_states:
+            if current_configuration.stack:
+                raise exceptions.RejectionException(
+                    'the DPDA stopped in a non-accepting configuration '
+                    '({state}, {stack})'
+                    .format(**current_configuration.__dict__)
+                )
 
     def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this DPDA.
 
-        Yield the DPDA's current state and current stack at each step.
+        Yield the DPDA's current configuration at each step.
         """
-        current_state = self.initial_state
-        stack = PDAStack([self.initial_stack_symbol])
+        current_configuration = PDAConfiguration(
+            self.initial_state,
+            input_str,
+            PDAStack([self.initial_stack_symbol])
+        )
 
-        yield current_state, stack
-        for input_symbol in input_str:
-            current_state, new_stack_top = self._get_transition(
-                current_state, input_symbol, stack.top())
-            self._replace_stack_top(stack, new_stack_top)
+        yield current_configuration
+        while current_configuration.remaining_input:
+            current_configuration.state, new_stack_top = self._get_transition(
+                current_configuration.state,
+                current_configuration.pop_symbol(),
+                current_configuration.stack.top()
+            )
+            current_configuration.replace_stack_top(new_stack_top)
             # Follow any lambda transitions from the current configuration
-            while self._has_lambda_transition(current_state, stack.top()):
-                current_state, new_stack_top = self._get_transition(
-                    current_state, '', stack.top())
-                self._replace_stack_top(stack, new_stack_top)
-            yield current_state, stack
+            while self._has_lambda_transition(
+                current_configuration.state,
+                current_configuration.stack.top()
+            ):
+                current_configuration.state, new_stack_top = self._get_transition(
+                    current_configuration.state,
+                    '',
+                    current_configuration.stack.top()
+                )
+                current_configuration.replace_stack_top(new_stack_top)
+            yield current_configuration
 
-        self._check_for_input_rejection(current_state, stack)
+        self._check_for_input_rejection(current_configuration)

@@ -9,6 +9,7 @@ import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import tests.test_pda as test_pda
 from automata.pda.dpda import DPDA
+from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
 
@@ -69,13 +70,17 @@ class TestDPDA(test_pda.TestPDA):
     def test_read_input_valid_accept_by_final_state(self):
         """Should return correct config if DPDA accepts by final state."""
         nose.assert_equal(
-            self.dpda.read_input('aabb'), ('q3', PDAStack(['0'])))
+            self.dpda.read_input('aabb'),
+            PDAConfiguration('q3', '', PDAStack(['0']))
+        )
 
     def test_read_input_valid_accept_by_empty_stack(self):
         """Should return correct config if DPDA accepts by empty stack."""
         self.dpda.transitions['q2']['']['0'] = ('q2', '')
         nose.assert_equal(
-            self.dpda.read_input('aabb'), ('q2', PDAStack([])))
+            self.dpda.read_input('aabb'),
+            PDAConfiguration('q2', '', PDAStack([]))
+        )
 
     def test_read_input_valid_consecutive_lambda_transitions(self):
         """Should follow consecutive lambda transitions when validating."""
@@ -86,7 +91,9 @@ class TestDPDA(test_pda.TestPDA):
             '': {'0': ('q4', ('0',))}
         }
         nose.assert_equal(
-            self.dpda.read_input('aabb'), ('q4', PDAStack(['0'])))
+            self.dpda.read_input('aabb'),
+            PDAConfiguration('q4', '', PDAStack(['0']))
+        )
 
     def test_read_input_rejected_accept_by_final_state(self):
         """Should reject strings if DPDA accepts by final state."""
