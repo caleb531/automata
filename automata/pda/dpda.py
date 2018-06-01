@@ -101,12 +101,10 @@ class DPDA(pda.PDA):
         if (state in self.transitions and
                 input_symbol in self.transitions[state] and
                 stack_symbol in self.transitions[state][input_symbol]):
-            return self.transitions[state][input_symbol][stack_symbol]
-        else:
-            raise exceptions.RejectionException(
-                'The automaton entered a configuration for which no '
-                'transition is defined ({}, {}, {})'.format(
-                    state, input_symbol, stack_symbol))
+            return (
+                input_symbol,
+                *(self.transitions[state][input_symbol][stack_symbol])
+            )
 
     def _check_for_input_rejection(self, current_configuration):
         """Raise an error if the given config indicates rejected input."""
@@ -118,6 +116,47 @@ class DPDA(pda.PDA):
                     '({state}, {stack})'
                     .format(**current_configuration.__dict__)
                 )
+
+    def _get_next_configuration(self, old_config):
+        """Advance to the next configuration."""
+        transitions = set()
+        if old_config.remaining_input:
+            transitions.add(self._get_transition(
+                old_config.state,
+                old_config.remaining_input[0],
+                old_config.stack.top()
+            ))
+        transitions.add(self._get_transition(
+            old_config.state,
+            '',
+            old_config.stack.top()
+        ))
+        if None in transitions:
+            transitions.remove(None)
+        if len(transitions) == 0:
+            raise exceptions.RejectionException(
+                'The automaton entered a configuration for which no '
+                'transition is defined ({}, {}, {})'.format(
+                    old_config.state,
+                    old_config.remaining_input[0],
+                    old_config.stack.top()
+                )
+            )
+        if len(transitions) > 1:
+            raise pda_exceptions.NondeterminismError(
+                'The automaton entered a configuration for which more'
+                'than one transition is defined ({}, {}'.format(
+                    old_config.state,
+                    old_config.stack.top()
+                )
+            )
+        input_symbol, new_state, new_stack_top = transitions.pop()
+        new_config = old_config.copy()
+        new_config.state = new_state
+        new_config.replace_stack_top(new_stack_top)
+        if input_symbol:
+            new_config.pop_symbol()
+        return new_config
 
     def read_input_stepwise(self, input_str):
         """
@@ -132,24 +171,15 @@ class DPDA(pda.PDA):
         )
 
         yield current_configuration
-        while current_configuration.remaining_input:
-            current_configuration.state, new_stack_top = self._get_transition(
+        while (
+            current_configuration.remaining_input
+            or self._has_lambda_transition(
                 current_configuration.state,
-                current_configuration.pop_symbol(),
                 current_configuration.stack.top()
             )
-            current_configuration.replace_stack_top(new_stack_top)
-            # Follow any lambda transitions from the current configuration
-            while self._has_lambda_transition(
-                current_configuration.state,
-                current_configuration.stack.top()
-            ):
-                current_configuration.state, new_stack_top = self._get_transition(
-                    current_configuration.state,
-                    '',
-                    current_configuration.stack.top()
-                )
-                current_configuration.replace_stack_top(new_stack_top)
+        ):
+            current_configuration = self._get_next_configuration(
+                current_configuration
+            )
             yield current_configuration
-
         self._check_for_input_rejection(current_configuration)
