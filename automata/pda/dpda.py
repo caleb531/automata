@@ -106,16 +106,28 @@ class DPDA(pda.PDA):
                 *(self.transitions[state][input_symbol][stack_symbol])
             )
 
+    def _has_accepted(self, current_configuration):
+        """Check whether the given config indicates accepted input."""
+        # If there's input left, we're not finished.
+        if current_configuration.remaining_input:
+            return False
+        # If the stack is empty, we accept.
+        if not current_configuration.stack:
+            return True
+        # If current state is a final state, we accept.
+        if current_configuration.state in self.final_states:
+            return True
+        # Otherwise, not.
+        return False
+
     def _check_for_input_rejection(self, current_configuration):
         """Raise an error if the given config indicates rejected input."""
-        # If current state is not a final state and stack is not empty
-        if current_configuration.state not in self.final_states:
-            if current_configuration.stack:
-                raise exceptions.RejectionException(
-                    'the DPDA stopped in a non-accepting configuration '
-                    '({state}, {stack})'
-                    .format(**current_configuration.__dict__)
-                )
+        if not self._has_accepted(current_configuration):
+            raise exceptions.RejectionException(
+                'the DPDA stopped in a non-accepting configuration '
+                '({state}, {stack})'
+                .format(**current_configuration.__dict__)
+            )
 
     def _get_next_configuration(self, old_config):
         """Advance to the next configuration."""
@@ -182,4 +194,6 @@ class DPDA(pda.PDA):
                 current_configuration
             )
             yield current_configuration
+            if self._has_accepted(current_configuration):
+                return
         self._check_for_input_rejection(current_configuration)
