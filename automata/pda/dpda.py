@@ -106,6 +106,14 @@ class DPDA(pda.PDA):
                 *(self.transitions[state][input_symbol][stack_symbol])
             )
 
+    def _replace_stack_top(self, stack, new_stack_top):
+        new_stack = stack.copy()
+        if new_stack_top == '':
+            new_stack.pop()
+        else:
+            new_stack.replace(new_stack_top)
+        return new_stack
+
     def _has_accepted(self, current_configuration):
         """Check whether the given config indicates accepted input."""
         # If there's input left, we're not finished.
@@ -126,7 +134,7 @@ class DPDA(pda.PDA):
             raise exceptions.RejectionException(
                 'the DPDA stopped in a non-accepting configuration '
                 '({state}, {stack})'
-                .format(**current_configuration.__dict__)
+                .format(**current_configuration._asdict())
             )
 
     def _get_next_configuration(self, old_config):
@@ -163,11 +171,14 @@ class DPDA(pda.PDA):
                 )
             )
         input_symbol, new_state, new_stack_top = transitions.pop()
-        new_config = old_config.copy()
-        new_config.state = new_state
-        new_config.replace_stack_top(new_stack_top)
+        remaining_input = old_config.remaining_input
         if input_symbol:
-            new_config.pop_symbol()
+            remaining_input = remaining_input[1:]
+        new_config = PDAConfiguration(
+            new_state,
+            remaining_input,
+            self._replace_stack_top(old_config.stack, new_stack_top)
+        )
         return new_config
 
     def read_input_stepwise(self, input_str):

@@ -90,6 +90,14 @@ class NPDA(pda.PDA):
                 ))
         return transitions
 
+    def _replace_stack_top(self, stack, new_stack_top):
+        new_stack = stack.copy()
+        if new_stack_top == '':
+            new_stack.pop()
+        else:
+            new_stack.replace(new_stack_top)
+        return new_stack
+
     def _has_accepted(self, current_configuration):
         """Check whether the given config indicates accepted input."""
         # If there's input left, we're not finished.
@@ -120,10 +128,14 @@ class NPDA(pda.PDA):
         ))
         new_configs = set()
         for input_symbol, new_state, new_stack_top in transitions:
-            new_config = old_config.copy()
-            new_config.replace_stack_top(new_stack_top)
+            remaining_input = old_config.remaining_input
             if input_symbol:
-                new_config.pop_symbol()
+                remaining_input = remaining_input[1:]
+            new_config = PDAConfiguration(
+                new_state,
+                remaining_input,
+                self._replace_stack_top(old_config.stack, new_stack_top)
+            )
             new_configs.add(new_config)
         return new_configs
 
