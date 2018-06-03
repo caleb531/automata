@@ -259,11 +259,13 @@ class DFA(fa.FA):
         dfa_states = set()
         dfa_symbols = nfa.input_symbols
         dfa_transitions = {}
-        dfa_initial_state = cls._stringify_states((nfa.initial_state,))
+        init = {nfa.initial_state} # original NFA start state
+        initials = nfa._get_next_current_states(init, "") | init # equivalent DFA states states
+        dfa_initial_state = cls._stringify_states(initials)
         dfa_final_states = set()
 
         state_queue = queue.Queue()
-        state_queue.put({nfa.initial_state})
+        state_queue.put(initials)
         while not state_queue.empty():
 
             current_states = state_queue.get()
@@ -278,6 +280,7 @@ class DFA(fa.FA):
                 nfa, current_states, current_state_name, state_queue,
                 dfa_transitions)
 
+        print(dfa_states)
         return cls(
             states=dfa_states, input_symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
