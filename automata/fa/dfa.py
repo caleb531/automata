@@ -280,7 +280,6 @@ class DFA(fa.FA):
                 nfa, current_states, current_state_name, state_queue,
                 dfa_transitions)
 
-        print(dfa_states)
         return cls(
             states=dfa_states, input_symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
