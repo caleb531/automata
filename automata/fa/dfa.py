@@ -260,9 +260,9 @@ class DFA(fa.FA):
         dfa_symbols = nfa.input_symbols
         dfa_transitions = {}
         # original NFA start state
-        init = {nfa.initial_state} 
+        init = {nfa.initial_state}
         # equivalent DFA states states
-        initials = nfa._get_next_current_states(init, "") | init 
+        initials = nfa._get_next_current_states(init, "") | init
         dfa_initial_state = cls._stringify_states(initials)
         dfa_final_states = set()
 
