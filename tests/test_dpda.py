@@ -123,7 +123,7 @@ class TestDPDA(test_pda.TestPDA):
         """Should create an exact of the PDA stack."""
         stack = PDAStack(['a', 'b'])
         stack_copy = stack.copy()
-        nose.assert_is_not(stack, stack_copy)
+        nose.assert_is(stack, stack_copy)
         nose.assert_equal(stack, stack_copy)
 
     def test_stack_iter(self):
@@ -133,4 +133,4 @@ class TestDPDA(test_pda.TestPDA):
     def test_stack_repr(self):
         """Should create proper string representation of PDA stack."""
         stack = PDAStack(['a', 'b'])
-        nose.assert_equal(repr(stack), 'PDAStack([\'a\', \'b\'])')
+        nose.assert_equal(repr(stack), 'PDAStack((\'a\', \'b\'))')

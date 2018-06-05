@@ -107,11 +107,10 @@ class DPDA(pda.PDA):
             )
 
     def _replace_stack_top(self, stack, new_stack_top):
-        new_stack = stack.copy()
         if new_stack_top == '':
-            new_stack.pop()
+            new_stack = stack.pop()
         else:
-            new_stack.replace(new_stack_top)
+            new_stack = stack.replace(new_stack_top)
         return new_stack
 
     def _has_accepted(self, current_configuration):
