@@ -2,8 +2,8 @@
 """Classes and methods for working with deterministic finite automata."""
 
 import copy
-import queue
 import itertools
+import queue
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
