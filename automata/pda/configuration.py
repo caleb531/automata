@@ -25,4 +25,9 @@ class PDAConfiguration(collections.namedtuple(
 
     def __repr__(self):
         """Return a string representation of the configuration."""
-        return '{}({})'.format(self.__class__.__name__, self.__dict__)
+        return '{}({}, {}, {})'.format(
+            self.__class__.__name__,
+            self.state,
+            self.remaining_input,
+            self.stack
+        )
