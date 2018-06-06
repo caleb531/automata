@@ -140,7 +140,9 @@ class TestDFA(test_fa.TestFA):
             final_states={'q3', 'q4', 'q5', 'q6'}
         )
         minimal_dfa = dfa.minify()
-        nose.assert_equal(minimal_dfa.states, {'q0', '{q1,q2}', '{q3,q4,q5,q6}'})
+        nose.assert_equal(minimal_dfa.states, {
+            'q0', '{q1,q2}', '{q3,q4,q5,q6}'
+        })
         nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(minimal_dfa.transitions, {
             'q0': {'0': '{q1,q2}', '1': '{q1,q2}'},
@@ -232,7 +234,9 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa)
-        nose.assert_equal(dfa.states, {'{q0}', '{q0,q1}', '{q0,q2}', '{q0,q1,q2}'})
+        nose.assert_equal(dfa.states, {
+            '{q0}', '{q0,q1}', '{q0,q2}', '{q0,q1,q2}'
+        })
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
             '{q0}': {'1': '{q0}', '0': '{q0,q1}'},
