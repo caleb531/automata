@@ -153,7 +153,7 @@ class NPDA(pda.PDA):
 
         yield current_configurations
 
-        while current_configurations:  # TODO
+        while current_configurations:
             new_configurations = set()
             for config in current_configurations:
                 if self._has_accepted(config):
@@ -170,7 +170,8 @@ class NPDA(pda.PDA):
                     new_configurations.update(
                         self._get_next_configurations(config)
                     )
-                yield current_configurations
+            current_configurations = new_configurations
+            yield current_configurations
 
         raise exceptions.RejectionException(
             'the NPDA did not reach an accepting configuration'
