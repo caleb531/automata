@@ -467,6 +467,8 @@ dtm = DTM(
 )
 ```
 
+The direction `N` (for no movement) is also supported.
+
 #### DTM.read_input(self, input_str, step=False)
 
 Returns a tuple containing the final state the machine stopped on, as well as a

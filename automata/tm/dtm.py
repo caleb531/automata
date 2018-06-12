@@ -38,7 +38,7 @@ class DTM(tm.TM):
                         tape_symbol, state))
 
     def _validate_transition_result_direction(self, result_direction):
-        if not (result_direction == 'L' or result_direction == 'R'):
+        if result_direction not in ('L', 'N', 'R'):
             raise tm_exceptions.InvalidDirectionError(
                 'result direction is not valid ({})'.format(
                     result_direction))
