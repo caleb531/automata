@@ -351,11 +351,13 @@ dpda = DPDA(
 
 #### DPDA.read_input(self, input_str, step=False)
 
-Returns a tuple containing the final state the DPDA stopped on, as well as a
-`PDAStack` object representing the DPDA's stack (if the input is accepted).
+Returns a `PDAConfiguration` object representing the DPDA's config.
+This is basically a tuple containing the final state the DPDA stopped on,
+the remaining input (an empty string)
+as well as a `PDAStack` object representing the DPDA's stack (if the input is accepted).
 
 ```python
-dpda.read_input('ab')  # returns ('q3', PDAStack(['0']))
+dpda.read_input('ab')  # returns PDAConfiguration('q3', , PDAStack(('0')))
 ```
 
 ```python
@@ -364,21 +366,17 @@ dpda.read_input('aab')  # raises RejectionException
 
 #### DPDA.read_input_stepwise(self, input_str)
 
-Yields tuples containing the current state and the current stack as a `PDAStack`
-object, if the input is accepted.
+Yields `PDAConfiguration` objects.
+These are basically tuples containing the current state,
+the remaining input and the current stack as a `PDAStack` object, if the input is accepted.
 
 ```python
-((state, stack.copy()) for state, stack in dpda.read_input_stepwise('ab'))
+dpda.read_input_stepwise('ab')
 # yields:
-# ('q0', PDAStack(['0']))
-# ('q1', PDAStack(['0', '1']))
-# ('q3', PDAStack(['0']))
+# PDAConfiguration(q0, ab, PDAStack(('0')))
+# PDAConfiguration(q1, a, PDAStack(('0', '1')))
+# PDAConfiguration(q3, , PDAStack(('0')))
 ```
-
-Please note that each tuple contains a reference to (not a copy of) the current
-`PDAStack` object. Therefore, if you wish to store the stack at every step, you
-must copy the stack as you iterate over the automaton configurations (as shown
-above).
 
 #### DPDA.accepts_input(self, input_str)
 
