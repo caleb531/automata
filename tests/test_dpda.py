@@ -118,19 +118,3 @@ class TestDPDA(test_pda.TestPDA):
     def test_accepts_input_false(self):
         """Should return False if DPDA input is rejected."""
         nose.assert_equal(self.dpda.accepts_input('aab'), False)
-
-    def test_stack_copy(self):
-        """Should create an exact of the PDA stack."""
-        stack = PDAStack(['a', 'b'])
-        stack_copy = stack.copy()
-        nose.assert_is(stack, stack_copy)
-        nose.assert_equal(stack, stack_copy)
-
-    def test_stack_iter(self):
-        """Should loop through the PDA stack in some manner."""
-        nose.assert_equal(list(PDAStack(['a', 'b'])), ['a', 'b'])
-
-    def test_stack_repr(self):
-        """Should create proper string representation of PDA stack."""
-        stack = PDAStack(['a', 'b'])
-        nose.assert_equal(repr(stack), 'PDAStack((\'a\', \'b\'))')
