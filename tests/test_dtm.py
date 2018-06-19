@@ -161,3 +161,64 @@ class TestDTM(test_tm.TestTM):
     def test_accepts_input_false(self):
         """Should return False if DTM input is rejected."""
         nose.assert_equal(self.dtm1.accepts_input('000011'), False)
+
+    def test_transition_without_movement(self):
+        """Tests transitions without movements."""
+        dtm = DTM(
+            # should accept 0^n1^n2^n for n >= 0
+            input_symbols={'0', '1', '2'},
+            tape_symbols={'0', '1', '2', '*', '.'},
+            transitions={
+                'q0': {
+                    # replace one 0 with *
+                    '0': ('q1', '*', 'N'),
+                    '*': ('q0', '*', 'R'),
+                    '.': ('qe', '.', 'N'),
+                },
+                'q1': {
+                    # replace one 1 with *
+                    '0': ('q1', '0', 'R'),
+                    '1': ('q2', '*', 'N'),
+                    '*': ('q1', '*', 'R'),
+                },
+                'q2': {
+                    # replace one 2 with *
+                    '1': ('q2', '1', 'R'),
+                    '2': ('q3', '*', 'N'),
+                    '*': ('q2', '*', 'R'),
+                },
+                'q3': {
+                    # seek to end; assert that just 2's or *'s follow
+                    '2': ('q3', '2', 'R'),
+                    '*': ('q3', '*', 'R'),
+                    '.': ('q4', '.', 'L'),
+                },
+                'q4': {
+                    # seek to the beginning; checking if everything is *
+                    '0': ('q5', '0', 'L'),
+                    '1': ('q5', '1', 'L'),
+                    '2': ('q5', '2', 'L'),
+                    '*': ('q4', '*', 'L'),
+                    '.': ('qe', '.', 'R'),
+                },
+                'q5': {
+                    # seek to the beginning
+                    '0': ('q5', '0', 'L'),
+                    '1': ('q5', '1', 'L'),
+                    '2': ('q5', '2', 'L'),
+                    '*': ('q5', '*', 'L'),
+                    '.': ('q0', '.', 'R'),
+                }
+            },
+            states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'qe'},
+            initial_state='q0',
+            blank_symbol='.',
+            final_states={'qe'},
+        )
+        nose.assert_true(dtm.accepts_input(''))
+        nose.assert_true(dtm.accepts_input('012'))
+        nose.assert_true(dtm.accepts_input('001122'))
+        nose.assert_false(dtm.accepts_input('0'))
+        nose.assert_false(dtm.accepts_input('01'))
+        nose.assert_false(dtm.accepts_input('0112'))
+        nose.assert_false(dtm.accepts_input('012012'))
