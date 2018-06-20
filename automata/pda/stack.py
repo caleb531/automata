@@ -60,4 +60,4 @@ class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
 
     def __repr__(self):
         """Return a string representation of the stack."""
-        return '{}({})'.format(self.__class__.__name__, self.stack)
+        return '{}{}'.format(self.__class__.__name__, self.stack)
