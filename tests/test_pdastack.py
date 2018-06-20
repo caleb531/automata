@@ -19,6 +19,11 @@ class TestPDAStack(test_pda.TestPDA):
         nose.assert_is(stack, stack_copy)
         nose.assert_equal(stack, stack_copy)
 
+    def test_create_with_multiple_parameters(self):
+        """Should create a new PDA stack with elements passed as parameters."""
+        stack = PDAStack('a', 'b')
+        nose.assert_equal(stack, PDAStack(('a', 'b')))
+
     def test_stack_iter(self):
         """Should loop through the PDA stack in some manner."""
         nose.assert_equal(list(PDAStack(['a', 'b'])), ['a', 'b'])

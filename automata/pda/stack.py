@@ -7,10 +7,12 @@ import collections
 class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
     """A PDA stack."""
 
-    def __new__(cls, stack):
+    def __new__(cls, *elements):
         """Create the new PDA stack."""
-        if not isinstance(stack, tuple):
-            stack = tuple(stack)
+        if len(elements) == 1:
+            stack = tuple(elements[0])
+        else:
+            stack = elements
         return super(PDAStack, cls).__new__(cls, stack)
 
     def top(self):
