@@ -36,6 +36,8 @@ class TMTape(object):
         """Move the tape to the next symbol in the given direction."""
         if direction == 'R':
             self.current_position += 1
+        elif direction == 'N':
+            pass
         elif direction == 'L':  # pragma: no branch
             self.current_position -= 1
 
