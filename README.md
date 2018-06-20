@@ -357,7 +357,7 @@ the remaining input (an empty string)
 as well as a `PDAStack` object representing the DPDA's stack (if the input is accepted).
 
 ```python
-dpda.read_input('ab')  # returns PDAConfiguration('q3', , PDAStack(('0')))
+dpda.read_input('ab')  # returns PDAConfiguration('q3', '', PDAStack(('0')))
 ```
 
 ```python
@@ -373,9 +373,9 @@ the remaining input and the current stack as a `PDAStack` object, if the input i
 ```python
 dpda.read_input_stepwise('ab')
 # yields:
-# PDAConfiguration(q0, ab, PDAStack(('0')))
-# PDAConfiguration(q1, a, PDAStack(('0', '1')))
-# PDAConfiguration(q3, , PDAStack(('0')))
+# PDAConfiguration('q0', 'ab', PDAStack(('0')))
+# PDAConfiguration('q1', 'a', PDAStack(('0', '1')))
+# PDAConfiguration('q3', '', PDAStack(('0')))
 ```
 
 #### DPDA.accepts_input(self, input_str)

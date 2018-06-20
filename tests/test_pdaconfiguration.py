@@ -25,5 +25,5 @@ class TestPDAConfiguration(test_pda.TestPDA):
         config = PDAConfiguration('q0', 'ab', PDAStack(['a', 'b']))
         nose.assert_equal(
             repr(config),
-            'PDAConfiguration(q0, ab, PDAStack((\'a\', \'b\')))'
+            'PDAConfiguration(\'q0\', \'ab\', PDAStack((\'a\', \'b\')))'
         )
