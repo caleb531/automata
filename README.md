@@ -236,7 +236,7 @@ nfa = NFA(
 )
 ```
 
-#### NFA.read_input(self, input_str, step=False)
+#### NFA.read_input(self, input_str)
 
 Returns a set of final states the FA stopped on, if the input is accepted.
 
@@ -350,7 +350,7 @@ dpda = DPDA(
 )
 ```
 
-#### DPDA.read_input(self, input_str, step=False)
+#### DPDA.read_input(self, input_str)
 
 Returns a `PDAConfiguration` object representing the DPDA's config.
 This is basically a tuple containing the final state the DPDA stopped on,
@@ -582,7 +582,7 @@ dtm = DTM(
 
 The direction `N` (for no movement) is also supported.
 
-#### DTM.read_input(self, input_str, step=False)
+#### DTM.read_input(self, input_str)
 
 Returns a tuple containing the final state the machine stopped on, as well as a
 `TMTape` object representing the DTM's internal tape (if the input is accepted).
