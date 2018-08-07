@@ -103,8 +103,7 @@ class DPDA(pda.PDA):
                 stack_symbol in self.transitions[state][input_symbol]):
             return (
                 input_symbol,
-                *(self.transitions[state][input_symbol][stack_symbol])
-            )
+            ) + self.transitions[state][input_symbol][stack_symbol]
 
     def _replace_stack_top(self, stack, new_stack_top):
         if new_stack_top == '':
