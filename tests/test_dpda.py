@@ -124,3 +124,16 @@ class TestDPDA(test_pda.TestPDA):
     def test_accepts_input_false(self):
         """Should return False if DPDA input is rejected."""
         nose.assert_equal(self.dpda.accepts_input('aab'), False)
+
+    def test_empty_dpda(self):
+        """Should accept an empty input if the DPDA is empty."""
+        dpda = DPDA(
+            states={'q0'},
+            input_symbols=set(),
+            stack_symbols={'0'},
+            transitions=dict(),
+            initial_state='q0',
+            initial_stack_symbol='0',
+            final_states={'q0'},
+        )
+        nose.assert_true(dpda.accepts_input(''))
