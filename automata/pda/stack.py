@@ -28,9 +28,9 @@ class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
 
         Return a new PDAStack with the new content.
         """
-        l = list(self.stack)
-        l.pop()
-        return self.__class__(l)
+        stack_contents = list(self.stack)
+        stack_contents.pop()
+        return self.__class__(stack_contents)
 
     def replace(self, symbols):
         """
@@ -39,10 +39,10 @@ class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
         Return a new PDAStack with the new content.
         The first symbol in the given sequence becomes the new stack top.
         """
-        l = list(self.stack)
-        l.pop()
-        l.extend(reversed(symbols))
-        return self.__class__(l)
+        stack_contents = list(self.stack)
+        stack_contents.pop()
+        stack_contents.extend(reversed(symbols))
+        return self.__class__(stack_contents)
 
     def copy(self):
         """
