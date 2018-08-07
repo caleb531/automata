@@ -49,6 +49,12 @@ class TestDPDA(test_pda.TestPDA):
             self.dpda.transitions['q2']['b']['0'] = ('q2', '0')
             self.dpda.validate()
 
+    def test_read_input_rejected_nondeterministic_transition(self):
+        """Should raise error if DPDA exhibits nondeterminism."""
+        with nose.assert_raises(pda_exceptions.NondeterminismError):
+            self.dpda.transitions['q2']['b']['0'] = ('q2', '0')
+            self.dpda.read_input("abb")
+
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
