@@ -111,7 +111,7 @@ class DTM(tm.TM):
             (current_state, new_tape_symbol,
                 current_direction) = self._get_transition(
                     current_state, input_symbol)
-            tape.write_symbol(new_tape_symbol)
-            tape.move(current_direction)
+            tape = tape.write_symbol(new_tape_symbol)
+            tape = tape.move(current_direction)
 
             yield current_state, tape
