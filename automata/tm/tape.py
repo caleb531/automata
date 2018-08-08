@@ -1,53 +1,78 @@
 #!/usr/bin/env python3
 """Classes and methods for working with Turing machine tapes."""
 
+import collections
 
-class TMTape(object):
+
+class TMTape(collections.namedtuple(
+    'TMTape',
+    ['tape', 'blank_symbol', 'current_position']
+)):
     """A Turing machine tape."""
 
-    def __init__(self, tape, *, blank_symbol, current_position=0,
-                 position_offset=0):
+    def __new__(cls, tape, *, blank_symbol, current_position=0):
         """Initialize a new Turing machine tape."""
-        self.tape = list(tape)
-        self.blank_symbol = blank_symbol
-        self.current_position = current_position
-        self.position_offset = position_offset
+        tape = list(tape)
+        # Make sure that there's something on the tape.
+        if not tape:
+            tape.append(blank_symbol)
+        # Make sure that the tape begins and ends with the blank symbol.
+        if not tape[0] == blank_symbol:
+            tape.insert(0, blank_symbol)
+            current_position += 1
+        if not tape[-1] == blank_symbol:
+            tape.append(blank_symbol)
+        tape = tuple(tape)
+        return super(TMTape, cls).__new__(
+            cls, tape, blank_symbol, current_position
+        )
+
+    # TODO: Compaction? Remove unneeded blank symbols.
 
     def read_symbol(self):
         """Read the symbol at the current position in the tape."""
-        actual_position = self.current_position + self.position_offset
-        if actual_position == -1 or actual_position == len(self.tape):
-            return self.blank_symbol
-        else:
-            return self.tape[actual_position]
+        return self.tape[self.current_position]
 
     def write_symbol(self, new_tape_symbol):
         """Write the given symbol at the current position in the tape."""
-        actual_position = self.current_position + self.position_offset
-        if actual_position == -1:
-            self.tape.insert(0, new_tape_symbol)
-            self.position_offset += 1
-        elif actual_position == len(self.tape):
-            self.tape.append(new_tape_symbol)
-        else:
-            self.tape[actual_position] = new_tape_symbol
+        tape_elements = list(self.tape)
+        tape_elements[self.current_position] = new_tape_symbol
+        return TMTape(
+            tape_elements,
+            blank_symbol=self.blank_symbol,
+            current_position=self.current_position
+        )
 
     def move(self, direction):
         """Move the tape to the next symbol in the given direction."""
+        # Copy stuff.
+        new_tape = list(self.tape)
+        new_position = self.current_position
         if direction == 'R':
-            self.current_position += 1
+            new_position += 1
         elif direction == 'N':
             pass
         elif direction == 'L':  # pragma: no branch
-            self.current_position -= 1
+            new_position -= 1
+        # Make sure that the cursor doesn't run off the end of the tape.
+        if new_position == 0:
+            new_tape.insert(0, self.blank_symbol)
+            new_position += 1
+        if new_position == len(new_tape) - 1:
+            new_tape.append(self.blank_symbol)
+        return TMTape(
+            new_tape,
+            blank_symbol=self.blank_symbol,
+            current_position=new_position
+        )
 
     def copy(self):
-        """Return a deep copy of the tape."""
-        return self.__class__(**self.__dict__)
+        """Returns this tape."""
+        return self
 
     def __len__(self):
         """Return the number of symbols on the tape."""
-        return len(self.tape)
+        return len(self.tape)  # TODO: do we count the blank symbols?
 
     def __iter__(self):
         """Return an interator for the tape."""
@@ -55,8 +80,5 @@ class TMTape(object):
 
     def __repr__(self):
         """Return a string representation of the tape."""
+        # TODO: represent the cursor position somehow
         return '{}(\'{}\')'.format(self.__class__.__name__, ''.join(self.tape))
-
-    def __eq__(self, other):
-        """Check if two tapes are equal."""
-        return self.__dict__ == other.__dict__
