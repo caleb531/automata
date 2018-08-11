@@ -33,6 +33,7 @@ pip install automata-lib
     - [class NFA](#class-nfafa)
   - [class PDA](#class-pdaautomatonmetaclassabcmeta)
     - [class DPDA](#class-dpdapda)
+    - [class NPDA](#class-npdapda)
   - [class TM](#class-tmautomatonmetaclassabcmeta)
     - [class DTM](#class-dtmtm)
 - [Exception classes](#base-exception-classes)
@@ -235,7 +236,7 @@ nfa = NFA(
 )
 ```
 
-#### NFA.read_input(self, input_str, step=False)
+#### NFA.read_input(self, input_str)
 
 Returns a set of final states the FA stopped on, if the input is accepted.
 
@@ -349,13 +350,15 @@ dpda = DPDA(
 )
 ```
 
-#### DPDA.read_input(self, input_str, step=False)
+#### DPDA.read_input(self, input_str)
 
-Returns a tuple containing the final state the DPDA stopped on, as well as a
-`PDAStack` object representing the DPDA's stack (if the input is accepted).
+Returns a `PDAConfiguration` object representing the DPDA's config.
+This is basically a tuple containing the final state the DPDA stopped on,
+the remaining input (an empty string)
+as well as a `PDAStack` object representing the DPDA's stack (if the input is accepted).
 
 ```python
-dpda.read_input('ab')  # returns ('q3', PDAStack(['0']))
+dpda.read_input('ab')  # returns PDAConfiguration('q3', '', PDAStack(('0')))
 ```
 
 ```python
@@ -364,21 +367,17 @@ dpda.read_input('aab')  # raises RejectionException
 
 #### DPDA.read_input_stepwise(self, input_str)
 
-Yields tuples containing the current state and the current stack as a `PDAStack`
-object, if the input is accepted.
+Yields `PDAConfiguration` objects.
+These are basically tuples containing the current state,
+the remaining input and the current stack as a `PDAStack` object, if the input is accepted.
 
 ```python
-((state, stack.copy()) for state, stack in dpda.read_input_stepwise('ab'))
+dpda.read_input_stepwise('ab')
 # yields:
-# ('q0', PDAStack(['0']))
-# ('q1', PDAStack(['0', '1']))
-# ('q3', PDAStack(['0']))
+# PDAConfiguration('q0', 'ab', PDAStack(('0')))
+# PDAConfiguration('q1', 'a', PDAStack(('0', '1')))
+# PDAConfiguration('q3', '', PDAStack(('0')))
 ```
-
-Please note that each tuple contains a reference to (not a copy of) the current
-`PDAStack` object. Therefore, if you wish to store the stack at every step, you
-must copy the stack as you iterate over the automaton configurations (as shown
-above).
 
 #### DPDA.accepts_input(self, input_str)
 
@@ -399,6 +398,120 @@ dpda.validate()  # returns True
 
 ```python
 dpda.copy()  # returns deep copy of dpda
+```
+
+### class NPDA(PDA)
+
+The `NPDA` class is a subclass of `PDA` and represents a nondeterministic pushdown automaton. It can be found under `automata/pda/npda.py`.
+
+Every NPDA has the following (required) properties:
+
+1. `states`: a `set` of the NPDA's valid states, each of which must be represented as a string
+
+2. `input_symbols`: a `set` of the NPDA's valid input symbols, each of which must also be represented as a string
+
+3. `stack_symbols`: a `set` of the NPDA's valid stack symbols
+
+4. `transitions`: a `dict` consisting of the transitions for each state; see the example below for the exact syntax
+
+5. `initial_state`: the name of the initial state for this NPDA
+
+6. `initial_stack_symbol`: the name of the initial symbol on the stack for this NPDA
+
+7. `final_states`: a `set` of final states for this NPDA
+
+```python
+from automata.pda.npda import NPDA
+# NPDA which matches palindromes consisting of 'a's and 'b's
+# (accepting by final state)
+# q0 reads the first half of the word, q1 the other half, q2 accepts.
+# But we have to guess when to switch.
+npda = NPDA(
+    states={'q0', 'q1', 'q2'},
+    input_symbols={'a', 'b'},
+    stack_symbols={'A', 'B', '#'},
+    transitions={
+        'q0': {
+            '': {
+                '#': {('q2', '#')},
+            },
+            'a': {
+                '#': {('q0', ('A', '#'))},
+                'A': {
+                    ('q0', ('A', 'A')),
+                    ('q1', ''),
+                },
+                'B': {('q0', ('A', 'B'))},
+            },
+            'b': {
+                '#': {('q0', ('B', '#'))},
+                'A': {('q0', ('B', 'A'))},
+                'B': {
+                    ('q0', ('B', 'B')),
+                    ('q1', ''),
+                },
+            },
+        },
+        'q1': {
+            '': {'#': {('q2', '#')}},
+            'a': {'A': {('q1', '')}},
+            'b': {'B': {('q1', '')}},
+        },
+    },
+    initial_state='q0',
+    initial_stack_symbol='#',
+    final_states={'q2'}
+)
+```
+
+#### NPDA.read_input(self, input_str)
+
+Returns a `set` of `PDAConfiguration`s representing all of the NPDA's configurations.
+Each of these is basically a tuple containing the final state the NPDA stopped on,
+the remaining input (an empty string) as well as a `PDAStack` object representing the NPDA's stack (if the input is accepted).
+
+```python
+npda.read_input("aaaa") # returns {PDAConfiguration('q2', '', PDAStack('#',))}
+```
+
+```python
+npda.read_input('ab')  # raises RejectionException
+```
+
+#### NPDA.read_input_stepwise(self, input_str)
+
+Yields `set`s of `PDAConfiguration` object.
+Each of these is basically a tuple containing the current state,
+the remaining input and the current stack as a `PDAStack` object, if the input is accepted.
+
+```python
+npda.read_input_stepwise('aa')
+# yields:
+# {PDAConfiguration('q0', 'aa', PDAStack('#',))}
+# {PDAConfiguration('q0', 'a', PDAStack('#', 'A')), PDAConfiguration('q2', 'aa', PDAStack('#',))}
+# {PDAConfiguration('q0', '', PDAStack('#', 'A', 'A')), PDAConfiguration('q1', '', PDAStack('#',))}
+# {PDAConfiguration('q2', '', PDAStack('#',))}
+```
+
+#### NPDA.accepts_input(self, input_str)
+
+```python
+if npda.accepts_input(my_input_str):
+    print('accepted')
+else:
+    print('rejected')
+```
+
+#### NPDA.validate(self)
+
+```python
+npda.validate()  # returns True
+```
+
+#### NPDA.copy(self)
+
+```python
+npda.copy()  # returns deep copy of npda
 ```
 
 ### class TM(Automaton, metaclass=ABCMeta)
@@ -469,7 +582,7 @@ dtm = DTM(
 
 The direction `N` (for no movement) is also supported.
 
-#### DTM.read_input(self, input_str, step=False)
+#### DTM.read_input(self, input_str)
 
 Returns a tuple containing the final state the machine stopped on, as well as a
 `TMTape` object representing the DTM's internal tape (if the input is accepted).

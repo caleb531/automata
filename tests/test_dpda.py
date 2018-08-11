@@ -9,6 +9,7 @@ import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import tests.test_pda as test_pda
 from automata.pda.dpda import DPDA
+from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
 
@@ -48,6 +49,12 @@ class TestDPDA(test_pda.TestPDA):
             self.dpda.transitions['q2']['b']['0'] = ('q2', '0')
             self.dpda.validate()
 
+    def test_read_input_rejected_nondeterministic_transition(self):
+        """Should raise error if DPDA exhibits nondeterminism."""
+        with nose.assert_raises(pda_exceptions.NondeterminismError):
+            self.dpda.transitions['q2']['b']['0'] = ('q2', '0')
+            self.dpda.read_input("abb")
+
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
@@ -69,13 +76,17 @@ class TestDPDA(test_pda.TestPDA):
     def test_read_input_valid_accept_by_final_state(self):
         """Should return correct config if DPDA accepts by final state."""
         nose.assert_equal(
-            self.dpda.read_input('aabb'), ('q3', PDAStack(['0'])))
+            self.dpda.read_input('aabb'),
+            PDAConfiguration('q3', '', PDAStack(['0']))
+        )
 
     def test_read_input_valid_accept_by_empty_stack(self):
         """Should return correct config if DPDA accepts by empty stack."""
         self.dpda.transitions['q2']['']['0'] = ('q2', '')
         nose.assert_equal(
-            self.dpda.read_input('aabb'), ('q2', PDAStack([])))
+            self.dpda.read_input('aabb'),
+            PDAConfiguration('q2', '', PDAStack([]))
+        )
 
     def test_read_input_valid_consecutive_lambda_transitions(self):
         """Should follow consecutive lambda transitions when validating."""
@@ -86,7 +97,9 @@ class TestDPDA(test_pda.TestPDA):
             '': {'0': ('q4', ('0',))}
         }
         nose.assert_equal(
-            self.dpda.read_input('aabb'), ('q4', PDAStack(['0'])))
+            self.dpda.read_input('aabb'),
+            PDAConfiguration('q4', '', PDAStack(['0']))
+        )
 
     def test_read_input_rejected_accept_by_final_state(self):
         """Should reject strings if DPDA accepts by final state."""
@@ -112,18 +125,15 @@ class TestDPDA(test_pda.TestPDA):
         """Should return False if DPDA input is rejected."""
         nose.assert_equal(self.dpda.accepts_input('aab'), False)
 
-    def test_stack_copy(self):
-        """Should create an exact of the PDA stack."""
-        stack = PDAStack(['a', 'b'])
-        stack_copy = stack.copy()
-        nose.assert_is_not(stack, stack_copy)
-        nose.assert_equal(stack, stack_copy)
-
-    def test_stack_iter(self):
-        """Should loop through the PDA stack in some manner."""
-        nose.assert_equal(list(PDAStack(['a', 'b'])), ['a', 'b'])
-
-    def test_stack_repr(self):
-        """Should create proper string representation of PDA stack."""
-        stack = PDAStack(['a', 'b'])
-        nose.assert_equal(repr(stack), 'PDAStack([\'a\', \'b\'])')
+    def test_empty_dpda(self):
+        """Should accept an empty input if the DPDA is empty."""
+        dpda = DPDA(
+            states={'q0'},
+            input_symbols=set(),
+            stack_symbols={'0'},
+            transitions=dict(),
+            initial_state='q0',
+            initial_stack_symbol='0',
+            final_states={'q0'},
+        )
+        nose.assert_true(dpda.accepts_input(''))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classes and methods for working with deterministic pushdown automata."""
+"""Classes and methods for working with nondeterministic pushdown automata."""
 
 import copy
 
@@ -10,13 +10,13 @@ from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
 
-class DPDA(pda.PDA):
-    """A deterministic pushdown automaton."""
+class NPDA(pda.PDA):
+    """A nondeterministic pushdown automaton."""
 
     def __init__(self, *, states, input_symbols, stack_symbols,
                  transitions, initial_state,
                  initial_stack_symbol, final_states):
-        """Initialize a complete DPDA."""
+        """Initialize a complete NPDA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
         self.stack_symbols = stack_symbols.copy()
@@ -32,31 +32,8 @@ class DPDA(pda.PDA):
             self._validate_transition_invalid_input_symbols(
                 start_state, input_symbol)
             for stack_symbol in symbol_paths:
-                self._validate_transition_isolated_lambda_transitions(
-                    start_state, input_symbol, stack_symbol)
                 self._validate_transition_invalid_stack_symbols(
                     start_state, stack_symbol)
-
-    def _validate_transition_lambda_transition_sibling(self, start_state,
-                                                       sib_path):
-        """Check the given sibling path for adjacent lambda transitions."""
-        for other_stack_symbol in sib_path:
-            if (other_stack_symbol in
-                    self.transitions[start_state]['']):
-                raise pda_exceptions.NondeterminismError(
-                    'A symbol transition is adjacent to a '
-                    'lambda transition for this DPDA.')
-
-    def _validate_transition_isolated_lambda_transitions(self, start_state,
-                                                         input_symbol,
-                                                         stack_symbol):
-        """Raise an error if a lambda transition has no sibling transitions."""
-        if input_symbol == '':
-            sib_transitions = self.transitions[start_state]
-            for sib_input_symbol, sib_path in sib_transitions.items():
-                if sib_input_symbol != '':
-                    self._validate_transition_lambda_transition_sibling(
-                        start_state, sib_path)
 
     def _validate_transition_invalid_input_symbols(self, start_state,
                                                    input_symbol):
@@ -82,7 +59,7 @@ class DPDA(pda.PDA):
                     self.initial_stack_symbol))
 
     def validate(self):
-        """Return True if this DPDA is internally consistent."""
+        """Return True if this NPDA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
         self._validate_initial_state()
@@ -96,14 +73,22 @@ class DPDA(pda.PDA):
                 '' in self.transitions[state] and
                 stack_symbol in self.transitions[state][''])
 
-    def _get_transition(self, state, input_symbol, stack_symbol):
-        """Get the transiton tuple for the given state and symbols."""
+    def _get_transitions(self, state, input_symbol, stack_symbol):
+        """Get the transition tuples for the given state and symbols."""
+        transitions = set()
         if (state in self.transitions and
                 input_symbol in self.transitions[state] and
                 stack_symbol in self.transitions[state][input_symbol]):
-            return (
-                input_symbol,
-            ) + self.transitions[state][input_symbol][stack_symbol]
+            for (
+                dest_state,
+                new_stack_top
+            ) in self.transitions[state][input_symbol][stack_symbol]:
+                transitions.add((
+                    input_symbol,
+                    dest_state,
+                    new_stack_top
+                ))
+        return transitions
 
     def _replace_stack_top(self, stack, new_stack_top):
         if new_stack_top == '':
@@ -126,83 +111,68 @@ class DPDA(pda.PDA):
         # Otherwise, not.
         return False
 
-    def _check_for_input_rejection(self, current_configuration):
-        """Raise an error if the given config indicates rejected input."""
-        if not self._has_accepted(current_configuration):
-            raise exceptions.RejectionException(
-                'the DPDA stopped in a non-accepting configuration '
-                '({state}, {stack})'
-                .format(**current_configuration._asdict())
-            )
-
-    def _get_next_configuration(self, old_config):
-        """Advance to the next configuration."""
+    def _get_next_configurations(self, old_config):
+        """Advance to the next configurations."""
         transitions = set()
         if old_config.remaining_input:
-            transitions.add(self._get_transition(
+            transitions.update(self._get_transitions(
                 old_config.state,
                 old_config.remaining_input[0],
                 old_config.stack.top()
             ))
-        transitions.add(self._get_transition(
+        transitions.update(self._get_transitions(
             old_config.state,
             '',
             old_config.stack.top()
         ))
-        if None in transitions:
-            transitions.remove(None)
-        if len(transitions) == 0:
-            raise exceptions.RejectionException(
-                'The automaton entered a configuration for which no '
-                'transition is defined ({}, {}, {})'.format(
-                    old_config.state,
-                    old_config.remaining_input[0],
-                    old_config.stack.top()
-                )
+        new_configs = set()
+        for input_symbol, new_state, new_stack_top in transitions:
+            remaining_input = old_config.remaining_input
+            if input_symbol:
+                remaining_input = remaining_input[1:]
+            new_config = PDAConfiguration(
+                new_state,
+                remaining_input,
+                self._replace_stack_top(old_config.stack, new_stack_top)
             )
-        if len(transitions) > 1:
-            raise pda_exceptions.NondeterminismError(
-                'The automaton entered a configuration for which more'
-                'than one transition is defined ({}, {}'.format(
-                    old_config.state,
-                    old_config.stack.top()
-                )
-            )
-        input_symbol, new_state, new_stack_top = transitions.pop()
-        remaining_input = old_config.remaining_input
-        if input_symbol:
-            remaining_input = remaining_input[1:]
-        new_config = PDAConfiguration(
-            new_state,
-            remaining_input,
-            self._replace_stack_top(old_config.stack, new_stack_top)
-        )
-        return new_config
+            new_configs.add(new_config)
+        return new_configs
 
     def read_input_stepwise(self, input_str):
         """
-        Check if the given string is accepted by this DPDA.
+        Check if the given string is accepted by this NPDA.
 
-        Yield the DPDA's current configuration at each step.
+        Yield the NPDA's current configurations at each step.
         """
-        current_configuration = PDAConfiguration(
+        current_configurations = set()
+        current_configurations.add(PDAConfiguration(
             self.initial_state,
             input_str,
             PDAStack([self.initial_stack_symbol])
-        )
+        ))
 
-        yield current_configuration
-        while (
-            current_configuration.remaining_input
-            or self._has_lambda_transition(
-                current_configuration.state,
-                current_configuration.stack.top()
-            )
-        ):
-            current_configuration = self._get_next_configuration(
-                current_configuration
-            )
-            yield current_configuration
-            if self._has_accepted(current_configuration):
-                return
-        self._check_for_input_rejection(current_configuration)
+        yield current_configurations
+
+        while current_configurations:
+            new_configurations = set()
+            for config in current_configurations:
+                if self._has_accepted(config):
+                    # One accepting configuration is enough.
+                    return
+                if config.remaining_input:
+                    new_configurations.update(
+                        self._get_next_configurations(config)
+                    )
+                elif self._has_lambda_transition(
+                    config.state,
+                    config.stack.top()
+                ):
+                    new_configurations.update(
+                        self._get_next_configurations(config)
+                    )
+            current_configurations = new_configurations
+            yield current_configurations
+
+        raise exceptions.RejectionException(
+            'the NPDA did not reach an accepting configuration'
+        )
