@@ -259,3 +259,19 @@ class TestDFA(test_fa.TestFA):
         })
         nose.assert_equal(dfa.initial_state, '{q0}')
         nose.assert_equal(dfa.final_states, {'{q1,q2}'})
+
+    def nfa_to_dfa_with_lambda_transitions(self):
+        """ Test NFA->DFA when initial state has lambda transitions """
+        nfa = NFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            transitions={
+                'q0': {'': {'q2'}},
+                'q1': {'a': {'q1'}},
+                'q2': {'a': {'q1'}}
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
+        nose.assert_equal(dfa.read_input('a'), {"q1"})
