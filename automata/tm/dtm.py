@@ -88,10 +88,7 @@ class DTM(tm.TM):
                 tape_symbol in self.transitions[state]):
             return self.transitions[state][tape_symbol]
         else:
-            raise exceptions.RejectionException(
-                'The machine entered a non-final configuration for which no '
-                'transition is defined ({}, {})'.format(
-                    state, tape_symbol))
+            return None
 
     def _has_accepted(self, configuration):
         """Check whether the given config indicates accepted input."""
@@ -99,12 +96,20 @@ class DTM(tm.TM):
 
     def _get_next_configuration(self, old_config):
         """Advance to the next configuration."""
+        transitions = {self._get_transition(
+            old_config.state,
+            old_config.tape.read_symbol()
+        )}
+        if None in transitions:
+            transitions.remove(None)
+        if len(transitions) == 0:
+            raise exceptions.RejectionException(
+                'The machine entered a non-final configuration for which no '
+                'transition is defined ({}, {})'.format(
+                    old_config.state, old_config.tape.read_symbol()))
         tape = old_config.tape
-        input_symbol = tape.read_symbol()
         (new_state, new_tape_symbol,
-            direction) = self._get_transition(
-                old_config.state, input_symbol
-        )
+            direction) = transitions.pop()
         tape = tape.write_symbol(new_tape_symbol)
         tape = tape.move(direction)
         return TMConfiguration(new_state, tape)
