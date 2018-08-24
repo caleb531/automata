@@ -16,10 +16,9 @@ from automata.tm.tape import TMTape
 class TestTMTools(test_tm.TestTM):
     """A test class for testing Turing machine utility functions."""
 
-    def test_print_config(self):
-        """Should print the given configuration to stdout."""
-        out = io.StringIO()
-        config = TMConfiguration(
+    def setup(self):
+        """Provide a configuration for testing."""
+        self.config = TMConfiguration(
             'q2',
             TMTape(
                 tape='abcdefghij',
@@ -27,8 +26,19 @@ class TestTMTools(test_tm.TestTM):
                 current_position=2,
             )
         )
+
+    def test_repr_config(self):
+        """Should return a string representation ot the given configuration."""
+        nose.assert_equal(
+            repr(self.config),
+            'TMConfiguration(\'q2\', TMTape(\'abcdefghij\', 2))'
+        )
+
+    def test_print_config(self):
+        """Should print the given configuration to stdout."""
+        out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            config.print()
+            self.config.print()
         nose.assert_equal(out.getvalue().rstrip(), '{}: {}\n{}'.format(
             'q2', 'abcdefghij', '^'.rjust(7)))
 

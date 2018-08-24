@@ -12,7 +12,7 @@ class TMConfiguration(collections.namedtuple(
 
     def __repr__(self):
         """Return a string representation of the configuration."""
-        return '{}(\'{}\', \'{}\')'.format(
+        return '{}(\'{}\', {})'.format(
             self.__class__.__name__, self.state, self.tape
         )
 
