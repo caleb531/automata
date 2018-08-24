@@ -130,9 +130,7 @@ class TestDTM(test_tm.TestTM):
         """Should return validation generator if step flag is supplied."""
         validation_generator = self.dtm1.read_input_stepwise('00001111')
         nose.assert_is_instance(validation_generator, types.GeneratorType)
-        configs = []
-        for current_state, tape in validation_generator:
-            configs.append((current_state, tape.copy()))
+        configs = list(validation_generator)
         nose.assert_equal(configs[0][0], 'q0')
         nose.assert_equal(str(configs[0][1]), 'TMTape(\'00001111\')')
         nose.assert_equal(configs[-1][0], 'q4')

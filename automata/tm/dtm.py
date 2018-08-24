@@ -7,6 +7,7 @@ import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import automata.tm.tm as tm
 from automata.tm.tape import TMTape
+from automata.tm.configuration import TMConfiguration
 
 
 class DTM(tm.TM):
@@ -92,26 +93,38 @@ class DTM(tm.TM):
                 'transition is defined ({}, {})'.format(
                     state, tape_symbol))
 
+    def _has_accepted(self, configuration):
+        """Check whether the given config indicates accepted input."""
+        return configuration.state in self.final_states
+
+    def _get_next_configuration(self, old_config):
+        """Advance to the next configuration."""
+        tape = old_config.tape
+        input_symbol = tape.read_symbol()
+        (new_state, new_tape_symbol,
+            direction) = self._get_transition(
+                old_config.state, input_symbol
+        )
+        tape = tape.write_symbol(new_tape_symbol)
+        tape = tape.move(direction)
+        return TMConfiguration(new_state, tape)
+
     def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this Turing machine.
 
         Yield the current configuration of the machine at each step.
         """
-        current_state = self.initial_state
-        current_direction = None
-        tape = TMTape(input_str, blank_symbol=self.blank_symbol)
-        yield current_state, tape
+        current_configuration = TMConfiguration(
+            self.initial_state,
+            TMTape(input_str, blank_symbol=self.blank_symbol)
+        )
+        yield current_configuration
 
         # The initial state cannot be a final state for a DTM, so the first
         # iteration is always guaranteed to run (as it should)
-        while current_state not in self.final_states:
-
-            input_symbol = tape.read_symbol()
-            (current_state, new_tape_symbol,
-                current_direction) = self._get_transition(
-                    current_state, input_symbol)
-            tape = tape.write_symbol(new_tape_symbol)
-            tape = tape.move(current_direction)
-
-            yield current_state, tape
+        while not self._has_accepted(current_configuration):
+            current_configuration = self._get_next_configuration(
+                current_configuration
+            )
+            yield current_configuration
