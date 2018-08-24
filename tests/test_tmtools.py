@@ -34,6 +34,11 @@ class TestTMTools(test_tm.TestTM):
             'TMConfiguration(\'q2\', TMTape(\'abcdefghij\', 2))'
         )
 
+    def test_copy_tape(self):
+        """Should copy the tape (this has no effect)."""
+        new_tape = self.config.tape.copy()
+        nose.assert_is(new_tape, self.config.tape)
+
     def test_print_config(self):
         """Should print the given configuration to stdout."""
         out = io.StringIO()

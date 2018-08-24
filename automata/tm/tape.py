@@ -59,7 +59,11 @@ class TMTape(collections.namedtuple(
         )
 
     def copy(self):
-        """Returns this tape."""
+        """
+        Return a deep copy of the tape.
+
+        As this class is immutable, this has no effect.
+        """
         return self
 
     def __len__(self):
