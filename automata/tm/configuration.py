@@ -15,3 +15,15 @@ class TMConfiguration(collections.namedtuple(
         return '{}(\'{}\', \'{}\')'.format(
             self.__class__.__name__, self.state, self.tape
         )
+
+    def print(self):
+        """Print the machine's current configuration in a readable form."""
+        print('{current_state}: {tape}\n{current_position}'.format(
+            current_state=self.state,
+            tape=''.join(self.tape).rjust(
+                len(self.tape),
+                self.tape.blank_symbol),
+            current_position='^'.rjust(
+                self.tape.current_position + len(self.state) + 3
+            ),
+        ))
