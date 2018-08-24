@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classes and methods for working with deterministic Turing machines."""
+"""Classes and methods for working with nondeterministic Turing machines."""
 
 import copy
 
@@ -10,8 +10,8 @@ from automata.tm.tape import TMTape
 from automata.tm.configuration import TMConfiguration
 
 
-class DTM(tm.TM):
-    """A deterministic Turing machine."""
+class NTM(tm.TM):
+    """A nondeterministic Turing machine."""
 
     def __init__(self, *, states, input_symbols, tape_symbols,
                  transitions, initial_state, blank_symbol,
@@ -55,8 +55,9 @@ class DTM(tm.TM):
         self._validate_transition_result_direction(result_direction)
 
     def _validate_transition_results(self, paths):
-        for result in paths.values():
-            self._validate_transition_result(result)
+        for results in paths.values():
+            for result in results:
+                self._validate_transition_result(result)
 
     def _validate_transitions(self):
         for state, paths in self.transitions.items():
@@ -72,7 +73,7 @@ class DTM(tm.TM):
                         final_state))
 
     def validate(self):
-        """Return True if this DTM is internally consistent."""
+        """Return True if this NTM is internally consistent."""
         self._read_input_symbol_subset()
         self._validate_transitions()
         self._validate_initial_state()
@@ -82,54 +83,58 @@ class DTM(tm.TM):
         self._validate_final_state_transitions()
         return True
 
-    def _get_transition(self, state, tape_symbol):
-        """Get the transiton tuple for the given state and tape symbol."""
+    def _get_transitions(self, state, tape_symbol):
+        """Get the transition tuples for the given state and tape symbol."""
         if (state in self.transitions and
                 tape_symbol in self.transitions[state]):
             return self.transitions[state][tape_symbol]
         else:
-            return None
+            return set()
 
     def _has_accepted(self, configuration):
         """Check whether the given config indicates accepted input."""
         return configuration.state in self.final_states
 
-    def _get_next_configuration(self, old_config):
-        """Advance to the next configuration."""
-        transitions = {self._get_transition(
+    def _get_next_configurations(self, old_config):
+        """Advance to the next configurations."""
+        transitions = self._get_transitions(
             old_config.state,
             old_config.tape.read_symbol()
-        )}
-        if None in transitions:
-            transitions.remove(None)
-        if len(transitions) == 0:
-            raise exceptions.RejectionException(
-                'The machine entered a non-final configuration for which no '
-                'transition is defined ({}, {})'.format(
-                    old_config.state, old_config.tape.read_symbol()))
-        tape = old_config.tape
-        (new_state, new_tape_symbol,
-            direction) = transitions.pop()
-        tape = tape.write_symbol(new_tape_symbol)
-        tape = tape.move(direction)
-        return TMConfiguration(new_state, tape)
+        )
+        new_configs = set()
+        for new_state, new_tape_symbol, direction in transitions:
+            tape = old_config.tape
+            tape = tape.write_symbol(new_tape_symbol)
+            tape = tape.move(direction)
+            new_configs.add(TMConfiguration(new_state, tape))
+        return new_configs
 
     def read_input_stepwise(self, input_str):
         """
         Check if the given string is accepted by this Turing machine.
 
-        Yield the current configuration of the machine at each step.
+        Yield the current configurations of the machine at each step.
         """
-        current_configuration = TMConfiguration(
+        current_configurations = {TMConfiguration(
             self.initial_state,
             TMTape(input_str, blank_symbol=self.blank_symbol)
-        )
-        yield current_configuration
+        )}
+        yield current_configurations
 
-        # The initial state cannot be a final state for a DTM, so the first
+        # The initial state cannot be a final state for a NTM, so the first
         # iteration is always guaranteed to run (as it should)
-        while not self._has_accepted(current_configuration):
-            current_configuration = self._get_next_configuration(
-                current_configuration
-            )
-            yield current_configuration
+        while current_configurations:
+            new_configurations = set()
+            for config in current_configurations:
+                if self._has_accepted(config):
+                    # One accepting configuration is enough.
+                    return
+                new_configurations.update(
+                    self._get_next_configurations(config)
+                )
+            current_configurations = new_configurations
+            yield current_configurations
+
+        raise exceptions.RejectionException(
+            'the NTM did not reach an accepting configuration'
+        )
