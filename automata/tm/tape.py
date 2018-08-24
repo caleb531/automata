@@ -13,21 +13,13 @@ class TMTape(collections.namedtuple(
     def __new__(cls, tape, *, blank_symbol, current_position=0):
         """Initialize a new Turing machine tape."""
         tape = list(tape)
-        # Make sure that there's something on the tape.
-        if not tape:
-            tape.append(blank_symbol)
-        # Make sure that the tape begins and ends with the blank symbol.
-        if not tape[0] == blank_symbol:
-            tape.insert(0, blank_symbol)
-            current_position += 1
-        if not tape[-1] == blank_symbol:
+        # Make sure that there's something under the cursor.
+        while len(tape) <= current_position:
             tape.append(blank_symbol)
         tape = tuple(tape)
         return super(TMTape, cls).__new__(
             cls, tape, blank_symbol, current_position
         )
-
-    # TODO: Compaction? Remove unneeded blank symbols.
 
     def read_symbol(self):
         """Read the symbol at the current position in the tape."""
@@ -55,10 +47,10 @@ class TMTape(collections.namedtuple(
         elif direction == 'L':  # pragma: no branch
             new_position -= 1
         # Make sure that the cursor doesn't run off the end of the tape.
-        if new_position == 0:
+        if new_position == -1:
             new_tape.insert(0, self.blank_symbol)
             new_position += 1
-        if new_position == len(new_tape) - 1:
+        if new_position == len(new_tape):
             new_tape.append(self.blank_symbol)
         return TMTape(
             new_tape,

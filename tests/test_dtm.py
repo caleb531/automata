@@ -124,7 +124,7 @@ class TestDTM(test_tm.TestTM):
         """Should return correct state if acceptable TM input is given."""
         final_config = self.dtm1.read_input('00001111')
         nose.assert_equal(final_config[0], 'q4')
-        nose.assert_equal(str(final_config[1]), 'TMTape(\'xxxxyyyy.\')')
+        nose.assert_equal(str(final_config[1]), 'TMTape(\'xxxxyyyy..\')')
 
     def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""
@@ -134,7 +134,7 @@ class TestDTM(test_tm.TestTM):
         nose.assert_equal(configs[0][0], 'q0')
         nose.assert_equal(str(configs[0][1]), 'TMTape(\'00001111\')')
         nose.assert_equal(configs[-1][0], 'q4')
-        nose.assert_equal(str(configs[-1][1]), 'TMTape(\'xxxxyyyy.\')')
+        nose.assert_equal(str(configs[-1][1]), 'TMTape(\'xxxxyyyy..\')')
 
     def test_read_input_offset(self):
         """Should valdiate input when tape is offset."""
