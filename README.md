@@ -584,11 +584,19 @@ The direction `N` (for no movement) is also supported.
 
 #### DTM.read_input(self, input_str)
 
-Returns a tuple containing the final state the machine stopped on, as well as a
+Returns a `TMConfiguration`. This is basically a tuple containing the final state the machine stopped on, as well as a
 `TMTape` object representing the DTM's internal tape (if the input is accepted).
 
 ```python
-dtm.read_input('01')  # returns ('q4', TMTape('xy.'))
+dtm.read_input('01')  # returns TMConfiguration('q4', TMTape('xy..', 3))
+```
+
+Calling `config.print()` will produce a more readable output:
+
+```python
+dtm.read_input('01').print()
+# q4: xy..
+#        ^
 ```
 
 ```python
@@ -597,24 +605,18 @@ dtm.read_input('011')  # raises RejectionException
 
 #### DTM.read_input_stepwise(self, input_str)
 
-Yields a tuple containing the current state and the current tape as a `TMTape`
-object.
+Yields `TMConfiguration`s. Those are basically tuples containing the current state and the current tape as a `TMTape` object.
 
 ```python
-(state, tape.copy()) for state, tape in dtm.read_input_stepwise('01')
+dtm.read_input_stepwise('01')
 # yields:
-# ('q0', TMTape('01'))
-# ('q1', TMTape('x1'))
-# ('q2', TMTape('xy'))
-# ('q0', TMTape('xy'))
-# ('q3', TMTape('xy'))
-# ('q3', TMTape('xy.'))
+# TMConfiguration('q0', TMTape('01', 0))
+# TMConfiguration('q1', TMTape('x1', 1))
+# TMConfiguration('q2', TMTape('xy', 0))
+# TMConfiguration('q0', TMTape('xy', 1))
+# TMConfiguration('q3', TMTape('xy.', 2))
+# TMConfiguration('q4', TMTape('xy..', 3))
 ```
-
-Please note that each tuple contains a reference to (not a copy of) the current
-`TMTape` object. Therefore, if you wish to store the tape at every step, you
-must copy the tape as you iterate over the machine configurations (as shown
-above).
 
 #### DTM.accepts_input(self, input_str)
 
