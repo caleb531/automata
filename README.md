@@ -36,6 +36,7 @@ pip install automata-lib
     - [class NPDA](#class-npdapda)
   - [class TM](#class-tmautomatonmetaclassabcmeta)
     - [class DTM](#class-dtmtm)
+    - [class NTM](#class-ntmtm)
 - [Exception classes](#base-exception-classes)
     - [Turing machine exceptions](#turing-machine-exception-classes)
 
