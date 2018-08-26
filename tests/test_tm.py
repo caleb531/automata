@@ -4,6 +4,7 @@
 import nose.tools as nose
 
 from automata.tm.dtm import DTM
+from automata.tm.ntm import NTM
 
 
 class TestTM(object):
@@ -65,6 +66,30 @@ class TestTM(object):
             initial_state='q0',
             blank_symbol='.',
             final_states={'q4'}
+        )
+        # NTM which accepts the following:
+        # "2".join(["<one or more zeroes>" + "1"]*<one or more>)
+        # + "<any amount of ones>"
+        self.ntm1 = NTM(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1', '2'},
+            tape_symbols={'0', '1', '2', '.'},
+            transitions={
+                'q0': {
+                    '0': {('q0', '0', 'R')},
+                    '1': {('q1', '1', 'R'), ('q2', '1', 'R')},
+                },
+                'q1': {
+                    '1': {('q1', '1', 'R')},
+                    '.': {('q3', '.', 'N')},
+                },
+                'q2': {
+                    '2': {('q0', '2', 'R')},
+                },
+            },
+            initial_state='q0',
+            blank_symbol='.',
+            final_states={'q3'}
         )
 
     def assert_is_copy(self, first, second):

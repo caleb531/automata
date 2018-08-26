@@ -9,54 +9,72 @@ import nose.tools as nose
 
 import automata.tm.tools as tmtools
 import tests.test_tm as test_tm
+from automata.tm.configuration import TMConfiguration
 from automata.tm.tape import TMTape
 
 
 class TestTMTools(test_tm.TestTM):
     """A test class for testing Turing machine utility functions."""
 
+    def setup(self):
+        """Provide a configuration for testing."""
+        self.config = TMConfiguration(
+            'q2',
+            TMTape(
+                tape='abcdefghij',
+                blank_symbol='.',
+                current_position=2,
+            )
+        )
+
+    def test_repr_config(self):
+        """Should return a string representation ot the given configuration."""
+        nose.assert_equal(
+            repr(self.config),
+            'TMConfiguration(\'q2\', TMTape(\'abcdefghij\', 2))'
+        )
+
+    def test_copy_tape(self):
+        """Should copy the tape (this has no effect)."""
+        new_tape = self.config.tape.copy()
+        nose.assert_is(new_tape, self.config.tape)
+
     def test_print_config(self):
         """Should print the given configuration to stdout."""
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            tmtools.print_config(
-                current_state='q2', tape=TMTape(
-                    tape='abcdefghij', blank_symbol='.',
-                    current_position=2, position_offset=1),
-                max_position_offset=3)
+            self.config.print()
         nose.assert_equal(out.getvalue().rstrip(), '{}: {}\n{}'.format(
-            'q2', '..abcdefghij', '^'.rjust(10)))
+            'q2', 'abcdefghij', '^'.rjust(7)))
 
-    @patch('automata.tm.tools.print_config')
+    @patch('automata.tm.configuration.TMConfiguration.print')
     def test_print_configs(self, print_config):
         """Should print each machine configuration to stdout."""
         tape1 = TMTape(
             tape='01010101',
             blank_symbol='.',
             current_position=0,
-            position_offset=0
         )
         tape2 = TMTape(
             tape='x1010101',
             blank_symbol='.',
             current_position=-1,
-            position_offset=0
         )
         tape3 = TMTape(
             tape='yx1010101',
             blank_symbol='.',
             current_position=-2,
-            position_offset=1
         )
-        tmtools.print_configs([
-            ('q0', tape1),
-            ('q1', tape2),
-            ('q2', tape3)
-        ])
+        configs = [
+            TMConfiguration(tape1, 'q0'),
+            TMConfiguration(tape2, 'q1'),
+            TMConfiguration(tape3, 'q2')
+        ]
+        tmtools.print_configs(configs)
         nose.assert_equal(print_config.call_args_list, [
-            call('q0', tape1, 1),
-            call('q1', tape2, 1),
-            call('q2', tape3, 1)
+            call(),
+            call(),
+            call()
         ])
 
     def test_tape_iteration(self):
@@ -65,6 +83,5 @@ class TestTMTools(test_tm.TestTM):
             tape='abcdef',
             blank_symbol='.',
             current_position=2,
-            position_offset=1
         )
         nose.assert_equal(tuple(tape), ('a', 'b', 'c', 'd', 'e', 'f'))
