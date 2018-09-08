@@ -44,14 +44,6 @@ class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
         stack_contents.extend(reversed(symbols))
         return self.__class__(stack_contents)
 
-    def copy(self):
-        """
-        Return a deep copy of the stack.
-
-        As this class is immutable, this has no effect.
-        """
-        return self
-
     def __len__(self):
         """Return the number of symbols on the stack."""
         return len(self.stack)

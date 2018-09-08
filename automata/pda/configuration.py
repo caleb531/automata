@@ -15,14 +15,6 @@ class PDAConfiguration(collections.namedtuple(
     It is hashable and immutable.
     """
 
-    def copy(self):
-        """
-        Return a deep copy of the PDA configuration.
-
-        As this class is immutable, this has no effect.
-        """
-        return self
-
     def __repr__(self):
         """Return a string representation of the configuration."""
         return '{}(\'{}\', \'{}\', {})'.format(
