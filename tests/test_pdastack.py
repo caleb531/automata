@@ -12,13 +12,6 @@ from automata.pda.stack import PDAStack
 class TestPDAStack(test_pda.TestPDA):
     """A test class for testing stacks of pushdown automata."""
 
-    def test_stack_copy(self):
-        """Should create an exact of the PDA stack."""
-        stack = PDAStack(['a', 'b'])
-        stack_copy = stack.copy()
-        nose.assert_is(stack, stack_copy)
-        nose.assert_equal(stack, stack_copy)
-
     def test_create_with_multiple_parameters(self):
         """Should create a new PDA stack with elements passed as parameters."""
         stack = PDAStack('a', 'b')

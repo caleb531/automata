@@ -58,14 +58,6 @@ class TMTape(collections.namedtuple(
             current_position=new_position
         )
 
-    def copy(self):
-        """
-        Return a deep copy of the tape.
-
-        As this class is immutable, this has no effect.
-        """
-        return self
-
     def __len__(self):
         """Return the number of symbols on the tape."""
         return len(self.tape)  # TODO: do we count the blank symbols?
