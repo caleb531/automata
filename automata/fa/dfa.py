@@ -227,9 +227,7 @@ class DFA(fa.FA):
     @staticmethod
     def _stringify_states(states):
         """Stringify the given set of states as a single state name."""
-        if isinstance(states, (set, frozenset)):
-            states = sorted(states)
-        return '{{{}}}'.format(','.join(states))
+        return '{{{}}}'.format(','.join(sorted(states)))
 
     @classmethod
     def _add_nfa_states_from_queue(cls, nfa, current_states,
