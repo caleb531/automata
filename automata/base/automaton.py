@@ -66,8 +66,8 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def copy(self):
         """Create a deep copy of the automaton."""
-        return self.__class__(**self.__dict__)
+        return self.__class__(**vars(self))
 
     def __eq__(self, other):
         """Check if two automata are equal."""
-        return self.__dict__ == other.__dict__
+        return vars(self) == vars(other)
