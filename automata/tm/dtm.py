@@ -6,8 +6,8 @@ import copy
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import automata.tm.tm as tm
-from automata.tm.tape import TMTape
 from automata.tm.configuration import TMConfiguration
+from automata.tm.tape import TMTape
 
 
 class DTM(tm.TM):

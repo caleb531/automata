@@ -8,8 +8,8 @@ import nose.tools as nose
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import tests.test_pda as test_pda
-from automata.pda.dpda import DPDA
 from automata.pda.configuration import PDAConfiguration
+from automata.pda.dpda import DPDA
 from automata.pda.stack import PDAStack
 
 
