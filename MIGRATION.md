@@ -3,6 +3,25 @@
 *Copyright 2018 Caleb Evans*  
 *Released under the MIT license*
 
+## Backwards-incompatible changes from v2 to v3
+
+There have been a number of backwards-incompatible changes from Automata v2 to
+v3 to support the new features, including:
+
+## Some types made immutable
+
+The `PDAStack` type is now immutable and hashable; it still represents the
+current stack of a PDA.
+
+Likewise, the `TMTape` is now immutable and hashable; it still represents the
+tape of a TM and the current cursor position.
+
+## copy() methods removed for (now) immutable types
+
+The `copy` methods on `TMTape` and `PDAStack` have been removed, since they are
+now immutable types. This change is similar to how `list` has a `copy()` method
+but `tuple` does not.
+
 ## Backwards-incompatible changes from v1 to v2
 
 There have been a number of backwards-incompatible changes from Automata v1 to
