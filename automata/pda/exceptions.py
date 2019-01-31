@@ -14,3 +14,7 @@ class NondeterminismError(PDAException):
     """A DPDA is exhibiting nondeterminism."""
 
     pass
+
+class InvalidAcceptanceMode(PDAException):
+    """The given acceptance mode is invalid."""
+    pass

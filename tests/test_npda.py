@@ -71,6 +71,7 @@ class TestNPDA(test_pda.TestPDA):
         """Should return correct config if NPDA accepts by empty stack."""
         self.npda.transitions['q2'] = {'': {'#': {('q2', '')}}}
         self.npda.final_states = set()
+        self.npda.acceptance_mode = 'empty_stack'
         nose.assert_equal(
             self.npda.read_input('abaaba'),
             {PDAConfiguration('q2', '', PDAStack([]))}

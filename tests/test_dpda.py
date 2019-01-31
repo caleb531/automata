@@ -83,6 +83,7 @@ class TestDPDA(test_pda.TestPDA):
     def test_read_input_valid_accept_by_empty_stack(self):
         """Should return correct config if DPDA accepts by empty stack."""
         self.dpda.transitions['q2']['']['0'] = ('q2', '')
+        self.dpda.acceptance_mode = 'empty_stack'
         nose.assert_equal(
             self.dpda.read_input('aabb'),
             PDAConfiguration('q2', '', PDAStack([]))
@@ -135,5 +136,6 @@ class TestDPDA(test_pda.TestPDA):
             initial_state='q0',
             initial_stack_symbol='0',
             final_states={'q0'},
+            acceptance_mode='both'
         )
         nose.assert_true(dpda.accepts_input(''))

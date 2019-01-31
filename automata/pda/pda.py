@@ -5,6 +5,7 @@ import abc
 
 from automata.base.automaton import Automaton
 import automata.base.exceptions as exceptions
+import automata.pda.exceptions as pda_exceptions
 
 
 class PDA(Automaton, metaclass=abc.ABCMeta):
@@ -33,6 +34,13 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 'initial stack symbol {} is invalid'.format(
                     self.initial_stack_symbol))
 
+    def _validate_acceptance(self):
+        """Raise an error if the acceptance mode is invalid."""
+        if self.acceptance_mode not in ('final_state', 'empty_stack', 'both'):
+            raise pda_exceptions.InvalidAcceptanceMode(
+                'acceptance mode {} is invalid'.format(
+                    self.acceptance_mode))
+
     def validate(self):
         """Return True if this PDA is internally consistent."""
         for start_state, paths in self.transitions.items():
@@ -40,6 +48,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         self._validate_initial_state()
         self._validate_initial_stack_symbol()
         self._validate_final_states()
+        self._validate_acceptance()
         return True
 
     def _has_lambda_transition(self, state, stack_symbol):
@@ -60,11 +69,13 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         # If there's input left, we're not finished.
         if current_configuration.remaining_input:
             return False
-        # If the stack is empty, we accept.
-        if not current_configuration.stack:
-            return True
-        # If current state is a final state, we accept.
-        if current_configuration.state in self.final_states:
-            return True
+        if self.acceptance_mode in ('empty_stack', 'both'):
+            # If the stack is empty, we accept.
+            if not current_configuration.stack:
+                return True
+        if self.acceptance_mode in ('final_state', 'both'):
+            # If current state is a final state, we accept.
+            if current_configuration.state in self.final_states:
+                return True
         # Otherwise, not.
         return False

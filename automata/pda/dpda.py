@@ -15,7 +15,7 @@ class DPDA(pda.PDA):
 
     def __init__(self, *, states, input_symbols, stack_symbols,
                  transitions, initial_state,
-                 initial_stack_symbol, final_states):
+                 initial_stack_symbol, final_states, acceptance_mode):
         """Initialize a complete DPDA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -24,6 +24,7 @@ class DPDA(pda.PDA):
         self.initial_state = initial_state
         self.initial_stack_symbol = initial_stack_symbol
         self.final_states = final_states.copy()
+        self.acceptance_mode = acceptance_mode
         self.validate()
 
     def _validate_transition_invalid_symbols(self, start_state, paths):

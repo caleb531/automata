@@ -22,6 +22,12 @@ The `copy` methods on `TMTape` and `PDAStack` have been removed, since they are
 now immutable types. This change is similar to how `list` has a `copy()` method
 but `tuple` does not.
 
+## Acceptance mode of PDAs is now configurable
+
+`DPDA` and `NPDA` have a new config option which specifies when to accept.
+This has to be either `empty_stack`, `final_state` or `both`.
+The latter was the default in v2.
+
 ## Backwards-incompatible changes from v1 to v2
 
 There have been a number of backwards-incompatible changes from Automata v1 to
