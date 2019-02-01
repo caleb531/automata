@@ -324,7 +324,7 @@ DPDA
 
 7. `final_states`: a `set` of final states for this DPDA
 
-8. `acceptance_mode`: a string defining whether this DPDA accepts by `final_state`, `empty_stack` or `both`
+8. `acceptance_mode`: a string defining whether this DPDA accepts by `final_state`, `empty_stack` or `both` (the default)
 
 ```python
 from automata.pda.dpda import DPDA
@@ -424,7 +424,7 @@ Every NPDA has the following (required) properties:
 
 7. `final_states`: a `set` of final states for this NPDA
 
-8. `acceptance_mode`: a string defining whether this DPDA accepts by `final_state`, `empty_stack` or `both`
+8. `acceptance_mode`: a string defining whether this DPDA accepts by `final_state`, `empty_stack` or `both` (the default)
 
 ```python
 from automata.pda.npda import NPDA

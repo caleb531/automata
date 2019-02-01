@@ -15,7 +15,7 @@ class NPDA(pda.PDA):
 
     def __init__(self, *, states, input_symbols, stack_symbols,
                  transitions, initial_state,
-                 initial_stack_symbol, final_states, acceptance_mode):
+                 initial_stack_symbol, final_states, acceptance_mode='both'):
         """Initialize a complete NPDA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
