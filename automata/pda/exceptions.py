@@ -15,6 +15,7 @@ class NondeterminismError(PDAException):
 
     pass
 
+
 class InvalidAcceptanceMode(PDAException):
     """The given acceptance mode is invalid."""
     pass
