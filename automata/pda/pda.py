@@ -3,9 +3,9 @@
 
 import abc
 
-from automata.base.automaton import Automaton
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
+from automata.base.automaton import Automaton
 
 
 class PDA(Automaton, metaclass=abc.ABCMeta):
