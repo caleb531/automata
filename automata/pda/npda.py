@@ -15,7 +15,7 @@ class NPDA(pda.PDA):
 
     def __init__(self, *, states, input_symbols, stack_symbols,
                  transitions, initial_state,
-                 initial_stack_symbol, final_states):
+                 initial_stack_symbol, final_states, acceptance_mode='both'):
         """Initialize a complete NPDA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -24,6 +24,7 @@ class NPDA(pda.PDA):
         self.initial_state = initial_state
         self.initial_stack_symbol = initial_stack_symbol
         self.final_states = final_states.copy()
+        self.acceptance_mode = acceptance_mode
         self.validate()
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
@@ -34,44 +35,6 @@ class NPDA(pda.PDA):
             for stack_symbol in symbol_paths:
                 self._validate_transition_invalid_stack_symbols(
                     start_state, stack_symbol)
-
-    def _validate_transition_invalid_input_symbols(self, start_state,
-                                                   input_symbol):
-        """Raise an error if transition input symbols are invalid."""
-        if input_symbol not in self.input_symbols and input_symbol != '':
-            raise exceptions.InvalidSymbolError(
-                'state {} has invalid transition input symbol {}'.format(
-                    start_state, input_symbol))
-
-    def _validate_transition_invalid_stack_symbols(self, start_state,
-                                                   stack_symbol):
-        """Raise an error if transition stack symbols are invalid."""
-        if stack_symbol not in self.stack_symbols:
-            raise exceptions.InvalidSymbolError(
-                'state {} has invalid transition stack symbol {}'.format(
-                    start_state, stack_symbol))
-
-    def _validate_initial_stack_symbol(self):
-        """Raise an error if initial stack symbol is invalid."""
-        if self.initial_stack_symbol not in self.stack_symbols:
-            raise exceptions.InvalidSymbolError(
-                'initial stack symbol {} is invalid'.format(
-                    self.initial_stack_symbol))
-
-    def validate(self):
-        """Return True if this NPDA is internally consistent."""
-        for start_state, paths in self.transitions.items():
-            self._validate_transition_invalid_symbols(start_state, paths)
-        self._validate_initial_state()
-        self._validate_initial_stack_symbol()
-        self._validate_final_states()
-        return True
-
-    def _has_lambda_transition(self, state, stack_symbol):
-        """Return True if the current config has any lambda transitions."""
-        return (state in self.transitions and
-                '' in self.transitions[state] and
-                stack_symbol in self.transitions[state][''])
 
     def _get_transitions(self, state, input_symbol, stack_symbol):
         """Get the transition tuples for the given state and symbols."""
@@ -89,27 +52,6 @@ class NPDA(pda.PDA):
                     new_stack_top
                 ))
         return transitions
-
-    def _replace_stack_top(self, stack, new_stack_top):
-        if new_stack_top == '':
-            new_stack = stack.pop()
-        else:
-            new_stack = stack.replace(new_stack_top)
-        return new_stack
-
-    def _has_accepted(self, current_configuration):
-        """Check whether the given config indicates accepted input."""
-        # If there's input left, we're not finished.
-        if current_configuration.remaining_input:
-            return False
-        # If the stack is empty, we accept.
-        if not current_configuration.stack:
-            return True
-        # If current state is a final state, we accept.
-        if current_configuration.state in self.final_states:
-            return True
-        # Otherwise, not.
-        return False
 
     def _get_next_configurations(self, old_config):
         """Advance to the next configurations."""

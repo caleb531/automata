@@ -33,7 +33,8 @@ class TestPDA(object):
             },
             initial_state='q0',
             initial_stack_symbol='0',
-            final_states={'q3'}
+            final_states={'q3'},
+            acceptance_mode='final_state'
         )
 
         # NPDA which matches palindromes consisting of 'a's and 'b's
@@ -70,11 +71,12 @@ class TestPDA(object):
                     '': {'#': {('q2', '#')}},
                     'a': {'A': {('q1', '')}},
                     'b': {'B': {('q1', '')}},
-                },
+                }
             },
             initial_state='q0',
             initial_stack_symbol='#',
-            final_states={'q2'}
+            final_states={'q2'},
+            acceptance_mode='final_state'
         )
 
     def assert_is_copy(self, first, second):
@@ -92,3 +94,4 @@ class TestPDA(object):
             first.initial_stack_symbol, second.initial_stack_symbol)
         nose.assert_is_not(first.final_states, second.final_states)
         nose.assert_equal(first.final_states, second.final_states)
+        nose.assert_equal(first.acceptance_mode, second.acceptance_mode)

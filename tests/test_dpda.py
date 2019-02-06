@@ -31,6 +31,29 @@ class TestDPDA(test_pda.TestPDA):
                 final_states={'q0'}
             )
 
+    def test_init_dpda_no_acceptance_mode(self):
+        """Should create a new DPDA."""
+        new_dpda = DPDA(
+            states={'q0'},
+            input_symbols={'a', 'b'},
+            stack_symbols={'#'},
+            transitions={
+                'q0': {
+                    'a': {'#': ('q0', '')},
+                }
+            },
+            initial_state='q0',
+            initial_stack_symbol='#',
+            final_states={'q0'}
+        )
+        nose.assert_equal(new_dpda.acceptance_mode, 'both')
+
+    def test_init_dpda_invalid_acceptance_mode(self):
+        """Should raise an error if the NPDA has an invalid acceptance mode."""
+        with nose.assert_raises(pda_exceptions.InvalidAcceptanceModeError):
+            self.dpda.acceptance_mode = 'foo'
+            self.dpda.validate()
+
     def test_validate_invalid_input_symbol(self):
         """Should raise error if a transition has an invalid input symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
@@ -80,13 +103,26 @@ class TestDPDA(test_pda.TestPDA):
             PDAConfiguration('q3', '', PDAStack(['0']))
         )
 
+    def test_read_input_invalid_accept_by_final_state(self):
+        """Should not accept by final state if DPDA accepts by empty stack."""
+        self.dpda.acceptance_mode = 'empty_stack'
+        with nose.assert_raises(exceptions.RejectionException):
+            self.dpda.read_input('aabb')
+
     def test_read_input_valid_accept_by_empty_stack(self):
         """Should return correct config if DPDA accepts by empty stack."""
         self.dpda.transitions['q2']['']['0'] = ('q2', '')
+        self.dpda.acceptance_mode = 'empty_stack'
         nose.assert_equal(
             self.dpda.read_input('aabb'),
             PDAConfiguration('q2', '', PDAStack([]))
         )
+
+    def test_read_input_invalid_accept_by_empty_stack(self):
+        """Should not accept by empty stack if DPDA accepts by final state."""
+        self.dpda.transitions['q2']['']['0'] = ('q2', '')
+        with nose.assert_raises(exceptions.RejectionException):
+            self.dpda.read_input('aabb')
 
     def test_read_input_valid_consecutive_lambda_transitions(self):
         """Should follow consecutive lambda transitions when validating."""
@@ -135,5 +171,6 @@ class TestDPDA(test_pda.TestPDA):
             initial_state='q0',
             initial_stack_symbol='0',
             final_states={'q0'},
+            acceptance_mode='both'
         )
         nose.assert_true(dpda.accepts_input(''))

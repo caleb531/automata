@@ -324,6 +324,8 @@ DPDA
 
 7. `final_states`: a `set` of final states for this DPDA
 
+8. `acceptance_mode`: a string defining whether this DPDA accepts by `final_state`, `empty_stack`, or `both`; the default is `both`
+
 ```python
 from automata.pda.dpda import DPDA
 # DPDA which which matches zero or more 'a's, followed by the same
@@ -347,7 +349,8 @@ dpda = DPDA(
     },
     initial_state='q0',
     initial_stack_symbol='0',
-    final_states={'q3'}
+    final_states={'q3'},
+    acceptance_mode='final_state'
 )
 ```
 
@@ -421,6 +424,8 @@ Every NPDA has the following (required) properties:
 
 7. `final_states`: a `set` of final states for this NPDA
 
+8. `acceptance_mode`: a string defining whether this NPDA accepts by `final_state`, `empty_stack`, or `both`; the default is `both`
+
 ```python
 from automata.pda.npda import NPDA
 # NPDA which matches palindromes consisting of 'a's and 'b's
@@ -461,7 +466,8 @@ npda = NPDA(
     },
     initial_state='q0',
     initial_stack_symbol='#',
-    final_states={'q2'}
+    final_states={'q2'},
+    acceptance_mode='final_state'
 )
 ```
 
