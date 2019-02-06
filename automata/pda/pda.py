@@ -37,7 +37,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
     def _validate_acceptance(self):
         """Raise an error if the acceptance mode is invalid."""
         if self.acceptance_mode not in ('final_state', 'empty_stack', 'both'):
-            raise pda_exceptions.InvalidAcceptanceMode(
+            raise pda_exceptions.InvalidAcceptanceModeError(
                 'acceptance mode {} is invalid'.format(
                     self.acceptance_mode))
 
