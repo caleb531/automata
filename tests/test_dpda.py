@@ -49,7 +49,7 @@ class TestDPDA(test_pda.TestPDA):
         nose.assert_equal(new_dpda.acceptance_mode, 'both')
 
     def test_init_dpda_invalid_acceptance_mode(self):
-        """Should create a new DPDA."""
+        """Should raise an error if the NPDA has an invalid acceptance mode."""
         with nose.assert_raises(pda_exceptions.InvalidAcceptanceModeError):
             DPDA(
                 states={'q0'},
