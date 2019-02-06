@@ -71,7 +71,7 @@ class TestPDA(object):
                     '': {'#': {('q2', '#')}},
                     'a': {'A': {('q1', '')}},
                     'b': {'B': {('q1', '')}},
-                },
+                }
             },
             initial_state='q0',
             initial_stack_symbol='#',

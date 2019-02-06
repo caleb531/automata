@@ -103,6 +103,12 @@ class TestNPDA(test_pda.TestPDA):
             {PDAConfiguration('q2', '', PDAStack(['#']))}
         )
 
+    def test_read_input_invalid_accept_by_final_state(self):
+        """Should not accept by final state if NPDA accepts by empty stack."""
+        self.npda.acceptance_mode = 'empty_stack'
+        with nose.assert_raises(exceptions.RejectionException):
+            self.npda.read_input('abaaba'),
+
     def test_read_input_valid_accept_by_empty_stack(self):
         """Should return correct config if NPDA accepts by empty stack."""
         self.npda.transitions['q2'] = {'': {'#': {('q2', '')}}}
@@ -112,6 +118,14 @@ class TestNPDA(test_pda.TestPDA):
             self.npda.read_input('abaaba'),
             {PDAConfiguration('q2', '', PDAStack([]))}
         )
+
+    def test_read_input_invalid_accept_by_empty_stack(self):
+        """Should not accept by empty stack if NPDA accepts by final state."""
+        self.npda.acceptance_mode = 'final_state'
+        self.npda.states.add('q3')
+        self.npda.transitions['q1'][''] = {'#': {('q3', '')}}
+        with nose.assert_raises(exceptions.RejectionException):
+            self.npda.read_input('abaaba')
 
     def test_read_input_valid_consecutive_lambda_transitions(self):
         """Should follow consecutive lambda transitions when validating."""
