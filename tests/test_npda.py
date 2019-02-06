@@ -6,6 +6,7 @@
 import nose.tools as nose
 
 import automata.base.exceptions as exceptions
+import automata.pda.exceptions as pda_exceptions
 import tests.test_pda as test_pda
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.npda import NPDA
@@ -46,6 +47,24 @@ class TestNPDA(test_pda.TestPDA):
             final_states={'q0'}
         )
         nose.assert_equal(new_npda.acceptance_mode, 'both')
+
+    def test_init_npda_invalid_acceptance_mode(self):
+        """Should raise an error if the NPDA has an invalid acceptance mode."""
+        with nose.assert_raises(pda_exceptions.InvalidAcceptanceModeError):
+            NPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={
+                    'q0': {
+                        'a': {'#': {('q0', '')}},
+                    },
+                },
+                initial_state='q0',
+                initial_stack_symbol='#',
+                final_states={'q0'},
+                acceptance_mode='foo'
+            )
 
     def test_validate_invalid_input_symbol(self):
         """Should raise error if a transition has an invalid input symbol."""

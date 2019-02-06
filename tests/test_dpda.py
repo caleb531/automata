@@ -48,6 +48,24 @@ class TestDPDA(test_pda.TestPDA):
         )
         nose.assert_equal(new_dpda.acceptance_mode, 'both')
 
+    def test_init_dpda_invalid_acceptance_mode(self):
+        """Should create a new DPDA."""
+        with nose.assert_raises(pda_exceptions.InvalidAcceptanceModeError):
+            DPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={
+                    'q0': {
+                        'a': {'#': ('q0', '')},
+                    },
+                },
+                initial_state='q0',
+                initial_stack_symbol='#',
+                final_states={'q0'},
+                acceptance_mode='foo'
+            )
+
     def test_validate_invalid_input_symbol(self):
         """Should raise error if a transition has an invalid input symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
