@@ -40,7 +40,7 @@ class TestNPDA(test_pda.TestPDA):
             transitions={
                 'q0': {
                     'a': {'#': {('q0', '')}},
-                },
+                }
             },
             initial_state='q0',
             initial_stack_symbol='#',
@@ -58,7 +58,7 @@ class TestNPDA(test_pda.TestPDA):
                 transitions={
                     'q0': {
                         'a': {'#': {('q0', '')}},
-                    },
+                    }
                 },
                 initial_state='q0',
                 initial_stack_symbol='#',
