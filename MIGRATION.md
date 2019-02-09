@@ -25,7 +25,8 @@ but `tuple` does not.
 ## Acceptance mode of PDAs is now configurable
 
 `DPDA` and `NPDA` have a new config option which specifies when to accept. This
-can be either `empty_stack`, `final_state` or `both`. The default is `both`.
+can be either `'empty_stack'`, `'final_state'` or `'both'`. The default is
+`'both'`.
 
 ## Backwards-incompatible changes from v1 to v2
 
