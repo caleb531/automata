@@ -9,7 +9,7 @@ def get_long_description():
     try:
         # Use pandoc to create reStructuredText README if possible
         import pypandoc
-        return pypandoc.convert('README.md', 'rst')
+        return pypandoc.convert_file('README.md', 'rst')
     except Exception:
         return None
 
