@@ -11,7 +11,7 @@ for finite automata, pushdown automata, and Turing machines.
 
 Automata requires Python 3.4 or newer.
 
-## Migration to v2 or v3
+## Migrating to v2 or v3
 
 If you are using Automata v1 and wish to migrate to v2 or v3, please follow the
 [migration guide][migration].
