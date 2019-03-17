@@ -5,13 +5,8 @@ from setuptools import setup
 
 
 def get_long_description():
-    """Get long description used on PyPI project page."""
-    try:
-        # Use pandoc to create reStructuredText README if possible
-        import pypandoc
-        return pypandoc.convert_file('README.md', 'rst')
-    except Exception:
-        return None
+    with open('README.md', 'r') as readme_file:
+        return readme_file.read()
 
 
 setup(
@@ -19,6 +14,7 @@ setup(
     version='3.1.0.post1',
     description='A Python library for simulating automata and Turing machines',
     long_description=get_long_description(),
+    long_description_content_type='text/markdown',
     url='https://github.com/caleb531/automata',
     author='Caleb Evans',
     author_email='caleb@calebevans.me',
