@@ -21,7 +21,7 @@ readme-renderer==24.0
 rednose==1.3.0
 requests==2.21.0
 requests-toolbelt==0.9.1
-six==1.11.0
+six==1.12.0
 termstyle==0.1.11
 testfixtures==5.4.0
 tqdm==4.31.1
