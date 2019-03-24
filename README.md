@@ -705,7 +705,7 @@ ntm = NTM(
 )
 ```
 
-The direction `N` (for no movement) is also supported.
+The direction `'N'` (for no movement) is also supported.
 
 #### NTM.read_input(self, input_str)
 
@@ -784,33 +784,42 @@ automata and Turing machines).
 
 #### class InvalidStateError
 
-Raised if a state is not a valid state for this automaton.
+Raised if a specified state does not exist within the automaton's `states`
+set.
 
 #### class InvalidSymbolError
 
-Raised if a symbol is not a valid symbol for this automaton.
+Raised if a specified symbol does not exist within the automaton's `symbols`
+set.
 
 #### class MissingStateError
 
-Raised if a state is missing from the automaton definition.
+Raised if a specified transition definition is missing a defined start state.
+This error can also be raised if the initial state does not have any transitions
+defined.
 
 #### class MissingSymbolError
 
-Raised if a symbol is missing from the automaton definition.
+Raised if a given symbol is missing where it would otherwise be required for
+this type of automaton (e.g. the automaton is missing a transition for one of
+the listed symbols).
 
 #### class InitialStateError
 
 Raised if the initial state fails to meet some required condition for this type
-of automaton.
+of automaton (e.g. if the initial state is also a final state, which is
+prohibited for Turing machines).
 
 #### class FinalStateError
 
 Raised if a final state fails to meet some required condition for this type of
-automaton.
+automaton (e.g. the final state has transitions to other states, which is
+prohibited for Turing machines).
 
 #### class RejectionException
 
-Raised if the automaton stopped on a non-final state after validating input.
+Raised if the automaton did not accept the input string after validating (e.g.
+the automaton stopped on a non-final state after validating input).
 
 ### Turing machine exception classes
 
@@ -828,4 +837,4 @@ A base class from which all other Turing machine exceptions inherit.
 #### class InvalidDirectionError
 
 Raised if a direction specified in this machine's transition map is not a valid
-direction.
+direction (valid directions include `'L'`, `'R'`, and `'N'`).
