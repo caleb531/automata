@@ -7,9 +7,13 @@
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=master)](https://coveralls.io/r/caleb531/automata?branch=master)
 
 Automata is a Python 3 library which implements the structures and algorithms
-for finite automata, pushdown automata, and Turing machines.
+for finite automata, pushdown automata, and Turing machines. The library
+requires Python 3.4 or newer.
 
-Automata requires Python 3.4 or newer.
+Huge thanks to [@YtvwlD][YtvwlD-profile] and [@dengl11][dengl11-profile] for their invaluable code contributions to this project!
+
+[YtvwlD-profile]: https://github.com/YtvwlD
+[dengl11-profile]: https://github.com/dengl11
 
 ## Migrating to v2 or v3
 
