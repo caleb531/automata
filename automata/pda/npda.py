@@ -4,7 +4,6 @@
 import copy
 
 import automata.base.exceptions as exceptions
-import automata.pda.exceptions as pda_exceptions
 import automata.pda.pda as pda
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
