@@ -15,9 +15,9 @@ Huge thanks to [@YtvwlD][YtvwlD-profile] and [@dengl11][dengl11-profile] for the
 [YtvwlD-profile]: https://github.com/YtvwlD
 [dengl11-profile]: https://github.com/dengl11
 
-## Migrating to v2 or v3
+## Migrating to v3
 
-If you are using Automata v1 and wish to migrate to v2 or v3, please follow the
+If you are using Automata v1 or v2, and wish to migrate to v3, please follow the
 [migration guide][migration].
 
 [migration]: https://github.com/caleb531/automata/blob/master/MIGRATION.md
