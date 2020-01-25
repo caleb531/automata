@@ -1,6 +1,6 @@
 # Automata Migration Guide
 
-*Copyright 2016-2019 Caleb Evans*  
+*Copyright 2016-2020 Caleb Evans*  
 *Released under the MIT license*
 
 ## Backwards-incompatible changes from v2 to v3
