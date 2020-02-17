@@ -376,7 +376,7 @@ dpda.read_input('aab')  # raises RejectionException
 
 #### DPDA.read_input_stepwise(self, input_str)
 
-Yields `PDAConfiguration` objects.
+Yields sets of `PDAConfiguration` objects.
 These are basically tuples containing the current state,
 the remaining input and the current stack as a `PDAStack` object, if the input is accepted.
 
@@ -617,7 +617,7 @@ dtm.read_input('011')  # raises RejectionException
 
 #### DTM.read_input_stepwise(self, input_str)
 
-Yields `TMConfiguration`s. Those are basically tuples containing the current state and the current tape as a `TMTape` object.
+Yields sets of `TMConfiguration` objects. Those are basically tuples containing the current state and the current tape as a `TMTape` object.
 
 ```python
 dtm.read_input_stepwise('01')
@@ -734,7 +734,7 @@ ntm.read_input('011')  # raises RejectionException
 
 #### NTM.read_input_stepwise(self, input_str)
 
-Yields sets of `TMConfiguration`s. Those are basically tuples containing the current state and the current tape as a `TMTape` object.
+Yields sets of `TMConfiguration` objects. Those are basically tuples containing the current state and the current tape as a `TMTape` object.
 
 ```python
 ntm.read_input_stepwise('01')
