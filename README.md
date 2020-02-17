@@ -33,13 +33,13 @@ pip install automata-lib
 ## API
 
 - [class Automaton](#class-automatonmetaclassabcmeta)
-  - [Finite Automaton (FA)](#class-faautomatonmetaclassabcmeta)
+  - [Finite Automaton (FA)](#class-faautomaton-metaclassabcmeta)
     - [Deterministic (DFA)](#class-dfafa)
     - [Non-Deterministic (NFA)](#class-nfafa)
-  - [Pushdown Automaton (PDA)](#class-pdaautomatonmetaclassabcmeta)
+  - [Pushdown Automaton (PDA)](#class-pdaautomaton-metaclassabcmeta)
     - [Deterministic (DPDA)](#class-dpdapda)
     - [Non-Deterministic (NPDA)](#class-npdapda)
-  - [Turing Machine (TM)](#class-tmautomatonmetaclassabcmeta)
+  - [Turing Machine (TM)](#class-tmautomaton-metaclassabcmeta)
     - [Deterministic (DTM)](#class-dtmtm)
     - [Non-Deterministic (NTM)](#class-ntmtm)
 - [Exception classes](#base-exception-classes)
