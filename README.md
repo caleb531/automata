@@ -299,7 +299,7 @@ from automata.fa.dfa import DFA
 nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
 ```
 
-#### class PDA(Automaton, metaclass=ABCMeta)
+### class PDA(Automaton, metaclass=ABCMeta)
 
 The `PDA` class is an abstract base class from which all pushdown automata
 inherit. It can be found under `automata/pda/pda.py`.
