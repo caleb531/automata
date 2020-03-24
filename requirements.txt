@@ -1,4 +1,4 @@
-bleach==3.1.1
+bleach==3.1.2
 certifi==2018.11.29
 chardet==3.0.4
 colorama==0.3.9
