@@ -15,7 +15,7 @@ Huge thanks to [@YtvwlD][YtvwlD-profile] and [@dengl11][dengl11-profile] for the
 [YtvwlD-profile]: https://github.com/YtvwlD
 [dengl11-profile]: https://github.com/dengl11
 
-## Migrating to v3
+## Migrating to v4
 
 If you wish to migrate to Automata v4 from an older version, please follow the
 [migration guide][migration].
