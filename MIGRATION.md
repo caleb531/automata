@@ -3,6 +3,17 @@
 *Copyright 2016-2020 Caleb Evans*  
 *Released under the MIT license*
 
+## Backwards-incompatible changes from v3 to v4
+
+The only backwards-incompatible change from v3 to v4 is that support for Python
+3.4 has been dropped. This is because Python 3.4 has reached end-of-life, and
+will no longer receive updates. For more information, please refer to the
+[Python 3.4.10 release notes][release-notes].
+
+There have been no API changes from v3 to v4.
+
+[release-notes]: https://www.python.org/downloads/release/python-3410/
+
 ## Backwards-incompatible changes from v2 to v3
 
 There have been a number of backwards-incompatible changes from Automata v2 to
