@@ -19,3 +19,4 @@ nosetests.xml
 
 # Required packages
 .virtualenv
+.vscode
