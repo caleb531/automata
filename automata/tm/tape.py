@@ -74,11 +74,8 @@ class TMTape(collections.namedtuple(
         """Return an interator for the tape."""
         return iter(self.tape)
 
-    # def __repr__(self):
-    #     """Return a string representation of the tape."""
-    #     return '{}(\'{}\', {})'.format(
-    #         self.__class__.__name__, ''.join(self.tape), self.current_position
-    #     )
-
-    def __str__(self):
-        return str(self.tape[:self.current_position]) + str(self.tape[self.current_position:])
+    def __repr__(self):
+        """Return a string representation of the tape."""
+        return '{}(\'{}\', {})'.format(
+            self.__class__.__name__, ''.join(self.tape), self.current_position
+        )

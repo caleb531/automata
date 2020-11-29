@@ -7,6 +7,7 @@ import copy
 import automata.base.exceptions as exceptions
 import automata.tm.ntm as tm
 from automata.tm.tape import TMTape
+from automata.tm.configuration import MTMConfiguration
 
 
 class MNTM(tm.NTM):
@@ -92,7 +93,5 @@ class MNTM(tm.NTM):
         )
 
     def __str__(self):
-        description = ""
-        for tape in self.tapes:
-            description += f"{self.current_state} : {str(tape)}\n"
-        return description
+        config = MTMConfiguration(self.current_state, self.tapes)
+        return config._description()
