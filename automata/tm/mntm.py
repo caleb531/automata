@@ -5,9 +5,7 @@ from collections import deque
 import copy
 
 import automata.base.exceptions as exceptions
-import automata.tm.exceptions as tm_exceptions
-import automata.tm.tm as tm
-from automata.tm.configuration import TMConfiguration
+import automata.tm.ntm as tm
 from automata.tm.tape import TMTape
 
 
@@ -25,7 +23,7 @@ class MNTM(tm.NTM):
         self.initial_state = initial_state
         self.blank_symbol = blank_symbol
         self.final_states = final_states.copy()
-        self.validate()
+        # self.validate()
 
         self.tapes = [TMTape(
             self.blank_symbol, blank_symbol=self.blank_symbol) for _ in range(n_tapes)]
@@ -33,28 +31,30 @@ class MNTM(tm.NTM):
 
     def _restart_configuration(self, input_str):
         self.current_state = self.initial_state
-        self.tapes[0].load_symbols(input_str, 0) # Input is saved on first tape
-        for tape in self.tapes[1:]: # The rest of the tapes have blanks
-            tape.load_symbols(self.blank_symbol, 0)
+        # Input is saved on first tape
+        self.tapes[0] = self.tapes[0].load_symbols(input_str, 0)
+        for tape in self.tapes[1:]:  # The rest of the tapes have blanks
+            tape = tape.load_symbols(self.blank_symbol, 0)
 
     def _read_current_tape_symbols(self):
         return tuple(tape.read_symbol() for tape in self.tapes)
 
     def _get_transition(self):
         """Get the transiton tuple for the given state and tape symbols in each tape."""
-        return self.transitions[self.current_state][self._read_current_tape_symbols()]
-
-    def _has_accepted(self, configuration):
-        """Check whether the given config indicates accepted input."""
-        return configuration.state in self.final_states
+        if self.current_state in self.transitions:
+            return self.transitions[self.current_state][self._read_current_tape_symbols()]
+        else:
+            return None
 
     def _get_next_configuration(self, old_config):
         """Advance to the next configuration."""
         self.current_state, moves = old_config
+        i = 0
         for tape, move in zip(self.tapes, moves):
             symbol, direction = move
-            tape.write_symbol(symbol)
-            tape.move(direction)
+            self.tapes[i] = tape.write_symbol(symbol)
+            self.tapes[i] = self.tapes[i].move(direction)
+            i += 1
         return self
 
     def _has_accepted(self):
@@ -70,18 +70,29 @@ class MNTM(tm.NTM):
         self._restart_configuration(input_str)
         queue = deque([self])
         while len(queue) > 0:
-            current_configuration = queue.popleft()
-            possible_transitions = tm._get_transition()
+            current_tm = queue.popleft()
+            yield current_tm
+
+            possible_transitions = current_tm._get_transition()
             if possible_transitions is None:
-                if current_configuration._has_accepted():
-                    return current_configuration
+                if current_tm._has_accepted():
+                    return current_tm
             else:
                 for transition in possible_transitions[1:]:
-                    queue.append(tm.copy()._get_next_configuration(transition))
-                executed = tm._get_next_configuration(possible_transitions[0])
+                    queue.append(current_tm.copy(
+                    )._get_next_configuration(transition))
+
+                executed = current_tm._get_next_configuration(
+                    possible_transitions[0])
                 queue.append(executed)
                 yield executed
 
         raise exceptions.RejectionException(
             'the multitape NTM did not reach an accepting configuration'
         )
+
+    def __str__(self):
+        description = ""
+        for tape in self.tapes:
+            description += f"{self.current_state} : {str(tape)}\n"
+        return description
