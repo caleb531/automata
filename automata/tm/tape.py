@@ -22,6 +22,7 @@ class TMTape(collections.namedtuple(
         )
 
     def load_symbols(self, input_str, head):
+        """Loads a given string in tape and sets the head to the given value."""
         return TMTape(
             list(input_str),
             blank_symbol=self.blank_symbol,
@@ -73,8 +74,11 @@ class TMTape(collections.namedtuple(
         """Return an interator for the tape."""
         return iter(self.tape)
 
-    def __repr__(self):
-        """Return a string representation of the tape."""
-        return '{}(\'{}\', {})'.format(
-            self.__class__.__name__, ''.join(self.tape), self.current_position
-        )
+    # def __repr__(self):
+    #     """Return a string representation of the tape."""
+    #     return '{}(\'{}\', {})'.format(
+    #         self.__class__.__name__, ''.join(self.tape), self.current_position
+    #     )
+
+    def __str__(self):
+        return str(self.tape[:self.current_position]) + str(self.tape[self.current_position:])
