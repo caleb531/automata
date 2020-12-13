@@ -135,7 +135,6 @@ class DFA(fa.FA):
         reachable_states.add(self.initial_state)
         while states_to_check:
             state = states_to_check.popleft()
-            #print(state)
             for symbol, dst_state in self.transitions[state].items():
                 if dst_state not in reachable_states:
                     reachable_states.add(dst_state)
