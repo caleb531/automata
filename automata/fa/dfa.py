@@ -3,7 +3,7 @@
 
 import copy
 import itertools
-import queue
+from collections import deque
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
@@ -130,16 +130,15 @@ class DFA(fa.FA):
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
         reachable_states = set()
-        states_to_check = queue.Queue()
-        states_checked = set()
-        states_to_check.put(self.initial_state)
-        while not states_to_check.empty():
-            state = states_to_check.get()
-            reachable_states.add(state)
+        states_to_check = deque()
+        states_to_check.append(self.initial_state)
+        reachable_states.add(self.initial_state)
+        while states_to_check:
+            state = states_to_check.popleft()
             for symbol, dst_state in self.transitions[state].items():
-                if dst_state not in states_checked:
-                    states_to_check.put(dst_state)
-            states_checked.add(state)
+                if dst_state not in reachable_states:
+                    reachable_states.add(dst_state)
+                    states_to_check.append(dst_state)
         return reachable_states
 
     def _create_markable_states_table(self):
@@ -249,7 +248,7 @@ class DFA(fa.FA):
                 current_states, input_symbol)
             dfa_transitions[current_state_name][input_symbol] = (
                 cls._stringify_states(next_current_states))
-            state_queue.put(next_current_states)
+            state_queue.append(next_current_states)
 
     @classmethod
     def from_nfa(cls, nfa):
@@ -262,11 +261,11 @@ class DFA(fa.FA):
         dfa_initial_state = cls._stringify_states(nfa_initial_states)
         dfa_final_states = set()
 
-        state_queue = queue.Queue()
-        state_queue.put(nfa_initial_states)
-        while not state_queue.empty():
+        state_queue = deque()
+        state_queue.append(nfa_initial_states)
+        while state_queue:
 
-            current_states = state_queue.get()
+            current_states = state_queue.popleft()
             current_state_name = cls._stringify_states(current_states)
             if current_state_name in dfa_states:
                 # We've been here before and nothing should have changed.
