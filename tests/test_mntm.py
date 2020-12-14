@@ -20,5 +20,8 @@ tm = MNTM(
     final_states={'q1'}
 )
 
-for conf in tm.read_input_stepwise('10011110'):
+# for conf in tm.read_input_stepwise('10011110'):
+#     print(conf)
+
+for conf in tm.simulate_as_ntm('10011110'):
     print(conf)

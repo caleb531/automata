@@ -66,6 +66,9 @@ class TMTape(collections.namedtuple(
             current_position=new_position
         )
 
+    def get_symbols_as_str(self):
+        return "".join(self.tape)
+    
     def __len__(self):
         """Return the number of symbols on the tape."""
         return len(self.tape)  # TODO: do we count the blank symbols?
