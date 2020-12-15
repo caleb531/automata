@@ -30,7 +30,7 @@ class TMConfiguration(collections.namedtuple(
 
 
 class MTMConfiguration(collections.namedtuple(
-    'TMConfiguration',
+    'MTMConfiguration',
     ['state', 'tapes']
 )):
     """A Multitape Turing machine configuration."""
