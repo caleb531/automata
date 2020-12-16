@@ -3,12 +3,17 @@
 from automata.tm.mntm import MNTM
 import random
 import matplotlib.pyplot as plt
+import matplotlib
 
+# Parámetros para las gráficas
+matplotlib.rcParams['font.family'] = "cmr10"
+matplotlib.rcParams['axes.unicode_minus'] = False
+matplotlib.rcParams.update({'font.size': 16})
 tm = MNTM(
     states={"q0", "q1"},
     input_symbols={"0", "1"},
     tape_symbols={"0", "1", "#"},
-    n_tapes=3,
+    n_tapes=2,
     transitions={
         "q0": {
             ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
@@ -20,44 +25,6 @@ tm = MNTM(
     blank_symbol="#",
     final_states={"q1"},
 )
-
-lengths = [i for i in range(10)]
-accepted_ntm = []
-rejected_ntm = []
-accepted_mntm = []
-rejected_mntm = []
-x_accepted = []
-x_rejected = []
-for length in lengths:
-    input_str = ""
-    for _ in range(length):
-        k = random.randint(0, 1)  # decide on a k each time the loop runs
-        input_str += str(int(k))
-
-    print(input_str)
-    accepts = tm.accepts(input_str)
-    steps_as_ntm = tm.steps_as_ntm
-    tm.simulate_as_ntm(input_str)
-    steps_as_mntm = tm.steps_as_mntm
-    print(steps_as_ntm)
-    print(steps_as_mntm)
-
-    if accepts:
-        x_accepted.append(length)
-        accepted_ntm.append(steps_as_ntm)
-        accepted_mntm.append(steps_as_mntm)
-    else:
-        x_rejected.append(length)
-        rejected_ntm.append(steps_as_ntm)
-        rejected_mntm.append(steps_as_mntm)
-
-plt.figure()
-plt.scatter(x_accepted, accepted_ntm, color="b", label="Single-tape")
-plt.scatter(x_accepted, accepted_mntm, color="b", label="Multi-tape")
-plt.scatter(x_rejected, rejected_ntm, color="r", label=None)
-plt.scatter(x_rejected, rejected_mntm, color="r", label=None)
-plt.show()
-plt.close()
 
 tm = MNTM(
     states=set(["q" + str(i) for i in range(-1, 27)] + ["qc", "qf", "qr"]),
@@ -181,8 +148,59 @@ tm = MNTM(
     final_states={"qf"},
 )
 
-# for conf in tm.read_input_stepwise("#0"):
-#     print(conf)
+lengths = [i for i in range(50)]
+accepted_ntm = []
+rejected_ntm = []
+accepted_mntm = []
+rejected_mntm = []
+x_accepted = []
+x_rejected = []
+for length in lengths:
+    input_str = "#"
+    for _ in range(length):
+        k = random.randint(0, 1)  # decide on a k each time the loop runs
+        k = 0 # Ejemplo 2
+        input_str += str(int(k))
+    print(input_str)
 
-# for conf in tm.simulate_as_ntm("#0"):
-#     print(conf)
+    try:
+        for conf in tm.read_input_stepwise(input_str):
+            pass
+        accepts = True
+    except:
+        accepts = False
+    
+    steps_as_mntm = tm.steps_as_mntm
+    try:
+        for conf in tm.simulate_as_ntm(input_str):
+            pass
+        accepts = True
+    except:
+        accepts = False
+    
+    steps_as_ntm = tm.steps_as_ntm
+
+    if accepts:
+        x_accepted.append(length)
+        accepted_ntm.append(steps_as_ntm)
+        accepted_mntm.append(steps_as_mntm)
+    else:
+        x_rejected.append(length)
+        rejected_ntm.append(steps_as_ntm)
+        rejected_mntm.append(steps_as_mntm)
+
+plt.figure(figsize=(12, 10))
+plt.scatter(x_accepted, accepted_ntm, color="b", label="Single-tape", s=20)
+plt.scatter(x_accepted, accepted_mntm, color="k", label="Multi-tape", s=20)
+#plt.scatter(x_rejected, rejected_ntm, color="r", label=None)
+#plt.scatter(x_rejected, rejected_mntm, color="r", label=None)
+plt.ylabel("Steps")
+plt.xlabel("Length of input string")
+plt.legend()
+plt.tight_layout()
+plt.grid(b=True, which='major', color='k', linestyle='-', alpha=0.2)
+plt.grid(b=True, which='minor', color='k', linestyle='--', alpha=0.1)
+plt.minorticks_on()
+plt.savefig("Ejemplo2_menos.jpg", dpi=400)
+plt.show()
+plt.close()

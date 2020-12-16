@@ -103,7 +103,6 @@ class MNTM(tm.NTM):
             self.tapes[i] = self.tapes[i].move(direction)
             i += 1
         self.steps_as_mntm += 2 * i  # 1 write operation and 1 move operation
-        print("tela")
         return self
 
     def _has_accepted(self):
