@@ -33,22 +33,52 @@ class MNTM(tm.NTM):
         self.initial_state = initial_state
         self.blank_symbol = blank_symbol
         self.final_states = final_states.copy()
-        # self.validate()
+        self.validate()
         self.head_symbol = "^"
-        self.tape_separator_symbol = "%"
+        self.tape_separator_symbol = "_"
 
         self.tapes = [
             TMTape(self.blank_symbol, blank_symbol=self.blank_symbol)
             for _ in range(n_tapes)
         ]
         self.current_state = self.initial_state
+        self.steps_as_mntm = 0
+        self.steps_as_ntm = 0
+
+    def _validate_transition_symbols(self, state, paths):
+        for tape_symbol in [
+            tape_symbol for symbol in paths.keys() for tape_symbol in symbol
+        ]:
+            if tape_symbol not in self.tape_symbols:
+                raise exceptions.InvalidSymbolError(
+                    "transition symbol {} for state {} is not valid".format(
+                        tape_symbol, state
+                    )
+                )
+
+    def _validate_transition_state(self, transition_state):
+        if transition_state not in self.states:
+            raise exceptions.InvalidStateError(
+                "transition state is not valid ({})".format(transition_state)
+            )
+
+    def _validate_transition_results(self, paths):
+        for results in paths.values():
+            for result in results:
+                state, moves = result
+                for move in moves:
+                    symbol, direction = move
+                    possible_result = (state, symbol, direction)
+                    self._validate_transition_result(possible_result)
 
     def _restart_configuration(self, input_str):
+        self.steps_as_mntm = 0
+        self.steps_as_ntm = 0
         self.current_state = self.initial_state
         # Input is saved on first tape
         self.tapes[0] = self.tapes[0].load_symbols(input_str, 0)
-        for tape in self.tapes[1:]:  # The rest of the tapes have blanks
-            tape = tape.load_symbols(self.blank_symbol, 0)
+        for i, tape in enumerate(self.tapes[1:]):  # The rest of the tapes have blanks
+            self.tapes[i + 1] = tape.load_symbols(self.blank_symbol, 0)
 
     def _read_current_tape_symbols(self):
         return tuple(tape.read_symbol() for tape in self.tapes)
@@ -72,6 +102,7 @@ class MNTM(tm.NTM):
             self.tapes[i] = tape.write_symbol(symbol)
             self.tapes[i] = self.tapes[i].move(direction)
             i += 1
+        self.steps_as_mntm += 2 * i  # 1 write operation and 1 move operation
         return self
 
     def _has_accepted(self):
@@ -113,6 +144,7 @@ class MNTM(tm.NTM):
         """
         virtual_heads = []
         for i in range(len(tape)):
+            self.steps_as_ntm += 1
             if tape[i] == self.head_symbol:
                 virtual_heads.append(tape[i - 1])
 
@@ -131,6 +163,7 @@ class MNTM(tm.NTM):
                 + self.tape_separator_symbol
             )
 
+        self.steps_as_ntm += 2 * len(self.tapes) - 1
         current_state = self.current_state
         yield {
             TMConfiguration(
@@ -156,6 +189,7 @@ class MNTM(tm.NTM):
                 executing_changes = True
                 while executing_changes:
                     if extended_tape[i] == self.head_symbol:
+                        self.steps_as_ntm += 1  # 1 write operation
                         extended_tape = (
                             extended_tape[: i - 1] + new_head + extended_tape[i:]
                         )
@@ -168,6 +202,9 @@ class MNTM(tm.NTM):
                             i += 0
 
                         if extended_tape[i - 1] == self.tape_separator_symbol:
+                            # Shift operation. 1 insertion and the rest are moves required for
+                            # shifting extended_tape from i-th position to the right
+                            self.steps_as_ntm += 1 + 4 * (len(extended_tape) - i) + 2
                             i -= 1
                             extended_tape = (
                                 extended_tape[:i]
@@ -178,6 +215,11 @@ class MNTM(tm.NTM):
 
                             i += 1
                         else:
+                            # 1 move operation if virtual head changes to the right or the left
+                            if direction != "N":
+                                self.steps_as_ntm += 1
+                            # 1 write operation
+                            self.steps_as_ntm += 1
                             extended_tape = (
                                 extended_tape[:i] + self.head_symbol + extended_tape[i:]
                             )
@@ -187,6 +229,7 @@ class MNTM(tm.NTM):
 
                     i += 1
 
+            current_state = next_state
             yield {
                 TMConfiguration(
                     current_state,
@@ -197,7 +240,6 @@ class MNTM(tm.NTM):
                     ),
                 )
             }
-            current_state = next_state
 
     def __str__(self):
         config = MTMConfiguration(self.current_state, self.tapes)

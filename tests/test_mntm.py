@@ -26,7 +26,7 @@ tm = MNTM(
 #     print(conf)
 
 tm = MNTM(
-    states={"q" + str(i) for i in range(-1, 28)},
+    states=set(["q" + str(i) for i in range(-1, 27)] + ["qc", "qf", "qr"]),
     input_symbols={"0"},
     tape_symbols={"0", "X", "Y", "S", "#"},
     n_tapes=3,
@@ -147,8 +147,8 @@ tm = MNTM(
     final_states={"qf"},
 )
 
-# for conf in tm.read_input_stepwise("#00"):
-#     print(conf)
+for conf in tm.read_input_stepwise("#0"):
+    print(conf)
 
-for conf in tm.simulate_as_ntm("#00000"):
+for conf in tm.simulate_as_ntm("#0"):
     print(conf)
