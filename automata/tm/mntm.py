@@ -96,13 +96,11 @@ class MNTM(tm.NTM):
                     return current_tm
             else:
                 for transition in possible_transitions[1:]:
-                    queue.append(
-                        current_tm.copy()._get_next_configuration(transition))
+                    queue.append(current_tm.copy()._get_next_configuration(transition))
 
-                executed = current_tm._get_next_configuration(
-                    possible_transitions[0])
+                executed = current_tm._get_next_configuration(possible_transitions[0])
                 queue.append(executed)
-                yield executed
+                # yield executed
 
         raise exceptions.RejectionException(
             "the multitape NTM did not reach an accepting configuration"
@@ -138,9 +136,7 @@ class MNTM(tm.NTM):
             TMConfiguration(
                 current_state,
                 TMTape(
-                    extended_tape,
-                    blank_symbol=self.blank_symbol,
-                    current_position=0
+                    extended_tape, blank_symbol=self.blank_symbol, current_position=0
                 ),
             )
         }
@@ -148,7 +144,12 @@ class MNTM(tm.NTM):
         while current_state not in self.final_states:
             i = 0  # current position
             virtual_heads = self._read_extended_tape(extended_tape)
-            next_config = self.transitions[current_state][virtual_heads]
+            try:
+                next_config = self.transitions[current_state][virtual_heads]
+            except KeyError:
+                raise exceptions.RejectionException(
+                    "the multitape NTM did not reach an accepting configuration"
+                )
             next_state, moves = next_config[0]
             for move in moves:
                 new_head, direction = move
@@ -156,11 +157,9 @@ class MNTM(tm.NTM):
                 while executing_changes:
                     if extended_tape[i] == self.head_symbol:
                         extended_tape = (
-                            extended_tape[: i - 1] +
-                            new_head + extended_tape[i:]
+                            extended_tape[: i - 1] + new_head + extended_tape[i:]
                         )
-                        extended_tape = extended_tape[:i] + \
-                            "" + extended_tape[i + 1:]
+                        extended_tape = extended_tape[:i] + "" + extended_tape[i + 1 :]
                         if direction == "R":
                             i += 1
                         elif direction == "L":
@@ -180,25 +179,25 @@ class MNTM(tm.NTM):
                             i += 1
                         else:
                             extended_tape = (
-                                extended_tape[:i] +
-                                self.head_symbol + extended_tape[i:]
+                                extended_tape[:i] + self.head_symbol + extended_tape[i:]
                             )
 
                     elif extended_tape[i] == self.tape_separator_symbol:
                         executing_changes = False
+
                     i += 1
 
-            current_state = next_state
             yield {
                 TMConfiguration(
                     current_state,
                     TMTape(
                         extended_tape,
                         blank_symbol=self.blank_symbol,
-                        current_position=i
+                        current_position=i,
                     ),
                 )
             }
+            current_state = next_state
 
     def __str__(self):
         config = MTMConfiguration(self.current_state, self.tapes)
