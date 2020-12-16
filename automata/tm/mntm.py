@@ -103,24 +103,39 @@ class MNTM(tm.NTM):
             self.tapes[i] = self.tapes[i].move(direction)
             i += 1
         self.steps_as_mntm += 2 * i  # 1 write operation and 1 move operation
+        print("tela")
         return self
 
     def _has_accepted(self):
         return self.current_state in self.final_states
 
-    def read_input_stepwise(self, input_str):
-        """
-        Checks if the given string is accepted by this Turing machine,
-        using a BFS of every possible configuration from each configuration.
+    def accepts(self, input_str):
+        try:
+            self.read_input_stepwise(input_str)
+            return True
+        except:
+            return False
 
-        Yield the current configuration of the machine at each step.
+    def read_input_stepwise(self, input_str):
+        """Checks if the given string is accepted by this Turing machine,
+        using a BFS of every possible configuration from each configuration.
+        
+        Yields the current configuration of the machine at each step.
         """
         self._restart_configuration(input_str)
-        queue = deque([self])
+        queue = deque([self])  # Double end queue data structure
+        # As long as there are possible sub-Turing machines to visit
         while len(queue) > 0:
+            # Gets the current sub-Turing machine
             current_tm = queue.popleft()
             yield current_tm
 
+            # Using the current state and the current tape symbols (got by calling
+            # _read_current_tape_symbols), the transitions are obtained. If they are
+            # None (there are no more transitions from this state) and the current
+            # state is a final state, the machine accepts. If there are indeed more
+            # transitions, the machine loops through them and appends the next
+            # configuration of each of the transitions (or sub-Turing machines).
             possible_transitions = current_tm._get_transition()
             if possible_transitions is None:
                 if current_tm._has_accepted():
@@ -151,6 +166,14 @@ class MNTM(tm.NTM):
         return tuple(virtual_heads)
 
     def simulate_as_ntm(self, input_str):
+        """Simulates the machine as a single-tape turing machine.
+        Yields the configuration at each step."""
+        # Restarts important variables and builds an extended tape given by
+        # first-tape#second_tape#third_tape#...
+        # Each tape has one 'head symbol', denoted as '^', which indicates the position of a
+        # 'virtual head'. In other words, this extended tape has a particular symbol that indicates
+        # the head of each tape, so that, if the machine reads the entire extended tape, it can
+        # infer which symbols are currently been read on each tape.
         self._restart_configuration(input_str)
         extended_tape = ""
         tapes_copy = self.tapes.copy()
@@ -163,6 +186,8 @@ class MNTM(tm.NTM):
                 + self.tape_separator_symbol
             )
 
+        # Steps needed to build the extended tape. There are 2 blank symbols for each tape (except
+        # for the first one).
         self.steps_as_ntm += 2 * len(self.tapes) - 1
         current_state = self.current_state
         yield {
@@ -174,6 +199,7 @@ class MNTM(tm.NTM):
             )
         }
 
+        # If the machine has not reached an accepting state.
         while current_state not in self.final_states:
             i = 0  # current position
             virtual_heads = self._read_extended_tape(extended_tape)
@@ -185,15 +211,28 @@ class MNTM(tm.NTM):
                 )
             next_state, moves = next_config[0]
             for move in moves:
+                # * new_head is the symbol that must be written on top of one of the 'virtual head's.
+                # * direction is the direction to which the 'virtual head' will be positioned.
                 new_head, direction = move
                 executing_changes = True
+
+                # This loops through one of the virtual tapes in the entire extended tape looking
+                # for the 'virtual head' of the tape the machine is looping through.
+                # If the tape separator symbol is found (usually '#'), that means that this
+                # has already looped through one of the virtual tapes, thus it breaks the loop and
+                # executes the next move (associated with the next virtual tape).
                 while executing_changes:
                     if extended_tape[i] == self.head_symbol:
+                        # Head has been found (previous symbol is the head).
+                        # This replaces the previous symbol with the new_head.
                         self.steps_as_ntm += 1  # 1 write operation
                         extended_tape = (
                             extended_tape[: i - 1] + new_head + extended_tape[i:]
                         )
                         extended_tape = extended_tape[:i] + "" + extended_tape[i + 1 :]
+
+                        # After replacing, the machine must change the position of the virtual head
+                        # of the current virtual tape.
                         if direction == "R":
                             i += 1
                         elif direction == "L":
@@ -201,6 +240,9 @@ class MNTM(tm.NTM):
                         else:  # direction == 'N'
                             i += 0
 
+                        # In case one shift operation must be executed (this happens if the virtual
+                        # head of one of the virtual tapes runs out of space, i.e has reached the
+                        # rightmost end of the tape).
                         if extended_tape[i - 1] == self.tape_separator_symbol:
                             # Shift operation. 1 insertion and the rest are moves required for
                             # shifting extended_tape from i-th position to the right

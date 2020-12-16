@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of MNTMs."""
 from automata.tm.mntm import MNTM
+import random
+import matplotlib.pyplot as plt
 
 tm = MNTM(
     states={"q0", "q1"},
@@ -9,9 +11,9 @@ tm = MNTM(
     n_tapes=3,
     transitions={
         "q0": {
-            ("1", "#", "#"): [("q0", (("1", "R"), ("1", "R"), ("#", "N")))],
-            ("0", "#", "#"): [("q0", (("0", "R"), ("#", "N"), ("#", "N")))],
-            ("#", "#", "#"): [("q1", (("#", "N"), ("#", "N"), ("#", "N")))],
+            ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+            ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+            ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
         }
     },
     initial_state="q0",
@@ -19,11 +21,43 @@ tm = MNTM(
     final_states={"q1"},
 )
 
-# for conf in tm.read_input_stepwise('10011110'):
-#     print(conf)
+lengths = [i for i in range(10)]
+accepted_ntm = []
+rejected_ntm = []
+accepted_mntm = []
+rejected_mntm = []
+x_accepted = []
+x_rejected = []
+for length in lengths:
+    input_str = ""
+    for _ in range(length):
+        k = random.randint(0, 1)  # decide on a k each time the loop runs
+        input_str += str(int(k))
 
-# for conf in tm.simulate_as_ntm("10011110"):
-#     print(conf)
+    print(input_str)
+    accepts = tm.accepts(input_str)
+    steps_as_ntm = tm.steps_as_ntm
+    tm.simulate_as_ntm(input_str)
+    steps_as_mntm = tm.steps_as_mntm
+    print(steps_as_ntm)
+    print(steps_as_mntm)
+
+    if accepts:
+        x_accepted.append(length)
+        accepted_ntm.append(steps_as_ntm)
+        accepted_mntm.append(steps_as_mntm)
+    else:
+        x_rejected.append(length)
+        rejected_ntm.append(steps_as_ntm)
+        rejected_mntm.append(steps_as_mntm)
+
+plt.figure()
+plt.scatter(x_accepted, accepted_ntm, color="b", label="Single-tape")
+plt.scatter(x_accepted, accepted_mntm, color="b", label="Multi-tape")
+plt.scatter(x_rejected, rejected_ntm, color="r", label=None)
+plt.scatter(x_rejected, rejected_mntm, color="r", label=None)
+plt.show()
+plt.close()
 
 tm = MNTM(
     states=set(["q" + str(i) for i in range(-1, 27)] + ["qc", "qf", "qr"]),
@@ -147,8 +181,8 @@ tm = MNTM(
     final_states={"qf"},
 )
 
-for conf in tm.read_input_stepwise("#0"):
-    print(conf)
+# for conf in tm.read_input_stepwise("#0"):
+#     print(conf)
 
-for conf in tm.simulate_as_ntm("#0"):
-    print(conf)
+# for conf in tm.simulate_as_ntm("#0"):
+#     print(conf)
