@@ -138,6 +138,18 @@ class TestMNTM(test_tm.TestTM):
                 "q0", (("0", "R"), ("#", "N"), ("#", "R")))]
             self.mntm1.validate()
 
+    def test_get_next_configuration(self):
+        subtm = self.mntm1._get_next_configuration(("q0", (
+            ("0", "R"), ("#", "N"))))
+        nose.assert_equal(str(subtm.tapes[0]), 'TMTape(\'0#\', 1)',
+                          'TMTape(\'#\', 0)')
+
+    def test_read_extended_tape(self):
+        pass  # TODO
+
+    def test_simulate_as_ntm(self):
+        pass  # TODO
+
     def test_read_input_accepted(self):
         """Should return correct state if acceptable TM input is given."""
         final_config = self.mntm1.read_input('0101101011').pop()
@@ -174,18 +186,32 @@ class TestMNTM(test_tm.TestTM):
             self.mntm2.read_input('1')
 
     def test_accepts_input_true(self):
-        """Should return False if DTM input is not accepted."""
-        test_limit = 10
+        """Should return False if MNTM input is not accepted."""
+        test_limit = 20
         for i in range(test_limit):
             input_str_1 = ""
             input_str_2 = "#0"
+            input_str_3 = "1100"
             for _ in range(i):
                 k = random.randint(0, 1)
                 input_str_1 += str(k)
                 input_str_2 += "0"
+                input_str_3 += str(k)
+            input_str_3 += input_str_3
 
             # Should accept all
             nose.assert_equal(self.mntm1.accepts_input(input_str_1), True)
+            for conf in self.mntm3.read_input_stepwise(input_str_3):
+                print(conf)
+            nose.assert_equal(self.mntm3.accepts_input(input_str_3), True)
+
+            # Should not accept because this would not be of the form ww
+            nose.assert_equal(
+                self.mntm3.accepts_input(
+                    input_str_3 + str(random.randint(0, 1))
+                ),
+                False
+            )
 
             # Should accept only if input string's length is a perfect square
             if len(input_str_2) - 1 == math.sqrt(len(input_str_2) - 1) ** 2:

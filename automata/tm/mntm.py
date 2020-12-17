@@ -102,7 +102,7 @@ class MNTM(tm.NTM):
         return tuple(tape.read_symbol() for tape in self.tapes)
 
     def _get_transition(self, state):
-        """Get the transiton tuple for the given state and tape symbols in
+        """Get the transition tuple for the given state and tape symbols in
         each tape."""
         current_tape_symbols = self._read_current_tape_symbols()
         if state in self.transitions and current_tape_symbols in \
@@ -147,6 +147,7 @@ class MNTM(tm.NTM):
                     return {MTMConfiguration(current_state, tuple(self.tapes))}
             else:
                 for transition in possible_transitions[1:]:
+                    print(transition)
                     queue.append(
                         current_tm.copy()._get_next_configuration(transition)
                     )
@@ -156,7 +157,7 @@ class MNTM(tm.NTM):
                 queue.append(executed)
 
         raise exceptions.RejectionException(
-            "the multitape NTM did not reach an accepting configuration"
+            "the multitape MNTM did not reach an accepting configuration"
         )
 
     def _read_extended_tape(self, tape: str, head_symbol: str):
