@@ -48,3 +48,10 @@ class RejectionException(AutomatonException):
     """The input was rejected by the automaton."""
 
     pass
+
+
+class InconsistentTapesException(AutomatonException):
+    """The number of tapes defined for the multitape Turing machine is
+    not consistent with the definitions of the transitions."""
+
+    pass

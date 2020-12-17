@@ -14,16 +14,8 @@ class NTM(tm.TM):
     """A nondeterministic Turing machine."""
 
     def __init__(
-        self,
-        *,
-        states,
-        input_symbols,
-        tape_symbols,
-        transitions,
-        initial_state,
-        blank_symbol,
-        final_states
-    ):
+            self, *, states, input_symbols, tape_symbols, transitions,
+            initial_state, blank_symbol, final_states):
         """Initialize a complete Turing machine."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -82,8 +74,8 @@ class NTM(tm.TM):
         for final_state in self.final_states:
             if final_state in self.transitions:
                 raise exceptions.FinalStateError(
-                    "final state {} has transitions defined".format(final_state)
-                )
+                    "final state {} has transitions defined".format(
+                        final_state))
 
     def validate(self):
         """Return True if this NTM is internally consistent."""
@@ -98,7 +90,8 @@ class NTM(tm.TM):
 
     def _get_transitions(self, state, tape_symbol):
         """Get the transition tuples for the given state and tape symbol."""
-        if state in self.transitions and tape_symbol in self.transitions[state]:
+        if state in self.transitions and tape_symbol in self.transitions[
+                state]:
             return self.transitions[state][tape_symbol]
         else:
             return set()
@@ -128,9 +121,10 @@ class NTM(tm.TM):
         """
         current_configurations = {
             TMConfiguration(
-                self.initial_state, TMTape(input_str, blank_symbol=self.blank_symbol)
-            )
-        }
+                self.initial_state,
+                TMTape(
+                    input_str,
+                    blank_symbol=self.blank_symbol))}
         yield current_configurations
 
         # The initial state cannot be a final state for a NTM, so the first
@@ -141,7 +135,8 @@ class NTM(tm.TM):
                 if self._has_accepted(config):
                     # One accepting configuration is enough.
                     return
-                new_configurations.update(self._get_next_configurations(config))
+                new_configurations.update(
+                    self._get_next_configurations(config))
             current_configurations = new_configurations
             yield current_configurations
 

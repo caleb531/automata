@@ -1,206 +1,189 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of MNTMs."""
-from automata.tm.mntm import MNTM
+
+import math
 import random
-import matplotlib.pyplot as plt
-import matplotlib
+import types
+from unittest.mock import patch
 
-# Parámetros para las gráficas
-matplotlib.rcParams['font.family'] = "cmr10"
-matplotlib.rcParams['axes.unicode_minus'] = False
-matplotlib.rcParams.update({'font.size': 16})
-tm = MNTM(
-    states={"q0", "q1"},
-    input_symbols={"0", "1"},
-    tape_symbols={"0", "1", "#"},
-    n_tapes=2,
-    transitions={
-        "q0": {
-            ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
-            ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
-            ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
-        }
-    },
-    initial_state="q0",
-    blank_symbol="#",
-    final_states={"q1"},
-)
+import nose.tools as nose
 
-tm = MNTM(
-    states=set(["q" + str(i) for i in range(-1, 27)] + ["qc", "qf", "qr"]),
-    input_symbols={"0"},
-    tape_symbols={"0", "X", "Y", "S", "#"},
-    n_tapes=3,
-    transitions={
-        "q-1": {("#", "#", "#"): [("q0", (("#", "R"), ("#", "N"), ("#", "N")))],},
-        "q0": {("0", "#", "#"): [("q1", (("0", "N"), ("#", "R"), ("#", "R")))]},
-        "q1": {("0", "#", "#"): [("q2", (("0", "N"), ("0", "R"), ("#", "N")))]},
-        "q2": {("0", "#", "#"): [("qc", (("0", "N"), ("#", "L"), ("X", "R")))],},
-        "qc": {
-            ("0", "0", "#"): [
-                ("qc", (("0", "R"), ("0", "R"), ("#", "N")))
-            ],  # Testing whether tape 1 and 2 have the same length
-            ("0", "#", "#"): [
-                ("q3", (("0", "N"), ("#", "N"), ("#", "N")))
-            ],  # length of tape 1 is greater than the length of tape 2 (continues)
-            ("#", "#", "#"): [
-                ("qf", (("#", "N"), ("#", "N"), ("#", "N")))
-            ],  # tape 1 and 2 were found to be of equal length (accepts)
-            ("#", "0", "#"): [
-                ("qr", (("#", "N"), ("0", "N"), ("#", "N")))
-            ],  # length of tape 2 is greater than the length of tape 1 (rejects)
-        },
-        "q3": {("0", "#", "#"): [("q4", (("0", "N"), ("#", "N"), ("#", "L")))],},
-        "q4": {
-            ("0", "#", "X"): [("q5", (("0", "N"), ("#", "N"), ("X", "R")))],
-            ("0", "#", "Y"): [("q13", (("0", "N"), ("#", "N"), ("Y", "R")))],
-        },
-        "q5": {
-            ("0", "#", "Y"): [("q5", (("0", "N"), ("#", "N"), ("Y", "L")))],
-            ("0", "#", "#"): [("q6", (("0", "N"), ("#", "N"), ("Y", "L")))],
-        },
-        "q6": {
-            ("0", "#", "X"): [("q6", (("0", "N"), ("#", "N"), ("X", "L")))],
-            ("0", "#", "Y"): [("q7", (("0", "N"), ("#", "N"), ("Y", "R")))],
-            ("0", "#", "S"): [("q7", (("0", "N"), ("#", "N"), ("S", "R")))],
-            ("0", "#", "#"): [
-                ("q24", (("0", "N"), ("#", "N"), ("#", "R")))
-            ],  # Caso especial cuando cinta 3 = #X
-        },
-        "q7": {("0", "#", "X"): [("q9", (("0", "N"), ("#", "N"), ("S", "R")))]},
-        "q9": {
-            ("0", "#", "X"): [("q9", (("0", "N"), ("#", "N"), ("X", "R")))],
-            ("0", "#", "Y"): [("q9", (("0", "N"), ("#", "N"), ("Y", "R")))],
-            ("0", "#", "#"): [("q10", (("0", "N"), ("#", "N"), ("Y", "L")))],
-        },
-        "q10": {
-            ("0", "#", "Y"): [("q10", (("0", "N"), ("#", "N"), ("Y", "L")))],
-            ("0", "#", "X"): [("q6", (("0", "N"), ("#", "N"), ("X", "L")))],
-            ("0", "#", "S"): [("q11", (("0", "N"), ("#", "N"), ("X", "L")))],
-        },
-        "q11": {
-            ("0", "#", "S"): [("q11", (("0", "N"), ("#", "N"), ("X", "L")))],
-            ("0", "#", "Y"): [("q11", (("0", "N"), ("#", "N"), ("Y", "R")))],
-            ("0", "#", "X"): [("q11", (("0", "N"), ("#", "N"), ("X", "R")))],
-            ("0", "#", "#"): [("q12", (("0", "N"), ("#", "N"), ("Y", "L")))],
-        },
-        "q12": {
-            ("0", "#", "X"): [("q20", (("0", "N"), ("#", "N"), ("X", "L")))],
-            ("0", "#", "Y"): [("q21", (("0", "N"), ("#", "N"), ("Y", "L")))],
-        },
-        "q13": {
-            ("0", "#", "X"): [("q13", (("0", "N"), ("#", "N"), ("X", "L")))],
-            ("0", "#", "#"): [("q14", (("0", "N"), ("#", "N"), ("X", "L")))],
-        },
-        "q14": {
-            ("0", "#", "Y"): [("q14", (("0", "N"), ("#", "N"), ("Y", "L")))],
-            ("0", "#", "X"): [("q15", (("0", "N"), ("#", "N"), ("X", "R")))],
-            ("0", "#", "S"): [("q15", (("0", "N"), ("#", "N"), ("S", "R")))],
-        },
-        "q15": {("0", "#", "Y"): [("q17", (("0", "N"), ("#", "N"), ("S", "R")))]},
-        "q17": {
-            ("0", "#", "Y"): [("q17", (("0", "N"), ("#", "N"), ("Y", "R")))],
-            ("0", "#", "X"): [("q17", (("0", "N"), ("#", "N"), ("X", "R")))],
-            ("0", "#", "#"): [("q18", (("0", "N"), ("#", "N"), ("X", "L")))],
-        },
-        "q18": {
-            ("0", "#", "X"): [("q18", (("0", "N"), ("#", "N"), ("X", "L")))],
-            ("0", "#", "Y"): [("q14", (("0", "N"), ("#", "N"), ("Y", "L")))],
-            ("0", "#", "S"): [("q19", (("0", "N"), ("#", "N"), ("Y", "L")))],
-        },
-        "q19": {
-            ("0", "#", "S"): [("q19", (("0", "N"), ("#", "N"), ("Y", "L")))],
-            ("0", "#", "X"): [("q19", (("0", "N"), ("#", "N"), ("X", "R")))],
-            ("0", "#", "Y"): [("q19", (("0", "N"), ("#", "N"), ("Y", "R")))],
-            ("0", "#", "#"): [("q12", (("0", "N"), ("#", "N"), ("X", "L")))],
-        },
-        "q20": {
-            ("0", "#", "X"): [("q20", (("0", "N"), ("#", "N"), ("X", "L")))],
-            ("0", "#", "Y"): [("q22", (("0", "N"), ("#", "N"), ("Y", "R")))],
-        },
-        "q21": {
-            ("0", "#", "Y"): [("q21", (("0", "N"), ("#", "N"), ("Y", "L")))],
-            ("0", "#", "X"): [("q22", (("0", "N"), ("#", "N"), ("X", "R")))],
-        },
-        "q22": {
-            ("0", "#", "X"): [("q22", (("0", "N"), ("0", "R"), ("X", "R")))],
-            ("0", "#", "Y"): [("q22", (("0", "N"), ("0", "R"), ("Y", "R")))],
-            ("0", "#", "#"): [("q23", (("0", "N"), ("#", "N"), ("#", "N")))],
-        },
-        "q23": {
-            ("0", "#", "#"): [("q23", (("0", "L"), ("#", "N"), ("#", "N")))],
-            ("#", "#", "#"): [("q26", (("#", "R"), ("#", "L"), ("#", "N")))],
-        },
-        "q26": {
-            ("0", "0", "#"): [("q26", (("0", "N"), ("0", "L"), ("#", "N")))],
-            ("0", "#", "#"): [("qc", (("0", "N"), ("#", "R"), ("#", "N")))],
-        },
-        # Caso especial cuando cinta 3 = #X
-        "q24": {
-            ("0", "#", "Y"): [("q24", (("0", "N"), ("#", "N"), ("Y", "R")))],
-            ("0", "#", "X"): [("q24", (("0", "N"), ("#", "N"), ("X", "R")))],
-            ("0", "#", "#"): [("q25", (("0", "N"), ("#", "N"), ("Y", "R")))],
-        },
-        "q25": {("0", "#", "#"): [("q12", (("0", "N"), ("#", "N"), ("Y", "L")))]},
-    },
-    initial_state="q-1",
-    blank_symbol="#",
-    final_states={"qf"},
-)
+import automata.base.exceptions as exceptions
+import automata.tm.exceptions as tm_exceptions
+import tests.test_tm as test_tm
+from automata.tm.mntm import MNTM
 
-lengths = [i for i in range(50)]
-accepted_ntm = []
-rejected_ntm = []
-accepted_mntm = []
-rejected_mntm = []
-x_accepted = []
-x_rejected = []
-for length in lengths:
-    input_str = "#"
-    for _ in range(length):
-        k = random.randint(0, 1)  # decide on a k each time the loop runs
-        k = 0 # Ejemplo 2
-        input_str += str(int(k))
-    print(input_str)
 
-    try:
-        for conf in tm.read_input_stepwise(input_str):
-            pass
-        accepts = True
-    except:
-        accepts = False
-    
-    steps_as_mntm = tm.steps_as_mntm
-    try:
-        for conf in tm.simulate_as_ntm(input_str):
-            pass
-        accepts = True
-    except:
-        accepts = False
-    
-    steps_as_ntm = tm.steps_as_ntm
+class TestMNTM(test_tm.TestTM):
+    """A test class for testing multitape nondeterministic Turing machines."""
 
-    if accepts:
-        x_accepted.append(length)
-        accepted_ntm.append(steps_as_ntm)
-        accepted_mntm.append(steps_as_mntm)
-    else:
-        x_rejected.append(length)
-        rejected_ntm.append(steps_as_ntm)
-        rejected_mntm.append(steps_as_mntm)
+    def test_init_mntm(self):
+        """Should copy MNTM if passed into MNTM constructor."""
+        new_mntm = MNTM.copy(self.mntm1)
+        self.assert_is_copy(new_mntm, self.mntm1)
 
-plt.figure(figsize=(12, 10))
-plt.scatter(x_accepted, accepted_ntm, color="b", label="Single-tape", s=20)
-plt.scatter(x_accepted, accepted_mntm, color="k", label="Multi-tape", s=20)
-#plt.scatter(x_rejected, rejected_ntm, color="r", label=None)
-#plt.scatter(x_rejected, rejected_mntm, color="r", label=None)
-plt.ylabel("Steps")
-plt.xlabel("Length of input string")
-plt.legend()
-plt.tight_layout()
-plt.grid(b=True, which='major', color='k', linestyle='-', alpha=0.2)
-plt.grid(b=True, which='minor', color='k', linestyle='--', alpha=0.1)
-plt.minorticks_on()
-plt.savefig("Ejemplo2_menos.jpg", dpi=400)
-plt.show()
-plt.close()
+    def test_init_mntm_missing_formal_params(self):
+        """Should raise an error if formal MNTM parameters are missing."""
+        with nose.assert_raises(TypeError):
+            MNTM(
+                states={'q0', 'q1', 'q2', 'q3', 'q4'},
+                input_symbols={'0', '1'},
+                tape_symbols={'0', '1', 'x', 'y', '.'},
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q4'}
+            )
+
+    @patch('automata.tm.mntm.MNTM.validate')
+    def test_init_validation(self, validate):
+        """Should validate MNTM when initialized."""
+        MNTM.copy(self.mntm1)
+        validate.assert_called_once_with()
+
+    def test_copy_ntm(self):
+        """Should create exact copy of MNTM if copy() method is called."""
+        new_mntm = self.mntm1.copy()
+        self.assert_is_copy(new_mntm, self.mntm1)
+
+    def test_ntm_equal(self):
+        """Should correctly determine if two MNTMs are equal."""
+        new_mntm = self.mntm1.copy()
+        nose.assert_true(self.mntm1 == new_mntm, 'MNTMs are not equal')
+
+    def test_ntm_not_equal(self):
+        """Should correctly determine if two MNTMs are not equal."""
+        new_mntm = self.mntm1.copy()
+        new_mntm.final_states.add('q2')
+        nose.assert_true(self.mntm1 != new_mntm, 'MNTMs are equal')
+
+    def test_validate_input_symbol_subset(self):
+        """Should raise error if any input symbols are not tape symbols."""
+        with nose.assert_raises(exceptions.MissingSymbolError):
+            self.mntm1.input_symbols.add('3')
+            self.mntm1.validate()
+
+    def test_validate_invalid_transition_state(self):
+        """Should raise error if a transition state is invalid."""
+        with nose.assert_raises(exceptions.InvalidStateError):
+            self.mntm1.transitions['q4'] = self.mntm1.transitions['q0']
+            self.mntm1.validate()
+
+    def test_validate_invalid_transition_symbol(self):
+        """Should raise error if a transition symbol is invalid."""
+        with nose.assert_raises(exceptions.InvalidSymbolError):
+            self.mntm1.transitions['q0'][("2", "#")] = [
+                ('q1', (('#', 'R'), ('#', 'R')))]
+            self.mntm1.validate()
+
+    def test_validate_invalid_transition_result_state(self):
+        """Should raise error if a transition result state is invalid."""
+        with nose.assert_raises(exceptions.InvalidStateError):
+            self.mntm1.transitions['q0'][("1", "#")] = [
+                ('q3', (('#', 'L'), ('#', 'R')))]
+            self.mntm1.validate()
+
+    def test_validate_invalid_transition_result_symbol(self):
+        """Should raise error if a transition result symbol is invalid."""
+        with nose.assert_raises(exceptions.InvalidSymbolError):
+            self.mntm1.transitions['q0'][("1", "#")] = [
+                ('q1', (('.', 'U'), ('#', 'R')))]
+            self.mntm1.validate()
+
+    def test_validate_invalid_transition_result_direction(self):
+        """Should raise error if a transition result direction is invalid."""
+        with nose.assert_raises(tm_exceptions.InvalidDirectionError):
+            self.mntm1.transitions['q0'][("1", "#")] = [
+                ('q1', (('#', 'U'), ('#', 'R')))]
+            self.mntm1.validate()
+
+    def test_validate_invalid_initial_state(self):
+        """Should raise error if the initial state is invalid."""
+        with nose.assert_raises(exceptions.InvalidStateError):
+            self.mntm1.initial_state = 'q4'
+            self.mntm1.validate()
+
+    def test_validate_initial_state_transitions(self):
+        """Should raise error if the initial state has no transitions."""
+        with nose.assert_raises(exceptions.MissingStateError):
+            del self.mntm1.transitions[self.mntm1.initial_state]
+            self.mntm1.validate()
+
+    def test_validate_nonfinal_initial_state(self):
+        """Should raise error if the initial state is a final state."""
+        with nose.assert_raises(exceptions.InitialStateError):
+            self.mntm1.final_states.add('q0')
+            self.mntm1.validate()
+
+    def test_validate_invalid_final_state(self):
+        """Should raise error if the final state is invalid."""
+        with nose.assert_raises(exceptions.InvalidStateError):
+            self.mntm1.final_states = {'q4'}
+            self.mntm1.validate()
+
+    def test_validate_final_state_transitions(self):
+        """Should raise error if a final state has any transitions."""
+        with nose.assert_raises(exceptions.FinalStateError):
+            self.mntm1.transitions['q1'] = {('0', '#'): [
+                ('q0', (('0', 'L'), ('0', 'R')))]
+            }
+            self.mntm1.validate()
+
+    def test_read_input_accepted(self):
+        """Should return correct state if acceptable TM input is given."""
+        final_config = self.mntm1.read_input('0101101011').pop()
+        nose.assert_equal(final_config[0], 'q1')
+        nose.assert_equal(
+            str(final_config[1][0]),
+            'TMTape(\'0101101011#\', 10)')
+        nose.assert_equal(str(final_config[1][1]), 'TMTape(\'111111#\', 6)')
+
+    def test_read_input_step(self):
+        """Should return validation generator if step flag is supplied."""
+        validation_generator = self.mntm1.read_input_stepwise('0010101111')
+        nose.assert_is_instance(validation_generator, types.GeneratorType)
+        configs = list(validation_generator)
+        first_config = configs[0].pop()
+        nose.assert_equal(first_config[0], 'q0')
+        nose.assert_equal(str(first_config[1][0]), 'TMTape(\'0010101111\', 0)')
+        nose.assert_equal(str(first_config[1][1]), 'TMTape(\'#\', 0)')
+        last_config = configs[-1].pop()
+        nose.assert_equal(last_config[0], 'q1')
+        nose.assert_equal(
+            str(last_config[1][0]),
+            'TMTape(\'0010101111#\', 10)')
+        nose.assert_equal(str(last_config[1][1]), 'TMTape(\'111111#\', 6)')
+
+    def test_read_input_rejection(self):
+        """Should raise error if the machine halts."""
+        with nose.assert_raises(exceptions.RejectionException):
+            self.mntm1.read_input('2')
+
+    def test_read_input_rejection_invalid_symbol(self):
+        """Should raise error if an invalid symbol is read."""
+        with nose.assert_raises(exceptions.RejectionException):
+            self.mntm2.read_input('1')
+
+    def test_accepts_input_true(self):
+        """Should return False if DTM input is not accepted."""
+        test_limit = 10
+        for i in range(test_limit):
+            input_str_1 = ""
+            input_str_2 = "#0"
+            for _ in range(i):
+                k = random.randint(0, 1)
+                input_str_1 += str(k)
+                input_str_2 += "0"
+
+            # Should accept all
+            nose.assert_equal(self.mntm1.accepts_input(input_str_1), True)
+
+            # Should accept only if input string's length is a perfect square
+            if len(input_str_2) - 1 == math.sqrt(len(input_str_2) - 1) ** 2:
+                nose.assert_equal(self.mntm2.accepts_input(input_str_2), True)
+            else:
+                nose.assert_equal(self.mntm2.accepts_input(input_str_2), False)
+
+    def test_accepts_input_false(self):
+        """Should return False if MNTM input is rejected."""
+        nose.assert_equal(self.mntm1.accepts_input('000012'), False)
+        nose.assert_equal(self.mntm2.accepts_input('#00000'), False)
