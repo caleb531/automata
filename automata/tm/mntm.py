@@ -129,17 +129,6 @@ class MNTM(tm.NTM):
     def _has_accepted(self, state):
         return state in self.final_states
 
-    def accepts(self, input_str):
-        """Tests the Turing machine with the input string by reading it
-        stepwise. If no rejection exception is raised, the machine
-        accepts, thus returns True."""
-        try:
-            for _ in self.read_input_stepwise(input_str):
-                pass
-            return True
-        except exceptions.RejectionException:
-            return False
-
     def read_input_stepwise(self, input_str):
         """Checks if the given string is accepted by this Turing machine,
         using a BFS of every possible configuration from each configuration.

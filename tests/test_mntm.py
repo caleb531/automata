@@ -128,6 +128,16 @@ class TestMNTM(test_tm.TestTM):
             }
             self.mntm1.validate()
 
+    def test_validate_tapes_consistency(self):
+        with nose.assert_raises(exceptions.InconsistentTapesException):
+            self.mntm1.n_tapes = 3
+            self.mntm1.validate()
+        self.mntm1.n_tapes = 2
+        with nose.assert_raises(exceptions.InconsistentTapesException):
+            self.mntm1.transitions["q0"][("0", "#")] = [(
+                "q0", (("0", "R"), ("#", "N"), ("#", "R")))]
+            self.mntm1.validate()
+
     def test_read_input_accepted(self):
         """Should return correct state if acceptable TM input is given."""
         final_config = self.mntm1.read_input('0101101011').pop()
