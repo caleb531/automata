@@ -191,30 +191,24 @@ class TestMNTM(test_tm.TestTM):
         for i in range(test_limit):
             input_str_1 = ""
             input_str_2 = "#0"
-            input_str_3 = "1100"
+            input_str_3 = "1"
             for _ in range(i):
                 k = random.randint(0, 1)
                 input_str_1 += str(k)
                 input_str_2 += "0"
                 input_str_3 += str(k)
-            input_str_3 += input_str_3
 
+            input_str_3 += input_str_3
             # Should accept all
             nose.assert_equal(self.mntm1.accepts_input(input_str_1), True)
-            for conf in self.mntm3.read_input_stepwise(input_str_3):
-                print(conf)
             nose.assert_equal(self.mntm3.accepts_input(input_str_3), True)
 
             # Should not accept because this would not be of the form ww
-            nose.assert_equal(
-                self.mntm3.accepts_input(
-                    input_str_3 + str(random.randint(0, 1))
-                ),
-                False
-            )
+            nose.assert_equal(self.mntm3.accepts_input(
+                input_str_3 + str(random.randint(0, 1))), False)
 
             # Should accept only if input string's length is a perfect square
-            if len(input_str_2) - 1 == math.sqrt(len(input_str_2) - 1) ** 2:
+            if self.is_perfect_square(len(input_str_2) - 1):
                 nose.assert_equal(self.mntm2.accepts_input(input_str_2), True)
             else:
                 nose.assert_equal(self.mntm2.accepts_input(input_str_2), False)
@@ -223,3 +217,7 @@ class TestMNTM(test_tm.TestTM):
         """Should return False if MNTM input is rejected."""
         nose.assert_equal(self.mntm1.accepts_input('000012'), False)
         nose.assert_equal(self.mntm2.accepts_input('#00000'), False)
+
+    @staticmethod
+    def is_perfect_square(number: int):
+        return number == int(math.sqrt(number)) ** 2
