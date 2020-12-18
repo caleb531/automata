@@ -42,6 +42,7 @@ pip install automata-lib
   - [Turing Machine (TM)](#class-tmautomaton-metaclassabcmeta)
     - [Deterministic (DTM)](#class-dtmtm)
     - [Non-Deterministic (NTM)](#class-ntmtm)
+    - [Multi-Tape Non-Deterministic Turing Machine (MNTM)](#class-mntmtm)
 - [Exception classes](#base-exception-classes)
     - [Turing machine exceptions](#turing-machine-exception-classes)
 
@@ -794,9 +795,9 @@ strings
 7. `final_states`: a `set` of final states for this MNTM
 
 ```python
-from automata.tm.ntm import MNTM
+from automata.tm.mntm import MNTM
 # MNTM which accepts all strings in {0, 1}* and writes all
-# 1'N from the first tape (input) to the second tape.
+# 1's from the first tape (input) to the second tape.
 self.mntm1 = MNTM(
     states={'q0', 'q1'},
     input_symbols={'0', '1'},
@@ -861,7 +862,7 @@ ntm.read_input_stepwise('0111')
 Simulates the MNTM as an NTM by using an extended tape consisting of all tapes of the MNTM separated by a `tape_separator_symbol = _` and
 `'virtual heads'` for each `'virtual tape'` (which are basically the portions of the extended tape separated by `'_'`). Each `'virtual head'`
 corresponds to a special symbol (`original_symbol + '^'`) on the extended tape which denotes where the actual head of that tape would be if 
-the MNTM was being run as MNTM and not an NTM. This is the classic algorithm for performing a single-tape simulation of a multi-tape Turing
+the MNTM was being run as a MNTM and not a NTM. This is the classic algorithm for performing a single-tape simulation of a multi-tape Turing
 machine. For more information, visit Sipser's **Introduction to the Theory of Computation** 3rd Edition, Section 3.2.
 
 ```python
@@ -970,3 +971,11 @@ A base class from which all other Turing machine exceptions inherit.
 
 Raised if a direction specified in this machine's transition map is not a valid
 direction (valid directions include `'L'`, `'R'`, and `'N'`).
+
+#### class InconsistentTapesException(TMException):
+    
+Raised if the number of tapes defined for the mntm is not consistent with the transitions.
+
+#### class MalformedExtendedTape(TMException):
+    
+Raised if the extended tape for simulating a mntm as a ntm is not valid.
