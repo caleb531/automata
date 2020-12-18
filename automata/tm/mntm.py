@@ -6,6 +6,7 @@ import copy
 from collections import deque
 
 import automata.base.exceptions as exceptions
+import automata.tm.exceptions as tm_exceptions
 import automata.tm.ntm as tm
 from automata.tm.configuration import MTMConfiguration, TMConfiguration
 from automata.tm.tape import TMTape
@@ -72,7 +73,7 @@ class MNTM(tm.NTM):
         for state in self.transitions:
             for read_tape_symbols in self.transitions[state]:
                 if len(read_tape_symbols) != self.n_tapes:
-                    raise exceptions.InconsistentTapesException(
+                    raise tm_exceptions.InconsistentTapesException(
                         f"tapes symbols {read_tape_symbols} is inconsistent with \
                         the number of tapes defined. Expected \
                         {self.n_tapes} symbols, got \
@@ -81,7 +82,7 @@ class MNTM(tm.NTM):
                 for transition in self.transitions[state][read_tape_symbols]:
                     _, moves = transition
                     if len(moves) != self.n_tapes:
-                        raise exceptions.InconsistentTapesException(
+                        raise tm_exceptions.InconsistentTapesException(
                             f"transition {transition} has inconsistent operations \
                             on tapes. Expected {self.n_tapes} write/move \
                             operations, got {len(moves)}")
@@ -177,18 +178,47 @@ class MNTM(tm.NTM):
             "the multitape MNTM did not reach an accepting configuration"
         )
 
-    def _read_extended_tape(self, tape: str, head_symbol: str):
+    @staticmethod
+    def _read_extended_tape(tape: str, head_symbol: str = '^',
+                            tape_separator_symbol: str = '_'):
         """Returns a tuple with the symbols extracted from the given
         tape, that are the virtual heads for their corresponding
         virtual tape."""
         virtual_heads = []
+        heads_found = 0
+        separators_found = 0
         for i in range(len(tape)):
             if tape[i] == head_symbol:
-                virtual_heads.append(tape[i - 1])
+                if i - 1 < 0:
+                    raise tm_exceptions.MalformedExtendedTape(
+                        "head symbol was found on leftmost end of the " +
+                        "extended tape"
+                    )
+                else:
+                    virtual_heads.append(tape[i - 1])
+                    heads_found += 1
+            elif tape[i] == tape_separator_symbol:
+                if heads_found == 0:
+                    raise tm_exceptions.MalformedExtendedTape(
+                        "no head symbol found on one of the virtual tapes"
+                    )
+                elif heads_found > 1:
+                    raise tm_exceptions.MalformedExtendedTape(
+                        "more than one head symbol found on one of the " +
+                        "virtual tapes"
+                    )
+                else:
+                    heads_found = 0
+                    separators_found += 1
+
+        if len(virtual_heads) != separators_found:
+            raise tm_exceptions.MalformedExtendedTape(
+                "there must be 1 virtual head for every tape separator symbol"
+            )
 
         return tuple(virtual_heads)
 
-    def simulate_as_ntm(self, input_str):
+    def read_input_as_ntm(self, input_str):
         """Simulates the machine as a single-tape Turing machine.
         Yields the configuration at each step."""
         self._restart_configuration(input_str)
@@ -214,13 +244,14 @@ class MNTM(tm.NTM):
         while current_state not in self.final_states:
             i = 0  # current position
             virtual_heads = self._read_extended_tape(extended_tape,
-                                                     head_symbol)
+                                                     head_symbol,
+                                                     tape_separator_symbol)
             try:
                 next_config = self.transitions[current_state][virtual_heads]
             except KeyError:
                 raise exceptions.RejectionException(
-                    "the multitape NTM did not reach an accepting  \
-                    configuration")
+                    "the multitape NTM did not reach an accepting " +
+                    "configuration")
             next_state, moves = next_config[0]
             for move in moves:
                 new_head, direction = move
@@ -249,8 +280,8 @@ class MNTM(tm.NTM):
 
                         if extended_tape[i - 1] == tape_separator_symbol:
                             i -= 1
-                            extended_tape = extended_tape[:i]
-                            + self.blank_symbol + \
+                            extended_tape = extended_tape[:i] + \
+                                self.blank_symbol + \
                                 head_symbol + extended_tape[i:]
 
                             i += 1
@@ -270,6 +301,6 @@ class MNTM(tm.NTM):
                 TMConfiguration(current_state,
                                 TMTape(extended_tape,
                                        blank_symbol=self.blank_symbol,
-                                       current_position=i)
+                                       current_position=i-1)
                                 )
             }

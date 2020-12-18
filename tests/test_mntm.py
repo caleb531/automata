@@ -129,11 +129,11 @@ class TestMNTM(test_tm.TestTM):
             self.mntm1.validate()
 
     def test_validate_tapes_consistency(self):
-        with nose.assert_raises(exceptions.InconsistentTapesException):
+        with nose.assert_raises(tm_exceptions.InconsistentTapesException):
             self.mntm1.n_tapes = 3
             self.mntm1.validate()
         self.mntm1.n_tapes = 2
-        with nose.assert_raises(exceptions.InconsistentTapesException):
+        with nose.assert_raises(tm_exceptions.InconsistentTapesException):
             self.mntm1.transitions["q0"][("0", "#")] = [(
                 "q0", (("0", "R"), ("#", "N"), ("#", "R")))]
             self.mntm1.validate()
@@ -145,10 +145,51 @@ class TestMNTM(test_tm.TestTM):
                           'TMTape(\'#\', 0)')
 
     def test_read_extended_tape(self):
-        pass  # TODO
+        nose.assert_equal(self.mntm1._read_extended_tape(
+            '10^10_1^00_00#^_', '^'), ('0', '1', '#'))
+        nose.assert_equal(self.mntm1._read_extended_tape(
+            '1.10_1.00_0.#_', '.'), ('1', '1', '0'))
+        nose.assert_equal(self.mntm1._read_extended_tape(
+            '10#^_00#^_00^_', '^'), ('#', '#', '0'))
 
-    def test_simulate_as_ntm(self):
-        pass  # TODO
+        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTape,
+                                      "head symbol was found on leftmost " +
+                                      "end of the extended tape"):
+            nose.assert_equal(self.mntm1._read_extended_tape(
+                '^10#_1^010#_00^', '^'), ('', '1', '0'))
+
+        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTape,
+                                      "no head symbol found on one of the " +
+                                      "virtual tapes"):
+            nose.assert_equal(self.mntm1._read_extended_tape(
+                '0^10#_1010#_00^_', '^'), ('0', '', '0'))
+
+        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTape,
+                                      "there must be 1 virtual head for " +
+                                      "every tape separator symbol"):
+            nose.assert_equal(self.mntm1._read_extended_tape(
+                '0^1010^10#^', '^'), ('0', '0', '#'))
+
+        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTape,
+                                      "more than one head symbol found on " +
+                                      "one of the virtual tapes"):
+            nose.assert_equal(self.mntm1._read_extended_tape(
+                '0^101010^_#^_', '^'), ('0', '0', '#'))
+
+    def test_read_input_as_ntm(self):
+        validation_generator = self.mntm2.read_input_as_ntm('#0000')
+        configs = list(validation_generator)
+        first_config = configs[0].pop()
+        nose.assert_equal(first_config[0], 'q-1')
+        nose.assert_equal(str(first_config[1]), 'TMTape(\'#^0000_#^_#^_\', 0)')
+        last_config = configs[-1].pop()
+        nose.assert_equal(last_config[0], 'qf')
+        nose.assert_equal(str(last_config[1]),
+                          'TMTape(\'#0000#^_#0000#^_#XYYY#^_\', 23)')
+
+        with nose.assert_raises(exceptions.RejectionException):
+            for _ in self.mntm2.read_input_as_ntm('#00'):
+                pass
 
     def test_read_input_accepted(self):
         """Should return correct state if acceptable TM input is given."""
@@ -218,6 +259,6 @@ class TestMNTM(test_tm.TestTM):
         nose.assert_equal(self.mntm1.accepts_input('000012'), False)
         nose.assert_equal(self.mntm2.accepts_input('#00000'), False)
 
-    @staticmethod
+    @ staticmethod
     def is_perfect_square(number: int):
         return number == int(math.sqrt(number)) ** 2
