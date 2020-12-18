@@ -13,8 +13,8 @@ class TestTM(object):
 
     def setup(self):
         """Reset test machines before every test function."""
-        # DTM which matches all strings beginning with '0's, and followed by
-        # the same number of '1's
+        # DTM which matches all strings beginning with '0'N, and followed by
+        # the same number of '1'N
         self.dtm1 = DTM(
             states={'q0', 'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
@@ -44,7 +44,7 @@ class TestTM(object):
             final_states={'q4'}
         )
         # DTM which matches any binary string, but is designed to test the
-        # tape's position offsetting algorithm
+        # tape'N position offsetting algorithm
         self.dtm2 = DTM(
             states={'q0', 'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
@@ -93,7 +93,7 @@ class TestTM(object):
             final_states={'q3'}
         )
         # MNTM which accepts all strings in {0, 1}* and writes all
-        # 1's from the first tape (input) to the second tape.
+        # 1'N from the first tape (input) to the second tape.
         self.mntm1 = MNTM(
             states={"q0", "q1"},
             input_symbols={"0", "1"},
@@ -110,7 +110,7 @@ class TestTM(object):
             blank_symbol="#",
             final_states={"q1"},
         )
-        # MNTM which accepts all strings of 0's whose length is of the form
+        # MNTM which accepts all strings of 0'N whose length is of the form
         # n^2, i.e the length is a square number.
         self.mntm2 = MNTM(
             states=set(["q" + str(i)
@@ -141,14 +141,14 @@ class TestTM(object):
                     ],  # Testing whether tape 1 and 2 have the same length
                     ("0", "#", "#"): [
                         ("q3", (("0", "N"), ("#", "N"), ("#", "N")))
-                    ],  # length of tape 1 is greater than tape 2's (continues)
+                    ],  # length of tape 1 is greater than tape 2'N (continues)
                     ("#", "#", "#"): [
                         ("qf", (("#", "N"), ("#", "N"), ("#", "N")))
                     ],  # tape 1 and 2 were found to be of equal length
                         # accepts
                     ("#", "0", "#"): [
                         ("qr", (("#", "N"), ("0", "N"), ("#", "N")))
-                    ],  # length of tape 2 is greater than tape 1's (rejects)
+                    ],  # length of tape 2 is greater than tape 1'N (rejects)
                 },
                 "q3": {
                     ("0", "#", "#"): [("q4", (("0", "N"), ("#", "N"),
@@ -315,45 +315,37 @@ class TestTM(object):
             tape_symbols={"0", "1", "$", "#"},
             n_tapes=3,
             transitions={
-                "q0": {
-                    ('0', '#', '#'): [
-                        ('q1', (('0', 'N'), ('$', 'R'), ('$', 'R')))
-                    ],
-                    ('1', '#', '#'): [
-                        ('q1', (('1', 'N'), ('$', 'R'), ('$', 'R')))
-                    ]
+                'q0': {
+                    ('0', '#', '#'): [('q1', (('0', 'N'), ('$', 'R'),
+                                              ('$', 'R')))],
+                    ('1', '#', '#'): [('q1', (('1', 'N'), ('$', 'R'),
+                                              ('$', 'R')))]
                 },
-                "q1": {
-                    ('0', '#', '#'): [
-                        ('q1', (('0', 'R'), ('0', 'R'), ('#', 'N'))),
-                        ('q2', (('0', 'R'), ('#', 'N'), ('0', 'R')))
-                    ],
-                    ('1', '#', '#'): [
-                        ('q1', (('1', 'R'), ('1', 'R'), ('#', 'N'))),
-                        ('q2', (('1', 'R'), ('#', 'N'), ('1', 'R'))),
-                    ]
+                'q1': {
+                    ('0', '#', '#'): [('q1', (('0', 'R'), ('0', 'R'),
+                                              ('#', 'N'))),
+                                      ('q2', (('0', 'R'), ('#', 'N'),
+                                              ('0', 'R')))],
+                    ('1', '#', '#'): [('q1', (('1', 'R'), ('1', 'R'),
+                                              ('#', 'N'))),
+                                      ('q2', (('1', 'R'), ('#', 'N'),
+                                              ('1', 'R')))],
                 },
-                "q2": {
-                    ('0', '#', '#'): [
-                        ('q2', (('0', 'R'), ('#', 'N'), ('0', 'R')))
-                    ],
-                    ('1', '#', '#'): [
-                        ('q2', (('1', 'R'), ('#', 'N'), ('1', 'R')))
-                    ],
-                    ('#', '#', '#'): [
-                        ('q3', (('#', 'N'), ('#', 'L'), ('#', 'L')))
-                    ]
+                'q2': {
+                    ('0', '#', '#'): [('q2', (('0', 'R'), ('#', 'N'),
+                                              ('0', 'R')))],
+                    ('1', '#', '#'): [('q2', (('1', 'R'), ('#', 'N'),
+                                              ('1', 'R')))],
+                    ('#', '#', '#'): [('q3', (('#', 'N'), ('#', 'L'),
+                                              ('#', 'L')))]
                 },
-                "q3": {
-                    ('#', '0', '0'): [
-                        ('q3', (('#', 'N'), ('0', 'L'), ('0', 'L')))
-                    ],
-                    ('#', '1', '1'): [
-                        ('q3', (('#', 'N'), ('1', 'L'), ('1', 'L')))
-                    ],
-                    ('#', '$', '$'): [
-                        ('q4', (('#', 'N'), ('$', 'N'), ('$', 'N')))
-                    ]
+                'q3': {
+                    ('#', '0', '0'): [('q3', (('#', 'N'), ('0', 'L'),
+                                              ('0', 'L')))],
+                    ('#', '1', '1'): [('q3', (('#', 'N'), ('1', 'L'),
+                                              ('1', 'L')))],
+                    ('#', '$', '$'): [('q4', (('#', 'N'), ('$', 'N'),
+                                              ('$', 'N')))]
                 }
             },
             initial_state="q0",
@@ -361,18 +353,17 @@ class TestTM(object):
             final_states={"q4"},
         )
 
-
-def assert_is_copy(self, first, second):
-    """Assert that the first FA is a deep copy of the second."""
-    nose.assert_is_not(first.states, second.states)
-    nose.assert_equal(first.states, second.states)
-    nose.assert_is_not(first.input_symbols, second.input_symbols)
-    nose.assert_equal(first.input_symbols, second.input_symbols)
-    nose.assert_is_not(first.tape_symbols, second.tape_symbols)
-    nose.assert_equal(first.tape_symbols, second.tape_symbols)
-    nose.assert_is_not(first.transitions, second.transitions)
-    nose.assert_equal(first.transitions, second.transitions)
-    nose.assert_equal(first.initial_state, second.initial_state)
-    nose.assert_equal(first.blank_symbol, second.blank_symbol)
-    nose.assert_is_not(first.final_states, second.final_states)
-    nose.assert_equal(first.final_states, second.final_states)
+    def assert_is_copy(self, first, second):
+        """Assert that the first FA is a deep copy of the second."""
+        nose.assert_is_not(first.states, second.states)
+        nose.assert_equal(first.states, second.states)
+        nose.assert_is_not(first.input_symbols, second.input_symbols)
+        nose.assert_equal(first.input_symbols, second.input_symbols)
+        nose.assert_is_not(first.tape_symbols, second.tape_symbols)
+        nose.assert_equal(first.tape_symbols, second.tape_symbols)
+        nose.assert_is_not(first.transitions, second.transitions)
+        nose.assert_equal(first.transitions, second.transitions)
+        nose.assert_equal(first.initial_state, second.initial_state)
+        nose.assert_equal(first.blank_symbol, second.blank_symbol)
+        nose.assert_is_not(first.final_states, second.final_states)
+        nose.assert_equal(first.final_states, second.final_states)
