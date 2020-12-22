@@ -45,7 +45,7 @@ class MTMConfiguration(collections.namedtuple(
         """Print the machine's current configuration in a readable form."""
         description = '{state}: \n'.format(state=self.state)
         for i, tape in enumerate(self.tapes):
-            title = f'> Tape {i+1}: '
+            title = '> Tape {i}: '.format(i=i+1)
             position = tape.current_position + len(title) + 1
             description += '> Tape {j}: {tape}\n{current_position}\n'.format(
                 j=i+1,
