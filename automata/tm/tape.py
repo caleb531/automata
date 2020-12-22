@@ -21,6 +21,15 @@ class TMTape(collections.namedtuple(
             cls, tape, blank_symbol, current_position
         )
 
+    def load_symbols(self, input_str, head):
+        """Loads a given string in tape and sets the head to the given
+        value."""
+        return TMTape(
+            list(input_str),
+            blank_symbol=self.blank_symbol,
+            current_position=head
+        )
+
     def read_symbol(self):
         """Read the symbol at the current position in the tape."""
         return self.tape[self.current_position]
@@ -57,6 +66,14 @@ class TMTape(collections.namedtuple(
             blank_symbol=self.blank_symbol,
             current_position=new_position
         )
+
+    def copy(self):
+        return TMTape(list(self.tape).copy(),
+                      blank_symbol=self.blank_symbol,
+                      current_position=self.current_position)
+
+    def get_symbols_as_str(self):
+        return "".join(self.tape)
 
     def __len__(self):
         """Return the number of symbols on the tape."""

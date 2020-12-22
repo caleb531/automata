@@ -14,8 +14,11 @@ dist/
 cover/
 htmlcov/
 .coverage
+.noseids
 coverage.xml
 nosetests.xml
 
 # Required packages
 .virtualenv
+.vscode
+.spyproject
