@@ -74,10 +74,12 @@ class MNTM(tm.NTM):
             for read_tape_symbols in self.transitions[state]:
                 if len(read_tape_symbols) != self.n_tapes:
                     error = (
-                        f'tapes symbols {read_tape_symbols} inconsistent '
-                        f'with the number of tapes defined. Expected '
-                        f'{self.n_tapes} symbols, got '
-                        f'{len(read_tape_symbols)}'
+                        'tapes symbols {} inconsistent with the number of '
+                        'tapes defined. Expected {} symbols, got {}'
+                    ).format(
+                        read_tape_symbols,
+                        self.n_tapes,
+                        len(read_tape_symbols)
                     )
                     raise tm_exceptions.InconsistentTapesException(
                         error
@@ -86,9 +88,13 @@ class MNTM(tm.NTM):
                     _, moves = transition
                     if len(moves) != self.n_tapes:
                         error = (
-                            f'transition {transition} has inconsistent '
-                            f'operations on tapes. Expected {self.n_tapes} '
-                            f'write/move operations, got {len(moves)}'
+                            'transition {} has inconsistent operations on '
+                            'tapes. Expected {} write/move operations, '
+                            'got {}'
+                        ).format(
+                            transition,
+                            self.n_tapes,
+                            len(moves)
                         )
                         raise tm_exceptions.InconsistentTapesException(
                             error
@@ -184,7 +190,7 @@ class MNTM(tm.NTM):
             if symbol == head_symbol:
                 if i - 1 < 0:
                     raise tm_exceptions.MalformedExtendedTapeError(
-                        'head symbol was found on leftmost end of the ' +
+                        'head symbol was found on leftmost end of the '
                         'extended tape'
                     )
                 else:
@@ -198,7 +204,7 @@ class MNTM(tm.NTM):
                     )
                 elif heads_found > 1:
                     raise tm_exceptions.MalformedExtendedTapeError(
-                        'more than one head symbol found on one of the ' +
+                        'more than one head symbol found on one of the '
                         'virtual tapes'
                     )
                 else:
@@ -244,7 +250,7 @@ class MNTM(tm.NTM):
                 next_config = self.transitions[current_state][virtual_heads]
             except KeyError:
                 raise exceptions.RejectionException(
-                    'the multitape NTM did not reach an accepting ' +
+                    'the multitape NTM did not reach an accepting '
                     'configuration')
             next_state, moves = next_config[0]
             for move in moves:
