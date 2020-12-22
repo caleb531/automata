@@ -74,25 +74,17 @@ class MNTM(tm.NTM):
             for read_tape_symbols in self.transitions[state]:
                 if len(read_tape_symbols) != self.n_tapes:
                     raise tm_exceptions.InconsistentTapesException(
-                        ('tapes symbols {symbols} inconsistent ' +
-                         'with the number of tapes defined. Expected ' +
-                         '{n_tapes} symbols, got {size)}').format(
-                            symbols=read_tape_symbols,
-                            n_tapes=self.n_tapes,
-                            size=str(len(read_tape_symbols))
-                        )
+                        f"tapes symbols {read_tape_symbols} inconsistent " +
+                        "with the number of tapes defined. Expected " +
+                        f"{self.n_tapes} symbols, got {len(read_tape_symbols)}"
                     )
                 for transition in self.transitions[state][read_tape_symbols]:
                     _, moves = transition
                     if len(moves) != self.n_tapes:
                         raise tm_exceptions.InconsistentTapesException(
-                            ('transition {transition} has inconsistent ' +
-                             'operations on tapes. Expected {n_tapes} ' +
-                             'write/move operations, got {size}').format(
-                                transition=transition,
-                                n_tapes=self.n_tapes,
-                                size=len(moves)
-                            )
+                            f"transition {transition} has inconsistent " +
+                            f"operations on tapes. Expected {self.n_tapes} " +
+                            f"write/move operations, got {len(moves)}"
                         )
 
     def validate(self):
