@@ -152,25 +152,25 @@ class TestMNTM(test_tm.TestTM):
         nose.assert_equal(self.mntm1._read_extended_tape(
             '10#^_00#^_00^_', '^'), ('#', '#', '0'))
 
-        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTape,
+        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTapeError,
                                       "head symbol was found on leftmost " +
                                       "end of the extended tape"):
             nose.assert_equal(self.mntm1._read_extended_tape(
                 '^10#_1^010#_00^', '^'), ('', '1', '0'))
 
-        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTape,
+        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTapeError,
                                       "no head symbol found on one of the " +
                                       "virtual tapes"):
             nose.assert_equal(self.mntm1._read_extended_tape(
                 '0^10#_1010#_00^_', '^'), ('0', '', '0'))
 
-        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTape,
+        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTapeError,
                                       "there must be 1 virtual head for " +
                                       "every tape separator symbol"):
             nose.assert_equal(self.mntm1._read_extended_tape(
                 '0^1010^10#^', '^'), ('0', '0', '#'))
 
-        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTape,
+        with nose.assert_raises_regex(tm_exceptions.MalformedExtendedTapeError,
                                       "more than one head symbol found on " +
                                       "one of the virtual tapes"):
             nose.assert_equal(self.mntm1._read_extended_tape(

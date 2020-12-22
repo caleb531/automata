@@ -23,7 +23,7 @@ class InconsistentTapesException(TMException):
     pass
 
 
-class MalformedExtendedTape(TMException):
+class MalformedExtendedTapeError(TMException):
     """Extended tape for simulating an mntm as a ntm is not valid.
     Either there are 2 virtual heads for a virtual tape or the
     a head symbol is at the leftmost end of a virtual tape."""

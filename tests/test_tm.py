@@ -13,8 +13,8 @@ class TestTM(object):
 
     def setup(self):
         """Reset test machines before every test function."""
-        # DTM which matches all strings beginning with '0'N, and followed by
-        # the same number of '1'N
+        # DTM which matches all strings beginning with '0's, and followed by
+        # the same number of '1's
         self.dtm1 = DTM(
             states={'q0', 'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
@@ -44,7 +44,7 @@ class TestTM(object):
             final_states={'q4'}
         )
         # DTM which matches any binary string, but is designed to test the
-        # tape'N position offsetting algorithm
+        # tape's position offsetting algorithm
         self.dtm2 = DTM(
             states={'q0', 'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
@@ -93,7 +93,7 @@ class TestTM(object):
             final_states={'q3'}
         )
         # MNTM which accepts all strings in {0, 1}* and writes all
-        # 1'N from the first tape (input) to the second tape.
+        # 1's from the first tape (input) to the second tape.
         self.mntm1 = MNTM(
             states={'q0', 'q1'},
             input_symbols={'0', '1'},
@@ -175,7 +175,7 @@ class TestTM(object):
                                               ('S', 'R')))],
                     ('0', '#', '#'): [
                         ('q24', (('0', 'N'), ('#', 'N'), ('#', 'R')))
-                    ],  # Caso especial cuando cinta 3 = #X
+                    ],
                 },
                 'q7': {
                     ('0', '#', 'X'): [('q9', (('0', 'N'), ('#', 'N'),
@@ -289,7 +289,6 @@ class TestTM(object):
                     ('0', '#', '#'): [('qc', (('0', 'N'), ('#', 'R'),
                                               ('#', 'N')))],
                 },
-                # Caso especial cuando cinta 3 = #X
                 'q24': {
                     ('0', '#', 'Y'): [('q24', (('0', 'N'), ('#', 'N'),
                                                ('Y', 'R')))],

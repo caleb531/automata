@@ -42,7 +42,7 @@ pip install automata-lib
   - [Turing Machine (TM)](#class-tmautomaton-metaclassabcmeta)
     - [Deterministic (DTM)](#class-dtmtm)
     - [Non-Deterministic (NTM)](#class-ntmtm)
-    - [Multi-Tape Non-Deterministic Turing Machine (MNTM)](#class-mntmtm)
+    - [Multi-Tape Non-Deterministic (MNTM)](#class-mntmtm)
 - [Exception classes](#base-exception-classes)
     - [Turing machine exceptions](#turing-machine-exception-classes)
 
@@ -771,7 +771,7 @@ ntm.copy()  # returns deep copy of ntm
 
 ### class MNTM(TM)
 
-The `MNTM` class is a subclass of `TM` and represents multitape (non)deterministic Turing machines. It can be found under `automata/tm/mntm.py`.
+The `MNTM` class is a subclass of `TM` and represents a multitape (non)deterministic Turing machine. It can be found under `automata/tm/mntm.py`.
 
 Every MNTM has the following (required) properties:
 

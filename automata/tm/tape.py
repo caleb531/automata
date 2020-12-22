@@ -67,7 +67,7 @@ class TMTape(collections.namedtuple(
             current_position=new_position
         )
 
-    def clone(self):
+    def copy(self):
         return TMTape(list(self.tape).copy(),
                       blank_symbol=self.blank_symbol,
                       current_position=self.current_position)

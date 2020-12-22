@@ -29,7 +29,7 @@ class MNTM(tm.NTM):
         self.n_tapes = n_tapes
 
         if tapes is not None:
-            self.tapes = tapes
+            self.tapes = [tape.copy() for tape in tapes]
         else:
             self.tapes = [
                 TMTape(
@@ -49,7 +49,7 @@ class MNTM(tm.NTM):
                             symbol]:
             if tape_symbol not in self.tape_symbols:
                 raise exceptions.InvalidSymbolError(
-                    "transition symbol {} for state {} is not valid".format(
+                    'transition symbol {} for state {} is not valid'.format(
                         tape_symbol, state
                     )
                 )
@@ -57,7 +57,7 @@ class MNTM(tm.NTM):
     def _validate_transition_state(self, transition_state):
         if transition_state not in self.states:
             raise exceptions.InvalidStateError(
-                "transition state is not valid ({})".format(transition_state)
+                'transition state is not valid ({})'.format(transition_state)
             )
 
     def _validate_transition_results(self, paths):
@@ -74,18 +74,18 @@ class MNTM(tm.NTM):
             for read_tape_symbols in self.transitions[state]:
                 if len(read_tape_symbols) != self.n_tapes:
                     raise tm_exceptions.InconsistentTapesException(
-                        f"tapes symbols {read_tape_symbols} is inconsistent with \
-                        the number of tapes defined. Expected \
-                        {self.n_tapes} symbols, got \
-                        {len(read_tape_symbols)}")
+                        f'tapes symbols {read_tape_symbols} inconsistent with '
+                        f'the number of tapes defined. Expected ' +
+                        f'{self.n_tapes} symbols, got ' +
+                        f'{len(read_tape_symbols)}')
 
                 for transition in self.transitions[state][read_tape_symbols]:
                     _, moves = transition
                     if len(moves) != self.n_tapes:
                         raise tm_exceptions.InconsistentTapesException(
-                            f"transition {transition} has inconsistent operations \
-                            on tapes. Expected {self.n_tapes} write/move \
-                            operations, got {len(moves)}")
+                            f'transition {transition} has inconsistent ' +
+                            f'operations on tapes. Expected {self.n_tapes} ' +
+                            f'write/move operations, got {len(moves)}')
 
     def validate(self):
         """Return True if this MNTM is internally consistent."""
@@ -135,20 +135,6 @@ class MNTM(tm.NTM):
     def _has_accepted(self):
         return self.current_state in self.final_states
 
-    def clone(self):
-        return MNTM(
-            states=self.states.copy(),
-            input_symbols=self.input_symbols.copy(),
-            tape_symbols=self.tape_symbols.copy(),
-            n_tapes=self.n_tapes,
-            transitions=copy.deepcopy(self.transitions),
-            initial_state=self.initial_state,
-            blank_symbol=self.blank_symbol,
-            final_states=self.final_states.copy(),
-            tapes=[tape.clone() for tape in self.tapes],
-            current_state=self.current_state
-        )
-
     def read_input_stepwise(self, input_str):
         """Checks if the given string is accepted by this Turing machine,
         using a BFS of every possible configuration from each configuration.
@@ -167,7 +153,7 @@ class MNTM(tm.NTM):
                                              tuple(self.tapes))}
             else:
                 for transition in possible_transitions[1:]:
-                    queue.append(current_tm.clone()._get_next_configuration(
+                    queue.append(current_tm.copy()._get_next_configuration(
                         transition)
                     )
 
@@ -175,7 +161,7 @@ class MNTM(tm.NTM):
                     possible_transitions[0]))
 
         raise exceptions.RejectionException(
-            "the multitape MNTM did not reach an accepting configuration"
+            'the multitape MNTM did not reach an accepting configuration'
         )
 
     @staticmethod
@@ -187,33 +173,34 @@ class MNTM(tm.NTM):
         virtual_heads = []
         heads_found = 0
         separators_found = 0
-        for i in range(len(tape)):
-            if tape[i] == head_symbol:
+        for i, symbol in enumerate(tape):
+            if symbol == head_symbol:
                 if i - 1 < 0:
-                    raise tm_exceptions.MalformedExtendedTape(
-                        "head symbol was found on leftmost end of the " +
-                        "extended tape"
+                    raise tm_exceptions.MalformedExtendedTapeError(
+                        'head symbol was found on leftmost end of the ' +
+                        'extended tape'
                     )
                 else:
-                    virtual_heads.append(tape[i - 1])
+                    previous_symbol = tape[i - 1]
+                    virtual_heads.append(previous_symbol)
                     heads_found += 1
-            elif tape[i] == tape_separator_symbol:
+            elif symbol == tape_separator_symbol:
                 if heads_found == 0:
-                    raise tm_exceptions.MalformedExtendedTape(
-                        "no head symbol found on one of the virtual tapes"
+                    raise tm_exceptions.MalformedExtendedTapeError(
+                        'no head symbol found on one of the virtual tapes'
                     )
                 elif heads_found > 1:
-                    raise tm_exceptions.MalformedExtendedTape(
-                        "more than one head symbol found on one of the " +
-                        "virtual tapes"
+                    raise tm_exceptions.MalformedExtendedTapeError(
+                        'more than one head symbol found on one of the ' +
+                        'virtual tapes'
                     )
                 else:
                     heads_found = 0
                     separators_found += 1
 
         if len(virtual_heads) != separators_found:
-            raise tm_exceptions.MalformedExtendedTape(
-                "there must be 1 virtual head for every tape separator symbol"
+            raise tm_exceptions.MalformedExtendedTapeError(
+                'there must be 1 virtual head for every tape separator symbol'
             )
 
         return tuple(virtual_heads)
@@ -222,9 +209,9 @@ class MNTM(tm.NTM):
         """Simulates the machine as a single-tape Turing machine.
         Yields the configuration at each step."""
         self._restart_configuration(input_str)
-        head_symbol = "^"
-        tape_separator_symbol = "_"
-        extended_tape = ""
+        head_symbol = '^'
+        tape_separator_symbol = '_'
+        extended_tape = ''
         tapes_copy = self.tapes.copy()
         for tape_copy in tapes_copy:
             tape_str = tape_copy.get_symbols_as_str()
@@ -250,8 +237,8 @@ class MNTM(tm.NTM):
                 next_config = self.transitions[current_state][virtual_heads]
             except KeyError:
                 raise exceptions.RejectionException(
-                    "the multitape NTM did not reach an accepting " +
-                    "configuration")
+                    'the multitape NTM did not reach an accepting ' +
+                    'configuration')
             next_state, moves = next_config[0]
             for move in moves:
                 new_head, direction = move
@@ -266,14 +253,14 @@ class MNTM(tm.NTM):
                             new_head + extended_tape[i:]
                         )
                         extended_tape = extended_tape[:i] + \
-                            "" + extended_tape[i + 1:]
+                            '' + extended_tape[i + 1:]
 
                         # After replacing, the machine must change the
                         # position of the virtual head of the current virtual
                         # tape.
-                        if direction == "R":
+                        if direction == 'R':
                             i += 1
-                        elif direction == "L":
+                        elif direction == 'L':
                             i -= 1
                         else:  # direction == 'N'
                             i += 0

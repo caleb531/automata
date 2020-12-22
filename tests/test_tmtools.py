@@ -59,7 +59,7 @@ class TestTMTools(test_tm.TestTM):
         nose.assert_equal(out.getvalue().rstrip(), '{}: {}\n{}'.format(
             'q2', 'abcdefghij', '^'.rjust(7)))
 
-    @ patch('automata.tm.configuration.TMConfiguration.print')
+    @patch('automata.tm.configuration.TMConfiguration.print')
     def test_print_configs(self, print_config):
         """Should print each machine configuration to stdout."""
         tape1 = TMTape(

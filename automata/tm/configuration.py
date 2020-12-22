@@ -41,7 +41,8 @@ class MTMConfiguration(collections.namedtuple(
             self.__class__.__name__, self.state, self.tapes
         )
 
-    def _description(self):
+    def print(self):
+        """Print the machine's current configuration in a readable form."""
         description = f'{self.state}: \n'
         for i, tape in enumerate(self.tapes):
             title = f'> Tape {i+1}: '
@@ -54,8 +55,4 @@ class MTMConfiguration(collections.namedtuple(
                     position
                 ),
             )
-        return description
-
-    def print(self):
-        """Print the machine's current configuration in a readable form."""
-        print(self._description())
+        print(description)
