@@ -74,18 +74,26 @@ class MNTM(tm.NTM):
             for read_tape_symbols in self.transitions[state]:
                 if len(read_tape_symbols) != self.n_tapes:
                     raise tm_exceptions.InconsistentTapesException(
-                        f"tapes symbols {read_tape_symbols} inconsistent " +
-                        'with the number of tapes defined. Expected ' +
-                        f"{self.n_tapes} symbols, got " +
-                        f"{len(read_tape_symbols)}")
-
+                        ('tapes symbols {symbols} inconsistent ' +
+                         'with the number of tapes defined. Expected ' +
+                         '{n_tapes} symbols, got {size)}').format(
+                            symbols=read_tape_symbols,
+                            n_tapes=self.n_tapes,
+                            size=str(len(read_tape_symbols))
+                        )
+                    )
                 for transition in self.transitions[state][read_tape_symbols]:
                     _, moves = transition
                     if len(moves) != self.n_tapes:
                         raise tm_exceptions.InconsistentTapesException(
-                            f"transition {transition} has inconsistent " +
-                            f"operations on tapes. Expected {self.n_tapes} " +
-                            f"write/move operations, got {len(moves)}")
+                            ('transition {transition} has inconsistent ' +
+                             'operations on tapes. Expected {n_tapes} ' +
+                             'write/move operations, got {size}').format(
+                                transition=transition,
+                                n_tapes=self.n_tapes,
+                                size=len(moves)
+                            )
+                        )
 
     def validate(self):
         """Return True if this MNTM is internally consistent."""
@@ -164,7 +172,7 @@ class MNTM(tm.NTM):
             'the multitape MNTM did not reach an accepting configuration'
         )
 
-    @staticmethod
+    @ staticmethod
     def _read_extended_tape(tape: str, head_symbol: str = '^',
                             tape_separator_symbol: str = '_'):
         """Returns a tuple with the symbols extracted from the given
