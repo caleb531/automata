@@ -74,7 +74,7 @@ class MNTM(tm.NTM):
             for read_tape_symbols in self.transitions[state]:
                 if len(read_tape_symbols) != self.n_tapes:
                     raise tm_exceptions.InconsistentTapesException(
-                        f'tapes symbols {read_tape_symbols} inconsistent with '
+                        f'tapes symbols {read_tape_symbols} inconsistent with ' +
                         f'the number of tapes defined. Expected ' +
                         f'{self.n_tapes} symbols, got ' +
                         f'{len(read_tape_symbols)}')
