@@ -29,14 +29,14 @@ class NTM(tm.TM):
     def _validate_transition_state(self, transition_state):
         if transition_state not in self.states:
             raise exceptions.InvalidStateError(
-                "transition state is not valid ({})".format(transition_state)
+                'transition state is not valid ({})'.format(transition_state)
             )
 
     def _validate_transition_symbols(self, state, paths):
         for tape_symbol in paths.keys():
             if tape_symbol not in self.tape_symbols:
                 raise exceptions.InvalidSymbolError(
-                    "transition symbol {} for state {} is not valid".format(
+                    'transition symbol {} for state {} is not valid'.format(
                         tape_symbol, state
                     )
                 )
@@ -44,18 +44,18 @@ class NTM(tm.TM):
     def _validate_transition_result_direction(self, result_direction):
         if result_direction not in ("L", "N", "R"):
             raise tm_exceptions.InvalidDirectionError(
-                "result direction is not valid ({})".format(result_direction)
+                'result direction is not valid ({})'.format(result_direction)
             )
 
     def _validate_transition_result(self, result):
         result_state, result_symbol, result_direction = result
         if result_state not in self.states:
             raise exceptions.InvalidStateError(
-                "result state is not valid ({})".format(result_state)
+                'result state is not valid ({})'.format(result_state)
             )
         if result_symbol not in self.tape_symbols:
             raise exceptions.InvalidSymbolError(
-                "result symbol is not valid ({})".format(result_symbol)
+                'result symbol is not valid ({})'.format(result_symbol)
             )
         self._validate_transition_result_direction(result_direction)
 
@@ -74,7 +74,7 @@ class NTM(tm.TM):
         for final_state in self.final_states:
             if final_state in self.transitions:
                 raise exceptions.FinalStateError(
-                    "final state {} has transitions defined".format(
+                    'final state {} has transitions defined'.format(
                         final_state))
 
     def validate(self):
