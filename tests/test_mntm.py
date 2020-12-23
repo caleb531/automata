@@ -259,6 +259,6 @@ class TestMNTM(test_tm.TestTM):
         nose.assert_equal(self.mntm1.accepts_input('000012'), False)
         nose.assert_equal(self.mntm2.accepts_input('#00000'), False)
 
-    @ staticmethod
+    @staticmethod
     def is_perfect_square(number: int):
         return number == int(math.sqrt(number)) ** 2

@@ -177,7 +177,7 @@ class MNTM(tm.NTM):
             'the multitape MNTM did not reach an accepting configuration'
         )
 
-    @ staticmethod
+    @staticmethod
     def _read_extended_tape(tape: str, head_symbol: str = '^',
                             tape_separator_symbol: str = '_'):
         """Returns a tuple with the symbols extracted from the given
