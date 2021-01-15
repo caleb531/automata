@@ -304,7 +304,6 @@ class DFA(fa.FA):
                 nodes[state] = state_node
                 graph.add_node(state_node)
         # adding edges
-        i = 0
         for from_state, lookup in self.transitions.items():
             for to_label, to_state in lookup.items():
                 graph.add_edge(Edge(
