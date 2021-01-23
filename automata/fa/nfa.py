@@ -101,7 +101,7 @@ class NFA(fa.FA):
         if not (current_states & self.final_states):
             raise exceptions.RejectionException(
                 'the NFA stopped on all non-final states ({})'.format(
-                    ', '.join(current_states)))
+                    ', '.join(str(state) for state in current_states)))
 
     def read_input_stepwise(self, input_str):
         """
