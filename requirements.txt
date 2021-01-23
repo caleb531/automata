@@ -4,7 +4,7 @@ chardet==3.0.4
 colorama==0.3.9
 coverage==5.3
 docutils==0.14
-flake8==3.6.0
+flake8==3.8.4
 flake8-isort==2.6.0
 flake8-polyfill==1.0.2
 idna==2.8
@@ -13,9 +13,9 @@ mando==0.6.4
 mccabe==0.6.1
 nose==1.3.7
 pkginfo==1.5.0.1
-pycodestyle==2.4.0
+pycodestyle==2.6.0
 pydot==1.4.1
-pyflakes==2.0.0
+pyflakes==2.2.0
 Pygments==2.3.1
 radon==2.4.0
 readme-renderer==24.0
