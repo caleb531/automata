@@ -62,7 +62,7 @@ class Automaton(metaclass=abc.ABCMeta):
         if invalid_states:
             raise exceptions.InvalidStateError(
                 'final states are not valid ({})'.format(
-                    ', '.join(invalid_states)))
+                    ', '.join(str(state) for state in invalid_states)))
 
     def copy(self):
         """Create a deep copy of the automaton."""

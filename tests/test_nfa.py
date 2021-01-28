@@ -93,6 +93,12 @@ class TestNFA(test_fa.TestFA):
             self.nfa.final_states = {'q3'}
             self.nfa.validate()
 
+    def test_validate_invalid_final_state_non_str(self):
+        """Should raise InvalidStateError even for non-string final states."""
+        with nose.assert_raises(exceptions.InvalidStateError):
+            self.nfa.final_states = {3}
+            self.nfa.validate()
+
     def test_read_input_accepted(self):
         """Should return correct states if acceptable NFA input is given."""
         nose.assert_equal(self.nfa.read_input('aba'), {'q1', 'q2'})
