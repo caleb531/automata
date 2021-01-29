@@ -286,7 +286,7 @@ class DFA(fa.FA):
 
     def show_diagram(self, path=None):
         """
-            Prints the graph associated with this DFA
+            Creates the graph associated with this DFA
         """
         # Nodes are set of states
 
