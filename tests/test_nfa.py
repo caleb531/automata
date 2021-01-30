@@ -93,6 +93,12 @@ class TestNFA(test_fa.TestFA):
             self.nfa.final_states = {'q3'}
             self.nfa.validate()
 
+    def test_validate_invalid_final_state_non_str(self):
+        """Should raise InvalidStateError even for non-string final states."""
+        with nose.assert_raises(exceptions.InvalidStateError):
+            self.nfa.final_states = {3}
+            self.nfa.validate()
+
     def test_read_input_accepted(self):
         """Should return correct states if acceptable NFA input is given."""
         nose.assert_equal(self.nfa.read_input('aba'), {'q1', 'q2'})
@@ -146,3 +152,15 @@ class TestNFA(test_fa.TestFA):
         )
         nose.assert_equal(nfa.read_input(''), {'q0', 'q1', 'q3'})
         nose.assert_equal(nfa.read_input('a'), {'q0', 'q1', 'q2', 'q3'})
+
+    def test_non_str_states(self):
+        """should handle non-string state names"""
+        nfa = NFA(
+            states={0},
+            input_symbols={0},
+            transitions={0: {}},
+            initial_state=0,
+            final_states=set())
+        # We don't care what the output is, just as long as no exception is
+        # raised
+        nose.assert_not_equal(nfa.accepts_input(''), None)

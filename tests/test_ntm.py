@@ -114,6 +114,12 @@ class TestNTM(test_tm.TestTM):
             self.ntm1.final_states = {'q4'}
             self.ntm1.validate()
 
+    def test_validate_invalid_final_state_non_str(self):
+        """Should raise InvalidStateError even for non-string final states."""
+        with nose.assert_raises(exceptions.InvalidStateError):
+            self.ntm1.final_states = {4}
+            self.ntm1.validate()
+
     def test_validate_final_state_transitions(self):
         """Should raise error if a final state has any transitions."""
         with nose.assert_raises(exceptions.FinalStateError):

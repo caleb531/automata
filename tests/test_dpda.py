@@ -96,6 +96,12 @@ class TestDPDA(test_pda.TestPDA):
             self.dpda.final_states = {'q4'}
             self.dpda.validate()
 
+    def test_validate_invalid_final_state_non_str(self):
+        """Should raise InvalidStateError even for non-string final states."""
+        with nose.assert_raises(exceptions.InvalidStateError):
+            self.dpda.final_states = {4}
+            self.dpda.validate()
+
     def test_read_input_valid_accept_by_final_state(self):
         """Should return correct config if DPDA accepts by final state."""
         nose.assert_equal(
