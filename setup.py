@@ -27,6 +27,6 @@ setup(
         'automata.base',
         'automata.tm'
     ],
-    install_requires=[],
+    install_requires=['pydot'],
     entry_points={}
 )

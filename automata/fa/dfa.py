@@ -8,6 +8,8 @@ from collections import deque
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 
+from pydot import Edge, Node, Dot
+
 
 class DFA(fa.FA):
     """A deterministic finite automaton."""
@@ -281,3 +283,34 @@ class DFA(fa.FA):
             states=dfa_states, input_symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
+
+    def show_diagram(self, path=None):
+        """
+            Creates the graph associated with this DFA
+        """
+        # Nodes are set of states
+
+        graph = Dot(graph_type='digraph', rankdir='LR')
+        nodes = {}
+        for state in self.states:
+            if state == self.initial_state:
+                # color start state with green
+                initial_state_node = Node(
+                    state, style="filled", fillcolor="green")
+                nodes[state] = initial_state_node
+                graph.add_node(initial_state_node)
+            else:
+                state_node = Node(state)
+                nodes[state] = state_node
+                graph.add_node(state_node)
+        # adding edges
+        for from_state, lookup in self.transitions.items():
+            for to_label, to_state in lookup.items():
+                graph.add_edge(Edge(
+                    nodes[from_state],
+                    nodes[to_state],
+                    label=to_label
+                ))
+        if path:
+            graph.write_png(path)
+        return graph
