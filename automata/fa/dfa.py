@@ -142,9 +142,6 @@ class DFA(fa.FA):
         return reachable_states
     
     def _merge_states(self, retain_names=True):
-        if len(self.final_states) == 0:
-            return
-
         eq_classes = []
         if len(self.final_states) != 0:
             eq_classes.append(frozenset(self.final_states))
