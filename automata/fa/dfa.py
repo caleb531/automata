@@ -112,7 +112,8 @@ class DFA(fa.FA):
 
         First, non-reachable states are removed.
         Then, similiar states are merged using Hopcroft's Algorithm.
-            retain_names: If True, merged states retain names. If False, new states will be named 0, ..., n-1.
+            retain_names: If True, merged states retain names.
+                          If False, new states will be named 0, ..., n-1.
         """
         new_dfa = self.copy()
         new_dfa._remove_unreachable_states()
@@ -146,7 +147,9 @@ class DFA(fa.FA):
         if len(self.final_states) != 0:
             eq_classes.append(frozenset(self.final_states))
         if len(self.final_states) != len(self.states):
-            eq_classes.append(frozenset(set(self.states).difference(self.final_states)))
+            eq_classes.append(
+                frozenset(set(self.states).difference(self.final_states))
+            )
         eq_classes = set(eq_classes)
         
         processing = set([frozenset(self.final_states)])
@@ -155,9 +158,9 @@ class DFA(fa.FA):
             active_state = processing.pop()
             for active_letter in self.input_symbols:
                 states_that_move_into_active_state = frozenset(
-                        state
-                        for state in self.states
-                        if self.transitions[state][active_letter] in active_state
+                    state
+                    for state in self.states
+                    if self.transitions[state][active_letter] in active_state
                 )
 
                 copy_eq_classes = set(eq_classes)
@@ -213,11 +216,11 @@ class DFA(fa.FA):
                     self.transitions[list(eq)[0]][letter]
                 ]
 
-        self.states=new_states
-        self.input_symbols=new_input_symbols
-        self.transitions=new_transitions
-        self.initial_state=new_initial_state
-        self.final_states=new_final_states
+        self.states = new_states
+        self.input_symbols = new_input_symbols
+        self.transitions = new_transitions
+        self.initial_state = new_initial_state
+        self.final_states = new_final_states
 
     @staticmethod
     def _stringify_states(states):
