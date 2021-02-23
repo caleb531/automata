@@ -127,6 +127,8 @@ class DFA(fa.FA):
         for state in unreachable_states:
             self.states.remove(state)
             del self.transitions[state]
+            if state in self.final_states:
+                self.final_states.remove(state)
 
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
