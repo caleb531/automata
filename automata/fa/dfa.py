@@ -181,8 +181,8 @@ class DFA(fa.FA):
                     eq_classes.remove(checking_set)
                     eq_classes.add(XintY)
                     eq_classes.add(XdiffY)
-                    if states_that_move_into_active_state in processing:
-                        processing.remove(states_that_move_into_active_state)
+                    if checking_set in processing:
+                        processing.remove(checking_set)
                         processing.add(XintY)
                         processing.add(XdiffY)
                     else:
