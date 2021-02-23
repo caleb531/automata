@@ -140,7 +140,7 @@ class TestDFA(test_fa.TestFA):
                 'q4': {'0': 'q4', '1': 'q4'},
                 'q5': {'0': 'q5', '1': 'q5'},
                 'q6': {'0': 'q6', '1': 'q6'},
-                'q7': {'0': 'q7', '1': 'q7'},
+                'q7': {'0': 'q7', '1': 'q7'}
             },
             initial_state='q0',
             final_states={'q3', 'q4', 'q5', 'q6'}
@@ -157,6 +157,92 @@ class TestDFA(test_fa.TestFA):
         })
         nose.assert_equal(minimal_dfa.initial_state, 'q0')
         nose.assert_equal(minimal_dfa.final_states, {'{q3,q4,q5,q6}'})
+
+    def test_minify_dfa_complex(self):
+        dfa = DFA(
+            states={'{1,3}', '{3,2}', '{1,0}', '{0,2}', '{3,1}', '{2,1}',
+                    '{2,2}', '{1,2}', '{0,1}', '{2,0}', '{0,0}', '{0,3}',
+                    '{3,0}', '{1,1}', '{3,3}', '{2,3}'},
+            input_symbols={'D', 'L', 'R', 'U'},
+            transitions={
+                '{0,0}':
+                {'D': '{1,0}', 'L': '{2,3}', 'R': '{2,3}',
+                 'U': '{1,0}'},
+                '{0,1}':
+                {'D': '{1,0}', 'L': '{2,2}', 'R': '{2,2}',
+                 'U': '{1,0}'},
+                '{0,2}':
+                {'D': '{1,3}', 'L': '{2,2}', 'R': '{2,2}',
+                 'U': '{1,3}'},
+                '{0,3}':
+                {'D': '{1,3}', 'L': '{2,3}', 'R': '{2,3}',
+                 'U': '{1,3}'},
+                '{1,0}':
+                {'D': '{3,0}', 'L': '{2,3}', 'R': '{2,3}',
+                 'U': '{3,0}'},
+                '{1,1}':
+                {'D': '{3,0}', 'L': '{2,2}', 'R': '{2,2}',
+                 'U': '{3,0}'},
+                '{1,2}':
+                {'D': '{3,3}', 'L': '{2,2}', 'R': '{2,2}',
+                 'U': '{3,3}'},
+                '{1,3}':
+                {'D': '{3,3}', 'L': '{2,3}', 'R': '{2,3}',
+                 'U': '{3,3}'},
+                '{2,0}':
+                {'D': '{1,0}', 'L': '{3,3}', 'R': '{3,3}',
+                 'U': '{1,0}'},
+                '{2,1}':
+                {'D': '{1,0}', 'L': '{3,2}', 'R': '{3,2}',
+                 'U': '{1,0}'},
+                '{2,2}':
+                {'D': '{1,3}', 'L': '{3,2}', 'R': '{3,2}',
+                 'U': '{1,3}'},
+                '{2,3}':
+                {'D': '{1,3}', 'L': '{3,3}', 'R': '{3,3}',
+                 'U': '{1,3}'},
+                '{3,0}':
+                {'D': '{3,0}', 'L': '{3,3}', 'R': '{3,3}',
+                 'U': '{3,0}'},
+                '{3,1}':
+                {'D': '{3,0}', 'L': '{3,2}', 'R': '{3,2}',
+                 'U': '{3,0}'},
+                '{3,2}':
+                {'D': '{3,3}', 'L': '{3,2}', 'R': '{3,2}',
+                 'U': '{3,3}'},
+                '{3,3}':
+                {'D': '{3,3}', 'L': '{3,3}', 'R': '{3,3}',
+                 'U': '{3,3}'}},
+            initial_state='{0,1}',
+            final_states={'{2,1}', '{2,2}', '{0,1}', '{1,2}', '{2,0}',
+                          '{0,0}', '{1,1}', '{1,0}', '{0,2}'})
+        minimal_dfa = dfa.minify()
+        nose.assert_equal(minimal_dfa.states, {
+            '{{1,3},{2,3},{3,0},{3,2},{3,3}}', '{{1,0},{2,2}}', '{0,1}'
+        })
+        nose.assert_equal(minimal_dfa.input_symbols, {'D', 'L', 'R', 'U'})
+        nose.assert_equal(minimal_dfa.transitions, {
+            '{{1,0},{2,2}}': {
+                'D': '{{1,3},{2,3},{3,0},{3,2},{3,3}}',
+                'L': '{{1,3},{2,3},{3,0},{3,2},{3,3}}',
+                'R': '{{1,3},{2,3},{3,0},{3,2},{3,3}}',
+                'U': '{{1,3},{2,3},{3,0},{3,2},{3,3}}'
+            },
+            '{0,1}': {
+                'D': '{{1,0},{2,2}}',
+                'L': '{{1,0},{2,2}}',
+                'R': '{{1,0},{2,2}}',
+                'U': '{{1,0},{2,2}}'
+            },
+            '{{1,3},{2,3},{3,0},{3,2},{3,3}}': {
+                'D': '{{1,3},{2,3},{3,0},{3,2},{3,3}}',
+                'L': '{{1,3},{2,3},{3,0},{3,2},{3,3}}',
+                'R': '{{1,3},{2,3},{3,0},{3,2},{3,3}}',
+                'U': '{{1,3},{2,3},{3,0},{3,2},{3,3}}'
+            }
+        })
+        nose.assert_equal(minimal_dfa.initial_state, '{0,1}')
+        nose.assert_equal(minimal_dfa.final_states, {'{{1,0},{2,2}}', '{0,1}'})
 
     def test_minify_minimal_dfa(self):
         """Should minify an already minimal DFA."""
@@ -200,6 +286,26 @@ class TestDFA(test_fa.TestFA):
         })
         nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
         nose.assert_equal(minimal_dfa.final_states, {'{q0,q1}'})
+
+    def test_minify_dfa_no_final_states(self):
+        dfa = DFA(
+            states={'q0', 'q1'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q0'},
+            },
+            initial_state='q0',
+            final_states=set(),
+        )
+        minimal_dfa = dfa.minify()
+        nose.assert_equal(minimal_dfa.states, {'{q0,q1}'})
+        nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
+        nose.assert_equal(minimal_dfa.transitions, {
+            '{q0,q1}': {'0': '{q0,q1}', '1': '{q0,q1}'},
+        })
+        nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
+        nose.assert_equal(minimal_dfa.final_states, set())
 
     def test_init_nfa_simple(self):
         """Should convert to a DFA a simple NFA."""
