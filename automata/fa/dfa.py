@@ -141,7 +141,7 @@ class DFA(fa.FA):
                     reachable_states.add(dst_state)
                     states_to_check.append(dst_state)
         return reachable_states
-    
+
     def _merge_states(self, retain_names=True):
         eq_classes = []
         if len(self.final_states) != 0:
@@ -151,7 +151,7 @@ class DFA(fa.FA):
                 frozenset(set(self.states).difference(self.final_states))
             )
         eq_classes = set(eq_classes)
-        
+
         processing = set([frozenset(self.final_states)])
 
         while len(processing) > 0:
@@ -191,7 +191,7 @@ class DFA(fa.FA):
 
         # now eq_classes are good to go, make them a list for ordering
         eq_classes = list(eq_classes)
-        
+
         def rename(eq):
             return list(eq)[0] if len(eq) == 1 else DFA._stringify_states(eq)
 
