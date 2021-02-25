@@ -350,6 +350,9 @@ class DFA(fa.FA):
         # Write diagram to file. PNG, SVG, etc.
         if filename:
             graph.render(
-                filename=filename, format=format_type, directory=path, cleanup=True
+                filename=filename,
+                format=format_type,
+                directory=path,
+                cleanup=True
             )
         return graph

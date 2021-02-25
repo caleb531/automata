@@ -174,7 +174,7 @@ class NFA(fa.FA):
         # Point initial arrow to the initial state.
         graph.edge('Initial', self.initial_state, arrowsize=arrow_size)
 
-        # Replacing '' the key name for empty string (lambda/epsilon) transitions.
+        # Replacing '' key name for empty string (lambda/epsilon) transitions.
         transitions = self.transitions
         input_symbols = self.input_symbols
         for k, v in transitions.items():
@@ -200,6 +200,9 @@ class NFA(fa.FA):
         # Write diagram to file. PNG, SVG, etc.
         if filename:
             graph.render(
-                filename=filename, format=format_type, directory=path, cleanup=True
+                filename=filename,
+                format=format_type,
+                directory=path,
+                cleanup=True
             )
         return graph
