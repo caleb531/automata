@@ -164,3 +164,27 @@ class TestNFA(test_fa.TestFA):
         # We don't care what the output is, just as long as no exception is
         # raised
         nose.assert_not_equal(nfa.accepts_input(''), None)
+
+    def test_nfa_show_diagram(self):
+        """ testing show_diagram method in DFA class """
+        from automata.fa.nfa import NFA
+        # NFA which matches strings beginning with 'a', ending with 'a', and containing
+        # no consecutive 'b's
+        nfa = NFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            transitions={
+                'q0': {'a': {'q1'}},
+                # Use '' as the key name for empty string (lambda/epsilon) transitions
+                'q1': {'a': {'q1'}, '': {'q2'}},
+                'q2': {'b': {'q0'}}
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        import graphviz
+        graph = nfa.show_diagram("graph", horizontal=True, reverse_orientation=False)  # returns an equivalent DFA
+        graph = nfa.show_diagram("graph", horizontal=True, reverse_orientation=True)
+        graph = nfa.show_diagram("graph", horizontal=False, reverse_orientation=True)
+        graph = nfa.show_diagram("graph", horizontal=False, reverse_orientation=False)
+        nose.assert_equal(type(graph), graphviz.dot.Digraph)
