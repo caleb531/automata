@@ -8,7 +8,7 @@ from collections import deque
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 
-from pydot import Edge, Node, Dot
+from graphviz import Digraph
 
 
 class DFA(fa.FA):
@@ -283,33 +283,73 @@ class DFA(fa.FA):
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
 
-    def show_diagram(self, path=None):
+    def show_diagram(
+        self,
+        filename: str = None,
+        format_type: str = 'png',
+        path: str = None,
+        horizontal: bool = True,
+        reverse_orientation: bool = False,
+        fig_size: tuple = (8, 8),
+        font_size: float = 14,
+        arrow_size: float = 0.85,
+        state_seperation: float = 0.5,
+    ):
         """
-            Creates the graph associated with this DFA
+        Creates the graph associated with this self
         """
-        # Nodes are set of states
+        # Nodes are set of states.
 
-        graph = Dot(graph_type='digraph', rankdir='LR')
-        nodes = {}
-        for state in self.states:
-            if state == self.initial_state:
-                # color start state with green
-                initial_state_node = Node(
-                    state, style="filled", fillcolor="green")
-                nodes[state] = initial_state_node
-                graph.add_node(initial_state_node)
+        # Converting to graphviz preferred input type,
+        # keeping the conventional input styles; i.e fig_size(8,8)
+        fig_size = ', '.join(map(str, fig_size))
+        font_size = str(font_size)
+        arrow_size = str(arrow_size)
+        state_seperation = str(state_seperation)
+
+        # Defining the graph.
+        graph = Digraph(strict=False)
+        graph.attr(
+            size=fig_size,
+            ranksep=state_seperation,
+        )
+        if horizontal:
+            graph.attr(rankdir='LR')
+        if reverse_orientation:
+            if horizontal:
+                graph.attr(rankdir='RL')
             else:
-                state_node = Node(state)
-                nodes[state] = state_node
-                graph.add_node(state_node)
-        # adding edges
-        for from_state, lookup in self.transitions.items():
-            for to_label, to_state in lookup.items():
-                graph.add_edge(Edge(
-                    nodes[from_state],
-                    nodes[to_state],
-                    label=to_label
-                ))
-        if path:
-            graph.write_png(path)
+                graph.attr(rankdir='BT')
+
+        # Defining arrow to indicate the initial state.
+        graph.node('Initial', label='', shape='point', fontsize=font_size)
+
+        # Defining all states.
+        for state in sorted(self.states):
+            if state in self.initial_state:
+                graph.node(state, shape='circle', fontsize=font_size)
+            elif state in self.final_states:
+                graph.node(state, shape='doublecircle', fontsize=font_size)
+            else:
+                graph.node(state, shape='circle', fontsize=font_size)
+
+        # Point initial arrow to the initial state.
+        graph.edge('Initial', self.initial_state, arrowsize=arrow_size)
+
+        # Define all tansitions in the finite state machine.
+        for symbol in sorted(self.input_symbols):
+            for k, v in self.transitions.items():
+                graph.edge(
+                    k,
+                    v[symbol],
+                    label=' {} '.format(symbol),
+                    arrowsize=arrow_size,
+                    fontsize=font_size,
+                )
+
+        # Write diagram to file. PNG, SVG, etc.
+        if filename:
+            graph.render(
+                filename=filename, format=format_type, directory=path, cleanup=True
+            )
         return graph
