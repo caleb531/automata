@@ -281,3 +281,23 @@ class TestDFA(test_fa.TestFA):
         )
         dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
         nose.assert_equal(dfa.read_input('a'), '{q1}')
+
+    def test_dfa_show_diagram(self):
+        """ testing show_diagram method in DFA class """
+        dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q1'}
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        import graphviz
+        graph = nfa.show_diagram("graph", horizontal=True, reverse_orientation=False)
+        graph = nfa.show_diagram("graph", horizontal=True, reverse_orientation=True)
+        graph = nfa.show_diagram("graph", horizontal=False, reverse_orientation=True)
+        graph = nfa.show_diagram("graph", horizontal=False, reverse_orientation=False)
+        nose.assert_equal(type(graph), graphviz.dot.Digraph)
