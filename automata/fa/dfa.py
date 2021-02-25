@@ -106,19 +106,18 @@ class DFA(fa.FA):
 
         self._check_for_input_rejection(current_state)
 
-    def minify(self):
+    def minify(self, retain_names=True):
         """
         Create a minimal DFA which accepts the same inputs as this DFA.
 
         First, non-reachable states are removed.
-        Then, similiar states are merged.
+        Then, similiar states are merged using Hopcroft's Algorithm.
+            retain_names: If True, merged states retain names.
+                          If False, new states will be named 0, ..., n-1.
         """
         new_dfa = self.copy()
         new_dfa._remove_unreachable_states()
-        states_table = new_dfa._create_markable_states_table()
-        new_dfa._mark_states_table_first(states_table)
-        new_dfa._mark_states_table_second(states_table)
-        new_dfa._join_non_marked_states(states_table)
+        new_dfa._merge_states(retain_names=retain_names)
         return new_dfa
 
     def _remove_unreachable_states(self):
@@ -128,6 +127,8 @@ class DFA(fa.FA):
         for state in unreachable_states:
             self.states.remove(state)
             del self.transitions[state]
+            if state in self.final_states:
+                self.final_states.remove(state)
 
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
@@ -143,87 +144,85 @@ class DFA(fa.FA):
                     states_to_check.append(dst_state)
         return reachable_states
 
-    def _create_markable_states_table(self):
-        """
-        Create a "markable table" with all combinatations of two states.
+    def _merge_states(self, retain_names=True):
+        eq_classes = []
+        if len(self.final_states) != 0:
+            eq_classes.append(frozenset(self.final_states))
+        if len(self.final_states) != len(self.states):
+            eq_classes.append(
+                frozenset(set(self.states).difference(self.final_states))
+            )
+        eq_classes = set(eq_classes)
 
-        This is a dict with frozensets of states as keys and `False` as value.
-        """
-        table = {
-            frozenset(c): False
-            for c in itertools.combinations(self.states, 2)
-        }
-        return table
+        processing = set([frozenset(self.final_states)])
 
-    def _mark_states_table_first(self, table):
-        """Mark pairs of states if one is final and one is not."""
-        for s in table.keys():
-            if any((x in self.final_states for x in s)):
-                if any((x not in self.final_states for x in s)):
-                    table[s] = True
+        while len(processing) > 0:
+            active_state = processing.pop()
+            for active_letter in self.input_symbols:
+                states_that_move_into_active_state = frozenset(
+                    state
+                    for state in self.states
+                    if self.transitions[state][active_letter] in active_state
+                )
 
-    def _mark_states_table_second(self, table):
-        """
-        Mark additional state pairs.
+                copy_eq_classes = set(eq_classes)
 
-        A non-marked pair of two states q, q_ will be marked
-        if there is an input_symbol a for which the pair
-        transition(q, a), transition(q_, a) is marked.
-        """
-        changed = True
-        while changed:
-            changed = False
-            for s in filter(lambda s: not table[s], table.keys()):
-                s_ = tuple(s)
-                for a in self.input_symbols:
-                    s2 = frozenset({
-                        self._get_next_current_state(s_[0], a),
-                        self._get_next_current_state(s_[1], a)
-                    })
-                    if s2 in table and table[s2]:
-                        table[s] = True
-                        changed = True
-                        break
+                for checking_set in copy_eq_classes:
+                    XintY = checking_set.intersection(
+                        states_that_move_into_active_state
+                    )
+                    if len(XintY) == 0:
+                        continue
+                    XdiffY = checking_set.difference(
+                        states_that_move_into_active_state
+                    )
+                    if len(XdiffY) == 0:
+                        continue
+                    eq_classes.remove(checking_set)
+                    eq_classes.add(XintY)
+                    eq_classes.add(XdiffY)
+                    if checking_set in processing:
+                        processing.remove(checking_set)
+                        processing.add(XintY)
+                        processing.add(XdiffY)
+                    else:
+                        if len(XintY) < len(XdiffY):
+                            processing.add(XintY)
+                        else:
+                            processing.add(XdiffY)
 
-    def _join_non_marked_states(self, table):
-        """Join all overlapping non-marked pairs of states to a new state."""
-        non_marked_states = set(filter(lambda s: not table[s], table.keys()))
-        changed = True
-        while changed:
-            changed = False
-            for s, s2 in itertools.combinations(non_marked_states, 2):
-                if s2.isdisjoint(s):
-                    continue
-                # merge them!
-                s3 = s.union(s2)
-                # remove the old ones
-                non_marked_states.remove(s)
-                non_marked_states.remove(s2)
-                # add the new one
-                non_marked_states.add(s3)
-                # set the changed flag
-                changed = True
-                break
-        # finally adjust the DFA
-        for s in non_marked_states:
-            stringified = DFA._stringify_states(s)
-            # add the new state
-            self.states.add(stringified)
-            # copy the transitions from one of the states
-            self.transitions[stringified] = self.transitions[tuple(s)[0]]
-            # replace all occurrences of the old states
-            for state in s:
-                self.states.remove(state)
-                del self.transitions[state]
-                for src_state, transition in self.transitions.items():
-                    for symbol in transition.keys():
-                        if transition[symbol] == state:
-                            transition[symbol] = stringified
-                if state in self.final_states:
-                    self.final_states.add(stringified)
-                    self.final_states.remove(state)
-                if state == self.initial_state:
-                    self.initial_state = stringified
+        # now eq_classes are good to go, make them a list for ordering
+        eq_classes = list(eq_classes)
+
+        def rename(eq):
+            return list(eq)[0] if len(eq) == 1 else DFA._stringify_states(eq)
+
+        # need a backmap to prevent constant calls to index
+        back_map = {}
+        for i, eq in enumerate(eq_classes):
+            name = rename(eq) if retain_names else i
+            for state in eq:
+                back_map[state] = name
+
+        new_input_symbols = self.input_symbols
+        new_states = ({rename(eq) for eq in eq_classes} if retain_names
+                      else set(range(len(eq_classes))))
+        new_initial_state = back_map[self.initial_state]
+        new_final_states = set([back_map[acc] for acc in self.final_states])
+        new_transitions = {}
+        for i, eq in enumerate(eq_classes):
+            name = rename(eq) if retain_names else i
+            new_transitions[name] = {}
+            for letter in self.input_symbols:
+                new_transitions[name][letter] = back_map[
+                    self.transitions[list(eq)[0]][letter]
+                ]
+
+        self.states = new_states
+        self.input_symbols = new_input_symbols
+        self.transitions = new_transitions
+        self.initial_state = new_initial_state
+        self.final_states = new_final_states
 
     @staticmethod
     def _stringify_states(states):
