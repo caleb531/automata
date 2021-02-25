@@ -6,6 +6,8 @@ import copy
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 
+from graphviz import Digraph
+
 
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
@@ -118,3 +120,86 @@ class NFA(fa.FA):
             yield current_states
 
         self._check_for_input_rejection(current_states)
+
+    def show_diagram(
+        self,
+        filename: str = None,
+        format_type: str = 'png',
+        path: str = None,
+        horizontal: bool = True,
+        reverse_orientation: bool = False,
+        fig_size: tuple = (8, 8),
+        font_size: float = 14,
+        arrow_size: float = 0.85,
+        state_seperation: float = 0.5,
+    ):
+        """
+        Creates the graph associated with this self
+        """
+        # Nodes are set of states.
+
+        # Converting to graphviz preferred input type,
+        # keeping the conventional input styles; i.e fig_size(8,8)
+        fig_size = ', '.join(map(str, fig_size))
+        font_size = str(font_size)
+        arrow_size = str(arrow_size)
+        state_seperation = str(state_seperation)
+
+        # Defining the graph.
+        graph = Digraph(strict=False)
+        graph.attr(
+            size=fig_size,
+            ranksep=state_seperation,
+        )
+        if horizontal:
+            graph.attr(rankdir='LR')
+        if reverse_orientation:
+            if horizontal:
+                graph.attr(rankdir='RL')
+            else:
+                graph.attr(rankdir='BT')
+
+        # Defining arrow to indicate the initial state.
+        graph.node('Initial', label='', shape='point', fontsize=font_size)
+
+        # Defining all states.
+        for state in sorted(self.states):
+            if state in self.initial_state:
+                graph.node(state, shape='circle', fontsize=font_size)
+            elif state in self.final_states:
+                graph.node(state, shape='doublecircle', fontsize=font_size)
+            else:
+                graph.node(state, shape='circle', fontsize=font_size)
+
+        # Point initial arrow to the initial state.
+        graph.edge('Initial', self.initial_state, arrowsize=arrow_size)
+
+        # Replacing '' the key name for empty string (lambda/epsilon) transitions.
+        transitions = self.transitions
+        input_symbols = self.input_symbols
+        for k, v in transitions.items():
+            for sub_k, sub_v in list(v.items()):
+                if sub_k == '':
+                    v['λ'] = sub_v
+                    del v['']
+                    input_symbols.add('λ')
+
+        # Define all tansitions in the finite state machine.
+        for symbol in sorted(input_symbols):
+            for k, v in transitions.items():
+                if symbol in v:
+                    for v_n in v[symbol]:
+                        graph.edge(
+                            k,
+                            v_n,
+                            label=' {} '.format(symbol),
+                            arrowsize=arrow_size,
+                            fontsize=font_size,
+                        )
+
+        # Write diagram to file. PNG, SVG, etc.
+        if filename:
+            graph.render(
+                filename=filename, format=format_type, directory=path, cleanup=True
+            )
+        return graph
