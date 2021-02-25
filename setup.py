@@ -27,6 +27,6 @@ setup(
         'automata.base',
         'automata.tm'
     ],
-    install_requires=['pydot'],
+    install_requires=['graphviz'],
     entry_points={}
 )
