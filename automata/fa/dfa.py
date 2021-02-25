@@ -288,6 +288,7 @@ class DFA(fa.FA):
         filename: str = None,
         format_type: str = 'png',
         path: str = None,
+        cleanup: bool = True,
         horizontal: bool = True,
         reverse_orientation: bool = False,
         fig_size: tuple = (8, 8),
@@ -353,6 +354,6 @@ class DFA(fa.FA):
                 filename=filename,
                 format=format_type,
                 directory=path,
-                cleanup=True
+                cleanup=cleanup
             )
         return graph

@@ -483,9 +483,12 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q1'}
         )
-        import graphviz
-        graph = dfa.show_diagram("graph", horizontal=True, reverse_orientation=False)
-        graph = dfa.show_diagram("graph", horizontal=True, reverse_orientation=True)
-        graph = dfa.show_diagram("graph", horizontal=False, reverse_orientation=True)
+        graph = dfa.show_diagram("dfa_graph", horizontal=True,
+                                 reverse_orientation=False, cleanup=False)
+        nose.assert_true(graph)
+        graph = dfa.show_diagram(horizontal=True, reverse_orientation=True)
+        nose.assert_true(graph)
+        graph = dfa.show_diagram(horizontal=False, reverse_orientation=True)
+        nose.assert_true(graph)
         graph = dfa.show_diagram(horizontal=False, reverse_orientation=False)
-        nose.assert_equal(type(graph), graphviz.dot.Digraph)
+        nose.assert_true(graph)
