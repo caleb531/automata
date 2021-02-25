@@ -22,3 +22,4 @@ nosetests.xml
 .virtualenv
 .vscode
 .spyproject
+*.code-workspace
