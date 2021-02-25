@@ -327,7 +327,9 @@ class DFA(fa.FA):
 
         # Defining all states.
         for state in sorted(self.states):
-            if state in self.initial_state:
+            if state in self.initial_state and state in self.final_states:
+                graph.node(state, shape='doublecircle', fontsize=font_size)
+            elif state in self.initial_state:
                 graph.node(state, shape='circle', fontsize=font_size)
             elif state in self.final_states:
                 graph.node(state, shape='doublecircle', fontsize=font_size)
