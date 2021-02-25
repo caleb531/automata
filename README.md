@@ -146,6 +146,16 @@ dfa = DFA(
 )
 ```
 
+#### DFA.show_diagram(self, filename, format_type, path, horizontal, reverse_orientation, fig_size, font_size, arrow_size, state_separation)
+
+Returns highly customizable graph, which is automatically displayed in Jupyter lab/notebooks.
+
+```python
+dfa.show_diagram()  # returns graph
+```
+
+![dfa.show_diagram()](doc/dfa.png)
+
 #### DFA.read_input(self, input_str)
 
 Returns the final state the DFA stopped on, if the input is accepted.
@@ -242,6 +252,16 @@ nfa = NFA(
     final_states={'q1'}
 )
 ```
+
+#### NFA.show_diagram(self, filename, format_type, path, horizontal, reverse_orientation, fig_size, font_size, arrow_size, state_separation)
+
+Returns highly customizable graph, which is automatically displayed in Jupyter lab/notebooks.
+
+```python
+nfa.show_diagram()  # returns graph
+```
+
+![nfa.show_diagram()](doc/nfa.png)
 
 #### NFA.read_input(self, input_str)
 
