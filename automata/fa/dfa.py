@@ -381,7 +381,7 @@ class DFA(fa.FA):
     def isdisjoint(self, other):
         return self.intersection(other).isempty()
 
-    def isempty(self, other):
+    def isempty(self):
         return len(self.minify().final_states) == 0
 
     @staticmethod
