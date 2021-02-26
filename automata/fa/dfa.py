@@ -321,7 +321,7 @@ class DFA(fa.FA):
             final_states=set()
         )
 
-    def union(self, other):
+    def union(self, other, minify=True):
         new_dfa = self._cross_product(other)
         for state_a in self.states:
             for state_b in other.states:
@@ -333,16 +333,18 @@ class DFA(fa.FA):
         new_dfa.validate()
         return new_dfa
 
-    def intersection(self, other):
+    def intersection(self, other, minify=True):
         new_dfa = self._cross_product(other)
         for state_a in self.final_states:
             for state_b in other.final_states:
                 new_dfa.final_states.add(
                     self._stringify_states_unsorted((state_a, state_b))
                 )
+        if minify:
+            return new_dfa.minify()
         return new_dfa
 
-    def difference(self, other):
+    def difference(self, other, minify=True):
         new_dfa = self._cross_product(other)
         for state_a in self.final_states:
             for state_b in other.states:
@@ -350,9 +352,11 @@ class DFA(fa.FA):
                     new_dfa.final_states.add(
                         self._stringify_states_unsorted((state_a, state_b))
                     )
+        if minify:
+            return new_dfa.minify()
         return new_dfa
 
-    def symmetric_difference(self, other):
+    def symmetric_difference(self, other, minify=True):
         new_dfa = self._cross_product(other)
         for state_a in self.states:
             for state_b in other.states:
@@ -363,6 +367,8 @@ class DFA(fa.FA):
                     new_dfa.final_states.add(
                         self._stringify_states_unsorted((state_a, state_b))
                     )
+        if minify:
+            return new_dfa.minify()
         return new_dfa
 
     def complement(self):
