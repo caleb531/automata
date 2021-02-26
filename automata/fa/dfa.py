@@ -326,7 +326,8 @@ class DFA(fa.FA):
                     new_dfa.final_states.add(
                         self._stringify_states_unsorted((state_a, state_b))
                     )
-        new_dfa.validate()
+        if minify:
+            return new_dfa.minify()
         return new_dfa
 
     def intersection(self, other, minify=True):
