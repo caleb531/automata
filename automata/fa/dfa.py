@@ -200,7 +200,7 @@ class DFA(fa.FA):
                     states_to_check.append(dst_state)
         return reachable_states
 
-    def _merge_states(self, retain_names=True):
+    def _merge_states(self, retain_names=False):
         eq_classes = []
         if len(self.final_states) != 0:
             eq_classes.append(frozenset(self.final_states))
@@ -256,18 +256,18 @@ class DFA(fa.FA):
         # need a backmap to prevent constant calls to index
         back_map = {}
         for i, eq in enumerate(eq_classes):
-            name = rename(eq) if retain_names else i
+            name = rename(eq) if retain_names else str(i)
             for state in eq:
                 back_map[state] = name
 
         new_input_symbols = self.input_symbols
         new_states = ({rename(eq) for eq in eq_classes} if retain_names
-                      else set(range(len(eq_classes))))
+                      else set(str(i) for i in range(len(eq_classes))))
         new_initial_state = back_map[self.initial_state]
         new_final_states = set([back_map[acc] for acc in self.final_states])
         new_transitions = {}
         for i, eq in enumerate(eq_classes):
-            name = rename(eq) if retain_names else i
+            name = rename(eq) if retain_names else str(i)
             new_transitions[name] = {}
             for letter in self.input_symbols:
                 new_transitions[name][letter] = back_map[
@@ -317,7 +317,7 @@ class DFA(fa.FA):
             final_states=set()
         )
 
-    def union(self, other, minify=True):
+    def union(self, other, *, retain_names=False, minify=True):
         new_dfa = self._cross_product(other)
         for state_a in self.states:
             for state_b in other.states:
@@ -327,10 +327,10 @@ class DFA(fa.FA):
                         self._stringify_states_unsorted((state_a, state_b))
                     )
         if minify:
-            return new_dfa.minify()
+            return new_dfa.minify(retain_names=retain_names)
         return new_dfa
 
-    def intersection(self, other, minify=True):
+    def intersection(self, other, *, retain_names=False, minify=True):
         new_dfa = self._cross_product(other)
         for state_a in self.final_states:
             for state_b in other.final_states:
@@ -338,10 +338,10 @@ class DFA(fa.FA):
                     self._stringify_states_unsorted((state_a, state_b))
                 )
         if minify:
-            return new_dfa.minify()
+            return new_dfa.minify(retain_names=retain_names)
         return new_dfa
 
-    def difference(self, other, minify=True):
+    def difference(self, other, *, retain_names=False, minify=True):
         new_dfa = self._cross_product(other)
         for state_a in self.final_states:
             for state_b in other.states:
@@ -350,10 +350,10 @@ class DFA(fa.FA):
                         self._stringify_states_unsorted((state_a, state_b))
                     )
         if minify:
-            return new_dfa.minify()
+            return new_dfa.minify(retain_names=retain_names)
         return new_dfa
 
-    def symmetric_difference(self, other, minify=True):
+    def symmetric_difference(self, other, *, retain_names=False, minify=True):
         new_dfa = self._cross_product(other)
         for state_a in self.states:
             for state_b in other.states:
@@ -365,7 +365,7 @@ class DFA(fa.FA):
                         self._stringify_states_unsorted((state_a, state_b))
                     )
         if minify:
-            return new_dfa.minify()
+            return new_dfa.minify(retain_names=retain_names)
         return new_dfa
 
     def complement(self):

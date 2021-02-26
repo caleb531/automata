@@ -289,7 +289,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        new_dfa = A.union(B, minify=False)
+        new_dfa = A.union(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
             '{q0,p0}', '{q0,p1}', '{q0,p2}',
             '{q1,p0}', '{q1,p1}', '{q1,p2}',
@@ -353,7 +353,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        new_dfa = A.intersection(B, minify=False)
+        new_dfa = A.intersection(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
             '{q0,p0}', '{q0,p1}', '{q0,p2}',
             '{q1,p0}', '{q1,p1}', '{q1,p2}',
@@ -413,7 +413,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        new_dfa = A.difference(B, minify=False)
+        new_dfa = A.difference(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
             '{q0,p0}', '{q0,p1}', '{q0,p2}',
             '{q1,p0}', '{q1,p1}', '{q1,p2}',
@@ -473,7 +473,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        new_dfa = A.symmetric_difference(B, minify=False)
+        new_dfa = A.symmetric_difference(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
             '{q0,p0}', '{q0,p1}', '{q0,p2}',
             '{q1,p0}', '{q1,p1}', '{q1,p2}',
@@ -714,7 +714,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q3', 'q4', 'q5', 'q6'}
         )
-        minimal_dfa = dfa.minify()
+        minimal_dfa = dfa.minify(retain_names=True)
         nose.assert_equal(minimal_dfa.states, {
             'q0', '{q1,q2}', '{q3,q4,q5,q6}'
         })
@@ -889,7 +889,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='55',
             final_states={'5', '1', '36', '49', '40', '25', '46', '6', '55',
                           '33', '11', '20', '48', '44', '32'})
-        minimal_dfa = dfa.minify()
+        minimal_dfa = dfa.minify(retain_names=True)
         nose.assert_equal(minimal_dfa.states, check_dfa.states)
         nose.assert_equal(minimal_dfa.input_symbols, check_dfa.input_symbols)
         nose.assert_equal(minimal_dfa.transitions, check_dfa.transitions)
@@ -909,7 +909,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q1'}
         )
-        minimal_dfa = dfa.minify()
+        minimal_dfa = dfa.minify(retain_names=True)
         nose.assert_equal(minimal_dfa.states, dfa.states)
         nose.assert_equal(minimal_dfa.input_symbols, dfa.input_symbols)
         nose.assert_equal(minimal_dfa.transitions, dfa.transitions)
