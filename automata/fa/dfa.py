@@ -32,13 +32,13 @@ class DFA(fa.FA):
 
     def __le__(self, other):
         if isinstance(other, DFA):
-            return self.is_subset(other)
+            return self.issubset(other)
         else:
             raise NotImplementedError
 
     def __ge__(self, other):
         if isinstance(other, DFA):
-            return self.is_superset(other)
+            return self.issuperset(other)
         else:
             raise NotImplementedError
 
@@ -370,10 +370,10 @@ class DFA(fa.FA):
         new_dfa.final_states = self.states - self.final_states
         return new_dfa
 
-    def is_subset(self, other):
+    def issubset(self, other):
         return self.intersection(other).minify() == self
 
-    def is_superset(self, other):
+    def issuperset(self, other):
         return other.is_subset(self)
 
     @staticmethod
