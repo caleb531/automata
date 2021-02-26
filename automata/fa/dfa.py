@@ -378,7 +378,7 @@ class DFA(fa.FA):
 
     def issuperset(self, other):
         return other.issubset(self)
-    
+
     def isdisjoint(self, other):
         return self.intersection(other).isempty()
 
