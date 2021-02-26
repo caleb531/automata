@@ -27,7 +27,7 @@ class DFA(fa.FA):
     def __eq__(self, other):
         if isinstance(other, DFA):
             sym_diff = self.symmetric_difference(other).minify()
-            return len(sym_diff.final_state) == 0
+            return len(sym_diff.final_states) == 0
         return False
 
     def __le__(self, other):
