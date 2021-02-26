@@ -26,8 +26,7 @@ class DFA(fa.FA):
 
     def __eq__(self, other):
         if isinstance(other, DFA):
-            sym_diff = self.symmetric_difference(other).minify()
-            return len(sym_diff.final_states) == 0
+            return self.symmetric_difference(other).isempty()
         return False
 
     def __le__(self, other):
@@ -77,9 +76,6 @@ class DFA(fa.FA):
             return self.symmetric_difference(other)
         else:
             raise NotImplementedError
-
-    def __reversed__(self):
-        return self.reverse()
 
     def __invert__(self):
         return self.complement()
@@ -377,10 +373,16 @@ class DFA(fa.FA):
         return new_dfa
 
     def issubset(self, other):
-        return self.intersection(other).minify() == self
+        return self.intersection(other) == self
 
     def issuperset(self, other):
-        return other.is_subset(self)
+        return other.issubset(self)
+    
+    def isdisjoint(self, other):
+        return self.intersection(other).isempty()
+
+    def isempty(self, other):
+        return len(self.minify().final_states) == 0
 
     @staticmethod
     def _stringify_states_unsorted(states):
