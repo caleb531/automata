@@ -333,7 +333,7 @@ class DFA(fa.FA):
         new_dfa.validate()
         return new_dfa
 
-    def intersect(self, other):
+    def intersection(self, other):
         new_dfa = self._cross_product(other)
         for state_a in self.final_states:
             for state_b in other.final_states:
@@ -371,7 +371,7 @@ class DFA(fa.FA):
         return new_dfa
 
     def is_subset(self, other):
-        return self.intersect(other).minify() == self
+        return self.intersection(other).minify() == self
 
     def is_superset(self, other):
         return other.is_subset(self)
