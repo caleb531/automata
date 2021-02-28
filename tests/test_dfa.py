@@ -619,6 +619,107 @@ class TestDFA(test_fa.TestFA):
         nose.assert_false(A.isdisjoint(C))
         nose.assert_false(B.isdisjoint(C))
 
+    def test_isempty_non_empty(self):
+        # This DFA accepts all words which contain at least
+        # three occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q3'}
+            },
+            initial_state='q0',
+            final_states={'q3'}
+        )
+        nose.assert_false(A.isempty())
+
+    def test_isempty_empty(self):
+        # This DFA has no reachable final states and
+        # therefore accepts the empty language
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q0', '1': 'q1'},
+                'q3': {'0': 'q2', '1': 'q1'}
+            },
+            initial_state='q0',
+            final_states={'q3'}
+        )
+        nose.assert_true(A.isempty())
+
+    def test_isfinite_infinite(self):
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        nose.assert_false(A.isfinite())
+
+    def test_isfinite_finite(self):
+        # This DFA accepts all binary strings which have length
+        # less than or equal to 5
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q2', '1': 'q2'},
+                'q2': {'0': 'q3', '1': 'q3'},
+                'q3': {'0': 'q4', '1': 'q4'},
+                'q4': {'0': 'q5', '1': 'q5'},
+                'q5': {'0': 'q6', '1': 'q6'},
+                'q6': {'0': 'q6', '1': 'q6'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'}
+        )
+        nose.assert_false(A.isfinite())
+
+    def test_isfinite_empty(self):
+        # This DFA has no reachable final states and
+        # therefore is finite.
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q0', '1': 'q1'},
+                'q3': {'0': 'q2', '1': 'q1'}
+            },
+            initial_state='q0',
+            final_states={'q3'}
+        )
+        nose.assert_true(A.isfinite())
+
+    def test_isfinite_universe(self):
+        # This DFA accepts all binary strings and
+        # therefore is infinite.
+        A = DFA(
+            states={'q0'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q0'},
+            },
+            initial_state='q0',
+            final_states={'q0'}
+        )
+        nose.assert_false(A.isfinite())
+
     def test_set_laws(self):
         """Tests many set laws that are true for all sets"""
         # This DFA accepts all words which contain at least four
