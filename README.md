@@ -194,13 +194,109 @@ dfa.validate()  # returns True
 dfa.copy()  # returns deep copy of dfa
 ```
 
-#### DFA.minify(self)
+#### DFA.minify(self, retain_names=False)
 
 Creates a minimal DFA which accepts the same inputs as the old one.
 Unreachable states are removed and equivalent states are merged.
+States are renamed by default.
 
 ```python
 minimal_dfa = dfa.minify()
+minimal_dfa_with_old_names = dfa.minify(retain_names=True)
+```
+
+#### DFA.complement(self)
+Creates a DFA which accepts an input if and only if the old one does not.
+
+```python
+complement_dfa = ~dfa
+```
+
+#### DFA.union(self, other, minify=True)
+
+Given two DFAs which accept the languages A and B respectively,
+creates a DFA which accepts the union of A and B. Minifies by default.
+
+```python
+minimal_union_dfa = dfa | other_dfa
+union_dfa = dfa.union(other_dfa, minify=False)
+```
+
+#### DFA.intersection(self, other, minify=True)
+
+Given two DFAs which accept the languages A and B respectively,
+creates a DFA which accepts the intersection of A and B. Minifies by default.
+
+```python
+minimal_intersection_dfa = dfa & other_dfa
+intersection_dfa = dfa.intersection(other_dfa, minify=False)
+```
+
+#### DFA.difference(self, other, minify=True)
+
+Given two DFAs which accept the languages A and B respectively,
+creates a DFA which accepts the set difference of A and B, often
+denoted A \ B or A - B. Minifies by default.
+
+```python
+minimal_difference_dfa = dfa - other_dfa
+difference_dfa = dfa.difference(other_dfa, minify=False)
+```
+
+#### DFA.symmetric_difference(self, other, minify=True)
+
+Given two DFAs which accept the languages A and B respectively,
+creates a DFA which accepts the symmetric difference of A and B.
+Minifies by default.
+
+```python
+minimal_symmetric_difference_dfa = dfa ^ other_dfa
+symmetric_difference_dfa = dfa.symmetric_difference(other_dfa, minify=False)
+```
+
+### DFA.issubset(self, other_dfa)
+
+Given two DFAs which accept the languages A and B respectively,
+returns True of the A is a subset of B, False otherwise.
+
+```python
+dfa <= other_dfa
+dfa.issubset(other_dfa)
+```
+
+### DFA.issuperset(self, other_dfa)
+
+Given two DFAs which accept the languages A and B respectively,
+returns True of the A is a superset of B, False otherwise.
+
+```python
+dfa >= other_dfa
+dfa.issuperset(other_dfa)
+```
+
+### DFA.isdisjoint(self, other_dfa)
+
+Given two DFAs which accept the languages A and B respectively,
+returns True of A and B are disjoint, False otherwise.
+
+```python
+dfa.isdisjoint(other_dfa)
+```
+
+### DFA.isempty(self)
+
+Returns True if the DFA does not accept any inputs, False otherwise.
+
+```python
+dfa.isempty()
+```
+
+### DFA.isfinite(self)
+
+Returns True if the DFA accepts a finite language, False otherwise.
+
+```python
+dfa.isfinite()
 ```
 
 #### DFA.from_nfa(cls, nfa)
