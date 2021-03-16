@@ -124,6 +124,676 @@ class TestDFA(test_fa.TestFA):
             'q0', 'q0', 'q1', 'q2', 'q1'
         ])
 
+    def test_operations_other_types(self):
+        """Should raise NotImplementedError for all but equals."""
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        other = 42
+        nose.assert_not_equal(dfa, other)
+        with nose.assert_raises(NotImplementedError):
+            dfa | other
+        with nose.assert_raises(NotImplementedError):
+            dfa & other
+        with nose.assert_raises(NotImplementedError):
+            dfa - other
+        with nose.assert_raises(NotImplementedError):
+            dfa ^ other
+        with nose.assert_raises(NotImplementedError):
+            dfa < other
+        with nose.assert_raises(NotImplementedError):
+            dfa <= other
+        with nose.assert_raises(NotImplementedError):
+            dfa > other
+        with nose.assert_raises(NotImplementedError):
+            dfa >= other
+
+    def test_equivalence_not_equal(self):
+        """Should not be equal."""
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        no_consecutive_11_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        # This DFA accepts all words which contain either zero
+        # or one occurrence of 1
+        zero_or_one_1_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        nose.assert_true(no_consecutive_11_dfa != zero_or_one_1_dfa)
+
+    def test_equivalence_minify(self):
+        """Should be equivalent after minify."""
+        no_consecutive_11_dfa = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q3', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'},
+                'q3': {'0': 'q0', '1': 'q1'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1', 'q3'}
+        )
+        minimal_dfa = no_consecutive_11_dfa.minify()
+        nose.assert_equal(no_consecutive_11_dfa, minimal_dfa)
+
+    def test_equivalence_two_non_minimal(self):
+        """Should be equivalent even though they are non minimal."""
+        no_consecutive_11_dfa = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q3', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'},
+                'q3': {'0': 'q0', '1': 'q1'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1', 'q3'}
+        )
+        other_dfa = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q3', '1': 'q2'},
+                'q3': {'0': 'q3', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        nose.assert_equal(no_consecutive_11_dfa, other_dfa)
+
+    def test_complement(self):
+        no_consecutive_11_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        complement_dfa = ~no_consecutive_11_dfa
+        nose.assert_equal(complement_dfa.states, no_consecutive_11_dfa.states)
+        nose.assert_equal(
+            complement_dfa.input_symbols, no_consecutive_11_dfa.input_symbols
+        )
+        nose.assert_equal(
+            complement_dfa.transitions, no_consecutive_11_dfa.transitions
+        )
+        nose.assert_equal(
+            complement_dfa.initial_state, no_consecutive_11_dfa.initial_state
+        )
+        nose.assert_equal(
+            complement_dfa.final_states, {'q2'}
+        )
+
+    def test_union(self):
+        # This DFA accepts all words which contain at least four
+        # occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q4'},
+                'q4': {'0': 'q4', '1': 'q4'}
+            },
+            initial_state='q0',
+            final_states={'q4'}
+        )
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        B = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        new_dfa = A.union(B, retain_names=True, minify=False)
+        nose.assert_equal(new_dfa.states, {
+            '{q0,p0}', '{q0,p1}', '{q0,p2}',
+            '{q1,p0}', '{q1,p1}', '{q1,p2}',
+            '{q2,p0}', '{q2,p1}', '{q2,p2}',
+            '{q3,p0}', '{q3,p1}', '{q3,p2}',
+            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+        })
+        nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
+        nose.assert_equal(new_dfa.transitions, {
+            '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
+            '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
+            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
+            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
+            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
+            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
+            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
+            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
+            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
+            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
+            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
+            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
+            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
+            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
+            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+        })
+        nose.assert_equal(new_dfa.initial_state, '{q0,p0}')
+        nose.assert_equal(new_dfa.final_states, {
+            '{q0,p0}', '{q0,p1}',
+            '{q1,p0}', '{q1,p1}',
+            '{q2,p0}', '{q2,p1}',
+            '{q3,p0}', '{q3,p1}',
+            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+        })
+
+    def test_intersection(self):
+        # This DFA accepts all words which contain at least four
+        # occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q4'},
+                'q4': {'0': 'q4', '1': 'q4'}
+            },
+            initial_state='q0',
+            final_states={'q4'}
+        )
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        B = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        new_dfa = A.intersection(B, retain_names=True, minify=False)
+        nose.assert_equal(new_dfa.states, {
+            '{q0,p0}', '{q0,p1}', '{q0,p2}',
+            '{q1,p0}', '{q1,p1}', '{q1,p2}',
+            '{q2,p0}', '{q2,p1}', '{q2,p2}',
+            '{q3,p0}', '{q3,p1}', '{q3,p2}',
+            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+        })
+        nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
+        nose.assert_equal(new_dfa.transitions, {
+            '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
+            '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
+            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
+            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
+            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
+            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
+            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
+            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
+            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
+            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
+            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
+            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
+            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
+            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
+            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+        })
+        nose.assert_equal(new_dfa.initial_state, '{q0,p0}')
+        nose.assert_equal(new_dfa.final_states, {
+            '{q4,p0}', '{q4,p1}',
+        })
+
+    def test_difference(self):
+        # This DFA accepts all words which contain at least four
+        # occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q4'},
+                'q4': {'0': 'q4', '1': 'q4'}
+            },
+            initial_state='q0',
+            final_states={'q4'}
+        )
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        B = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        new_dfa = A.difference(B, retain_names=True, minify=False)
+        nose.assert_equal(new_dfa.states, {
+            '{q0,p0}', '{q0,p1}', '{q0,p2}',
+            '{q1,p0}', '{q1,p1}', '{q1,p2}',
+            '{q2,p0}', '{q2,p1}', '{q2,p2}',
+            '{q3,p0}', '{q3,p1}', '{q3,p2}',
+            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+        })
+        nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
+        nose.assert_equal(new_dfa.transitions, {
+            '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
+            '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
+            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
+            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
+            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
+            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
+            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
+            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
+            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
+            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
+            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
+            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
+            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
+            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
+            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+        })
+        nose.assert_equal(new_dfa.initial_state, '{q0,p0}')
+        nose.assert_equal(new_dfa.final_states, {
+            '{q4,p2}'
+        })
+
+    def test_symmetric_difference(self):
+        # This DFA accepts all words which contain at least four
+        # occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q4'},
+                'q4': {'0': 'q4', '1': 'q4'}
+            },
+            initial_state='q0',
+            final_states={'q4'}
+        )
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        B = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        new_dfa = A.symmetric_difference(B, retain_names=True, minify=False)
+        nose.assert_equal(new_dfa.states, {
+            '{q0,p0}', '{q0,p1}', '{q0,p2}',
+            '{q1,p0}', '{q1,p1}', '{q1,p2}',
+            '{q2,p0}', '{q2,p1}', '{q2,p2}',
+            '{q3,p0}', '{q3,p1}', '{q3,p2}',
+            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+        })
+        nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
+        nose.assert_equal(new_dfa.transitions, {
+            '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
+            '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
+            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
+            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
+            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
+            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
+            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
+            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
+            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
+            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
+            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
+            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
+            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
+            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
+            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+        })
+        nose.assert_equal(new_dfa.initial_state, '{q0,p0}')
+        nose.assert_equal(new_dfa.final_states, {
+            '{q0,p0}', '{q0,p1}',
+            '{q1,p0}', '{q1,p1}',
+            '{q2,p0}', '{q2,p1}',
+            '{q3,p0}', '{q3,p1}',
+            '{q4,p2}'
+        })
+
+    def test_issubset(self):
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        no_consecutive_11_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        # This DFA accepts all words which contain either zero
+        # or one occurrence of 1
+        zero_or_one_1_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        # Test both proper subset and subset with each set as left hand side
+        nose.assert_true(zero_or_one_1_dfa < no_consecutive_11_dfa)
+        nose.assert_true(zero_or_one_1_dfa <= no_consecutive_11_dfa)
+        nose.assert_false(no_consecutive_11_dfa < zero_or_one_1_dfa)
+        nose.assert_false(no_consecutive_11_dfa <= zero_or_one_1_dfa)
+
+    def test_issuperset(self):
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        no_consecutive_11_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        # This DFA accepts all words which contain either zero
+        # or one occurrence of 1
+        zero_or_one_1_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        # Test both proper subset and subset with each set as left hand side
+        nose.assert_false(zero_or_one_1_dfa > no_consecutive_11_dfa)
+        nose.assert_false(zero_or_one_1_dfa >= no_consecutive_11_dfa)
+        nose.assert_true(no_consecutive_11_dfa > zero_or_one_1_dfa)
+        nose.assert_true(no_consecutive_11_dfa >= zero_or_one_1_dfa)
+
+    def test_isdisjoint(self):
+        # This DFA accepts all words which contain at least
+        # three occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q3'}
+            },
+            initial_state='q0',
+            final_states={'q3'}
+        )
+        # This DFA accepts all words which contain either zero
+        # or one occurrence of 1
+        B = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        # This DFA accepts all words which contain at least
+        # one occurrence of 1
+        C = DFA(
+            states={'q0', 'q1'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q1'},
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        nose.assert_true(A.isdisjoint(B))
+        nose.assert_true(B.isdisjoint(A))
+        nose.assert_false(A.isdisjoint(C))
+        nose.assert_false(B.isdisjoint(C))
+
+    def test_isempty_non_empty(self):
+        # This DFA accepts all words which contain at least
+        # three occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q3'}
+            },
+            initial_state='q0',
+            final_states={'q3'}
+        )
+        nose.assert_false(A.isempty())
+
+    def test_isempty_empty(self):
+        # This DFA has no reachable final states and
+        # therefore accepts the empty language
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q0', '1': 'q1'},
+                'q3': {'0': 'q2', '1': 'q1'}
+            },
+            initial_state='q0',
+            final_states={'q3'}
+        )
+        nose.assert_true(A.isempty())
+
+    def test_isfinite_infinite(self):
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        nose.assert_false(A.isfinite())
+
+    def test_isfinite_finite(self):
+        # This DFA accepts all binary strings which have length
+        # less than or equal to 5
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q2', '1': 'q2'},
+                'q2': {'0': 'q3', '1': 'q3'},
+                'q3': {'0': 'q4', '1': 'q4'},
+                'q4': {'0': 'q5', '1': 'q5'},
+                'q5': {'0': 'q6', '1': 'q6'},
+                'q6': {'0': 'q6', '1': 'q6'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'}
+        )
+        nose.assert_false(A.isfinite())
+
+    def test_isfinite_empty(self):
+        # This DFA has no reachable final states and
+        # therefore is finite.
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q0', '1': 'q1'},
+                'q3': {'0': 'q2', '1': 'q1'}
+            },
+            initial_state='q0',
+            final_states={'q3'}
+        )
+        nose.assert_true(A.isfinite())
+
+    def test_isfinite_universe(self):
+        # This DFA accepts all binary strings and
+        # therefore is infinite.
+        A = DFA(
+            states={'q0'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q0'},
+            },
+            initial_state='q0',
+            final_states={'q0'}
+        )
+        nose.assert_false(A.isfinite())
+
+    def test_set_laws(self):
+        """Tests many set laws that are true for all sets"""
+        # This DFA accepts all words which contain at least four
+        # occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q4'},
+                'q4': {'0': 'q4', '1': 'q4'}
+            },
+            initial_state='q0',
+            final_states={'q4'}
+        )
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        B = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        # This DFA accepts all binary strings
+        U = DFA(
+            states={'q0'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q0'}
+            },
+            initial_state='q0',
+            final_states={'q0'}
+        )
+        # This DFA represents the empty language
+        empty = DFA(
+            states={'q0'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q0'}
+            },
+            initial_state='q0',
+            final_states=set()
+        )
+        # De Morgan's laws
+        nose.assert_equal(~(A | B), ~A & ~B)
+        nose.assert_equal(~(A & B), ~A | ~B)
+        # Complement laws
+        nose.assert_equal(A | ~A, U)
+        nose.assert_equal(A & ~A, empty)
+        nose.assert_equal(~U, empty)
+        nose.assert_equal(~empty, U)
+        # Involution
+        nose.assert_equal(A, ~(~A))
+        # Relationships between relative and absolute complements
+        nose.assert_equal(A - B, A & ~B)
+        nose.assert_equal(~(A - B), ~A | B)
+        nose.assert_equal(~(A - B), ~A | (B & A))
+        # Relationship with set difference
+        nose.assert_equal(~A - ~B, B - A)
+        # Symmetric difference
+        nose.assert_equal(A ^ B, (A - B) | (B - A))
+        nose.assert_equal(A ^ B, (A | B) - (A & B))
+        # Commutativity
+        nose.assert_equal(A | B, B | A)
+        nose.assert_equal(A & B, B & A)
+        nose.assert_equal(A ^ B, B ^ A)
+
     def test_minify_dfa(self):
         """Should minify a given DFA."""
         # This DFA accepts all words which are at least two characters long.
@@ -145,7 +815,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q3', 'q4', 'q5', 'q6'}
         )
-        minimal_dfa = dfa.minify()
+        minimal_dfa = dfa.minify(retain_names=True)
         nose.assert_equal(minimal_dfa.states, {
             'q0', '{q1,q2}', '{q3,q4,q5,q6}'
         })
@@ -159,6 +829,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(minimal_dfa.final_states, {'{q3,q4,q5,q6}'})
 
     def test_minify_dfa_complex(self):
+        """Should minify a given large DFA."""
         dfa = DFA(
             states={'13', '56', '18', '10', '15', '26', '24', '54', '32', '27',
                     '5', '43', '8', '3', '17', '45', '57', '46', '35', '9',
@@ -319,7 +990,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='55',
             final_states={'5', '1', '36', '49', '40', '25', '46', '6', '55',
                           '33', '11', '20', '48', '44', '32'})
-        minimal_dfa = dfa.minify()
+        minimal_dfa = dfa.minify(retain_names=True)
         nose.assert_equal(minimal_dfa.states, check_dfa.states)
         nose.assert_equal(minimal_dfa.input_symbols, check_dfa.input_symbols)
         nose.assert_equal(minimal_dfa.transitions, check_dfa.transitions)
@@ -339,7 +1010,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q1'}
         )
-        minimal_dfa = dfa.minify()
+        minimal_dfa = dfa.minify(retain_names=True)
         nose.assert_equal(minimal_dfa.states, dfa.states)
         nose.assert_equal(minimal_dfa.input_symbols, dfa.input_symbols)
         nose.assert_equal(minimal_dfa.transitions, dfa.transitions)
