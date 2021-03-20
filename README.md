@@ -15,9 +15,9 @@ Huge thanks to [@YtvwlD][YtvwlD-profile] and [@dengl11][dengl11-profile] for the
 [YtvwlD-profile]: https://github.com/YtvwlD
 [dengl11-profile]: https://github.com/dengl11
 
-## Migrating to v4
+## Migrating to v5
 
-If you wish to migrate to Automata v4 from an older version, please follow the
+If you wish to migrate to Automata v5 from an older version, please follow the
 [migration guide][migration].
 
 [migration]: https://github.com/caleb531/automata/blob/master/MIGRATION.md
