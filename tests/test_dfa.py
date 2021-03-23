@@ -669,6 +669,26 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_false(A.isfinite())
 
+    def test_isfinite_infinite_case_2(self):
+        # This DFA accepts all binary strings which have length
+        # less than or equal to 5
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q2', '1': 'q2'},
+                'q2': {'0': 'q3', '1': 'q3'},
+                'q3': {'0': 'q4', '1': 'q4'},
+                'q4': {'0': 'q5', '1': 'q5'},
+                'q5': {'0': 'q6', '1': 'q6'},
+                'q6': {'0': 'q6', '1': 'q6'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'}
+        )
+        nose.assert_false(A.isfinite())
+
     def test_isfinite_finite(self):
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
