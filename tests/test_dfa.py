@@ -685,9 +685,9 @@ class TestDFA(test_fa.TestFA):
                 'q6': {'0': 'q6', '1': 'q6'}
             },
             initial_state='q0',
-            final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'}
+            final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5'}
         )
-        nose.assert_false(A.isfinite())
+        nose.assert_true(A.isfinite())
 
     def test_isfinite_empty(self):
         # This DFA has no reachable final states and
