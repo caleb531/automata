@@ -550,7 +550,7 @@ class DFA(fa.FA):
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
 
-    def show_diagram(self, path=None):
+    def show_diagram(self, path=None):  # pragma: no cover
         """
             Creates the graph associated with this DFA
         """

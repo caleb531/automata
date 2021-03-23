@@ -9,6 +9,8 @@ branch = True
 # Regexes for lines to exclude from consideration
 exclude_lines =
 
+    pragma: no cover
+
     # Ignore non-runnable code
     if __name__ == .__main__.:
 
