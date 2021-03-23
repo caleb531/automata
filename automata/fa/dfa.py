@@ -2,13 +2,12 @@
 """Classes and methods for working with deterministic finite automata."""
 
 import copy
-import itertools
 from collections import defaultdict, deque
+
+from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-
-from pydot import Edge, Node, Dot
 
 
 class DFA(fa.FA):
