@@ -464,7 +464,7 @@ the remaining input (an empty string)
 as well as a `PDAStack` object representing the DPDA's stack (if the input is accepted).
 
 ```python
-dpda.read_input('ab')  # returns PDAConfiguration('q3', '', PDAStack(('0')))
+dpda.read_input('ab')  # returns PDAConfiguration('q3', '', PDAStack(('0',)))
 ```
 
 ```python
