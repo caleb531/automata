@@ -1160,3 +1160,23 @@ class TestDFA(test_fa.TestFA):
         )
         dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
         nose.assert_equal(dfa.read_input('a'), '{q1}')
+
+    def test_partial_dfa(self):
+        """Should allow for partial DFA when flag is set"""
+        dfa = DFA(
+            states={'', 'a', 'b', 'aa', 'bb', 'ab', 'ba'},
+            input_symbols={'a', 'b'},
+            transitions={
+                '': {'a': 'a', 'b': 'b'},
+                'a': {'b': 'ab', 'a': 'aa'},
+                'b': {'b': 'bb'},
+                'aa': {'a': 'aa', 'b': 'ab'},
+                'bb': {'a': 'ba'},
+                'ab': {'b': 'bb'},
+                'ba': {'a': 'aa'}
+            },
+            initial_state='',
+            final_states={'aa'},
+            allow_partial=True
+        )
+        nose.assert_equal(dfa.read_input('aa'), 'aa')

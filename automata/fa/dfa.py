@@ -14,13 +14,14 @@ class DFA(fa.FA):
     """A deterministic finite automaton."""
 
     def __init__(self, *, states, input_symbols, transitions,
-                 initial_state, final_states):
+                 initial_state, final_states, allow_partial=False):
         """Initialize a complete DFA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = final_states.copy()
+        self.allow_partial = allow_partial
         self.validate()
 
     def __eq__(self, other):
@@ -81,6 +82,8 @@ class DFA(fa.FA):
 
     def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition input_symbols are missing."""
+        if self.allow_partial:
+            return
         for input_symbol in self.input_symbols:
             if input_symbol not in paths:
                 raise exceptions.MissingSymbolError(
