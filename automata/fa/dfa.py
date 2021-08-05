@@ -561,12 +561,19 @@ class DFA(fa.FA):
         for state in self.states:
             if state == self.initial_state:
                 # color start state with green
-                initial_state_node = Node(
-                    state, style="filled", fillcolor="green")
+                if state in self.final_states:
+                    initial_state_node = Node(
+                        state, style="filled", peripheries=2, fillcolor="green")
+                else:
+                    initial_state_node = Node(
+                        state, style="filled", fillcolor="green")
                 nodes[state] = initial_state_node
                 graph.add_node(initial_state_node)
             else:
-                state_node = Node(state)
+                if state in self.final_states:
+                    state_node = Node(state,peripheries=2)
+                else:
+                    state_node = Node(state)
                 nodes[state] = state_node
                 graph.add_node(state_node)
         # adding edges
