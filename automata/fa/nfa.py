@@ -19,6 +19,15 @@ class NFA(fa.FA):
         self.initial_state = initial_state
         self.final_states = final_states.copy()
         self.validate()
+    
+    def __add__(self, other):
+        if isinstance(other, NFA):
+            return self.concatenate(other)
+        else:
+            raise NotImplementedError
+
+    def __reversed__(self):
+        return self.reverse()
 
     @classmethod
     def from_dfa(cls, dfa):

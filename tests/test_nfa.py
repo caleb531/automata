@@ -165,6 +165,21 @@ class TestNFA(test_fa.TestFA):
         # raised
         nose.assert_not_equal(nfa.accepts_input(''), None)
     
+    def test_operations_other_type(self):
+        """Should raise NotImplementedError for concatenate."""
+        nfa = NFA(
+                states={'q1', 'q2', 'q3', 'q4'},
+                input_symbols={'0', '1'},
+                transitions={'q1': {'0': {'q1'}, '1': {'q1', 'q2'}},
+                             'q2': {'': {'q2'}, '0': {'q2'}},
+                             'q3': {'1': {'q4'}},
+                             'q4': {'0': {'q4'}, '1': {'q4'}}},
+                initial_state='q1',
+                final_states={'q2', 'q4'})
+        other = 42
+        with nose.assert_raises(NotImplementedError):
+            nfa + other
+
     def test_concatenate(self):
         nfa_a = NFA(
                 states={'q1', 'q2', 'q3', 'q4'},
