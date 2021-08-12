@@ -118,3 +118,129 @@ class NFA(fa.FA):
             yield current_states
 
         self._check_for_input_rejection(current_states)
+    
+    def concatenate(self, other):
+        """
+        Given two NFAs, M1 and M2, which accept the languages
+        L1 and L2 respectively, returns an NFA which accepts
+        the languages L1 concatenated with L2.
+        """
+        state_map_a = dict()
+        for state in self.states:
+            state_map_a[state] = len(state_map_a)
+        
+        state_map_b = dict()
+        for state in other.states:
+            state_map_b[state] = len(state_map_a) + len(state_map_b)
+
+        new_states = set(state_map_a.values()) | set(state_map_b.values())
+        new_transitions = dict()
+        for state in new_states:
+            new_transitions[state] = dict()
+        # Transitions of self
+        for state_a, transitions in self.transitions.items():
+            for symbol, states in transitions.items():
+                new_transitions[state_map_a[state_a]][symbol] = {
+                    state_map_a[state_b] for state_b in states
+                }
+
+        # Transitions from self to other
+        for state in self.final_states:
+            if '' not in new_transitions[state_map_a[state]]:
+                new_transitions[state_map_a[state]][''] = set()
+            new_transitions[state_map_a[state]][''].add(
+                state_map_b[other.initial_state]
+            )
+
+        # Transitions of other
+        for state_a, transitions in other.transitions.items():
+            for symbol, states in transitions.items():
+                new_transitions[state_map_b[state_a]][symbol] = {
+                    state_map_b[state_b] for state_b in states
+                }
+
+        # Final states of other
+        new_final_states = {state_map_b[state] for state in other.final_states}
+
+        return NFA(states=new_states,
+                   input_symbols=self.input_symbols | other.input_symbols,
+                   transitions=new_transitions,
+                   initial_state=state_map_a[self.initial_state],
+                   final_states=new_final_states
+                  )
+
+    def kleene_star(self):
+        """
+        Given an NFA which accepts the language L returns
+        an NFA which accepts L repeated 0 or more times.
+        """
+        new_states = set(self.states)
+        new_initial_state = 0
+        while new_initial_state in self.states:
+            new_initial_state += 1
+        new_final_state = new_initial_state + 1
+        while new_final_state in self.states:
+            new_final_state += 1
+        new_states.add(new_initial_state)
+        new_states.add(new_final_state)
+        
+        # Transitions are the same with a few additions.
+        new_transitions = copy.deepcopy(self.transitions)
+        # We add epsilon transition from new initial state
+        # to old initial state and new final state.
+        new_transitions[new_initial_state] = {'': {self.initial_state, new_final_state}}
+        # We have no transitions from new final state
+        new_transitions[new_final_state] = dict()
+        # For each final state in original NFA we add epsilon
+        # transition to the old initial state and to the new
+        # final state.
+        for state in self.final_states:
+            if '' not in new_transitions[state]:
+                new_transitions[state][''] = set()
+            new_transitions[state][''].add(self.initial_state) 
+            new_transitions[state][''].add(new_final_state)
+
+        return NFA(states=new_states,
+                   input_symbols=self.input_symbols,
+                   transitions=new_transitions,
+                   initial_state=new_initial_state,
+                   final_states={new_final_state}
+                  )
+
+
+    def reverse(self):
+        """
+        Given an NFA which accepts the language L this function
+        returns an NFA which accepts the reverse of L.
+        """
+        new_states = set(self.states)
+        new_initial_state = 0
+        while new_initial_state in self.states:
+            new_initial_state += 1
+        new_states.add(new_initial_state)
+
+        # Transitions are the same except reversed
+        new_transitions = dict()
+        for state in new_states:
+            new_transitions[state] = dict()
+        for state_a, transitions in self.transitions.items():
+            for symbol, states in transitions.items():
+                for state_b in states:
+                    if symbol not in new_transitions[state_b]:
+                        new_transitions[state_b][symbol] = set()
+                    new_transitions[state_b][symbol].add(state_a)
+        new_transitions[new_initial_state][''] = set()
+        # And we additionally have epsilon transitions from 
+        # new initial state to each old final state.
+        for state in self.final_states:
+            new_transitions[new_initial_state][''].add(state)
+
+        new_final_states = {self.initial_state}
+
+        return NFA(states=new_states,
+                   input_symbols=self.input_symbols,
+                   transitions=new_transitions,
+                   initial_state=new_initial_state,
+                   final_states=new_final_states
+                  )
+
