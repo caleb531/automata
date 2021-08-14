@@ -3,6 +3,11 @@
 *Copyright 2016-2020 Caleb Evans*  
 *Released under the MIT license*
 
+## Backwards-incompatible changes from v5 to v4
+
+To support the new graph visualization capabilities, `pydot` has been added as a
+project dependency. The `pydot` package will be installed when you run `pip install automata-lib`.
+
 ## Backwards-incompatible changes from v3 to v4
 
 The only backwards-incompatible change from v3 to v4 is that support for Python

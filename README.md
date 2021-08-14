@@ -8,16 +8,16 @@
 
 Automata is a Python 3 library which implements the structures and algorithms
 for finite automata, pushdown automata, and Turing machines. The library
-requires Python 3.5 or newer.
+requires Python 3.6 or newer.
 
 Huge thanks to [@YtvwlD][YtvwlD-profile] and [@dengl11][dengl11-profile] for their invaluable code contributions to this project!
 
 [YtvwlD-profile]: https://github.com/YtvwlD
 [dengl11-profile]: https://github.com/dengl11
 
-## Migrating to v4
+## Migrating to v5
 
-If you wish to migrate to Automata v4 from an older version, please follow the
+If you wish to migrate to Automata v5 from an older version, please follow the
 [migration guide][migration].
 
 [migration]: https://github.com/caleb531/automata/blob/master/MIGRATION.md
@@ -464,7 +464,7 @@ the remaining input (an empty string)
 as well as a `PDAStack` object representing the DPDA's stack (if the input is accepted).
 
 ```python
-dpda.read_input('ab')  # returns PDAConfiguration('q3', '', PDAStack(('0')))
+dpda.read_input('ab')  # returns PDAConfiguration('q3', '', PDAStack(('0',)))
 ```
 
 ```python

@@ -669,7 +669,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_false(A.isfinite())
 
-    def test_isfinite_finite(self):
+    def test_isfinite_infinite_case_2(self):
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
         A = DFA(
@@ -688,6 +688,26 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'}
         )
         nose.assert_false(A.isfinite())
+
+    def test_isfinite_finite(self):
+        # This DFA accepts all binary strings which have length
+        # less than or equal to 5
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q2', '1': 'q2'},
+                'q2': {'0': 'q3', '1': 'q3'},
+                'q3': {'0': 'q4', '1': 'q4'},
+                'q4': {'0': 'q5', '1': 'q5'},
+                'q5': {'0': 'q6', '1': 'q6'},
+                'q6': {'0': 'q6', '1': 'q6'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5'}
+        )
+        nose.assert_true(A.isfinite())
 
     def test_isfinite_empty(self):
         # This DFA has no reachable final states and
@@ -1140,3 +1160,23 @@ class TestDFA(test_fa.TestFA):
         )
         dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
         nose.assert_equal(dfa.read_input('a'), '{q1}')
+
+    def test_partial_dfa(self):
+        """Should allow for partial DFA when flag is set"""
+        dfa = DFA(
+            states={'', 'a', 'b', 'aa', 'bb', 'ab', 'ba'},
+            input_symbols={'a', 'b'},
+            transitions={
+                '': {'a': 'a', 'b': 'b'},
+                'a': {'b': 'ab', 'a': 'aa'},
+                'b': {'b': 'bb'},
+                'aa': {'a': 'aa', 'b': 'ab'},
+                'bb': {'a': 'ba'},
+                'ab': {'b': 'bb'},
+                'ba': {'a': 'aa'}
+            },
+            initial_state='',
+            final_states={'aa'},
+            allow_partial=True
+        )
+        nose.assert_equal(dfa.read_input('aa'), 'aa')
