@@ -386,6 +386,32 @@ nfa.validate()  # returns True
 nfa.copy()  # returns deep copy of nfa
 ```
 
+#### NFA.reverse(self)
+
+```python
+nfa.reverse()
+```
+
+```python
+reversed(nfa)
+```
+
+#### NFA.concatenate(self, other)
+
+```python
+nfa1 + nfa2
+```
+
+```python
+nfa1.concatenate(nfa2)
+```
+
+#### NFA.kleene_star(self)
+
+```python
+nfa1.kleene_star()
+```
+
 #### NFA.from_dfa(cls, dfa)
 
 Creates an NFA that is equivalent to the given DFA.
