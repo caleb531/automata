@@ -132,6 +132,9 @@ a state (the value).
 
 5. `final_states`: a `set` of final states for this DFA
 
+6. `allow_partial`: optional; if `True`, permits the DFA to have states that do
+not map to every single input symbol
+
 ```python
 from automata.fa.dfa import DFA
 # DFA which matches all binary strings ending in an odd number of '1's
