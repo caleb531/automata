@@ -568,10 +568,10 @@ class DFA(fa.FA):
                         state,
                         style="filled",
                         peripheries=2,
-                        fillcolor="green")
+                        fillcolor="#66cc33")
                 else:
                     initial_state_node = Node(
-                        state, style="filled", fillcolor="green")
+                        state, style="filled", fillcolor="#66cc33")
                 nodes[state] = initial_state_node
                 graph.add_node(initial_state_node)
             else:
