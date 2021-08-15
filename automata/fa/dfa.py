@@ -566,12 +566,12 @@ class DFA(fa.FA):
                 if state in self.final_states:
                     initial_state_node = Node(
                         state,
-                        style="filled",
+                        style='filled',
                         peripheries=2,
-                        fillcolor="#66cc33")
+                        fillcolor='#66cc33')
                 else:
                     initial_state_node = Node(
-                        state, style="filled", fillcolor="#66cc33")
+                        state, style='filled', fillcolor='#66cc33')
                 nodes[state] = initial_state_node
                 graph.add_node(initial_state_node)
             else:
