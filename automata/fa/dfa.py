@@ -401,20 +401,25 @@ class DFA(fa.FA):
         return new_dfa
 
     def complement(self):
+        """Return the complement of this DFA."""
         new_dfa = self.copy()
         new_dfa.final_states = self.states - self.final_states
         return new_dfa
 
     def issubset(self, other):
+        """Return True if this DFA is a subset of another DFA."""
         return self.intersection(other) == self
 
     def issuperset(self, other):
+        """Return True if this DFA is a superset of another DFA."""
         return other.issubset(self)
 
     def isdisjoint(self, other):
+        """Return True if this DFA has no common elements with another DFA."""
         return self.intersection(other).isempty()
 
     def isempty(self):
+        """Return True if this DFA is completely empty."""
         return len(self.minify().final_states) == 0
 
     def _make_graph(self):
