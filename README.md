@@ -314,6 +314,12 @@ from automata.fa.nfa import NFA
 dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
 ```
 
+#### DFA.show_diagram(self, path=None)
+
+```python
+dfa.show_diagram(path='./dfa1.png')
+```
+
 ### class NFA(FA)
 
 The `NFA` class is a subclass of `FA` and represents a nondeterministic finite
