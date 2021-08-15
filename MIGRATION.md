@@ -1,8 +1,5 @@
 # Automata Migration Guide
 
-*Copyright 2016-2020 Caleb Evans*  
-*Released under the MIT license*
-
 ## Backwards-incompatible changes from v5 to v4
 
 To support the new graph visualization capabilities, `pydot` has been added as a
