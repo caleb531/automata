@@ -21,12 +21,14 @@ class NFA(fa.FA):
         self.validate()
 
     def __add__(self, other):
+        """Return the concatenation of this DFA and another DFA."""
         if isinstance(other, NFA):
             return self.concatenate(other)
         else:
             raise NotImplementedError
 
     def __reversed__(self):
+        """Return the reversal of this DFA."""
         return self.reverse()
 
     @classmethod
@@ -45,6 +47,7 @@ class NFA(fa.FA):
             final_states=dfa.final_states)
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
+        """Raise an error if transition symbols are invalid."""
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols and input_symbol != '':
                 raise exceptions.InvalidSymbolError(
