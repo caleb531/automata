@@ -134,8 +134,10 @@ a state (the value).
 
 5. `final_states`: a `set` of final states for this DFA
 
-6. `allow_partial`: optional; if `True`, permits the DFA to have states that do
-not map to every single input symbol
+6. `allow_partial`: by default, each DFA state must have a transition to
+every input symbol; if `allow_partial` is `True`, you can disable this
+characteristic (such that any DFA state can have fewer transitions than input
+symbols)
 
 ```python
 from automata.fa.dfa import DFA
