@@ -47,8 +47,8 @@ pip install automata-lib
     - [Deterministic (DTM)](#class-dtmtm)
     - [Non-Deterministic (NTM)](#class-ntmtm)
     - [Multi-Tape Non-Deterministic (MNTM)](#class-mntmtm)
-- [Exception classes](#base-exception-classes)
-    - [Turing machine exceptions](#turing-machine-exception-classes)
+- [Base exception classes](#base-exception-classes)
+- [Turing machine exceptions](#turing-machine-exception-classes)
 
 ### class Automaton(metaclass=ABCMeta)
 
