@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of DFAs."""
 
+import os
+import os.path
+import tempfile
 import types
 from unittest.mock import patch
 
@@ -14,6 +17,8 @@ from automata.fa.nfa import NFA
 
 class TestDFA(test_fa.TestFA):
     """A test class for testing deterministic finite automata."""
+
+    temp_dir_path = tempfile.gettempdir()
 
     def test_init_dfa(self):
         """Should copy DFA if passed into DFA constructor."""
@@ -1242,3 +1247,18 @@ class TestDFA(test_fa.TestFA):
                 ('q2', '0', 'q2'),
                 ('q2', '1', 'q2')
             })
+
+    def test_show_diagram_write_file(self):
+        """
+        Should construct the diagram for a DFA
+        and write it to the specified file.
+        """
+        diagram_path = os.path.join(self.temp_dir_path, 'test_dfa.png')
+        try:
+            os.remove(diagram_path)
+        except OSError:
+            pass
+        nose.assert_false(os.path.exists(diagram_path))
+        self.dfa.show_diagram(path=diagram_path)
+        nose.assert_true(os.path.exists(diagram_path))
+        os.remove(diagram_path)
