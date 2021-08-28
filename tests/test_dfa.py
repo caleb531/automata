@@ -1180,3 +1180,65 @@ class TestDFA(test_fa.TestFA):
             allow_partial=True
         )
         nose.assert_equal(dfa.read_input('aa'), 'aa')
+
+    def test_show_diagram_initial_final_different(self):
+        """
+        Should construct the diagram for a DFA whose initial state
+        is not a final state.
+        """
+        graph = self.dfa.show_diagram()
+        nose.assert_equal(
+            {node.get_name() for node in graph.get_nodes()},
+            {'q0', 'q1', 'q2'})
+        nose.assert_equal(graph.get_node('q0')[0].get_style(), 'filled')
+        nose.assert_equal(graph.get_node('q1')[0].get_peripheries(), 2)
+        nose.assert_equal(graph.get_node('q2')[0].get_peripheries(), None)
+        nose.assert_equal(
+            {(edge.get_source(), edge.get_label(), edge.get_destination())
+             for edge in graph.get_edges()},
+            {
+                ('q0', '0', 'q0'),
+                ('q0', '1', 'q1'),
+                ('q1', '0', 'q0'),
+                ('q1', '1', 'q2'),
+                ('q2', '0', 'q2'),
+                ('q2', '1', 'q1')
+            })
+
+    def test_show_diagram_initial_final_same(self):
+        """
+        Should construct the diagram for a DFA whose initial state
+        is also a final state.
+        """
+        # This DFA accepts all words which do not contain two consecutive
+        # occurrences of 1
+        dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        graph = dfa.show_diagram()
+        nose.assert_equal(
+            {node.get_name() for node in graph.get_nodes()},
+            {'q0', 'q1', 'q2'})
+        nose.assert_equal(graph.get_node('q0')[0].get_style(), 'filled')
+        nose.assert_equal(graph.get_node('q0')[0].get_peripheries(), 2)
+        nose.assert_equal(graph.get_node('q1')[0].get_peripheries(), 2)
+        nose.assert_equal(graph.get_node('q2')[0].get_peripheries(), None)
+        nose.assert_equal(
+            {(edge.get_source(), edge.get_label(), edge.get_destination())
+             for edge in graph.get_edges()},
+            {
+                ('q0', '0', 'q0'),
+                ('q0', '1', 'q1'),
+                ('q1', '0', 'q0'),
+                ('q1', '1', 'q2'),
+                ('q2', '0', 'q2'),
+                ('q2', '1', 'q2')
+            })
