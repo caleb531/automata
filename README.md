@@ -3,7 +3,7 @@
 *Copyright 2016-2021 Caleb Evans*  
 *Released under the MIT license*
 
-[![Build Status](https://travis-ci.com/caleb531/automata.svg?branch=master)](https://travis-ci.com/caleb531/automata)
+[![Build Status](https://app.travis-ci.com/caleb531/automata.svg?branch=master)](https://app.travis-ci.com/caleb531/automata)
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=master)](https://coveralls.io/r/caleb531/automata?branch=master)
 
 Automata is a Python 3 library which implements the structures and algorithms
