@@ -3,6 +3,7 @@
 
 import nose.tools as nose
 
+import automata.base.exceptions as exceptions
 from automata.tm.dtm import DTM
 from automata.tm.ntm import NTM
 from automata.tm.mntm import MNTM
@@ -366,3 +367,8 @@ class TestTM(object):
         nose.assert_equal(first.blank_symbol, second.blank_symbol)
         nose.assert_is_not(first.final_states, second.final_states)
         nose.assert_equal(first.final_states, second.final_states)
+
+    def test_validate_blank_symbol(self):
+        self.dtm1.blank_symbol = '-'
+        with nose.assert_raises(exceptions.InvalidSymbolError):
+            self.dtm1.validate()

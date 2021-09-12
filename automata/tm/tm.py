@@ -17,6 +17,14 @@ class TM(Automaton, metaclass=abc.ABCMeta):
                 'symbol set ({})'.format(
                     self.tape_symbols - self.input_symbols))
 
+
+    def _validate_blank_symbol(self):
+        """Raise an error if blank symbol is not a tape symbol."""
+        if self.blank_symbol not in self.tape_symbols:
+            raise exceptions.InvalidSymbolError(
+                'blank symbol {} is not a tape symbol'.format(
+                    self.blank_symbol))
+
     def _validate_nonfinal_initial_state(self):
         """Raise an error if the initial state is a final state."""
         if self.initial_state in self.final_states:

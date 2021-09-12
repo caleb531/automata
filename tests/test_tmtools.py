@@ -13,7 +13,7 @@ from automata.tm.configuration import MTMConfiguration, TMConfiguration
 from automata.tm.tape import TMTape
 
 
-class TestTMTools(test_tm.TestTM):
+class TestTMTools(object):
     """A test class for testing Turing machine utility functions."""
 
     def setup(self):
