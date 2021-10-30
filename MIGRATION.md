@@ -2,6 +2,9 @@
 
 ## Backwards-incompatible changes from v5 to v4
 
+Python 3.5 support has been dropped, since it has been end-of-life since
+September 2020. Please upgrade to Python 3.6 or later to use Automata v5.
+
 To support the new graph visualization capabilities, `pydot` has been added as a
 project dependency. The `pydot` package will be installed when you run `pip install automata-lib`.
 
