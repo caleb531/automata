@@ -2,7 +2,7 @@
 """Classes and methods for working with deterministic pushdown automata."""
 
 import copy
-from typing import Set, Dict, Tuple, Optional
+from typing import Set, Dict, Tuple, Optional, Generator
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -106,7 +106,7 @@ class DPDA(pda.PDA):
             )
 
     def _get_next_configuration(self,
-                                old_config : 'PDAConfiguration') -> None:
+                                old_config : 'PDAConfiguration') -> 'PDAConfiguration':
         """Advance to the next configuration."""
         transitions = set()
         if old_config.remaining_input:
@@ -156,7 +156,7 @@ class DPDA(pda.PDA):
         )
         return new_config
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str : str) -> Generator['PDAConfiguration', None, None]:
         """
         Check if the given string is accepted by this DPDA.
 
