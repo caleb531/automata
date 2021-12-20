@@ -2,6 +2,7 @@
 """Classes and methods for working with nondeterministic Turing machines."""
 
 import copy
+from typing import Dict, Set, Tuple, Generator
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -9,13 +10,24 @@ import automata.tm.tm as tm
 from automata.tm.configuration import TMConfiguration
 from automata.tm.tape import TMTape
 
+NTMStateT = tm.TMStateT
+
+NTMResultT = Tuple[NTMStateT, str, str]
+NTMPathT = Dict[str, Set[NTMResultT]]
+NTMTransitionsT = Dict[NTMStateT, NTMPathT]
 
 class NTM(tm.TM):
     """A nondeterministic Turing machine."""
 
-    def __init__(
-            self, *, states, input_symbols, tape_symbols, transitions,
-            initial_state, blank_symbol, final_states):
+    def __init__(self,
+                 *,
+                 states : Set[NTMStateT],
+                 input_symbols : Set[str],
+                 tape_symbols : Set[str],
+                 transitions : NTMTransitionsT,
+                 initial_state : NTMStateT,
+                 blank_symbol : str,
+                 final_states : Set[NTMStateT]) -> None:
         """Initialize a complete Turing machine."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -26,13 +38,15 @@ class NTM(tm.TM):
         self.final_states = final_states.copy()
         self.validate()
 
-    def _validate_transition_state(self, transition_state):
+    def _validate_transition_state(self, transition_state : NTMStateT) -> None:
         if transition_state not in self.states:
             raise exceptions.InvalidStateError(
                 'transition state is not valid ({})'.format(transition_state)
             )
 
-    def _validate_transition_symbols(self, state, paths):
+    def _validate_transition_symbols(self,
+                                     state : NTMStateT,
+                                     paths : NTMPathT) -> None:
         for tape_symbol in paths.keys():
             if tape_symbol not in self.tape_symbols:
                 raise exceptions.InvalidSymbolError(
@@ -41,13 +55,14 @@ class NTM(tm.TM):
                     )
                 )
 
-    def _validate_transition_result_direction(self, result_direction):
+    #TODO switch this to an enum
+    def _validate_transition_result_direction(self, result_direction : str) -> None:
         if result_direction not in ("L", "N", "R"):
             raise tm_exceptions.InvalidDirectionError(
                 'result direction is not valid ({})'.format(result_direction)
             )
 
-    def _validate_transition_result(self, result):
+    def _validate_transition_result(self, result : NTMResultT) -> None:
         result_state, result_symbol, result_direction = result
         if result_state not in self.states:
             raise exceptions.InvalidStateError(
@@ -59,25 +74,25 @@ class NTM(tm.TM):
             )
         self._validate_transition_result_direction(result_direction)
 
-    def _validate_transition_results(self, paths):
+    def _validate_transition_results(self, paths : NTMPathT) -> None:
         for results in paths.values():
             for result in results:
                 self._validate_transition_result(result)
 
-    def _validate_transitions(self):
+    def _validate_transitions(self) -> None:
         for state, paths in self.transitions.items():
             self._validate_transition_state(state)
             self._validate_transition_symbols(state, paths)
             self._validate_transition_results(paths)
 
-    def _validate_final_state_transitions(self):
+    def _validate_final_state_transitions(self) -> None:
         for final_state in self.final_states:
             if final_state in self.transitions:
                 raise exceptions.FinalStateError(
                     'final state {} has transitions defined'.format(
                         final_state))
 
-    def validate(self):
+    def validate(self) -> bool:
         """Return True if this NTM is internally consistent."""
         self._read_input_symbol_subset()
         self._validate_blank_symbol()
@@ -89,7 +104,7 @@ class NTM(tm.TM):
         self._validate_final_state_transitions()
         return True
 
-    def _get_transitions(self, state, tape_symbol):
+    def _get_transitions(self, state : NTMStateT, tape_symbol : str) -> Set[NTMResultT]:
         """Get the transition tuples for the given state and tape symbol."""
         if state in self.transitions and tape_symbol in self.transitions[
                 state]:
@@ -97,11 +112,11 @@ class NTM(tm.TM):
         else:
             return set()
 
-    def _has_accepted(self, configuration):
+    def _has_accepted(self, configuration : 'TMConfiguration') -> bool:
         """Check whether the given config indicates accepted input."""
         return configuration.state in self.final_states
 
-    def _get_next_configurations(self, old_config):
+    def _get_next_configurations(self, old_config : 'TMConfiguration') -> Set['TMConfiguration']:
         """Advance to the next configurations."""
         transitions = self._get_transitions(
             old_config.state, old_config.tape.read_symbol()
@@ -114,7 +129,7 @@ class NTM(tm.TM):
             new_configs.add(TMConfiguration(new_state, tape))
         return new_configs
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str : str) -> Generator[Set['TMConfiguration'], None, None]:
         """
         Check if the given string is accepted by this Turing machine.
 

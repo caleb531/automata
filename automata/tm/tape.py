@@ -2,7 +2,7 @@
 """Classes and methods for working with Turing machine tapes."""
 
 import collections
-
+from typing import Iterable, Iterator
 
 class TMTape(collections.namedtuple(
     'TMTape',
@@ -10,7 +10,11 @@ class TMTape(collections.namedtuple(
 )):
     """A Turing machine tape."""
 
-    def __new__(cls, tape, *, blank_symbol, current_position=0):
+    def __new__(cls,
+                tape : Iterable[str],
+                *,
+                blank_symbol : str,
+                current_position : int = 0) -> 'TMTape':
         """Initialize a new Turing machine tape."""
         tape = list(tape)
         # Make sure that there's something under the cursor.
@@ -21,7 +25,7 @@ class TMTape(collections.namedtuple(
             cls, tape, blank_symbol, current_position
         )
 
-    def load_symbols(self, input_str, head):
+    def load_symbols(self, input_str : str, head : int) -> 'TMTape':
         """Loads a given string in tape and sets the head to the given
         value."""
         return TMTape(
@@ -30,11 +34,11 @@ class TMTape(collections.namedtuple(
             current_position=head
         )
 
-    def read_symbol(self):
+    def read_symbol(self) -> str:
         """Read the symbol at the current position in the tape."""
         return self.tape[self.current_position]
 
-    def write_symbol(self, new_tape_symbol):
+    def write_symbol(self, new_tape_symbol : str) -> 'TMTape':
         """Write the given symbol at the current position in the tape."""
         tape_elements = list(self.tape)
         tape_elements[self.current_position] = new_tape_symbol
@@ -44,7 +48,8 @@ class TMTape(collections.namedtuple(
             current_position=self.current_position
         )
 
-    def move(self, direction):
+    #TODO replace with enum
+    def move(self, direction : str) -> 'TMTape':
         """Move the tape to the next symbol in the given direction."""
         # Copy stuff.
         new_tape = list(self.tape)
@@ -67,23 +72,23 @@ class TMTape(collections.namedtuple(
             current_position=new_position
         )
 
-    def copy(self):
+    def copy(self) -> 'TMTape':
         return TMTape(list(self.tape).copy(),
                       blank_symbol=self.blank_symbol,
                       current_position=self.current_position)
 
-    def get_symbols_as_str(self):
+    def get_symbols_as_str(self) -> str:
         return "".join(self.tape)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the number of symbols on the tape."""
         return len(self.tape)  # TODO: do we count the blank symbols?
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         """Return an interator for the tape."""
         return iter(self.tape)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the tape."""
         return '{}(\'{}\', {})'.format(
             self.__class__.__name__, ''.join(self.tape), self.current_position

@@ -2,6 +2,7 @@
 """Classes and methods for working with deterministic Turing machines."""
 
 import copy
+from typing import Dict, Set, Tuple, Generator, Optional
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -9,13 +10,24 @@ import automata.tm.tm as tm
 from automata.tm.configuration import TMConfiguration
 from automata.tm.tape import TMTape
 
+DTMStateT = tm.TMStateT
+
+DTMResultT = Tuple[DTMStateT, str, str]
+DTMPathT = Dict[str, DTMResultT]
+DTMTransitionsT = Dict[DTMStateT, DTMPathT]
 
 class DTM(tm.TM):
     """A deterministic Turing machine."""
 
-    def __init__(self, *, states, input_symbols, tape_symbols,
-                 transitions, initial_state, blank_symbol,
-                 final_states):
+    def __init__(self,
+                 *,
+                 states : Set[DTMStateT],
+                 input_symbols : Set[str],
+                 tape_symbols : Set[str],
+                 transitions : DTMTransitionsT,
+                 initial_state : DTMStateT,
+                 blank_symbol : str,
+                 final_states : Set[DTMStateT]) -> None:
         """Initialize a complete Turing machine."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -26,25 +38,25 @@ class DTM(tm.TM):
         self.final_states = final_states.copy()
         self.validate()
 
-    def _validate_transition_state(self, transition_state):
+    def _validate_transition_state(self, transition_state : DTMStateT) -> None:
         if transition_state not in self.states:
             raise exceptions.InvalidStateError(
                 'transition state is not valid ({})'.format(transition_state))
 
-    def _validate_transition_symbols(self, state, paths):
+    def _validate_transition_symbols(self, state : DTMStateT, paths : DTMPathT) -> None:
         for tape_symbol in paths.keys():
             if tape_symbol not in self.tape_symbols:
                 raise exceptions.InvalidSymbolError(
                     'transition symbol {} for state {} is not valid'.format(
                         tape_symbol, state))
 
-    def _validate_transition_result_direction(self, result_direction):
+    def _validate_transition_result_direction(self, result_direction : str) -> None:
         if result_direction not in ('L', 'N', 'R'):
             raise tm_exceptions.InvalidDirectionError(
                 'result direction is not valid ({})'.format(
                     result_direction))
 
-    def _validate_transition_result(self, result):
+    def _validate_transition_result(self, result : DTMResultT) -> None:
         result_state, result_symbol, result_direction = result
         if result_state not in self.states:
             raise exceptions.InvalidStateError(
@@ -54,24 +66,24 @@ class DTM(tm.TM):
                 'result symbol is not valid ({})'.format(result_symbol))
         self._validate_transition_result_direction(result_direction)
 
-    def _validate_transition_results(self, paths):
+    def _validate_transition_results(self, paths : DTMPathT) -> None:
         for result in paths.values():
             self._validate_transition_result(result)
 
-    def _validate_transitions(self):
+    def _validate_transitions(self) -> None:
         for state, paths in self.transitions.items():
             self._validate_transition_state(state)
             self._validate_transition_symbols(state, paths)
             self._validate_transition_results(paths)
 
-    def _validate_final_state_transitions(self):
+    def _validate_final_state_transitions(self) -> None:
         for final_state in self.final_states:
             if final_state in self.transitions:
                 raise exceptions.FinalStateError(
                     'final state {} has transitions defined'.format(
                         final_state))
 
-    def validate(self):
+    def validate(self) -> bool:
         """Return True if this DTM is internally consistent."""
         self._read_input_symbol_subset()
         self._validate_blank_symbol()
@@ -83,7 +95,7 @@ class DTM(tm.TM):
         self._validate_final_state_transitions()
         return True
 
-    def _get_transition(self, state, tape_symbol):
+    def _get_transition(self, state : DTMStateT, tape_symbol : str) -> Optional[DTMResultT]:
         """Get the transiton tuple for the given state and tape symbol."""
         if (state in self.transitions and
                 tape_symbol in self.transitions[state]):
@@ -91,11 +103,11 @@ class DTM(tm.TM):
         else:
             return None
 
-    def _has_accepted(self, configuration):
+    def _has_accepted(self, configuration : 'TMConfiguration') -> bool:
         """Check whether the given config indicates accepted input."""
         return configuration.state in self.final_states
 
-    def _get_next_configuration(self, old_config):
+    def _get_next_configuration(self, old_config : 'TMConfiguration') -> 'TMConfiguration':
         """Advance to the next configuration."""
         transitions = {self._get_transition(
             old_config.state,
@@ -115,7 +127,7 @@ class DTM(tm.TM):
         tape = tape.move(direction)
         return TMConfiguration(new_state, tape)
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str : str) -> Generator['TMConfiguration', None, None]:
         """
         Check if the given string is accepted by this Turing machine.
 

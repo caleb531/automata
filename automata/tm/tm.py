@@ -2,15 +2,21 @@
 """Classes and methods for working with all Turing machines."""
 
 import abc
+from typing import Set
 
 import automata.base.exceptions as exceptions
-from automata.base.automaton import Automaton
+from automata.base.automaton import Automaton, AutomatonStateT
 
+TMStateT = AutomatonStateT
 
 class TM(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for Turing machines."""
 
-    def _read_input_symbol_subset(self):
+    input_symbols : Set[str]
+    tape_symbols : Set[str]
+    blank_symbol : str
+
+    def _read_input_symbol_subset(self) -> None:
         if not (self.input_symbols < self.tape_symbols):
             raise exceptions.MissingSymbolError(
                 'The set of tape symbols is missing symbols from the input '
@@ -18,14 +24,14 @@ class TM(Automaton, metaclass=abc.ABCMeta):
                     self.tape_symbols - self.input_symbols))
 
 
-    def _validate_blank_symbol(self):
+    def _validate_blank_symbol(self) -> None:
         """Raise an error if blank symbol is not a tape symbol."""
         if self.blank_symbol not in self.tape_symbols:
             raise exceptions.InvalidSymbolError(
                 'blank symbol {} is not a tape symbol'.format(
                     self.blank_symbol))
 
-    def _validate_nonfinal_initial_state(self):
+    def _validate_nonfinal_initial_state(self) -> None:
         """Raise an error if the initial state is a final state."""
         if self.initial_state in self.final_states:
             raise exceptions.InitialStateError(
