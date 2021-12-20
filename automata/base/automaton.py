@@ -9,7 +9,6 @@ from copy import deepcopy
 
 StateT = Hashable
 
-
 class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
 
@@ -75,10 +74,7 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def copy(self) -> 'Automaton':
         """Create a deep copy of the automaton."""
-        automaton_copy = self.__class__()
-        for att in self.__dict__:
-            setattr(automaton_copy, att, deepcopy(getattr(self, att)))
-        return automaton_copy
+        return self.__class__(**vars(self)) #type: ignore
 
     def __eq__(self, other : object) -> bool:
         """Check if two automata are equal."""
