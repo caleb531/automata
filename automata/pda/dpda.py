@@ -2,7 +2,7 @@
 """Classes and methods for working with deterministic pushdown automata."""
 
 import copy
-from typing import Set, Dict
+from typing import Set, Dict, Tuple, Optional
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -12,11 +12,14 @@ from automata.pda.stack import PDAStack
 
 DPDAStateT = pda.PDAStateT
 
-DPDAPathT = Dict[str, Set[str]]
+DPDASibblingPathT = Dict[str, Tuple[DPDAStateT, Tuple[str]]]
+DPDAPathT = Dict[str, DPDASibblingPathT]
 DPDATransitionsT = Dict[DPDAStateT, DPDAPathT]
 
 class DPDA(pda.PDA):
     """A deterministic pushdown automaton."""
+
+    transitions : DPDATransitionsT
 
     def __init__(self,
                  *,
@@ -52,8 +55,9 @@ class DPDA(pda.PDA):
                 self._validate_transition_invalid_stack_symbols(
                     start_state, stack_symbol)
 
-    def _validate_transition_lambda_transition_sibling(self, start_state,
-                                                       sib_path):
+    def _validate_transition_lambda_transition_sibling(self,
+                                                       start_state : DPDAStateT,
+                                                       sib_path : DPDASibblingPathT) -> None:
         """Check the given sibling path for adjacent lambda transitions."""
         for other_stack_symbol in sib_path:
             if (other_stack_symbol in
@@ -62,9 +66,10 @@ class DPDA(pda.PDA):
                     'A symbol transition is adjacent to a '
                     'lambda transition for this DPDA.')
 
-    def _validate_transition_isolated_lambda_transitions(self, start_state,
-                                                         input_symbol,
-                                                         stack_symbol):
+    def _validate_transition_isolated_lambda_transitions(self,
+                                                         start_state : DPDAStateT,
+                                                         input_symbol : str,
+                                                         stack_symbol : str) -> None:
         """Raise an error if a lambda transition has no sibling transitions."""
         if input_symbol == '':
             sib_transitions = self.transitions[start_state]
@@ -73,8 +78,14 @@ class DPDA(pda.PDA):
                     self._validate_transition_lambda_transition_sibling(
                         start_state, sib_path)
 
-    def _get_transition(self, state, input_symbol, stack_symbol):
-        """Get the transiton tuple for the given state and symbols."""
+    def _get_transition(self,
+                        state : DPDAStateT,
+                        input_symbol : str,
+                        stack_symbol : str) -> Optional[Tuple[str, DPDAStateT, Tuple[str]]]:
+        """
+        Get the transiton tuple for the given state and symbols. Returns None if
+        transition lookup fails.
+        """
         if (state in self.transitions and
                 input_symbol in self.transitions[state] and
                 stack_symbol in self.transitions[state][input_symbol]):
@@ -82,7 +93,11 @@ class DPDA(pda.PDA):
                 input_symbol,
             ) + self.transitions[state][input_symbol][stack_symbol]
 
-    def _check_for_input_rejection(self, current_configuration):
+        return None
+        #raise exceptions.InvalidSymbolError
+
+    def _check_for_input_rejection(self,
+                                   current_configuration : 'PDAConfiguration') -> None:
         """Raise an error if the given config indicates rejected input."""
         if not self._has_accepted(current_configuration):
             raise exceptions.RejectionException(
