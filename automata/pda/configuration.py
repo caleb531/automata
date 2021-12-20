@@ -15,7 +15,7 @@ class PDAConfiguration(collections.namedtuple(
     It is hashable and immutable.
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the configuration."""
         return '{}(\'{}\', \'{}\', {})'.format(
             self.__class__.__name__,

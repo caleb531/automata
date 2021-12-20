@@ -2,6 +2,7 @@
 """Classes and methods for working with all pushdown automata."""
 
 import abc
+from typing import Iterator, Reversible
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
