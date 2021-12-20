@@ -2,6 +2,7 @@
 """Classes and methods for working with deterministic pushdown automata."""
 
 import copy
+from typing import Set, Dict
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -9,13 +10,24 @@ import automata.pda.pda as pda
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
+DPDAStateT = pda.PDAStateT
+
+DPDAPathT = Dict[str, Set[str]]
+DPDATransitionsT = Dict[DPDAStateT, DPDAPathT]
 
 class DPDA(pda.PDA):
     """A deterministic pushdown automaton."""
 
-    def __init__(self, *, states, input_symbols, stack_symbols,
-                 transitions, initial_state,
-                 initial_stack_symbol, final_states, acceptance_mode='both'):
+    def __init__(self,
+                 *,
+                 states : Set[DPDAStateT],
+                 input_symbols : Set[str],
+                 stack_symbols : Set[str],
+                 transitions : DPDATransitionsT,
+                 initial_state : DPDAStateT,
+                 initial_stack_symbol : str,
+                 final_states : Set[DPDAStateT],
+                 acceptance_mode : str = 'both') -> None:
         """Initialize a complete DPDA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -27,7 +39,9 @@ class DPDA(pda.PDA):
         self.acceptance_mode = acceptance_mode
         self.validate()
 
-    def _validate_transition_invalid_symbols(self, start_state, paths):
+    def _validate_transition_invalid_symbols(self,
+                                             start_state : DPDAStateT,
+                                             paths : DPDAPathT) -> None:
         """Raise an error if transition symbols are invalid."""
         for input_symbol, symbol_paths in paths.items():
             self._validate_transition_invalid_input_symbols(

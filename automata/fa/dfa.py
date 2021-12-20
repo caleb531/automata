@@ -10,7 +10,7 @@ import automata.fa.nfa as nfa
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 
-DFAStateT = fa.StateT
+DFAStateT = fa.FAStateT
 
 GraphT = Dict[DFAStateT, Set[DFAStateT]]
 DFAPathT = Dict[str, DFAStateT]

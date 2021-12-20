@@ -9,7 +9,7 @@ import automata.fa.dfa as dfa
 
 from typing import Dict, Set, Generator, Deque, Iterable, Any, Optional
 
-NFAStateT = fa.StateT
+NFAStateT = fa.FAStateT
 
 GraphT = Dict[NFAStateT, Set[NFAStateT]]
 NFAPathT = Dict[str, Set[NFAStateT]]

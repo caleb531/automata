@@ -7,16 +7,16 @@ import automata.base.exceptions as exceptions
 from typing import Hashable, NoReturn, Generator, Set, Dict, Any, TypeVar
 from copy import deepcopy
 
-StateT = Hashable
+AutomatonStateT = Hashable
 CopyT = TypeVar('CopyT')
 
 class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
 
-    states : Set[StateT]
-    initial_state : StateT
-    final_states : Set[StateT]
-    transitions : Dict[StateT, Dict[str, Any]]
+    states : Set[AutomatonStateT]
+    initial_state : AutomatonStateT
+    final_states : Set[AutomatonStateT]
+    transitions : Dict[AutomatonStateT, Dict[str, Any]]
 
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -33,7 +33,7 @@ class Automaton(metaclass=abc.ABCMeta):
         """Return a generator that yields each step while reading input."""
         raise NotImplementedError
 
-    def read_input(self, input_str : str) -> StateT:
+    def read_input(self, input_str : str) -> AutomatonStateT:
         """
         Check if the given string is accepted by this automaton.
 
