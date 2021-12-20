@@ -4,7 +4,7 @@
 import copy
 from collections import defaultdict, deque
 from pydot import Dot, Edge, Node
-from typing import Dict, Set, Generator, Deque
+from typing import Dict, Set, Generator, Deque, Iterable
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
@@ -223,15 +223,15 @@ class DFA(fa.FA):
                     states_to_check.append(dst_state)
         return reachable_states
 
-    def _merge_states(self, retain_names=False):
-        eq_classes = []
+    def _merge_states(self, retain_names : bool = False) -> None:
+        eq_classes_list = []
         if len(self.final_states) != 0:
-            eq_classes.append(frozenset(self.final_states))
+            eq_classes_list.append(frozenset(self.final_states))
         if len(self.final_states) != len(self.states):
-            eq_classes.append(
+            eq_classes_list.append(
                 frozenset(set(self.states).difference(self.final_states))
             )
-        eq_classes = set(eq_classes)
+        eq_classes = set(eq_classes_list)
 
         processing = set([frozenset(self.final_states)])
 
@@ -271,25 +271,25 @@ class DFA(fa.FA):
                             processing.add(XdiffY)
 
         # now eq_classes are good to go, make them a list for ordering
-        eq_classes = list(eq_classes)
+        eq_classes_new = list(eq_classes)
 
         def rename(eq):
             return list(eq)[0] if len(eq) == 1 else DFA._stringify_states(eq)
 
         # need a backmap to prevent constant calls to index
         back_map = {}
-        for i, eq in enumerate(eq_classes):
+        for i, eq in enumerate(eq_classes_new):
             name = rename(eq) if retain_names else str(i)
             for state in eq:
                 back_map[state] = name
 
         new_input_symbols = self.input_symbols
-        new_states = ({rename(eq) for eq in eq_classes} if retain_names
-                      else set(str(i) for i in range(len(eq_classes))))
+        new_states = ({rename(eq) for eq in eq_classes_new} if retain_names
+                      else set(str(i) for i in range(len(eq_classes_new))))
         new_initial_state = back_map[self.initial_state]
         new_final_states = set([back_map[acc] for acc in self.final_states])
-        new_transitions = {}
-        for i, eq in enumerate(eq_classes):
+        new_transitions : TransitionsT = {}
+        for i, eq in enumerate(eq_classes_new):
             name = rename(eq) if retain_names else str(i)
             new_transitions[name] = {}
             for letter in self.input_symbols:
@@ -303,7 +303,7 @@ class DFA(fa.FA):
         self.initial_state = new_initial_state
         self.final_states = new_final_states
 
-    def _cross_product(self, other):
+    def _cross_product(self, other : 'DFA') -> 'DFA':
         """
         Creates a new DFA which is the cross product of DFAs self and other
         with an empty set of final states.
@@ -315,7 +315,7 @@ class DFA(fa.FA):
             self._stringify_states_unsorted((a, b))
             for a in states_a for b in states_b
         }
-        new_transitions = dict()
+        new_transitions : TransitionsT = dict()
         for state_a, transitions_a in self.transitions.items():
             for state_b, transitions_b in other.transitions.items():
                 new_state = self._stringify_states_unsorted(
@@ -340,7 +340,7 @@ class DFA(fa.FA):
             final_states=set()
         )
 
-    def union(self, other, *, retain_names=False, minify=True):
+    def union(self, other : 'DFA', *, retain_names : bool = False, minify : bool = True) -> 'DFA':
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -358,7 +358,7 @@ class DFA(fa.FA):
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
 
-    def intersection(self, other, *, retain_names=False, minify=True):
+    def intersection(self, other : 'DFA', *, retain_names : bool = False, minify : bool = True) -> 'DFA':
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -374,7 +374,7 @@ class DFA(fa.FA):
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
 
-    def difference(self, other, *, retain_names=False, minify=True):
+    def difference(self, other : 'DFA', *, retain_names : bool = False, minify : bool = True) -> 'DFA':
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -391,7 +391,7 @@ class DFA(fa.FA):
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
 
-    def symmetric_difference(self, other, *, retain_names=False, minify=True):
+    def symmetric_difference(self, other : 'DFA', *, retain_names : bool = False, minify : bool = True) -> 'DFA':
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -411,29 +411,29 @@ class DFA(fa.FA):
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
 
-    def complement(self):
+    def complement(self) -> 'DFA':
         """Return the complement of this DFA."""
         new_dfa = self.copy()
         new_dfa.final_states = self.states - self.final_states
         return new_dfa
 
-    def issubset(self, other):
+    def issubset(self, other : 'DFA') -> bool:
         """Return True if this DFA is a subset of another DFA."""
         return self.intersection(other) == self
 
-    def issuperset(self, other):
+    def issuperset(self, other : 'DFA') -> bool:
         """Return True if this DFA is a superset of another DFA."""
         return other.issubset(self)
 
-    def isdisjoint(self, other):
+    def isdisjoint(self, other : 'DFA') -> bool:
         """Return True if this DFA has no common elements with another DFA."""
         return self.intersection(other).isempty()
 
-    def isempty(self):
+    def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
         return len(self.minify().final_states) == 0
 
-    def _make_graph(self):
+    def _make_graph(self) -> GraphT:
         """
         Returns a simple graph representation of the DFA.
         """
@@ -443,7 +443,7 @@ class DFA(fa.FA):
                 G[k].add(u)
         return G
 
-    def _reverse_graph(self, G):
+    def _reverse_graph(self, G : GraphT) -> GraphT:
         """
         Returns the graph G where all edges have been reversed.
         """
@@ -453,7 +453,7 @@ class DFA(fa.FA):
                 rev_G[u].add(k)
         return rev_G
 
-    def _reachable_nodes(self, G, v, vis):
+    def _reachable_nodes(self, G : GraphT, v : DFAStateT, vis : Set[DFAStateT]) -> None:
         """
         Computes the set of reachable nodes
         in the graph G starting at vertex v.
@@ -463,17 +463,17 @@ class DFA(fa.FA):
             for u in G[v]:
                 self._reachable_nodes(G, u, vis)
 
-    def _induced_subgraph(self, G, S):
+    def _induced_subgraph(self, G : GraphT, S : Set[DFAStateT]) -> GraphT:
         """
         Computes the induced subgraph G[S].
         """
         return {k: {x for x in G[k] if x in S} for k in G if k in S}
 
-    def _has_cycle(self, G):
+    def _has_cycle(self, G : GraphT) -> bool:
         """
         Returns True if the graph G contains a cycle, False otherwise.
         """
-        def dfs(G, at, vis, stack):
+        def dfs(G : GraphT, at : DFAStateT, vis : Set[DFAStateT], stack : Set[DFAStateT]) -> bool:
             """
             Helper function which accepts input parameters for
             the graph, current node, visited set and current stack
@@ -489,20 +489,20 @@ class DFA(fa.FA):
                         return True
                 stack.remove(at)
             return False
-        vis = set()
-        stack = set()
+        vis : Set[DFAStateT] = set()
+        stack : Set[DFAStateT] = set()
         return any(dfs(G, k, vis, stack) for k in G)
 
-    def isfinite(self):
+    def isfinite(self) -> bool:
         """
         Returns True if the DFA accepts a finite language, False otherwise.
         """
         G = self._make_graph()
         rev_G = self._reverse_graph(G)
 
-        accessible_nodes = set()
+        accessible_nodes : Set[DFAStateT] = set()
         self._reachable_nodes(G, self.initial_state, accessible_nodes)
-        coaccessible_nodes = set()
+        coaccessible_nodes : Set[DFAStateT] = set()
         for state in self.final_states:
             self._reachable_nodes(rev_G, state, coaccessible_nodes)
 
@@ -514,15 +514,16 @@ class DFA(fa.FA):
 
         return not contains_cycle
 
+    #TODO remove these functions as used in the cross product thing
     @staticmethod
-    def _stringify_states_unsorted(states):
+    def _stringify_states_unsorted(states : Iterable[DFAStateT]) -> DFAStateT:
         """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(states))
+        return '{{{}}}'.format(','.join(states)) #type: ignore
 
     @staticmethod
-    def _stringify_states(states):
+    def _stringify_states(states : Iterable[DFAStateT]) -> DFAStateT:
         """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(sorted(states)))
+        return '{{{}}}'.format(','.join(sorted(states))) #type: ignore
 
     @classmethod
     def _add_nfa_states_from_queue(cls, nfa, current_states,
