@@ -4,16 +4,17 @@
 import copy
 from collections import defaultdict, deque
 from pydot import Dot, Edge, Node
-from typing import Dict, Set, Generator, Deque, Iterable
+from typing import Dict, Set, Generator, Deque, Iterable, Any, Optional
 
+import automata.fa.nfa as nfa
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 
 DFAStateT = fa.StateT
 
 GraphT = Dict[DFAStateT, Set[DFAStateT]]
-PathT = Dict[str, DFAStateT]
-TransitionsT = Dict[DFAStateT, PathT]
+DFAPathT = Dict[str, DFAStateT]
+DFATransitionsT = Dict[DFAStateT, DFAPathT]
 
 class DFA(fa.FA):
     """A deterministic finite automaton."""
@@ -22,7 +23,7 @@ class DFA(fa.FA):
                  *,
                  states : Set[DFAStateT],
                  input_symbols : Set[str],
-                 transitions : TransitionsT,
+                 transitions : DFATransitionsT,
                  initial_state : DFAStateT,
                  final_states : Set[DFAStateT],
                  allow_partial : bool = False) -> None:
@@ -101,7 +102,7 @@ class DFA(fa.FA):
         """Return the complement of this DFA and another DFA."""
         return self.complement()
 
-    def _validate_transition_missing_symbols(self, start_state : DFAStateT, paths : PathT) -> None:
+    def _validate_transition_missing_symbols(self, start_state : DFAStateT, paths : DFAPathT) -> None:
         """Raise an error if the transition input_symbols are missing."""
         if self.allow_partial:
             return
@@ -111,7 +112,7 @@ class DFA(fa.FA):
                     'state {} is missing transitions for symbol {}'.format(
                         start_state, input_symbol))
 
-    def _validate_transition_invalid_symbols(self, start_state : DFAStateT, paths : PathT) -> None:
+    def _validate_transition_invalid_symbols(self, start_state : DFAStateT, paths : DFAPathT) -> None:
         """Raise an error if transition input symbols are invalid."""
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols:
@@ -127,7 +128,7 @@ class DFA(fa.FA):
                     'transition start state {} is missing'.format(
                         state))
 
-    def _validate_transition_end_states(self, start_state : DFAStateT, paths : PathT) -> None:
+    def _validate_transition_end_states(self, start_state : DFAStateT, paths : DFAPathT) -> None:
         """Raise an error if transition end states are invalid."""
         for end_state in paths.values():
             if end_state not in self.states:
@@ -135,7 +136,7 @@ class DFA(fa.FA):
                     'end state {} for transition on {} is not valid'.format(
                         end_state, start_state))
 
-    def _validate_transitions(self, start_state : DFAStateT, paths : PathT) -> None:
+    def _validate_transitions(self, start_state : DFAStateT, paths : DFAPathT) -> None:
         """Raise an error if transitions are missing or invalid."""
         self._validate_transition_missing_symbols(start_state, paths)
         self._validate_transition_invalid_symbols(start_state, paths)
@@ -288,7 +289,7 @@ class DFA(fa.FA):
                       else set(str(i) for i in range(len(eq_classes_new))))
         new_initial_state = back_map[self.initial_state]
         new_final_states = set([back_map[acc] for acc in self.final_states])
-        new_transitions : TransitionsT = {}
+        new_transitions : DFATransitionsT = {}
         for i, eq in enumerate(eq_classes_new):
             name = rename(eq) if retain_names else str(i)
             new_transitions[name] = {}
@@ -315,7 +316,7 @@ class DFA(fa.FA):
             self._stringify_states_unsorted((a, b))
             for a in states_a for b in states_b
         }
-        new_transitions : TransitionsT = dict()
+        new_transitions : DFATransitionsT = dict()
         for state_a, transitions_a in self.transitions.items():
             for state_b, transitions_b in other.transitions.items():
                 new_state = self._stringify_states_unsorted(
@@ -516,19 +517,23 @@ class DFA(fa.FA):
 
     #TODO remove these functions as used in the cross product thing
     @staticmethod
-    def _stringify_states_unsorted(states : Iterable[DFAStateT]) -> DFAStateT:
+    def _stringify_states_unsorted(states : Iterable[DFAStateT]) -> Any:
         """Stringify the given set of states as a single state name."""
         return '{{{}}}'.format(','.join(states)) #type: ignore
 
     @staticmethod
-    def _stringify_states(states : Iterable[DFAStateT]) -> DFAStateT:
+    def _stringify_states(states : Iterable[DFAStateT]) -> Any:
         """Stringify the given set of states as a single state name."""
         return '{{{}}}'.format(','.join(sorted(states))) #type: ignore
 
     @classmethod
-    def _add_nfa_states_from_queue(cls, nfa, current_states,
-                                   current_state_name, dfa_states,
-                                   dfa_transitions, dfa_final_states):
+    def _add_nfa_states_from_queue(cls,
+                                   nfa : 'nfa.NFA',
+                                   current_states : Set[DFAStateT],
+                                   current_state_name : DFAStateT,
+                                   dfa_states : Set[DFAStateT],
+                                   dfa_transitions : DFATransitionsT,
+                                   dfa_final_states : Set[DFAStateT]):
         """Add NFA states to DFA as it is constructed from NFA."""
         dfa_states.add(current_state_name)
         dfa_transitions[current_state_name] = {}
@@ -536,9 +541,12 @@ class DFA(fa.FA):
             dfa_final_states.add(current_state_name)
 
     @classmethod
-    def _enqueue_next_nfa_current_states(cls, nfa, current_states,
-                                         current_state_name, state_queue,
-                                         dfa_transitions):
+    def _enqueue_next_nfa_current_states(cls,
+                                         nfa : 'nfa.NFA',
+                                         current_states : Set[DFAStateT],
+                                         current_state_name : DFAStateT,
+                                         state_queue : Deque[Set[DFAStateT]],
+                                         dfa_transitions : DFATransitionsT):
         """Enqueue the next set of current states for the generated DFA."""
         for input_symbol in nfa.input_symbols:
             next_current_states = nfa._get_next_current_states(
@@ -548,22 +556,22 @@ class DFA(fa.FA):
             state_queue.append(next_current_states)
 
     @classmethod
-    def from_nfa(cls, nfa):
+    def from_nfa(cls, nfa : 'nfa.NFA') -> 'DFA':
         """Initialize this DFA as one equivalent to the given NFA."""
-        dfa_states = set()
+        dfa_states : Set[DFAStateT] = set()
         dfa_symbols = nfa.input_symbols
-        dfa_transitions = {}
+        dfa_transitions : DFATransitionsT = {}
         # equivalent DFA states states
         nfa_initial_states = nfa._get_lambda_closure(nfa.initial_state)
         dfa_initial_state = cls._stringify_states(nfa_initial_states)
-        dfa_final_states = set()
+        dfa_final_states : Set[DFAStateT] = set()
 
-        state_queue = deque()
+        state_queue : Deque[Set[DFAStateT]] = deque()
         state_queue.append(nfa_initial_states)
         while state_queue:
 
             current_states = state_queue.popleft()
-            current_state_name = cls._stringify_states(current_states)
+            current_state_name : DFAStateT = cls._stringify_states(current_states)
             if current_state_name in dfa_states:
                 # We've been here before and nothing should have changed.
                 continue
@@ -579,7 +587,7 @@ class DFA(fa.FA):
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
 
-    def show_diagram(self, path=None):
+    def show_diagram(self, path : Optional[str] = None) -> Dot:
         """
             Creates the graph associated with this DFA
         """

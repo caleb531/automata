@@ -5,13 +5,26 @@ import copy
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
+import automata.fa.dfa as dfa
 
+from typing import Dict, Set, Generator, Deque, Iterable, Any, Optional
+
+NFAStateT = fa.StateT
+
+GraphT = Dict[NFAStateT, Set[NFAStateT]]
+NFAPathT = Dict[str, Set[NFAStateT]]
+NFATransitionsT = Dict[NFAStateT, NFAPathT]
 
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
 
-    def __init__(self, *, states, input_symbols, transitions,
-                 initial_state, final_states):
+    def __init__(self,
+                 *,
+                 states : Set[NFAStateT],
+                 input_symbols : Set[str],
+                 transitions : NFATransitionsT,
+                 initial_state : NFAStateT,
+                 final_states : Set[NFAStateT]):
         """Initialize a complete NFA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -20,21 +33,21 @@ class NFA(fa.FA):
         self.final_states = final_states.copy()
         self.validate()
 
-    def __add__(self, other):
-        """Return the concatenation of this DFA and another DFA."""
+    def __add__(self, other : 'NFA') -> 'NFA':
+        """Return the concatenation of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.concatenate(other)
         else:
             raise NotImplementedError
 
-    def __reversed__(self):
-        """Return the reversal of this DFA."""
+    def __reversed__(self) -> 'NFA':
+        """Return the reversal of this NFA."""
         return self.reverse()
 
     @classmethod
-    def from_dfa(cls, dfa):
+    def from_dfa(cls, dfa : 'dfa.DFA') -> 'NFA':
         """Initialize this NFA as one equivalent to the given DFA."""
-        nfa_transitions = {}
+        nfa_transitions : NFATransitionsT = {}
 
         for start_state, paths in dfa.transitions.items():
             nfa_transitions[start_state] = {}
@@ -46,7 +59,7 @@ class NFA(fa.FA):
             transitions=nfa_transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)
 
-    def _validate_transition_invalid_symbols(self, start_state, paths):
+    def _validate_transition_invalid_symbols(self, start_state : NFAStateT, paths : NFAPathT) -> None:
         """Raise an error if transition symbols are invalid."""
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols and input_symbol != '':
@@ -54,7 +67,7 @@ class NFA(fa.FA):
                     'state {} has invalid transition symbol {}'.format(
                         start_state, input_symbol))
 
-    def _validate_transition_end_states(self, start_state, paths):
+    def _validate_transition_end_states(self, start_state : NFAStateT, paths : NFAPathT) -> None:
         """Raise an error if transition end states are invalid."""
         for end_states in paths.values():
             for end_state in end_states:
@@ -63,7 +76,7 @@ class NFA(fa.FA):
                         'end state {} for transition on {} is '
                         'not valid'.format(end_state, start_state))
 
-    def validate(self):
+    def validate(self) -> bool:
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
@@ -73,7 +86,7 @@ class NFA(fa.FA):
         self._validate_final_states()
         return True
 
-    def _get_lambda_closure(self, start_state):
+    def _get_lambda_closure(self, start_state : NFAStateT) -> Set[NFAStateT]:
         """
         Return the lambda closure for the given state.
 
@@ -94,7 +107,7 @@ class NFA(fa.FA):
 
         return encountered_states
 
-    def _get_next_current_states(self, current_states, input_symbol):
+    def _get_next_current_states(self, current_states : Set[NFAStateT], input_symbol : str) -> Set[NFAStateT]:
         """Return the next set of current states given the current set."""
         next_current_states = set()
 
@@ -108,14 +121,14 @@ class NFA(fa.FA):
 
         return next_current_states
 
-    def _check_for_input_rejection(self, current_states):
+    def _check_for_input_rejection(self, current_states : Set[NFAStateT]) -> None:
         """Raise an error if the given config indicates rejected input."""
         if not (current_states & self.final_states):
             raise exceptions.RejectionException(
                 'the NFA stopped on all non-final states ({})'.format(
                     ', '.join(str(state) for state in current_states)))
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str : str) -> Generator[Set[NFAStateT], None, None]:
         """
         Check if the given string is accepted by this NFA.
 
@@ -131,22 +144,22 @@ class NFA(fa.FA):
 
         self._check_for_input_rejection(current_states)
 
-    def concatenate(self, other):
+    def concatenate(self, other : 'NFA') -> 'NFA':
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
         the languages L1 concatenated with L2.
         """
-        state_map_a = dict()
+        state_map_a : Dict[NFAStateT, NFAStateT] = dict()
         for state in self.states:
             state_map_a[state] = len(state_map_a)
 
-        state_map_b = dict()
+        state_map_b : Dict[NFAStateT, NFAStateT] = dict()
         for state in other.states:
             state_map_b[state] = len(state_map_a) + len(state_map_b)
 
         new_states = set(state_map_a.values()) | set(state_map_b.values())
-        new_transitions = dict()
+        new_transitions : NFATransitionsT = dict()
         for state in new_states:
             new_transitions[state] = dict()
         # Transitions of self
@@ -182,7 +195,7 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
-    def kleene_star(self):
+    def kleene_star(self) -> 'NFA':
         """
         Given an NFA which accepts the language L returns
         an NFA which accepts L repeated 0 or more times.
@@ -223,7 +236,7 @@ class NFA(fa.FA):
             final_states={new_final_state}
         )
 
-    def reverse(self):
+    def reverse(self) -> 'NFA':
         """
         Given an NFA which accepts the language L this function
         returns an NFA which accepts the reverse of L.
@@ -235,7 +248,7 @@ class NFA(fa.FA):
         new_states.add(new_initial_state)
 
         # Transitions are the same except reversed
-        new_transitions = dict()
+        new_transitions : NFATransitionsT = dict()
         for state in new_states:
             new_transitions[state] = dict()
         for state_a, transitions in self.transitions.items():
