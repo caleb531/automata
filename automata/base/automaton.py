@@ -2,15 +2,21 @@
 """Classes for working with all automata, including Turing machines."""
 
 import abc
-
 import automata.base.exceptions as exceptions
-from typing import Hashable, NoReturn, Generator
+
+from typing import Hashable, NoReturn, Generator, Set, Dict, Any
+from copy import deepcopy
 
 StateT = Hashable
 
 
 class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
+
+    states : Set[StateT]
+    initial_state : StateT
+    final_states : Set[StateT]
+    transitions : Dict[StateT, Dict[str, Any]]
 
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -74,6 +80,9 @@ class Automaton(metaclass=abc.ABCMeta):
             setattr(automaton_copy, att, deepcopy(getattr(self, att)))
         return automaton_copy
 
-    def __eq__(self, other):
+    def __eq__(self, other : object) -> bool:
         """Check if two automata are equal."""
+        if not isinstance(other, Automaton):
+            return NotImplemented
+
         return vars(self) == vars(other)
