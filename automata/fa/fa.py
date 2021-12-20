@@ -3,8 +3,9 @@
 
 import abc
 
-from automata.base.automaton import Automaton
+from automata.base.automaton import Automaton, StateT
 
+AutomatonStateT = StateT
 
 class FA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for finite automata."""

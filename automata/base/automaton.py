@@ -4,10 +4,11 @@
 import abc
 import automata.base.exceptions as exceptions
 
-from typing import Hashable, NoReturn, Generator, Set, Dict, Any
+from typing import Hashable, NoReturn, Generator, Set, Dict, Any, TypeVar
 from copy import deepcopy
 
 StateT = Hashable
+CopyT = TypeVar('CopyT')
 
 class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
@@ -72,7 +73,7 @@ class Automaton(metaclass=abc.ABCMeta):
                 'final states are not valid ({})'.format(
                     ', '.join(str(state) for state in invalid_states)))
 
-    def copy(self) -> 'Automaton':
+    def copy(self : CopyT) -> CopyT:
         """Create a deep copy of the automaton."""
         return self.__class__(**vars(self)) #type: ignore
 

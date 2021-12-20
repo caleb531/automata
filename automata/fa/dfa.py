@@ -3,18 +3,29 @@
 
 import copy
 from collections import defaultdict, deque
-
 from pydot import Dot, Edge, Node
+from typing import Dict, Set, Generator, Deque
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 
+DFAStateT = fa.StateT
+
+GraphT = Dict[DFAStateT, Set[DFAStateT]]
+PathT = Dict[str, DFAStateT]
+TransitionsT = Dict[DFAStateT, PathT]
 
 class DFA(fa.FA):
     """A deterministic finite automaton."""
 
-    def __init__(self, *, states, input_symbols, transitions,
-                 initial_state, final_states, allow_partial=False):
+    def __init__(self,
+                 *,
+                 states : Set[DFAStateT],
+                 input_symbols : Set[str],
+                 transitions : TransitionsT,
+                 initial_state : DFAStateT,
+                 final_states : Set[DFAStateT],
+                 allow_partial : bool = False) -> None:
         """Initialize a complete DFA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -24,73 +35,73 @@ class DFA(fa.FA):
         self.allow_partial = allow_partial
         self.validate()
 
-    def __eq__(self, other):
+    def __eq__(self, other : object) -> bool:
         """Return True if two DFAs are equivalent."""
         if isinstance(other, DFA):
             return self.symmetric_difference(other).isempty()
         return False
 
-    def __le__(self, other):
+    def __le__(self, other : 'DFA') -> bool:
         """Return True if this DFA is a subset of (or equal to) another DFA."""
         if isinstance(other, DFA):
             return self.issubset(other)
         else:
             raise NotImplementedError
 
-    def __ge__(self, other):
+    def __ge__(self, other : 'DFA') -> bool:
         """Return True if this DFA is a superset of another DFA."""
         if isinstance(other, DFA):
             return self.issuperset(other)
         else:
             raise NotImplementedError
 
-    def __lt__(self, other):
+    def __lt__(self, other : 'DFA') -> bool:
         """Return True if this DFA is a strict subset of another DFA."""
         if isinstance(other, DFA):
             return self <= other and self != other
         else:
             raise NotImplementedError
 
-    def __gt__(self, other):
+    def __gt__(self, other : 'DFA') -> bool:
         """Return True if this DFA is a strict superset of another DFA."""
         if isinstance(other, DFA):
             return self >= other and self != other
         else:
             raise NotImplementedError
 
-    def __sub__(self, other):
+    def __sub__(self, other : 'DFA') -> 'DFA':
         """Return a DFA that is the difference of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.difference(other)
         else:
             raise NotImplementedError
 
-    def __or__(self, other):
+    def __or__(self, other : 'DFA') -> 'DFA':
         """Return the union of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.union(other)
         else:
             raise NotImplementedError
 
-    def __and__(self, other):
+    def __and__(self, other : 'DFA') -> 'DFA':
         """Return the intersection of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.intersection(other)
         else:
             raise NotImplementedError
 
-    def __xor__(self, other):
+    def __xor__(self, other : 'DFA') -> 'DFA':
         """Return the symmetric difference of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.symmetric_difference(other)
         else:
             raise NotImplementedError
 
-    def __invert__(self):
+    def __invert__(self) -> 'DFA':
         """Return the complement of this DFA and another DFA."""
         return self.complement()
 
-    def _validate_transition_missing_symbols(self, start_state, paths):
+    def _validate_transition_missing_symbols(self, start_state : DFAStateT, paths : PathT) -> None:
         """Raise an error if the transition input_symbols are missing."""
         if self.allow_partial:
             return
@@ -100,7 +111,7 @@ class DFA(fa.FA):
                     'state {} is missing transitions for symbol {}'.format(
                         start_state, input_symbol))
 
-    def _validate_transition_invalid_symbols(self, start_state, paths):
+    def _validate_transition_invalid_symbols(self, start_state : DFAStateT, paths : PathT) -> None:
         """Raise an error if transition input symbols are invalid."""
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols:
@@ -108,7 +119,7 @@ class DFA(fa.FA):
                     'state {} has invalid transition symbol {}'.format(
                         start_state, input_symbol))
 
-    def _validate_transition_start_states(self):
+    def _validate_transition_start_states(self) -> None:
         """Raise an error if transition start states are missing."""
         for state in self.states:
             if state not in self.transitions:
@@ -116,7 +127,7 @@ class DFA(fa.FA):
                     'transition start state {} is missing'.format(
                         state))
 
-    def _validate_transition_end_states(self, start_state, paths):
+    def _validate_transition_end_states(self, start_state : DFAStateT, paths : PathT) -> None:
         """Raise an error if transition end states are invalid."""
         for end_state in paths.values():
             if end_state not in self.states:
@@ -124,13 +135,13 @@ class DFA(fa.FA):
                     'end state {} for transition on {} is not valid'.format(
                         end_state, start_state))
 
-    def _validate_transitions(self, start_state, paths):
+    def _validate_transitions(self, start_state : DFAStateT, paths : PathT) -> None:
         """Raise an error if transitions are missing or invalid."""
         self._validate_transition_missing_symbols(start_state, paths)
         self._validate_transition_invalid_symbols(start_state, paths)
         self._validate_transition_end_states(start_state, paths)
 
-    def validate(self):
+    def validate(self) -> bool:
         """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
         for start_state, paths in self.transitions.items():
@@ -139,7 +150,7 @@ class DFA(fa.FA):
         self._validate_final_states()
         return True
 
-    def _get_next_current_state(self, current_state, input_symbol):
+    def _get_next_current_state(self, current_state : DFAStateT, input_symbol : str) -> DFAStateT:
         """
         Follow the transition for the given input symbol on the current state.
 
@@ -151,14 +162,14 @@ class DFA(fa.FA):
             raise exceptions.RejectionException(
                 '{} is not a valid input symbol'.format(input_symbol))
 
-    def _check_for_input_rejection(self, current_state):
+    def _check_for_input_rejection(self, current_state : DFAStateT) -> None:
         """Raise an error if the given config indicates rejected input."""
         if current_state not in self.final_states:
             raise exceptions.RejectionException(
                 'the DFA stopped on a non-final state ({})'.format(
                     current_state))
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str : str) -> Generator[DFAStateT, None, None]:
         """
         Check if the given string is accepted by this DFA.
 
@@ -174,7 +185,7 @@ class DFA(fa.FA):
 
         self._check_for_input_rejection(current_state)
 
-    def minify(self, retain_names=True):
+    def minify(self, retain_names : bool = True) -> 'DFA':
         """
         Create a minimal DFA which accepts the same inputs as this DFA.
 
@@ -188,7 +199,7 @@ class DFA(fa.FA):
         new_dfa._merge_states(retain_names=retain_names)
         return new_dfa
 
-    def _remove_unreachable_states(self):
+    def _remove_unreachable_states(self) -> None:
         """Remove states which are not reachable from the initial state."""
         reachable_states = self._compute_reachable_states()
         unreachable_states = self.states - reachable_states
@@ -198,10 +209,10 @@ class DFA(fa.FA):
             if state in self.final_states:
                 self.final_states.remove(state)
 
-    def _compute_reachable_states(self):
+    def _compute_reachable_states(self) -> Set[DFAStateT]:
         """Compute the states which are reachable from the initial state."""
         reachable_states = set()
-        states_to_check = deque()
+        states_to_check : Deque[DFAStateT] = deque()
         states_to_check.append(self.initial_state)
         reachable_states.add(self.initial_state)
         while states_to_check:
