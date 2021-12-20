@@ -110,18 +110,24 @@ class DPDA(pda.PDA):
         """Advance to the next configuration."""
         transitions = set()
         if old_config.remaining_input:
-            transitions.add(self._get_transition(
+            transition_result = self._get_transition(
                 old_config.state,
                 old_config.remaining_input[0],
                 old_config.stack.top()
-            ))
-        transitions.add(self._get_transition(
+            )
+
+            if transition_result:
+                transitions.add(transition_result)
+
+        transition_result = self._get_transition(
             old_config.state,
             '',
             old_config.stack.top()
-        ))
-        if None in transitions:
-            transitions.remove(None)
+        )
+
+        if transition_result:
+            transitions.add(transition_result)
+
         if len(transitions) == 0:
             raise exceptions.RejectionException(
                 'The automaton entered a configuration for which no '
