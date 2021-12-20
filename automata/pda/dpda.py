@@ -94,7 +94,6 @@ class DPDA(pda.PDA):
             ) + self.transitions[state][input_symbol][stack_symbol]
 
         return None
-        #raise exceptions.InvalidSymbolError
 
     def _check_for_input_rejection(self,
                                    current_configuration : 'PDAConfiguration') -> None:
@@ -106,7 +105,8 @@ class DPDA(pda.PDA):
                 .format(**current_configuration._asdict())
             )
 
-    def _get_next_configuration(self, old_config):
+    def _get_next_configuration(self,
+                                old_config : 'PDAConfiguration') -> None:
         """Advance to the next configuration."""
         transitions = set()
         if old_config.remaining_input:
