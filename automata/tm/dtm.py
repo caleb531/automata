@@ -109,20 +109,19 @@ class DTM(tm.TM):
 
     def _get_next_configuration(self, old_config : 'TMConfiguration') -> 'TMConfiguration':
         """Advance to the next configuration."""
-        transitions = {self._get_transition(
+        transition = self._get_transition(
             old_config.state,
             old_config.tape.read_symbol()
-        )}
-        if None in transitions:
-            transitions.remove(None)
-        if len(transitions) == 0:
+        )
+
+        if not transition:
             raise exceptions.RejectionException(
                 'The machine entered a non-final configuration for which no '
                 'transition is defined ({}, {})'.format(
                     old_config.state, old_config.tape.read_symbol()))
+
         tape = old_config.tape
-        (new_state, new_tape_symbol,
-            direction) = transitions.pop()
+        (new_state, new_tape_symbol, direction) = transition
         tape = tape.write_symbol(new_tape_symbol)
         tape = tape.move(direction)
         return TMConfiguration(new_state, tape)
