@@ -71,12 +71,6 @@ class MNTM(tm.NTM):
                         tape_symbol, state
                     )
                 )
-    #TODO remove this redundant override
-    #def _validate_transition_state(self, transition_state : MNTMStateT) -> None:
-    #    if transition_state not in self.states:
-    #        raise exceptions.InvalidStateError(
-    #            'transition state is not valid ({})'.format(transition_state)
-    #        )
 
     def _validate_transition_results_multitape(self, paths : MNTMPathT) -> None:
         for results in paths.values():
@@ -163,7 +157,7 @@ class MNTM(tm.NTM):
         else:
             return None
 
-    def _get_next_configuration(self, old_config : 'TMConfiguration') -> 'MNTM':
+    def _get_next_configuration(self, old_config : MNTMResultT) -> 'MNTM':
         """Advances to the next configuration."""
         self.current_state, moves = old_config
         i = 0
@@ -178,7 +172,8 @@ class MNTM(tm.NTM):
     def _has_accepted(self) -> bool:
         return self.current_state in self.final_states
 
-    def read_input_stepwise(self, input_str : str) -> Generator[Set['MTMConfiguration'], None, None]:
+    #TODO fix this changing the type in the override, otherwise can't annotate return type
+    def read_input_stepwise(self, input_str : str):
         """Checks if the given string is accepted by this Turing machine,
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
@@ -210,7 +205,7 @@ class MNTM(tm.NTM):
     @staticmethod
     def _read_extended_tape(tape : str,
                             head_symbol: str = '^',
-                            tape_separator_symbol : str = '_') -> List[MNTMResultT]:
+                            tape_separator_symbol : str = '_') -> Tuple[str, ...]:
         """Returns a tuple with the symbols extracted from the given
         tape, that are the virtual heads for their corresponding
         virtual tape."""
@@ -249,7 +244,7 @@ class MNTM(tm.NTM):
 
         return tuple(virtual_heads)
 
-    def read_input_as_ntm(self, input_str):
+    def read_input_as_ntm(self, input_str : str) -> Generator[Set['TMConfiguration'], None, None]:
         """Simulates the machine as a single-tape Turing machine.
         Yields the configuration at each step."""
         self._restart_configuration(input_str)
