@@ -16,9 +16,6 @@ from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 
 
-def freeze(*items : Hashable) -> Tuple:
-    return tuple(items)
-
 class TestDFA(test_fa.TestFA):
     """A test class for testing deterministic finite automata."""
 
@@ -300,37 +297,37 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.union(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
-            freeze('q0','p0'), freeze('q0','p1'), freeze('q0','p2'),
-            freeze('q1','p0'), freeze('q1','p1'), freeze('q1','p2'),
-            freeze('q2','p0'), freeze('q2','p1'), freeze('q2','p2'),
-            freeze('q3','p0'), freeze('q3','p1'), freeze('q3','p2'),
-            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
+            ('q0','p0'), ('q0','p1'), ('q0','p2'),
+            ('q1','p0'), ('q1','p1'), ('q1','p2'),
+            ('q2','p0'), ('q2','p1'), ('q2','p2'),
+            ('q3','p0'), ('q3','p1'), ('q3','p2'),
+            ('q4','p0'), ('q4','p1'), ('q4','p2')
         })
         nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(new_dfa.transitions, {
-            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': freeze('q1','p1')},
-            freeze('q0','p1'): {'0': freeze('q0','p0'), '1': freeze('q1','p2')},
-            freeze('q0','p2'): {'0': freeze('q0','p2'), '1': freeze('q1','p2')},
-            freeze('q1','p0'): {'0': freeze('q1','p0'), '1': freeze('q2','p1')},
-            freeze('q1','p1'): {'0': freeze('q1','p0'), '1': freeze('q2','p2')},
-            freeze('q1','p2'): {'0': freeze('q1','p2'), '1': freeze('q2','p2')},
-            freeze('q2','p0'): {'0': freeze('q2','p0'), '1': freeze('q3','p1')},
-            freeze('q2','p1'): {'0': freeze('q2','p0'), '1': freeze('q3','p2')},
-            freeze('q2','p2'): {'0': freeze('q2','p2'), '1': freeze('q3','p2')},
-            freeze('q3','p0'): {'0': freeze('q3','p0'), '1': freeze('q4','p1')},
-            freeze('q3','p1'): {'0': freeze('q3','p0'), '1': freeze('q4','p2')},
-            freeze('q3','p2'): {'0': freeze('q3','p2'), '1': freeze('q4','p2')},
-            freeze('q4','p0'): {'0': freeze('q4','p0'), '1': freeze('q4','p1')},
-            freeze('q4','p1'): {'0': freeze('q4','p0'), '1': freeze('q4','p2')},
-            freeze('q4','p2'): {'0': freeze('q4','p2'), '1': freeze('q4','p2')}
+            ('q0','p0'): {'0': ('q0','p0'), '1': ('q1','p1')},
+            ('q0','p1'): {'0': ('q0','p0'), '1': ('q1','p2')},
+            ('q0','p2'): {'0': ('q0','p2'), '1': ('q1','p2')},
+            ('q1','p0'): {'0': ('q1','p0'), '1': ('q2','p1')},
+            ('q1','p1'): {'0': ('q1','p0'), '1': ('q2','p2')},
+            ('q1','p2'): {'0': ('q1','p2'), '1': ('q2','p2')},
+            ('q2','p0'): {'0': ('q2','p0'), '1': ('q3','p1')},
+            ('q2','p1'): {'0': ('q2','p0'), '1': ('q3','p2')},
+            ('q2','p2'): {'0': ('q2','p2'), '1': ('q3','p2')},
+            ('q3','p0'): {'0': ('q3','p0'), '1': ('q4','p1')},
+            ('q3','p1'): {'0': ('q3','p0'), '1': ('q4','p2')},
+            ('q3','p2'): {'0': ('q3','p2'), '1': ('q4','p2')},
+            ('q4','p0'): {'0': ('q4','p0'), '1': ('q4','p1')},
+            ('q4','p1'): {'0': ('q4','p0'), '1': ('q4','p2')},
+            ('q4','p2'): {'0': ('q4','p2'), '1': ('q4','p2')}
         })
-        nose.assert_equal(new_dfa.initial_state, freeze('q0','p0'))
+        nose.assert_equal(new_dfa.initial_state, ('q0','p0'))
         nose.assert_equal(new_dfa.final_states, {
-            freeze('q0','p0'), freeze('q0','p1'),
-            freeze('q1','p0'), freeze('q1','p1'),
-            freeze('q2','p0'), freeze('q2','p1'),
-            freeze('q3','p0'), freeze('q3','p1'),
-            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
+            ('q0','p0'), ('q0','p1'),
+            ('q1','p0'), ('q1','p1'),
+            ('q2','p0'), ('q2','p1'),
+            ('q3','p0'), ('q3','p1'),
+            ('q4','p0'), ('q4','p1'), ('q4','p2')
         })
 
     def test_intersection(self) -> None:
@@ -364,33 +361,33 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.intersection(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
-            freeze('q0','p0'), freeze('q0','p1'), freeze('q0','p2'),
-            freeze('q1','p0'), freeze('q1','p1'), freeze('q1','p2'),
-            freeze('q2','p0'), freeze('q2','p1'), freeze('q2','p2'),
-            freeze('q3','p0'), freeze('q3','p1'), freeze('q3','p2'),
-            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
+            ('q0','p0'), ('q0','p1'), ('q0','p2'),
+            ('q1','p0'), ('q1','p1'), ('q1','p2'),
+            ('q2','p0'), ('q2','p1'), ('q2','p2'),
+            ('q3','p0'), ('q3','p1'), ('q3','p2'),
+            ('q4','p0'), ('q4','p1'), ('q4','p2')
         })
         nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(new_dfa.transitions, {
-            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': freeze('q1','p1')},
-            freeze('q0','p1'): {'0': freeze('q0','p0'), '1': freeze('q1','p2')},
-            freeze('q0','p2'): {'0': freeze('q0','p2'), '1': freeze('q1','p2')},
-            freeze('q1','p0'): {'0': freeze('q1','p0'), '1': freeze('q2','p1')},
-            freeze('q1','p1'): {'0': freeze('q1','p0'), '1': freeze('q2','p2')},
-            freeze('q1','p2'): {'0': freeze('q1','p2'), '1': freeze('q2','p2')},
-            freeze('q2','p0'): {'0': freeze('q2','p0'), '1': freeze('q3','p1')},
-            freeze('q2','p1'): {'0': freeze('q2','p0'), '1': freeze('q3','p2')},
-            freeze('q2','p2'): {'0': freeze('q2','p2'), '1': freeze('q3','p2')},
-            freeze('q3','p0'): {'0': freeze('q3','p0'), '1': freeze('q4','p1')},
-            freeze('q3','p1'): {'0': freeze('q3','p0'), '1': freeze('q4','p2')},
-            freeze('q3','p2'): {'0': freeze('q3','p2'), '1': freeze('q4','p2')},
-            freeze('q4','p0'): {'0': freeze('q4','p0'), '1': freeze('q4','p1')},
-            freeze('q4','p1'): {'0': freeze('q4','p0'), '1': freeze('q4','p2')},
-            freeze('q4','p2'): {'0': freeze('q4','p2'), '1': freeze('q4','p2')}
+            ('q0','p0'): {'0': ('q0','p0'), '1': ('q1','p1')},
+            ('q0','p1'): {'0': ('q0','p0'), '1': ('q1','p2')},
+            ('q0','p2'): {'0': ('q0','p2'), '1': ('q1','p2')},
+            ('q1','p0'): {'0': ('q1','p0'), '1': ('q2','p1')},
+            ('q1','p1'): {'0': ('q1','p0'), '1': ('q2','p2')},
+            ('q1','p2'): {'0': ('q1','p2'), '1': ('q2','p2')},
+            ('q2','p0'): {'0': ('q2','p0'), '1': ('q3','p1')},
+            ('q2','p1'): {'0': ('q2','p0'), '1': ('q3','p2')},
+            ('q2','p2'): {'0': ('q2','p2'), '1': ('q3','p2')},
+            ('q3','p0'): {'0': ('q3','p0'), '1': ('q4','p1')},
+            ('q3','p1'): {'0': ('q3','p0'), '1': ('q4','p2')},
+            ('q3','p2'): {'0': ('q3','p2'), '1': ('q4','p2')},
+            ('q4','p0'): {'0': ('q4','p0'), '1': ('q4','p1')},
+            ('q4','p1'): {'0': ('q4','p0'), '1': ('q4','p2')},
+            ('q4','p2'): {'0': ('q4','p2'), '1': ('q4','p2')}
         })
-        nose.assert_equal(new_dfa.initial_state, freeze('q0','p0'))
+        nose.assert_equal(new_dfa.initial_state, ('q0','p0'))
         nose.assert_equal(new_dfa.final_states, {
-            freeze('q4','p0'), freeze('q4','p1'),
+            ('q4','p0'), ('q4','p1'),
         })
 
     def frozenseterence(self) -> None:
@@ -424,33 +421,33 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.difference(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
-            freeze('q0','p0'), freeze('q0','p1'), freeze('q0','p2'),
-            freeze('q1','p0'), freeze('q1','p1'), freeze('q1','p2'),
-            freeze('q2','p0'), freeze('q2','p1'), freeze('q2','p2'),
-            freeze('q3','p0'), freeze('q3','p1'), freeze('q3','p2'),
-            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
+            ('q0','p0'), ('q0','p1'), ('q0','p2'),
+            ('q1','p0'), ('q1','p1'), ('q1','p2'),
+            ('q2','p0'), ('q2','p1'), ('q2','p2'),
+            ('q3','p0'), ('q3','p1'), ('q3','p2'),
+            ('q4','p0'), ('q4','p1'), ('q4','p2')
         })
         nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(new_dfa.transitions, {
-            freeze('q0','p0') : {'0': freeze('q0','p0'), '1': freeze('q1','p1')},
-            freeze('q0','p1'): {'0': freeze('q0','p0'), '1': freeze('q1','p2')},
-            freeze('q0','p2'): {'0': freeze('q0','p2'), '1': freeze('q1','p2')},
-            freeze('q1','p0'): {'0': freeze('q1','p0'), '1': freeze('q2','p1')},
-            freeze('q1','p1'): {'0': freeze('q1','p0'), '1': freeze('q2','p2')},
-            freeze('q1','p2'): {'0': freeze('q1','p2'), '1': freeze('q2','p2')},
-            freeze('q2','p0'): {'0': freeze('q2','p0'), '1': freeze('q3','p1')},
-            freeze('q2','p1'): {'0': freeze('q2','p0'), '1': freeze('q3','p2')},
-            freeze('q2','p2'): {'0': freeze('q2','p2'), '1': freeze('q3','p2')},
-            freeze('q3','p0'): {'0': freeze('q3','p0'), '1': freeze('q4','p1')},
-            freeze('q3','p1'): {'0': freeze('q3','p0'), '1': freeze('q4','p2')},
-            freeze('q3','p2'): {'0': freeze('q3','p2'), '1': freeze('q4','p2')},
-            freeze('q4','p0'): {'0': freeze('q4','p0'), '1': freeze('q4','p1')},
-            freeze('q4','p1'): {'0': freeze('q4','p0'), '1': freeze('q4','p2')},
-            freeze('q4','p2'): {'0': freeze('q4','p2'), '1': freeze('q4','p2')}
+            ('q0','p0') : {'0': ('q0','p0'), '1': ('q1','p1')},
+            ('q0','p1'): {'0': ('q0','p0'), '1': ('q1','p2')},
+            ('q0','p2'): {'0': ('q0','p2'), '1': ('q1','p2')},
+            ('q1','p0'): {'0': ('q1','p0'), '1': ('q2','p1')},
+            ('q1','p1'): {'0': ('q1','p0'), '1': ('q2','p2')},
+            ('q1','p2'): {'0': ('q1','p2'), '1': ('q2','p2')},
+            ('q2','p0'): {'0': ('q2','p0'), '1': ('q3','p1')},
+            ('q2','p1'): {'0': ('q2','p0'), '1': ('q3','p2')},
+            ('q2','p2'): {'0': ('q2','p2'), '1': ('q3','p2')},
+            ('q3','p0'): {'0': ('q3','p0'), '1': ('q4','p1')},
+            ('q3','p1'): {'0': ('q3','p0'), '1': ('q4','p2')},
+            ('q3','p2'): {'0': ('q3','p2'), '1': ('q4','p2')},
+            ('q4','p0'): {'0': ('q4','p0'), '1': ('q4','p1')},
+            ('q4','p1'): {'0': ('q4','p0'), '1': ('q4','p2')},
+            ('q4','p2'): {'0': ('q4','p2'), '1': ('q4','p2')}
         })
-        nose.assert_equal(new_dfa.initial_state, freeze('q0','p0'))
+        nose.assert_equal(new_dfa.initial_state, ('q0','p0'))
         nose.assert_equal(new_dfa.final_states, {
-            freeze('q4','p2')
+            ('q4','p2')
         })
 
     def test_symmetric_difference(self) -> None:
@@ -484,37 +481,37 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.symmetric_difference(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
-            freeze('q0','p0'), freeze('q0','p1'), freeze('q0','p2'),
-            freeze('q1','p0'), freeze('q1','p1'), freeze('q1','p2'),
-            freeze('q2','p0'), freeze('q2','p1'), freeze('q2','p2'),
-            freeze('q3','p0'), freeze('q3','p1'), freeze('q3','p2'),
-            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
+            ('q0','p0'), ('q0','p1'), ('q0','p2'),
+            ('q1','p0'), ('q1','p1'), ('q1','p2'),
+            ('q2','p0'), ('q2','p1'), ('q2','p2'),
+            ('q3','p0'), ('q3','p1'), ('q3','p2'),
+            ('q4','p0'), ('q4','p1'), ('q4','p2')
         })
         nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(new_dfa.transitions, {
-            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': freeze('q1','p1')},
-            freeze('q0','p1'): {'0': freeze('q0','p0'), '1': freeze('q1','p2')},
-            freeze('q0','p2'): {'0': freeze('q0','p2'), '1': freeze('q1','p2')},
-            freeze('q1','p0'): {'0': freeze('q1','p0'), '1': freeze('q2','p1')},
-            freeze('q1','p1'): {'0': freeze('q1','p0'), '1': freeze('q2','p2')},
-            freeze('q1','p2'): {'0': freeze('q1','p2'), '1': freeze('q2','p2')},
-            freeze('q2','p0'): {'0': freeze('q2','p0'), '1': freeze('q3','p1')},
-            freeze('q2','p1'): {'0': freeze('q2','p0'), '1': freeze('q3','p2')},
-            freeze('q2','p2'): {'0': freeze('q2','p2'), '1': freeze('q3','p2')},
-            freeze('q3','p0'): {'0': freeze('q3','p0'), '1': freeze('q4','p1')},
-            freeze('q3','p1'): {'0': freeze('q3','p0'), '1': freeze('q4','p2')},
-            freeze('q3','p2'): {'0': freeze('q3','p2'), '1': freeze('q4','p2')},
-            freeze('q4','p0'): {'0': freeze('q4','p0'), '1': freeze('q4','p1')},
-            freeze('q4','p1'): {'0': freeze('q4','p0'), '1': freeze('q4','p2')},
-            freeze('q4','p2'): {'0': freeze('q4','p2'), '1': freeze('q4','p2')}
+            ('q0','p0'): {'0': ('q0','p0'), '1': ('q1','p1')},
+            ('q0','p1'): {'0': ('q0','p0'), '1': ('q1','p2')},
+            ('q0','p2'): {'0': ('q0','p2'), '1': ('q1','p2')},
+            ('q1','p0'): {'0': ('q1','p0'), '1': ('q2','p1')},
+            ('q1','p1'): {'0': ('q1','p0'), '1': ('q2','p2')},
+            ('q1','p2'): {'0': ('q1','p2'), '1': ('q2','p2')},
+            ('q2','p0'): {'0': ('q2','p0'), '1': ('q3','p1')},
+            ('q2','p1'): {'0': ('q2','p0'), '1': ('q3','p2')},
+            ('q2','p2'): {'0': ('q2','p2'), '1': ('q3','p2')},
+            ('q3','p0'): {'0': ('q3','p0'), '1': ('q4','p1')},
+            ('q3','p1'): {'0': ('q3','p0'), '1': ('q4','p2')},
+            ('q3','p2'): {'0': ('q3','p2'), '1': ('q4','p2')},
+            ('q4','p0'): {'0': ('q4','p0'), '1': ('q4','p1')},
+            ('q4','p1'): {'0': ('q4','p0'), '1': ('q4','p2')},
+            ('q4','p2'): {'0': ('q4','p2'), '1': ('q4','p2')}
         })
-        nose.assert_equal(new_dfa.initial_state, freeze('q0','p0'))
+        nose.assert_equal(new_dfa.initial_state, ('q0','p0'))
         nose.assert_equal(new_dfa.final_states, {
-            freeze('q0','p0'), freeze('q0','p1'),
-            freeze('q1','p0'), freeze('q1','p1'),
-            freeze('q2','p0'), freeze('q2','p1'),
-            freeze('q3','p0'), freeze('q3','p1'),
-            freeze('q4','p2')
+            ('q0','p0'), ('q0','p1'),
+            ('q1','p0'), ('q1','p1'),
+            ('q2','p0'), ('q2','p1'),
+            ('q3','p0'), ('q3','p1'),
+            ('q4','p2')
         })
 
     def test_issubset(self) -> None:
@@ -846,16 +843,16 @@ class TestDFA(test_fa.TestFA):
         )
         minimal_dfa = dfa.minify(retain_names=True)
         nose.assert_equal(minimal_dfa.states, {
-            'q0', freeze('q1','q2'), freeze('q3','q4','q5','q6')
+            'q0', ('q1','q2'), ('q3','q4','q5','q6')
         })
         nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(minimal_dfa.transitions, {
-            'q0': {'0': freeze('q1','q2'), '1': freeze('q1','q2')},
-            freeze('q1','q2'): {'0': freeze('q3','q4','q5','q6'), '1': freeze('q3','q4','q5','q6')},
-            freeze('q3','q4','q5','q6'): {'0': freeze('q3','q4','q5','q6'), '1': freeze('q3','q4','q5','q6')}
+            'q0': {'0': ('q1','q2'), '1': ('q1','q2')},
+            ('q1','q2'): {'0': ('q3','q4','q5','q6'), '1': ('q3','q4','q5','q6')},
+            ('q3','q4','q5','q6'): {'0': ('q3','q4','q5','q6'), '1': ('q3','q4','q5','q6')}
         })
         nose.assert_equal(minimal_dfa.initial_state, 'q0')
-        nose.assert_equal(minimal_dfa.final_states, {freeze('q3','q4','q5','q6')})
+        nose.assert_equal(minimal_dfa.final_states, {('q3','q4','q5','q6')})
 
     def test_minify_dfa_complex(self) -> None:
         """Should minify a given large DFA."""
@@ -936,85 +933,85 @@ class TestDFA(test_fa.TestFA):
                           '53', '42', '33', '19', '50', '29'})
         check_dfa = DFA(
             states={'5', '36', '1', '49', '40', '25', '46', '6', '55',
-                    freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'), '33',
+                    ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'), '33',
                     '11', '20', '48', '44', '32'},
             input_symbols={'L', 'U', 'R', 'D'},
             transitions={
                 '48':
                 {'L': '40',
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
                 '44':
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'U': '48',
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'D': '11'},
                 '40':
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'U': '48',
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
                 '33':
                 {'L': '44',
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'R': '36',
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
                 '55': {'L': '20', 'U': '49', 'R': '20', 'D': '49'},
                 '32':
                 {'L': '36',
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'R': '44',
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
                 '46':
                 {'L': '44',
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'R': '44',
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
                 '25':
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'D': '11'},
                 '6':
                 {'L': '40',
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'R': '25',
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
                 '11':
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'R': '25',
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
                 '5':
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'U': '46',
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'D': '6'},
                 '49':
                 {'L': '1',
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'R': '5',
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
-                freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'):
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'U': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
-                 'D': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
+                ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'):
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'U': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'D': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')},
                 '20':
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'U': '33',
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'D': '32'},
                 '36':
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'U': '6',
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'D': '6'},
                 '1':
-                {'L': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                {'L': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'U': '6',
-                 'R': freeze('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
+                 'R': ('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8'),
                  'D': '46'}},
             initial_state='55',
             final_states={'5', '1', '36', '49', '40', '25', '46', '6', '55',
@@ -1061,13 +1058,13 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'},
         )
         minimal_dfa = dfa.minify()
-        nose.assert_equal(minimal_dfa.states, {freeze('q0','q1')})
+        nose.assert_equal(minimal_dfa.states, {('q0','q1')})
         nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(minimal_dfa.transitions, {
-            freeze('q0','q1'): {'0': freeze('q0','q1'), '1': freeze('q0','q1')},
+            ('q0','q1'): {'0': ('q0','q1'), '1': ('q0','q1')},
         })
-        nose.assert_equal(minimal_dfa.initial_state, freeze('q0','q1'))
-        nose.assert_equal(minimal_dfa.final_states, {freeze('q0','q1')})
+        nose.assert_equal(minimal_dfa.initial_state, ('q0','q1'))
+        nose.assert_equal(minimal_dfa.final_states, {('q0','q1')})
 
     def test_minify_dfa_no_final_states(self) -> None:
         dfa = DFA(
@@ -1081,12 +1078,12 @@ class TestDFA(test_fa.TestFA):
             final_states=set(),
         )
         minimal_dfa = dfa.minify()
-        nose.assert_equal(minimal_dfa.states, {freeze('q0','q1')})
+        nose.assert_equal(minimal_dfa.states, {('q0','q1')})
         nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(minimal_dfa.transitions, {
-            freeze('q0','q1'): {'0': freeze('q0','q1'), '1': freeze('q0','q1')},
+            ('q0','q1'): {'0': ('q0','q1'), '1': ('q0','q1')},
         })
-        nose.assert_equal(minimal_dfa.initial_state, freeze('q0','q1'))
+        nose.assert_equal(minimal_dfa.initial_state, ('q0','q1'))
         nose.assert_equal(minimal_dfa.final_states, set())
 
     def test_init_nfa_simple(self) -> None:
@@ -1103,16 +1100,16 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa)
-        nose.assert_equal(dfa.states, {freeze(), freeze('q0'), freeze('q0','q1'), freeze('q2')})
+        nose.assert_equal(dfa.states, {(), ('q0'), ('q0','q1'), ('q2')})
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
-            freeze(): {'0': freeze(), '1': freeze()},
-            freeze('q0'): {'0': freeze('q0','q1'), '1': freeze()},
-            freeze('q0','q1'): {'0': freeze('q0','q1'), '1': freeze('q2')},
-            freeze('q2'): {'0': freeze(), '1': freeze()}
+            (): {'0': (), '1': ()},
+            ('q0'): {'0': ('q0','q1'), '1': ()},
+            ('q0','q1'): {'0': ('q0','q1'), '1': ('q2')},
+            ('q2'): {'0': (), '1': ()}
         })
-        nose.assert_equal(dfa.initial_state, freeze('q0'))
-        nose.assert_equal(dfa.final_states, {freeze('q2')})
+        nose.assert_equal(dfa.initial_state, ('q0'))
+        nose.assert_equal(dfa.final_states, {('q2')})
 
     def test_init_nfa_more_complex(self) -> None:
         """Should convert to a DFA a more complex NFA."""
@@ -1129,30 +1126,30 @@ class TestDFA(test_fa.TestFA):
         )
         dfa = DFA.from_nfa(nfa)
         nose.assert_equal(dfa.states, {
-            freeze('q0'), freeze('q0','q1'), freeze('q0','q2'), freeze('q0','q1','q2')
+            ('q0'), ('q0','q1'), ('q0','q2'), ('q0','q1','q2')
         })
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
-            freeze('q0'): {'1': freeze('q0'), '0': freeze('q0','q1')},
-            freeze('q0','q1'): {'1': freeze('q0','q2'), '0': freeze('q0','q1')},
-            freeze('q0','q2'): {'1': freeze('q0','q1'), '0': freeze('q0','q1','q2')},
-            freeze('q0','q1','q2'): {'1': freeze('q0','q1','q2'), '0': freeze('q0','q1','q2')}
+            ('q0'): {'1': ('q0'), '0': ('q0','q1')},
+            ('q0','q1'): {'1': ('q0','q2'), '0': ('q0','q1')},
+            ('q0','q2'): {'1': ('q0','q1'), '0': ('q0','q1','q2')},
+            ('q0','q1','q2'): {'1': ('q0','q1','q2'), '0': ('q0','q1','q2')}
         })
-        nose.assert_equal(dfa.initial_state, freeze('q0'))
-        nose.assert_equal(dfa.final_states, {freeze('q0','q1','q2'), freeze('q0','q2')})
+        nose.assert_equal(dfa.initial_state, ('q0'))
+        nose.assert_equal(dfa.final_states, {('q0','q1','q2'), ('q0','q2')})
 
     def test_init_nfa_lambda_transition(self) -> None:
         """Should convert to a DFA an NFA with a lambda transition."""
         dfa = DFA.from_nfa(self.nfa)
-        nose.assert_equal(dfa.states, {freeze(), freeze('q0'), freeze('q1','q2')})
+        nose.assert_equal(dfa.states, {(), ('q0'), ('q1','q2')})
         nose.assert_equal(dfa.input_symbols, {'a', 'b'})
         nose.assert_equal(dfa.transitions, {
-            freeze() : {'a': freeze(), 'b': freeze()},
-            freeze('q0') : {'a': freeze('q1', 'q2'), 'b': freeze()},
-            freeze('q1', 'q2') : {'a': freeze('q1', 'q2'), 'b': freeze('q0')},
+            () : {'a': (), 'b': ()},
+            ('q0') : {'a': ('q1', 'q2'), 'b': ()},
+            ('q1', 'q2') : {'a': ('q1', 'q2'), 'b': ('q0')},
         })
-        nose.assert_equal(dfa.initial_state, freeze('q0'))
-        nose.assert_equal(dfa.final_states, {freeze('q1', 'q2')})
+        nose.assert_equal(dfa.initial_state, ('q0'))
+        nose.assert_equal(dfa.final_states, {('q1', 'q2')})
 
     def test_nfa_to_dfa_with_lambda_transitions(self):
         """ Test NFA->DFA when initial state has lambda transitions """
@@ -1168,7 +1165,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'q1'}
         )
         dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
-        nose.assert_equal(dfa.read_input('a'), freeze('q1'))
+        nose.assert_equal(dfa.read_input('a'), ('q1'))
 
     def test_partial_dfa(self) -> None:
         """Should allow for partial DFA when flag is set"""
