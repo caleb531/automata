@@ -5,7 +5,7 @@ import copy
 from itertools import product
 from collections import defaultdict, deque
 from pydot import Dot, Edge, Node
-from typing import Dict, Set, Generator, Deque, Iterable, Any, Optional, FrozenSet
+from typing import Dict, Set, Generator, Deque, Iterable, Any, Optional, Tuple, cast
 
 import automata.fa.nfa as nfa
 import automata.base.exceptions as exceptions
@@ -334,7 +334,7 @@ class DFA(fa.FA):
         new_initial_state = (self.initial_state, other.initial_state)
 
         return DFA(
-            states=new_states,
+            states=cast(Set[DFAStateT], new_states),
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
@@ -509,7 +509,7 @@ class DFA(fa.FA):
 
 
     @staticmethod
-    def _to_canonical_form(states : Iterable[DFAStateT]) -> FrozenSet[DFAStateT]:
+    def _to_canonical_form(states : Iterable) -> Tuple[DFAStateT, ...]:
         """Return a canonical (hashable) form of the given iterable of states."""
         return tuple(sorted(states))
 
@@ -556,7 +556,7 @@ class DFA(fa.FA):
         dfa_initial_state = cls._to_canonical_form(nfa_initial_states)
         dfa_final_states : Set[DFAStateT] = set()
 
-        state_queue : Deque[FrozenSet[DFAStateT]] = deque()
+        state_queue : Deque[Set[DFAStateT]] = deque()
         state_queue.append(nfa_initial_states)
         while state_queue:
 

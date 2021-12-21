@@ -69,7 +69,7 @@ class TestDTM(test_tm.TestTM):
     def test_validate_invalid_transition_symbol(self) -> None:
         """Should raise error if a transition symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
-            self.dtm1.transitions['q0']['2'] = ('q0', '0' 'R')
+            self.dtm1.transitions['q0']['2'] = ('q0', '0', 'R')
             self.dtm1.validate()
 
     def test_validate_invalid_transition_result_state(self) -> None:

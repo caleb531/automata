@@ -19,6 +19,8 @@ DTMTransitionsT = Dict[DTMStateT, DTMPathT]
 class DTM(tm.TM):
     """A deterministic Turing machine."""
 
+    transitions : DTMTransitionsT
+
     def __init__(self,
                  *,
                  states : Set[DTMStateT],
