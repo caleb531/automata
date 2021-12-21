@@ -13,7 +13,7 @@ from automata.pda.stack import PDAStack
 class TestPDAConfiguration(test_pda.TestPDA):
     """A test class for testing configurations of pushdown automata."""
 
-    def test_config_repr(self):
+    def test_config_repr(self) -> None:
         """Should create proper string representation of PDA stack."""
         config = PDAConfiguration('q0', 'ab', PDAStack(['a', 'b']))
         nose.assert_equal(

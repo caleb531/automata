@@ -12,7 +12,7 @@ from automata.tm.mntm import MNTM
 class TestTM(object):
     """A test class for testing all Turing machines."""
 
-    def setup(self):
+    def setup(self) -> None:
         """Reset test machines before every test function."""
         # DTM which matches all strings beginning with '0's, and followed by
         # the same number of '1's
