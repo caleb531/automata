@@ -8,11 +8,11 @@ import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import automata.tm.tm as tm
 from automata.tm.configuration import TMConfiguration
-from automata.tm.tape import TMTape
+from automata.tm.tape import TMTape, HeadDirection
 
 NTMStateT = tm.TMStateT
 
-NTMResultT = Tuple[NTMStateT, str, str]
+NTMResultT = Tuple[NTMStateT, str, HeadDirection]
 NTMPathT = Dict[str, Set[NTMResultT]]
 NTMTransitionsT = Dict[NTMStateT, NTMPathT]
 
@@ -55,9 +55,8 @@ class NTM(tm.TM):
                     )
                 )
 
-    #TODO switch this to an enum
-    def _validate_transition_result_direction(self, result_direction : str) -> None:
-        if result_direction not in ("L", "N", "R"):
+    def _validate_transition_result_direction(self, result_direction : HeadDirection) -> None:
+        if not isinstance(result_direction, HeadDirection):
             raise tm_exceptions.InvalidDirectionError(
                 'result direction is not valid ({})'.format(result_direction)
             )

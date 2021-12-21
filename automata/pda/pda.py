@@ -26,7 +26,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
     input_symbols : Set[str]
     stack_symbols : Set[str]
     initial_stack_symbol : str
-    acceptance_mode : AcceptanceMode #TODO change this to an enum
+    acceptance_mode : AcceptanceMode
     transitions : PDATransitionsT
 
     @abc.abstractmethod

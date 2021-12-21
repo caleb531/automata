@@ -3,6 +3,12 @@
 
 import collections
 from typing import Iterable, Iterator
+from enum import Enum
+
+class HeadDirection(Enum):
+    R = 'R'
+    N = 'N'
+    L = 'L'
 
 class TMTape(collections.namedtuple(
     'TMTape',
@@ -48,17 +54,16 @@ class TMTape(collections.namedtuple(
             current_position=self.current_position
         )
 
-    #TODO replace with enum
-    def move(self, direction : str) -> 'TMTape':
+    def move(self, direction : HeadDirection) -> 'TMTape':
         """Move the tape to the next symbol in the given direction."""
         # Copy stuff.
         new_tape = list(self.tape)
         new_position = self.current_position
-        if direction == 'R':
+        if direction == HeadDirection.R:
             new_position += 1
-        elif direction == 'N':
+        elif direction == HeadDirection.N:
             pass
-        elif direction == 'L':  # pragma: no branch
+        elif direction == HeadDirection.L:  # pragma: no branch
             new_position -= 1
         # Make sure that the cursor doesn't run off the end of the tape.
         if new_position == -1:

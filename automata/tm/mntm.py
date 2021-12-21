@@ -10,7 +10,7 @@ import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import automata.tm.ntm as tm
 from automata.tm.configuration import MTMConfiguration, TMConfiguration
-from automata.tm.tape import TMTape
+from automata.tm.tape import TMTape, HeadDirection
 
 MNTMStateT = tm.NTMStateT
 
@@ -297,11 +297,11 @@ class MNTM(tm.NTM):
                         # After replacing, the machine must change the
                         # position of the virtual head of the current virtual
                         # tape.
-                        if direction == 'R':
+                        if direction == HeadDirection.R:
                             i += 1
-                        elif direction == 'L':
+                        elif direction == HeadDirection.L:
                             i -= 1
-                        else:  # direction == 'N'
+                        else:  # direction == HeadDirection.N
                             i += 0
 
                         if extended_tape[i - 1] == tape_separator_symbol:

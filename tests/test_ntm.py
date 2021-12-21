@@ -10,6 +10,7 @@ import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import tests.test_tm as test_tm
 from automata.tm.ntm import NTM
+from automata.tm.tape import HeadDirection
 
 
 class TestNTM(test_tm.TestTM):
@@ -69,19 +70,19 @@ class TestNTM(test_tm.TestTM):
     def test_validate_invalid_transition_symbol(self) -> None:
         """Should raise error if a transition symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
-            self.ntm1.transitions['q0']['3'] = {('q0', '0' 'R')}
+            self.ntm1.transitions['q0']['3'] = {('q0', '0', HeadDirection.R)}
             self.ntm1.validate()
 
     def test_validate_invalid_transition_result_state(self) -> None:
         """Should raise error if a transition result state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
-            self.ntm1.transitions['q0']['.'] = {('q4', '.', 'R')}
+            self.ntm1.transitions['q0']['.'] = {('q4', '.', HeadDirection.R)}
             self.ntm1.validate()
 
     def test_validate_invalid_transition_result_symbol(self) -> None:
         """Should raise error if a transition result symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
-            self.ntm1.transitions['q0']['.'] = {('q3', '3', 'R')}
+            self.ntm1.transitions['q0']['.'] = {('q3', '3', HeadDirection.R)}
             self.ntm1.validate()
 
     def test_validate_invalid_transition_result_direction(self) -> None:
@@ -123,7 +124,7 @@ class TestNTM(test_tm.TestTM):
     def test_validate_final_state_transitions(self) -> None:
         """Should raise error if a final state has any transitions."""
         with nose.assert_raises(exceptions.FinalStateError):
-            self.ntm1.transitions['q3'] = {'0': {('q3', '0', 'L')}}
+            self.ntm1.transitions['q3'] = {'0': {('q3', '0', HeadDirection.L)}}
             self.ntm1.validate()
 
     def test_read_input_accepted(self) -> None:

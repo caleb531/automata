@@ -8,11 +8,11 @@ import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import automata.tm.tm as tm
 from automata.tm.configuration import TMConfiguration
-from automata.tm.tape import TMTape
+from automata.tm.tape import TMTape, HeadDirection
 
 DTMStateT = tm.TMStateT
 
-DTMResultT = Tuple[DTMStateT, str, str]
+DTMResultT = Tuple[DTMStateT, str, HeadDirection]
 DTMPathT = Dict[str, DTMResultT]
 DTMTransitionsT = Dict[DTMStateT, DTMPathT]
 
@@ -52,8 +52,8 @@ class DTM(tm.TM):
                     'transition symbol {} for state {} is not valid'.format(
                         tape_symbol, state))
 
-    def _validate_transition_result_direction(self, result_direction : str) -> None:
-        if result_direction not in ('L', 'N', 'R'):
+    def _validate_transition_result_direction(self, result_direction : HeadDirection) -> None:
+        if not isinstance(result_direction, HeadDirection):
             raise tm_exceptions.InvalidDirectionError(
                 'result direction is not valid ({})'.format(
                     result_direction))

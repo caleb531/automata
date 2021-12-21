@@ -9,6 +9,7 @@ import nose.tools as nose
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import tests.test_tm as test_tm
+from automata.tm.tape import HeadDirection
 from automata.tm.dtm import DTM
 
 
@@ -69,19 +70,19 @@ class TestDTM(test_tm.TestTM):
     def test_validate_invalid_transition_symbol(self) -> None:
         """Should raise error if a transition symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
-            self.dtm1.transitions['q0']['2'] = ('q0', '0', 'R')
+            self.dtm1.transitions['q0']['2'] = ('q0', '0', HeadDirection.R)
             self.dtm1.validate()
 
     def test_validate_invalid_transition_result_state(self) -> None:
         """Should raise error if a transition result state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
-            self.dtm1.transitions['q0']['y'] = ('q5', 'y', 'R')
+            self.dtm1.transitions['q0']['y'] = ('q5', 'y', HeadDirection.R)
             self.dtm1.validate()
 
     def test_validate_invalid_transition_result_symbol(self) -> None:
         """Should raise error if a transition result symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
-            self.dtm1.transitions['q0']['y'] = ('q3', 'z', 'R')
+            self.dtm1.transitions['q0']['y'] = ('q3', 'z', HeadDirection.R)
             self.dtm1.validate()
 
     def test_validate_invalid_transition_result_direction(self) -> None:
@@ -123,7 +124,7 @@ class TestDTM(test_tm.TestTM):
     def test_validate_final_state_transitions(self) -> None:
         """Should raise error if a final state has any transitions."""
         with nose.assert_raises(exceptions.FinalStateError):
-            self.dtm1.transitions['q4'] = {'0': ('q4', '0', 'L')}
+            self.dtm1.transitions['q4'] = {'0': ('q4', '0', HeadDirection.L)}
             self.dtm1.validate()
 
     def test_read_input_accepted(self) -> None:
@@ -175,43 +176,43 @@ class TestDTM(test_tm.TestTM):
             transitions={
                 'q0': {
                     # replace one 0 with *
-                    '0': ('q1', '*', 'N'),
-                    '*': ('q0', '*', 'R'),
-                    '.': ('qe', '.', 'N'),
+                    '0': ('q1', '*', HeadDirection.N),
+                    '*': ('q0', '*', HeadDirection.R),
+                    '.': ('qe', '.', HeadDirection.N),
                 },
                 'q1': {
                     # replace one 1 with *
-                    '0': ('q1', '0', 'R'),
-                    '1': ('q2', '*', 'N'),
-                    '*': ('q1', '*', 'R'),
+                    '0': ('q1', '0', HeadDirection.R),
+                    '1': ('q2', '*', HeadDirection.N),
+                    '*': ('q1', '*', HeadDirection.R),
                 },
                 'q2': {
                     # replace one 2 with *
-                    '1': ('q2', '1', 'R'),
-                    '2': ('q3', '*', 'N'),
-                    '*': ('q2', '*', 'R'),
+                    '1': ('q2', '1', HeadDirection.R),
+                    '2': ('q3', '*', HeadDirection.N),
+                    '*': ('q2', '*', HeadDirection.R),
                 },
                 'q3': {
                     # seek to end; assert that just 2's or *'s follow
-                    '2': ('q3', '2', 'R'),
-                    '*': ('q3', '*', 'R'),
-                    '.': ('q4', '.', 'L'),
+                    '2': ('q3', '2', HeadDirection.R),
+                    '*': ('q3', '*', HeadDirection.R),
+                    '.': ('q4', '.', HeadDirection.L),
                 },
                 'q4': {
                     # seek to the beginning; checking if everything is *
-                    '0': ('q5', '0', 'L'),
-                    '1': ('q5', '1', 'L'),
-                    '2': ('q5', '2', 'L'),
-                    '*': ('q4', '*', 'L'),
-                    '.': ('qe', '.', 'R'),
+                    '0': ('q5', '0', HeadDirection.L),
+                    '1': ('q5', '1', HeadDirection.L),
+                    '2': ('q5', '2', HeadDirection.L),
+                    '*': ('q4', '*', HeadDirection.L),
+                    '.': ('qe', '.', HeadDirection.R),
                 },
                 'q5': {
                     # seek to the beginning
-                    '0': ('q5', '0', 'L'),
-                    '1': ('q5', '1', 'L'),
-                    '2': ('q5', '2', 'L'),
-                    '*': ('q5', '*', 'L'),
-                    '.': ('q0', '.', 'R'),
+                    '0': ('q5', '0', HeadDirection.L),
+                    '1': ('q5', '1', HeadDirection.L),
+                    '2': ('q5', '2', HeadDirection.L),
+                    '*': ('q5', '*', HeadDirection.L),
+                    '.': ('q0', '.', HeadDirection.R),
                 }
             },
             states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'qe'},

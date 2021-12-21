@@ -12,6 +12,7 @@ import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import tests.test_tm as test_tm
 from automata.tm.mntm import MNTM
+from automata.tm.tape import HeadDirection
 
 
 class TestMNTM(test_tm.TestTM):
@@ -72,28 +73,28 @@ class TestMNTM(test_tm.TestTM):
         """Should raise error if a transition symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.mntm1.transitions['q0'][("2", "#")] = [
-                ('q1', (('#', 'R'), ('#', 'R')))]
+                ('q1', (('#', HeadDirection.R), ('#', HeadDirection.R)))]
             self.mntm1.validate()
 
     def test_validate_invalid_transition_result_state(self) -> None:
         """Should raise error if a transition result state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.mntm1.transitions['q0'][("1", "#")] = [
-                ('q3', (('#', 'L'), ('#', 'R')))]
+                ('q3', (('#', HeadDirection.L), ('#', HeadDirection.R)))]
             self.mntm1.validate()
 
     def test_validate_invalid_transition_result_symbol(self) -> None:
         """Should raise error if a transition result symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.mntm1.transitions['q0'][("1", "#")] = [
-                ('q1', (('.', 'U'), ('#', 'R')))]
+                ('q1', (('.', 'U'), ('#', HeadDirection.R)))]
             self.mntm1.validate()
 
     def test_validate_invalid_transition_result_direction(self) -> None:
         """Should raise error if a transition result direction is invalid."""
         with nose.assert_raises(tm_exceptions.InvalidDirectionError):
             self.mntm1.transitions['q0'][("1", "#")] = [
-                ('q1', (('#', 'U'), ('#', 'R')))]
+                ('q1', (('#', 'U'), ('#', HeadDirection.R)))]
             self.mntm1.validate()
 
     def test_validate_invalid_initial_state(self) -> None:
@@ -130,7 +131,7 @@ class TestMNTM(test_tm.TestTM):
         """Should raise error if a final state has any transitions."""
         with nose.assert_raises(exceptions.FinalStateError):
             self.mntm1.transitions['q1'] = {('0', '#'): [
-                ('q0', (('0', 'L'), ('0', 'R')))]
+                ('q0', (('0', HeadDirection.L), ('0', HeadDirection.R)))]
             }
             self.mntm1.validate()
 
@@ -141,12 +142,12 @@ class TestMNTM(test_tm.TestTM):
         self.mntm1.n_tapes = 2
         with nose.assert_raises(tm_exceptions.InconsistentTapesException):
             self.mntm1.transitions["q0"][("0", "#")] = [(
-                "q0", (("0", "R"), ("#", "N"), ("#", "R")))]
+                "q0", (("0", HeadDirection.R), ("#", HeadDirection.N), ("#", HeadDirection.R)))]
             self.mntm1.validate()
 
     def test_get_next_configuration(self) -> None:
         subtm = self.mntm1._get_next_configuration(("q0", (
-            ("0", "R"), ("#", "N"))))
+            ("0", HeadDirection.R), ("#", HeadDirection.N))))
         nose.assert_equal(str(subtm.tapes[0]), 'TMTape(\'0#\', 1)',
                           'TMTape(\'#\', 0)')
 
