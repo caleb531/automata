@@ -199,6 +199,7 @@ class DFA(fa.FA):
         new_dfa = self.copy()
         new_dfa._remove_unreachable_states()
         new_dfa._merge_states(retain_names=retain_names)
+
         return new_dfa
 
     def _remove_unreachable_states(self) -> None:
@@ -282,6 +283,7 @@ class DFA(fa.FA):
         back_map = {}
         for i, eq in enumerate(eq_classes_new):
             name = rename(eq) if retain_names else str(i)
+
             for state in eq:
                 back_map[state] = name
 
@@ -504,11 +506,6 @@ class DFA(fa.FA):
     def _to_canonical_form(states : Iterable[DFAStateT]) -> FrozenSet[DFAStateT]:
         """Return a canonical (hashable) form of the given iterable of states."""
         return frozenset(states)
-
-    @staticmethod
-    def _stringify_states(states : Iterable[DFAStateT]) -> Any:
-        """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(sorted(states))) #type: ignore
 
     @classmethod
     def _add_nfa_states_from_queue(cls,
