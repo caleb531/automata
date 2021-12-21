@@ -232,11 +232,11 @@ class DFA(fa.FA):
             eq_classes_list.append(frozenset(self.final_states))
         if len(self.final_states) != len(self.states):
             eq_classes_list.append(
-                frozenset(set(self.states).difference(self.final_states))
+                frozenset(self.states.difference(self.final_states))
             )
         eq_classes = set(eq_classes_list)
 
-        processing = set([frozenset(self.final_states)])
+        processing = {frozenset(self.final_states)}
 
         while len(processing) > 0:
             active_state = processing.pop()
@@ -247,7 +247,7 @@ class DFA(fa.FA):
                     if self.transitions[state][active_letter] in active_state
                 )
 
-                copy_eq_classes = set(eq_classes)
+                copy_eq_classes = copy.deepcopy(eq_classes)
 
                 for checking_set in copy_eq_classes:
                     XintY = checking_set.intersection(
@@ -289,9 +289,10 @@ class DFA(fa.FA):
 
         new_input_symbols = self.input_symbols
         new_states = ({rename(eq) for eq in eq_classes_new} if retain_names
-                      else set(str(i) for i in range(len(eq_classes_new))))
+                      else {str(i) for i in range(len(eq_classes_new))}
+                      )
         new_initial_state = back_map[self.initial_state]
-        new_final_states = set([back_map[acc] for acc in self.final_states])
+        new_final_states = {back_map[acc] for acc in self.final_states}
         new_transitions : DFATransitionsT = {}
         for i, eq in enumerate(eq_classes_new):
             name = rename(eq) if retain_names else str(i)
@@ -313,13 +314,7 @@ class DFA(fa.FA):
         with an empty set of final states.
         """
         assert self.input_symbols == other.input_symbols
-        states_a = list(self.states)
-        states_b = list(other.states)
-
-        new_states = {
-            (a, b)
-            for a in states_a for b in states_b
-        }
+        new_states = set(product(self.states, other.states))
 
         new_transitions : DFATransitionsT = dict()
         for state_a, transitions_a in self.transitions.items():
@@ -348,11 +343,10 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.states:
-            for state_b in other.states:
-                if (state_a in self.final_states or
-                        state_b in other.final_states):
-                    new_dfa.final_states.add((state_a, state_b))
+        for state_a, state_b in product(self.states, other.states):
+            if (state_a in self.final_states or
+                    state_b in other.final_states):
+                new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -364,9 +358,8 @@ class DFA(fa.FA):
         Returns a DFA which accepts the intersection of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.final_states:
-            for state_b in other.final_states:
-                new_dfa.final_states.add((state_a, state_b))
+        for state_a, state_b in product(self.final_states, other.final_states):
+            new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -378,10 +371,9 @@ class DFA(fa.FA):
         Returns a DFA which accepts the difference of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.final_states:
-            for state_b in other.states:
-                if state_b not in other.final_states:
-                    new_dfa.final_states.add((state_a, state_b))
+        for state_a, state_b in product(self.final_states, other.states):
+            if state_b not in other.final_states:
+                new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
