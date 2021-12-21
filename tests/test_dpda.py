@@ -9,6 +9,7 @@ import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import tests.test_pda as test_pda
 from automata.pda.configuration import PDAConfiguration
+from automata.pda.pda import AcceptanceMode
 from automata.pda.dpda import DPDA
 from automata.pda.stack import PDAStack
 
@@ -46,9 +47,9 @@ class TestDPDA(test_pda.TestPDA):
             initial_stack_symbol='#',
             final_states={'q0'}
         )
-        nose.assert_equal(new_dpda.acceptance_mode, 'both')
+        nose.assert_equal(new_dpda.acceptance_mode, AcceptanceMode.BOTH)
 
-    def test_init_dpda_invalid_acceptance_mode(self) -> None:
+    def test_init_dpda_invalid_acceptance_mode(self):
         """Should raise an error if the NPDA has an invalid acceptance mode."""
         with nose.assert_raises(pda_exceptions.InvalidAcceptanceModeError):
             self.dpda.acceptance_mode = 'foo'
@@ -111,14 +112,14 @@ class TestDPDA(test_pda.TestPDA):
 
     def test_read_input_invalid_accept_by_final_state(self) -> None:
         """Should not accept by final state if DPDA accepts by empty stack."""
-        self.dpda.acceptance_mode = 'empty_stack'
+        self.dpda.acceptance_mode = AcceptanceMode.EMPTY_STACK
         with nose.assert_raises(exceptions.RejectionException):
             self.dpda.read_input('aabb')
 
     def test_read_input_valid_accept_by_empty_stack(self) -> None:
         """Should return correct config if DPDA accepts by empty stack."""
         self.dpda.transitions['q2']['']['0'] = ('q2', '')
-        self.dpda.acceptance_mode = 'empty_stack'
+        self.dpda.acceptance_mode = AcceptanceMode.EMPTY_STACK
         nose.assert_equal(
             self.dpda.read_input('aabb'),
             PDAConfiguration('q2', '', PDAStack([]))
@@ -177,6 +178,6 @@ class TestDPDA(test_pda.TestPDA):
             initial_state='q0',
             initial_stack_symbol='0',
             final_states={'q0'},
-            acceptance_mode='both'
+            acceptance_mode=AcceptanceMode.BOTH
         )
         nose.assert_true(dpda.accepts_input(''))

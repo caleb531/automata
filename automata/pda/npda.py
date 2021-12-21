@@ -30,7 +30,7 @@ class NPDA(pda.PDA):
                  initial_state : str,
                  initial_stack_symbol : str,
                  final_states : Set[NPDAStateT],
-                 acceptance_mode : str = 'both') -> None:
+                 acceptance_mode : pda.AcceptanceMode = pda.AcceptanceMode.BOTH) -> None:
         """Initialize a complete NPDA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()

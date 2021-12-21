@@ -31,7 +31,7 @@ class DPDA(pda.PDA):
                  initial_state : DPDAStateT,
                  initial_stack_symbol : str,
                  final_states : Set[DPDAStateT],
-                 acceptance_mode : str = 'both') -> None:
+                 acceptance_mode : pda.AcceptanceMode = pda.AcceptanceMode.BOTH) -> None:
         """Initialize a complete DPDA."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()

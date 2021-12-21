@@ -9,6 +9,7 @@ import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import tests.test_pda as test_pda
 from automata.pda.configuration import PDAConfiguration
+from automata.pda.pda import AcceptanceMode
 from automata.pda.npda import NPDA
 from automata.pda.stack import PDAStack
 
@@ -46,9 +47,9 @@ class TestNPDA(test_pda.TestPDA):
             initial_stack_symbol='#',
             final_states={'q0'}
         )
-        nose.assert_equal(new_npda.acceptance_mode, 'both')
+        nose.assert_equal(new_npda.acceptance_mode, AcceptanceMode.BOTH)
 
-    def test_init_npda_invalid_acceptance_mode(self) -> None:
+    def test_init_npda_invalid_acceptance_mode(self):
         """Should raise an error if the NPDA has an invalid acceptance mode."""
         with nose.assert_raises(pda_exceptions.InvalidAcceptanceModeError):
             self.npda.acceptance_mode = 'foo'
@@ -99,7 +100,7 @@ class TestNPDA(test_pda.TestPDA):
 
     def test_read_input_invalid_accept_by_final_state(self) -> None:
         """Should not accept by final state if NPDA accepts by empty stack."""
-        self.npda.acceptance_mode = 'empty_stack'
+        self.npda.acceptance_mode = AcceptanceMode.EMPTY_STACK
         with nose.assert_raises(exceptions.RejectionException):
             self.npda.read_input('abaaba'),
 
@@ -107,7 +108,7 @@ class TestNPDA(test_pda.TestPDA):
         """Should return correct config if NPDA accepts by empty stack."""
         self.npda.transitions['q2'] = {'': {'#': {('q2', '')}}}
         self.npda.final_states = set()
-        self.npda.acceptance_mode = 'empty_stack'
+        self.npda.acceptance_mode = AcceptanceMode.EMPTY_STACK
         nose.assert_equal(
             self.npda.read_input('abaaba'),
             {PDAConfiguration('q2', '', PDAStack([]))}
@@ -115,7 +116,7 @@ class TestNPDA(test_pda.TestPDA):
 
     def test_read_input_invalid_accept_by_empty_stack(self) -> None:
         """Should not accept by empty stack if NPDA accepts by final state."""
-        self.npda.acceptance_mode = 'final_state'
+        self.npda.acceptance_mode = AcceptanceMode.FINAL_STATE
         self.npda.states.add('q3')
         self.npda.transitions['q1'][''] = {'#': {('q3', '')}}
         with nose.assert_raises(exceptions.RejectionException):

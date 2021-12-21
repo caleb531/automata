@@ -3,6 +3,7 @@
 
 import abc
 from typing import Set, Dict, Any, Tuple, Union
+from enum import Enum
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -14,13 +15,18 @@ PDAStateT = AutomatonStateT
 
 PDATransitionsT = Dict[PDAStateT, Dict[str, Any]]
 
+class AcceptanceMode(Enum):
+    FINAL_STATE = 'final_state'
+    EMPTY_STACK = 'empty_stack'
+    BOTH = 'both'
+
 class PDA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for pushdown automata."""
 
     input_symbols : Set[str]
     stack_symbols : Set[str]
     initial_stack_symbol : str
-    acceptance_mode : str #TODO change this to an enum
+    acceptance_mode : AcceptanceMode #TODO change this to an enum
     transitions : PDATransitionsT
 
     @abc.abstractmethod
@@ -57,7 +63,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
 
     def _validate_acceptance(self) -> None:
         """Raise an error if the acceptance mode is invalid."""
-        if self.acceptance_mode not in ('final_state', 'empty_stack', 'both'):
+        if not isinstance(self.acceptance_mode, AcceptanceMode):
             raise pda_exceptions.InvalidAcceptanceModeError(
                 'acceptance mode {} is invalid'.format(
                     self.acceptance_mode))
@@ -68,8 +74,8 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
             self._validate_transition_invalid_symbols(start_state, paths)
         self._validate_initial_state()
         self._validate_initial_stack_symbol()
-        self._validate_final_states()
         self._validate_acceptance()
+        self._validate_final_states()
         return True
 
     def _has_lambda_transition(self, state : 'PDAStateT', stack_symbol : str) -> bool:
@@ -91,11 +97,11 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         # If there's input left, we're not finished.
         if current_configuration.remaining_input:
             return False
-        if self.acceptance_mode in ('empty_stack', 'both'):
+        if self.acceptance_mode in (AcceptanceMode.EMPTY_STACK, AcceptanceMode.BOTH):
             # If the stack is empty, we accept.
             if not current_configuration.stack:
                 return True
-        if self.acceptance_mode in ('final_state', 'both'):
+        if self.acceptance_mode in (AcceptanceMode.FINAL_STATE, AcceptanceMode.BOTH):
             # If current state is a final state, we accept.
             if current_configuration.state in self.final_states:
                 return True

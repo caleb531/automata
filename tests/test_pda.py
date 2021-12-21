@@ -3,7 +3,7 @@
 
 import nose.tools as nose
 
-from automata.pda.pda import PDA
+from automata.pda.pda import PDA, AcceptanceMode
 from automata.pda.dpda import DPDA
 from automata.pda.npda import NPDA
 
@@ -35,7 +35,7 @@ class TestPDA(object):
             initial_state='q0',
             initial_stack_symbol='0',
             final_states={'q3'},
-            acceptance_mode='final_state'
+            acceptance_mode=AcceptanceMode.FINAL_STATE
         )
 
         # NPDA which matches palindromes consisting of 'a's and 'b's
@@ -77,7 +77,7 @@ class TestPDA(object):
             initial_state='q0',
             initial_stack_symbol='#',
             final_states={'q2'},
-            acceptance_mode='final_state'
+            acceptance_mode=AcceptanceMode.FINAL_STATE
         )
 
     def assert_is_copy(self, first : 'PDA', second : 'PDA') -> None:
