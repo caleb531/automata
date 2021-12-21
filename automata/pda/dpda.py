@@ -12,7 +12,7 @@ from automata.pda.stack import PDAStack
 
 DPDAStateT = pda.PDAStateT
 
-DPDASibblingPathT = Dict[str, Tuple[DPDAStateT, Tuple[str]]]
+DPDASibblingPathT = Dict[str, Tuple[DPDAStateT, str]]
 DPDAPathT = Dict[str, DPDASibblingPathT]
 DPDATransitionsT = Dict[DPDAStateT, DPDAPathT]
 
@@ -81,7 +81,7 @@ class DPDA(pda.PDA):
     def _get_transition(self,
                         state : DPDAStateT,
                         input_symbol : str,
-                        stack_symbol : str) -> Optional[Tuple[str, DPDAStateT, Tuple[str]]]:
+                        stack_symbol : str) -> Optional[Tuple[str, DPDAStateT, str]]:
         """
         Get the transiton tuple for the given state and symbols. Returns None if
         transition lookup fails.

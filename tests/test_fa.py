@@ -10,7 +10,7 @@ from automata.fa.nfa import NFA
 class TestFA(object):
     """A test class for testing all finite automata."""
 
-    def setup(self):
+    def setup(self) -> None:
         """Reset test automata before every test function."""
         # DFA which matches all binary strings ending in an odd number of '1's
         self.dfa = DFA(
@@ -38,7 +38,7 @@ class TestFA(object):
             final_states={'q1'}
         )
 
-    def assert_is_copy(self, first, second):
+    def assert_is_copy(self, first, second) -> None:
         """Assert that the first FA is a deep copy of the second."""
         nose.assert_is_not(first.states, second.states)
         nose.assert_equal(first.states, second.states)

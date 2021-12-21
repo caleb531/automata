@@ -78,7 +78,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 '' in self.transitions[state] and
                 stack_symbol in self.transitions[state][''])
 
-    def _replace_stack_top(self, stack : 'PDAStack', new_stack_top : Tuple[str]) -> 'PDAStack':
+    def _replace_stack_top(self, stack : 'PDAStack', new_stack_top : str) -> 'PDAStack':
         """Replace the top of the PDA stack with another symbol"""
         if new_stack_top == '':
             new_stack = stack.pop()

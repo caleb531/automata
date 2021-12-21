@@ -17,7 +17,7 @@ from automata.tm.mntm import MNTM
 class TestMNTM(test_tm.TestTM):
     """A test class for testing multitape nondeterministic Turing machines."""
 
-    def test_init_mntm(self):
+    def test_init_mntm(self) -> None:
         """Should copy MNTM if passed into MNTM constructor."""
         new_mntm = MNTM.copy(self.mntm1)
         self.assert_is_copy(new_mntm, self.mntm1)
@@ -35,98 +35,98 @@ class TestMNTM(test_tm.TestTM):
             )
 
     @patch('automata.tm.mntm.MNTM.validate')
-    def test_init_validation(self, validate):
+    def test_init_validation(self, validate) -> None:
         """Should validate MNTM when initialized."""
         MNTM.copy(self.mntm1)
         validate.assert_called_once_with()
 
-    def test_copy_ntm(self):
+    def test_copy_ntm(self) -> None:
         """Should create exact copy of MNTM if copy() method is called."""
         new_mntm = self.mntm1.copy()
         self.assert_is_copy(new_mntm, self.mntm1)
 
-    def test_ntm_equal(self):
+    def test_ntm_equal(self) -> None:
         """Should correctly determine if two MNTMs are equal."""
         new_mntm = self.mntm1.copy()
         nose.assert_true(self.mntm1 == new_mntm, 'MNTMs are not equal')
 
-    def test_ntm_not_equal(self):
+    def test_ntm_not_equal(self) -> None:
         """Should correctly determine if two MNTMs are not equal."""
         new_mntm = self.mntm1.copy()
         new_mntm.final_states.add('q2')
         nose.assert_true(self.mntm1 != new_mntm, 'MNTMs are equal')
 
-    def test_validate_input_symbol_subset(self):
+    def test_validate_input_symbol_subset(self) -> None:
         """Should raise error if any input symbols are not tape symbols."""
         with nose.assert_raises(exceptions.MissingSymbolError):
             self.mntm1.input_symbols.add('3')
             self.mntm1.validate()
 
-    def test_validate_invalid_transition_state(self):
+    def test_validate_invalid_transition_state(self) -> None:
         """Should raise error if a transition state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.mntm1.transitions['q4'] = self.mntm1.transitions['q0']
             self.mntm1.validate()
 
-    def test_validate_invalid_transition_symbol(self):
+    def test_validate_invalid_transition_symbol(self) -> None:
         """Should raise error if a transition symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.mntm1.transitions['q0'][("2", "#")] = [
                 ('q1', (('#', 'R'), ('#', 'R')))]
             self.mntm1.validate()
 
-    def test_validate_invalid_transition_result_state(self):
+    def test_validate_invalid_transition_result_state(self) -> None:
         """Should raise error if a transition result state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.mntm1.transitions['q0'][("1", "#")] = [
                 ('q3', (('#', 'L'), ('#', 'R')))]
             self.mntm1.validate()
 
-    def test_validate_invalid_transition_result_symbol(self):
+    def test_validate_invalid_transition_result_symbol(self) -> None:
         """Should raise error if a transition result symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.mntm1.transitions['q0'][("1", "#")] = [
                 ('q1', (('.', 'U'), ('#', 'R')))]
             self.mntm1.validate()
 
-    def test_validate_invalid_transition_result_direction(self):
+    def test_validate_invalid_transition_result_direction(self) -> None:
         """Should raise error if a transition result direction is invalid."""
         with nose.assert_raises(tm_exceptions.InvalidDirectionError):
             self.mntm1.transitions['q0'][("1", "#")] = [
                 ('q1', (('#', 'U'), ('#', 'R')))]
             self.mntm1.validate()
 
-    def test_validate_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self) -> None:
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.mntm1.initial_state = 'q4'
             self.mntm1.validate()
 
-    def test_validate_initial_state_transitions(self):
+    def test_validate_initial_state_transitions(self) -> None:
         """Should raise error if the initial state has no transitions."""
         with nose.assert_raises(exceptions.MissingStateError):
             del self.mntm1.transitions[self.mntm1.initial_state]
             self.mntm1.validate()
 
-    def test_validate_nonfinal_initial_state(self):
+    def test_validate_nonfinal_initial_state(self) -> None:
         """Should raise error if the initial state is a final state."""
         with nose.assert_raises(exceptions.InitialStateError):
             self.mntm1.final_states.add('q0')
             self.mntm1.validate()
 
-    def test_validate_invalid_final_state(self):
+    def test_validate_invalid_final_state(self) -> None:
         """Should raise error if the final state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.mntm1.final_states = {'q4'}
             self.mntm1.validate()
 
-    def test_validate_invalid_final_state_non_str(self):
+    def test_validate_invalid_final_state_non_str(self) -> None:
         """Should raise InvalidStateError even for non-string final states."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.mntm1.final_states = {4}
             self.mntm1.validate()
 
-    def test_validate_final_state_transitions(self):
+    def test_validate_final_state_transitions(self) -> None:
         """Should raise error if a final state has any transitions."""
         with nose.assert_raises(exceptions.FinalStateError):
             self.mntm1.transitions['q1'] = {('0', '#'): [
@@ -134,7 +134,7 @@ class TestMNTM(test_tm.TestTM):
             }
             self.mntm1.validate()
 
-    def test_validate_tapes_consistency(self):
+    def test_validate_tapes_consistency(self) -> None:
         with nose.assert_raises(tm_exceptions.InconsistentTapesException):
             self.mntm1.n_tapes = 3
             self.mntm1.validate()
@@ -144,13 +144,13 @@ class TestMNTM(test_tm.TestTM):
                 "q0", (("0", "R"), ("#", "N"), ("#", "R")))]
             self.mntm1.validate()
 
-    def test_get_next_configuration(self):
+    def test_get_next_configuration(self) -> None:
         subtm = self.mntm1._get_next_configuration(("q0", (
             ("0", "R"), ("#", "N"))))
         nose.assert_equal(str(subtm.tapes[0]), 'TMTape(\'0#\', 1)',
                           'TMTape(\'#\', 0)')
 
-    def test_read_extended_tape(self):
+    def test_read_extended_tape(self) -> None:
         nose.assert_equal(self.mntm1._read_extended_tape(
             '10^10_1^00_00#^_', '^'), ('0', '1', '#'))
         nose.assert_equal(self.mntm1._read_extended_tape(
@@ -182,7 +182,7 @@ class TestMNTM(test_tm.TestTM):
             nose.assert_equal(self.mntm1._read_extended_tape(
                 '0^101010^_#^_', '^'), ('0', '0', '#'))
 
-    def test_read_input_as_ntm(self):
+    def test_read_input_as_ntm(self) -> None:
         validation_generator = self.mntm2.read_input_as_ntm('#0000')
         configs = list(validation_generator)
         first_config = configs[0].pop()
@@ -197,7 +197,7 @@ class TestMNTM(test_tm.TestTM):
             for _ in self.mntm2.read_input_as_ntm('#00'):
                 pass
 
-    def test_read_input_accepted(self):
+    def test_read_input_accepted(self) -> None:
         """Should return correct state if acceptable TM input is given."""
         final_config = self.mntm1.read_input('0101101011').pop()
         nose.assert_equal(final_config[0], 'q1')
@@ -206,7 +206,7 @@ class TestMNTM(test_tm.TestTM):
             'TMTape(\'0101101011#\', 10)')
         nose.assert_equal(str(final_config[1][1]), 'TMTape(\'111111#\', 6)')
 
-    def test_read_input_step(self):
+    def test_read_input_step(self) -> None:
         """Should return validation generator if step flag is supplied."""
         validation_generator = self.mntm1.read_input_stepwise('0010101111')
         nose.assert_is_instance(validation_generator, types.GeneratorType)
@@ -222,17 +222,17 @@ class TestMNTM(test_tm.TestTM):
             'TMTape(\'0010101111#\', 10)')
         nose.assert_equal(str(last_config[1][1]), 'TMTape(\'111111#\', 6)')
 
-    def test_read_input_rejection(self):
+    def test_read_input_rejection(self) -> None:
         """Should raise error if the machine halts."""
         with nose.assert_raises(exceptions.RejectionException):
             self.mntm1.read_input('2')
 
-    def test_read_input_rejection_invalid_symbol(self):
+    def test_read_input_rejection_invalid_symbol(self) -> None:
         """Should raise error if an invalid symbol is read."""
         with nose.assert_raises(exceptions.RejectionException):
             self.mntm2.read_input('1')
 
-    def test_accepts_input_true(self):
+    def test_accepts_input_true(self) -> None:
         """Should return False if MNTM input is not accepted."""
         test_limit = 20
         for i in range(test_limit):
@@ -260,11 +260,11 @@ class TestMNTM(test_tm.TestTM):
             else:
                 nose.assert_equal(self.mntm2.accepts_input(input_str_2), False)
 
-    def test_accepts_input_false(self):
+    def test_accepts_input_false(self) -> None:
         """Should return False if MNTM input is rejected."""
         nose.assert_equal(self.mntm1.accepts_input('000012'), False)
         nose.assert_equal(self.mntm2.accepts_input('#00000'), False)
 
     @staticmethod
-    def is_perfect_square(number: int):
+    def is_perfect_square(number : int) -> bool:
         return number == int(math.sqrt(number)) ** 2
