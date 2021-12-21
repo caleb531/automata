@@ -276,7 +276,7 @@ class DFA(fa.FA):
         eq_classes_new = list(eq_classes)
 
         def rename(eq):
-            return list(eq)[0] if len(eq) == 1 else DFA._stringify_states(eq)
+            return list(eq)[0] if len(eq) == 1 else DFA._to_canonical_form(eq)
 
         # need a backmap to prevent constant calls to index
         back_map = {}

@@ -846,16 +846,16 @@ class TestDFA(test_fa.TestFA):
         )
         minimal_dfa = dfa.minify(retain_names=True)
         nose.assert_equal(minimal_dfa.states, {
-            'q0', '{q1,q2}', '{q3,q4,q5,q6}'
+            'q0', freeze('q1','q2'), freeze('q3','q4','q5','q6')
         })
         nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(minimal_dfa.transitions, {
-            'q0': {'0': '{q1,q2}', '1': '{q1,q2}'},
-            '{q1,q2}': {'0': '{q3,q4,q5,q6}', '1': '{q3,q4,q5,q6}'},
-            '{q3,q4,q5,q6}': {'0': '{q3,q4,q5,q6}', '1': '{q3,q4,q5,q6}'}
+            'q0': {'0': freeze('q1','q2'), '1': freeze('q1','q2')},
+            freeze('q1','q2'): {'0': freeze('q3','q4','q5','q6'), '1': freeze('q3','q4','q5','q6')},
+            freeze('q3','q4','q5','q6'): {'0': freeze('q3','q4','q5','q6'), '1': freeze('q3','q4','q5','q6')}
         })
         nose.assert_equal(minimal_dfa.initial_state, 'q0')
-        nose.assert_equal(minimal_dfa.final_states, {'{q3,q4,q5,q6}'})
+        nose.assert_equal(minimal_dfa.final_states, {freeze('q3','q4','q5','q6')})
 
     def test_minify_dfa_complex(self) -> None:
         """Should minify a given large DFA."""
