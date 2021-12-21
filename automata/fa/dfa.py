@@ -316,13 +316,14 @@ class DFA(fa.FA):
         new_transitions : DFATransitionsT = dict()
         for state_a, transitions_a in self.transitions.items():
             for state_b, transitions_b in other.transitions.items():
-                new_state = (state_a, state_b)
+                new_state = frozenset((state_a, state_b))
                 new_transitions[new_state] = dict()
                 for symbol in self.input_symbols:
-                    new_transitions[new_state][symbol] = (
+                    new_transitions[new_state][symbol] = frozenset((
                         transitions_a[symbol], transitions_b[symbol]
-                    )
-        new_initial_state = (self.initial_state, other.initial_state)
+                    ))
+
+        new_initial_state = frozenset((self.initial_state, other.initial_state))
 
         return DFA(
             states=new_states,
@@ -343,7 +344,7 @@ class DFA(fa.FA):
             for state_b in other.states:
                 if (state_a in self.final_states or
                         state_b in other.final_states):
-                    new_dfa.final_states.add((state_a, state_b))
+                    new_dfa.final_states.add(frozenset((state_a, state_b)))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -357,7 +358,7 @@ class DFA(fa.FA):
         new_dfa = self._cross_product(other)
         for state_a in self.final_states:
             for state_b in other.final_states:
-                new_dfa.final_states.add((state_a, state_b))
+                new_dfa.final_states.add(frozenset((state_a, state_b)))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -372,7 +373,7 @@ class DFA(fa.FA):
         for state_a in self.final_states:
             for state_b in other.states:
                 if state_b not in other.final_states:
-                    new_dfa.final_states.add((state_a, state_b))
+                    new_dfa.final_states.add(frozenset((state_a, state_b)))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -390,7 +391,7 @@ class DFA(fa.FA):
                         state_b not in other.final_states) or
                     (state_a not in self.final_states and
                         state_b in other.final_states)):
-                    new_dfa.final_states.add((state_a, state_b))
+                    new_dfa.final_states.add(frozenset((state_a, state_b)))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -398,7 +399,7 @@ class DFA(fa.FA):
     def complement(self) -> 'DFA':
         """Return the complement of this DFA."""
         new_dfa = self.copy()
-        new_dfa.final_states = self.states - self.final_states
+        new_dfa.final_states = frozenset(self.states - self.final_states)
         return new_dfa
 
     def issubset(self, other : 'DFA') -> bool:
