@@ -16,7 +16,7 @@ from automata.tm.tape import TMTape
 class TestTMTools(object):
     """A test class for testing Turing machine utility functions."""
 
-    def setup(self):
+    def setup(self) -> None:
         """Provide a configuration for testing."""
         self.config = TMConfiguration(
             'q2',
@@ -39,7 +39,7 @@ class TestTMTools(object):
             ))
         )
 
-    def test_repr_config(self):
+    def test_repr_config(self) -> None:
         """Should return a string representation ot the given configuration."""
         nose.assert_equal(
             repr(self.config),
@@ -51,7 +51,7 @@ class TestTMTools(object):
             'TMTape(\'klmnopq\', 5)))'
         )
 
-    def test_print_config(self):
+    def test_print_config(self) -> None:
         """Should print the given configuration to stdout."""
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
@@ -60,7 +60,7 @@ class TestTMTools(object):
             'q2', 'abcdefghij', '^'.rjust(7)))
 
     @patch('automata.tm.configuration.TMConfiguration.print')
-    def test_print_configs(self, print_config):
+    def test_print_configs(self, print_config) -> None:
         """Should print each machine configuration to stdout."""
         tape1 = TMTape(
             tape='01010101',
@@ -90,7 +90,7 @@ class TestTMTools(object):
             call()
         ])
 
-    def test_tape_iteration(self):
+    def test_tape_iteration(self) -> None:
         """Should be able to iterate over a Turing machine tape."""
         tape = TMTape(
             tape='abcdef',
@@ -99,7 +99,7 @@ class TestTMTools(object):
         )
         nose.assert_equal(tuple(tape), ('a', 'b', 'c', 'd', 'e', 'f'))
 
-    def test_get_symbols_as_str(self):
+    def test_get_symbols_as_str(self) -> None:
         """Should print tape contents as a string without spaces."""
         tape = TMTape(
             tape='abcdef',

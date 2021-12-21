@@ -3,6 +3,7 @@
 
 import nose.tools as nose
 
+from automata.pda.pda import PDA
 from automata.pda.dpda import DPDA
 from automata.pda.npda import NPDA
 
@@ -79,7 +80,7 @@ class TestPDA(object):
             acceptance_mode='final_state'
         )
 
-    def assert_is_copy(self, first, second) -> None:
+    def assert_is_copy(self, first : 'PDA', second : 'PDA') -> None:
         """Assert that the first PDA is a deep copy of the second."""
         nose.assert_is_not(first.states, second.states)
         nose.assert_equal(first.states, second.states)

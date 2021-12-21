@@ -33,7 +33,7 @@ class Automaton(metaclass=abc.ABCMeta):
         """Return a generator that yields each step while reading input."""
         raise NotImplementedError
 
-    def read_input(self, input_str : str) -> AutomatonStateT:
+    def read_input(self, input_str : str) -> Any:
         """
         Check if the given string is accepted by this automaton.
 

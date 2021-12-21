@@ -4,6 +4,7 @@
 import nose.tools as nose
 
 import automata.base.exceptions as exceptions
+from automata.tm.tm import TM
 from automata.tm.dtm import DTM
 from automata.tm.ntm import NTM
 from automata.tm.mntm import MNTM
@@ -353,8 +354,8 @@ class TestTM(object):
             final_states={'q4'},
         )
 
-    def assert_is_copy(self, first, second):
-        """Assert that the first FA is a deep copy of the second."""
+    def assert_is_copy(self, first : 'TM', second : 'TM') -> None:
+        """Assert that the first TM is a deep copy of the second."""
         nose.assert_is_not(first.states, second.states)
         nose.assert_equal(first.states, second.states)
         nose.assert_is_not(first.input_symbols, second.input_symbols)
@@ -368,7 +369,7 @@ class TestTM(object):
         nose.assert_is_not(first.final_states, second.final_states)
         nose.assert_equal(first.final_states, second.final_states)
 
-    def test_validate_blank_symbol(self):
+    def test_validate_blank_symbol(self) -> None:
         self.dtm1.blank_symbol = '-'
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dtm1.validate()
