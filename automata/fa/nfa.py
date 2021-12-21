@@ -18,6 +18,8 @@ NFATransitionsT = Dict[NFAStateT, NFAPathT]
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
 
+    transitions : NFATransitionsT
+
     def __init__(self,
                  *,
                  states : Set[NFAStateT],
@@ -39,10 +41,6 @@ class NFA(fa.FA):
             return self.concatenate(other)
         else:
             raise NotImplementedError
-
-    def __reversed__(self) -> 'NFA':
-        """Return the reversal of this NFA."""
-        return self.reverse()
 
     @classmethod
     def from_dfa(cls, dfa : 'dfa.DFA') -> 'NFA':

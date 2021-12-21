@@ -2,7 +2,7 @@
 """Classes and methods for working with nondeterministic pushdown automata."""
 
 import copy
-from typing import Set, Dict, Tuple, Optional, Generator, List
+from typing import Set, Dict, Tuple, Optional, Generator, Iterable
 
 import automata.base.exceptions as exceptions
 import automata.pda.pda as pda
@@ -11,7 +11,7 @@ from automata.pda.stack import PDAStack
 
 NPDAStateT = pda.PDAStateT
 
-NPDASibblingPathT = Dict[str, List[Tuple[NPDAStateT, str]]]
+NPDASibblingPathT = Dict[str, Iterable[Tuple[NPDAStateT, str]]]
 NPDAPathT = Dict[str, NPDASibblingPathT]
 NPDATransitionsT = Dict[NPDAStateT, NPDAPathT]
 

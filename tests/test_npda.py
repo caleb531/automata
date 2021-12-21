@@ -16,7 +16,7 @@ from automata.pda.stack import PDAStack
 class TestNPDA(test_pda.TestPDA):
     """A test class for testing nondeterministic finite automata."""
 
-    def test_init_npda(self):
+    def test_init_npda(self) -> None:
         """Should copy NPDA if passed into NPDA constructor."""
         new_npda = NPDA.copy(self.npda)
         self.assert_is_copy(new_npda, self.npda)
@@ -31,7 +31,7 @@ class TestNPDA(test_pda.TestPDA):
                 final_states={'q0'}
             )
 
-    def test_init_npda_no_acceptance_mode(self):
+    def test_init_npda_no_acceptance_mode(self) -> None:
         """Should create a new NPDA."""
         new_npda = NPDA(
             states={'q0'},
@@ -48,62 +48,62 @@ class TestNPDA(test_pda.TestPDA):
         )
         nose.assert_equal(new_npda.acceptance_mode, 'both')
 
-    def test_init_npda_invalid_acceptance_mode(self):
+    def test_init_npda_invalid_acceptance_mode(self) -> None:
         """Should raise an error if the NPDA has an invalid acceptance mode."""
         with nose.assert_raises(pda_exceptions.InvalidAcceptanceModeError):
             self.npda.acceptance_mode = 'foo'
             self.npda.validate()
 
-    def test_validate_invalid_input_symbol(self):
+    def test_validate_invalid_input_symbol(self) -> None:
         """Should raise error if a transition has an invalid input symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.npda.transitions['q1']['c'] = 'q2'
             self.npda.validate()
 
-    def test_validate_invalid_stack_symbol(self):
+    def test_validate_invalid_stack_symbol(self) -> None:
         """Should raise error if a transition has an invalid stack symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.npda.transitions['q1']['a']['2'] = {('q1', ('1', '1'))}
             self.npda.validate()
 
-    def test_validate_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self) -> None:
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.npda.initial_state = 'q4'
             self.npda.validate()
 
-    def test_validate_invalid_initial_stack_symbol(self):
+    def test_validate_invalid_initial_stack_symbol(self) -> None:
         """Should raise error if the initial stack symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.npda.initial_stack_symbol = '2'
             self.npda.validate()
 
-    def test_validate_invalid_final_state(self):
+    def test_validate_invalid_final_state(self) -> None:
         """Should raise error if the final state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.npda.final_states = {'q4'}
             self.npda.validate()
 
-    def test_validate_invalid_final_state_non_str(self):
+    def test_validate_invalid_final_state_non_str(self) -> None:
         """Should raise InvalidStateError even for non-string final states."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.npda.final_states = {4}
             self.npda.validate()
 
-    def test_read_input_valid_accept_by_final_state(self):
+    def test_read_input_valid_accept_by_final_state(self) -> None:
         """Should return correct config if NPDA accepts by final state."""
         nose.assert_equal(
             self.npda.read_input('abaaba'),
             {PDAConfiguration('q2', '', PDAStack(['#']))}
         )
 
-    def test_read_input_invalid_accept_by_final_state(self):
+    def test_read_input_invalid_accept_by_final_state(self) -> None:
         """Should not accept by final state if NPDA accepts by empty stack."""
         self.npda.acceptance_mode = 'empty_stack'
         with nose.assert_raises(exceptions.RejectionException):
             self.npda.read_input('abaaba'),
 
-    def test_read_input_valid_accept_by_empty_stack(self):
+    def test_read_input_valid_accept_by_empty_stack(self) -> None:
         """Should return correct config if NPDA accepts by empty stack."""
         self.npda.transitions['q2'] = {'': {'#': {('q2', '')}}}
         self.npda.final_states = set()
@@ -113,7 +113,7 @@ class TestNPDA(test_pda.TestPDA):
             {PDAConfiguration('q2', '', PDAStack([]))}
         )
 
-    def test_read_input_invalid_accept_by_empty_stack(self):
+    def test_read_input_invalid_accept_by_empty_stack(self) -> None:
         """Should not accept by empty stack if NPDA accepts by final state."""
         self.npda.acceptance_mode = 'final_state'
         self.npda.states.add('q3')
@@ -121,7 +121,7 @@ class TestNPDA(test_pda.TestPDA):
         with nose.assert_raises(exceptions.RejectionException):
             self.npda.read_input('abaaba')
 
-    def test_read_input_valid_consecutive_lambda_transitions(self):
+    def test_read_input_valid_consecutive_lambda_transitions(self) -> None:
         """Should follow consecutive lambda transitions when validating."""
         self.npda.states.update({'q3', 'q4'})
         self.npda.final_states = {'q4'}
@@ -132,27 +132,27 @@ class TestNPDA(test_pda.TestPDA):
             {PDAConfiguration('q4', '', PDAStack(['#']))}
         )
 
-    def test_read_input_rejected_accept_by_final_state(self):
+    def test_read_input_rejected_accept_by_final_state(self) -> None:
         """Should reject strings if NPDA accepts by final state."""
         with nose.assert_raises(exceptions.RejectionException):
             self.npda.read_input('aaba')
 
-    def test_read_input_rejected_accept_by_empty_stack(self):
+    def test_read_input_rejected_accept_by_empty_stack(self) -> None:
         """Should reject strings if NPDA accepts by empty stack."""
         self.npda.transitions['q2'] = {'': {'#': {('q2', '')}}}
         self.npda.final_states = set()
         with nose.assert_raises(exceptions.RejectionException):
             self.npda.read_input('aaba')
 
-    def test_read_input_rejected_undefined_transition(self):
+    def test_read_input_rejected_undefined_transition(self) -> None:
         """Should reject strings which lead to an undefined transition."""
         with nose.assert_raises(exceptions.RejectionException):
             self.npda.read_input('01')
 
-    def test_accepts_input_true(self):
+    def test_accepts_input_true(self) -> None:
         """Should return True if NPDA input is accepted."""
         nose.assert_equal(self.npda.accepts_input('abaaba'), True)
 
-    def test_accepts_input_false(self):
+    def test_accepts_input_false(self) -> None:
         """Should return False if NPDA input is rejected."""
         nose.assert_equal(self.npda.accepts_input('aaba'), False)
