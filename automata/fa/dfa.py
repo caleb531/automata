@@ -386,10 +386,8 @@ class DFA(fa.FA):
         """
         new_dfa = self._cross_product(other)
         for state_a, state_b in product(self.states, other.states):
+            #Using an xor here
             if (state_a in self.final_states) != (state_b in other.final_states):
-                #    state_b not in other.final_states) or
-                #(state_a not in self.final_states and
-                #    )):
                 new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -506,7 +504,7 @@ class DFA(fa.FA):
 
     @classmethod
     def _add_nfa_states_from_queue(cls,
-                                   nfa : 'nfa.NFA',
+                                   nfa : nfa.NFA,
                                    current_states : Set[DFAStateT],
                                    current_state_name : DFAStateT,
                                    dfa_states : Set[DFAStateT],
@@ -521,7 +519,7 @@ class DFA(fa.FA):
 
     @classmethod
     def _enqueue_next_nfa_current_states(cls,
-                                         nfa : 'nfa.NFA',
+                                         nfa : nfa.NFA,
                                          current_states : Set[DFAStateT],
                                          current_state_name : DFAStateT,
                                          state_queue : Deque[Set[DFAStateT]],
@@ -537,7 +535,7 @@ class DFA(fa.FA):
             state_queue.append(next_current_states)
 
     @classmethod
-    def from_nfa(cls, nfa : 'nfa.NFA') -> 'DFA':
+    def from_nfa(cls, nfa : nfa.NFA) -> 'DFA':
         """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states : Set[DFAStateT] = set()
         dfa_symbols = nfa.input_symbols
