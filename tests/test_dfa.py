@@ -6,7 +6,7 @@ import os.path
 import tempfile
 import types
 from unittest.mock import patch
-from typing import Hashable, FrozenSet
+from typing import Hashable, Tuple
 
 import nose.tools as nose
 
@@ -16,8 +16,8 @@ from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 
 
-def freeze(*items : Hashable) -> FrozenSet:
-    return frozenset(items)
+def freeze(*items : Hashable) -> Tuple:
+    return tuple(sorted(items))
 
 class TestDFA(test_fa.TestFA):
     """A test class for testing deterministic finite automata."""

@@ -313,19 +313,24 @@ class DFA(fa.FA):
         with an empty set of final states.
         """
         assert self.input_symbols == other.input_symbols
-        new_states = set(map(frozenset, product(self.states, other.states)))
+        states_a = list(self.states)
+        states_b = list(other.states)
+        new_states = {
+            (a, b)
+            for a in states_a for b in states_b
+        }
 
         new_transitions : DFATransitionsT = dict()
         for state_a, transitions_a in self.transitions.items():
             for state_b, transitions_b in other.transitions.items():
-                new_state = frozenset((state_a, state_b))
+                new_state = (state_a, state_b)
                 new_transitions[new_state] = dict()
                 for symbol in self.input_symbols:
-                    new_transitions[new_state][symbol] = frozenset((
+                    new_transitions[new_state][symbol] = (
                         transitions_a[symbol], transitions_b[symbol]
-                    ))
+                    )
 
-        new_initial_state = frozenset((self.initial_state, other.initial_state))
+        new_initial_state = (self.initial_state, other.initial_state)
 
         return DFA(
             states=new_states,
@@ -346,7 +351,7 @@ class DFA(fa.FA):
             for state_b in other.states:
                 if (state_a in self.final_states or
                         state_b in other.final_states):
-                    new_dfa.final_states.add(frozenset((state_a, state_b)))
+                    new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -360,7 +365,7 @@ class DFA(fa.FA):
         new_dfa = self._cross_product(other)
         for state_a in self.final_states:
             for state_b in other.final_states:
-                new_dfa.final_states.add(frozenset((state_a, state_b)))
+                new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -375,7 +380,7 @@ class DFA(fa.FA):
         for state_a in self.final_states:
             for state_b in other.states:
                 if state_b not in other.final_states:
-                    new_dfa.final_states.add(frozenset((state_a, state_b)))
+                    new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -393,7 +398,7 @@ class DFA(fa.FA):
                         state_b not in other.final_states) or
                     (state_a not in self.final_states and
                         state_b in other.final_states)):
-                    new_dfa.final_states.add(frozenset((state_a, state_b)))
+                    new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -401,7 +406,7 @@ class DFA(fa.FA):
     def complement(self) -> 'DFA':
         """Return the complement of this DFA."""
         new_dfa = self.copy()
-        new_dfa.final_states = frozenset(self.states - self.final_states)
+        new_dfa.final_states = self.states - self.final_states
         return new_dfa
 
     def issubset(self, other : 'DFA') -> bool:
@@ -505,7 +510,7 @@ class DFA(fa.FA):
     @staticmethod
     def _to_canonical_form(states : Iterable[DFAStateT]) -> FrozenSet[DFAStateT]:
         """Return a canonical (hashable) form of the given iterable of states."""
-        return frozenset(states)
+        return tuple(sorted(states))
 
     @classmethod
     def _add_nfa_states_from_queue(cls,
@@ -518,6 +523,7 @@ class DFA(fa.FA):
         """Add NFA states to DFA as it is constructed from NFA."""
         dfa_states.add(current_state_name)
         dfa_transitions[current_state_name] = {}
+
         if (current_states & nfa.final_states):
             dfa_final_states.add(current_state_name)
 
@@ -530,9 +536,10 @@ class DFA(fa.FA):
                                          dfa_transitions : DFATransitionsT):
         """Enqueue the next set of current states for the generated DFA."""
         for input_symbol in nfa.input_symbols:
-            next_current_states = cls._to_canonical_form(
-                nfa._get_next_current_states(current_states, input_symbol)
+            next_current_states = nfa._get_next_current_states(
+                current_states, input_symbol
             )
+
             dfa_transitions[current_state_name][input_symbol] = \
                 cls._to_canonical_form(next_current_states)
             state_queue.append(next_current_states)
@@ -544,8 +551,8 @@ class DFA(fa.FA):
         dfa_symbols = nfa.input_symbols
         dfa_transitions : DFATransitionsT = {}
         # equivalent DFA states states
-        nfa_initial_states = cls._to_canonical_form(nfa._get_lambda_closure(nfa.initial_state))
-        dfa_initial_state = nfa_initial_states
+        nfa_initial_states = nfa._get_lambda_closure(nfa.initial_state)
+        dfa_initial_state = cls._to_canonical_form(nfa_initial_states)
         dfa_final_states : Set[DFAStateT] = set()
 
         state_queue : Deque[FrozenSet[DFAStateT]] = deque()
@@ -553,7 +560,8 @@ class DFA(fa.FA):
         while state_queue:
 
             current_states = state_queue.popleft()
-            current_state_name : DFAStateT = current_states
+            current_state_name : DFAStateT = cls._to_canonical_form(current_states)
+
             if current_state_name in dfa_states:
                 # We've been here before and nothing should have changed.
                 continue
