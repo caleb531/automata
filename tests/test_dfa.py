@@ -300,37 +300,37 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.union(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
-            freeze('q0','p0'), '{q0,p1}', '{q0,p2}',
-            '{q1,p0}', '{q1,p1}', '{q1,p2}',
-            '{q2,p0}', '{q2,p1}', '{q2,p2}',
-            '{q3,p0}', '{q3,p1}', '{q3,p2}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            freeze('q0','p0'), freeze('q0','p1'), freeze('q0','p2'),
+            freeze('q1','p0'), freeze('q1','p1'), freeze('q1','p2'),
+            freeze('q2','p0'), freeze('q2','p1'), freeze('q2','p2'),
+            freeze('q3','p0'), freeze('q3','p1'), freeze('q3','p2'),
+            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
         })
         nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(new_dfa.transitions, {
-            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': '{q1,p1}'},
-            '{q0,p1}': {'0': freeze('q0','p0'), '1': '{q1,p2}'},
-            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
-            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
-            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
-            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
-            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
-            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
-            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
-            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
-            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
-            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
-            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
-            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
-            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': freeze('q1','p1')},
+            freeze('q0','p1'): {'0': freeze('q0','p0'), '1': freeze('q1','p2')},
+            freeze('q0','p2'): {'0': freeze('q0','p2'), '1': freeze('q1','p2')},
+            freeze('q1','p0'): {'0': freeze('q1','p0'), '1': freeze('q2','p1')},
+            freeze('q1','p1'): {'0': freeze('q1','p0'), '1': freeze('q2','p2')},
+            freeze('q1','p2'): {'0': freeze('q1','p2'), '1': freeze('q2','p2')},
+            freeze('q2','p0'): {'0': freeze('q2','p0'), '1': freeze('q3','p1')},
+            freeze('q2','p1'): {'0': freeze('q2','p0'), '1': freeze('q3','p2')},
+            freeze('q2','p2'): {'0': freeze('q2','p2'), '1': freeze('q3','p2')},
+            freeze('q3','p0'): {'0': freeze('q3','p0'), '1': freeze('q4','p1')},
+            freeze('q3','p1'): {'0': freeze('q3','p0'), '1': freeze('q4','p2')},
+            freeze('q3','p2'): {'0': freeze('q3','p2'), '1': freeze('q4','p2')},
+            freeze('q4','p0'): {'0': freeze('q4','p0'), '1': freeze('q4','p1')},
+            freeze('q4','p1'): {'0': freeze('q4','p0'), '1': freeze('q4','p2')},
+            freeze('q4','p2'): {'0': freeze('q4','p2'), '1': freeze('q4','p2')}
         })
         nose.assert_equal(new_dfa.initial_state, freeze('q0','p0'))
         nose.assert_equal(new_dfa.final_states, {
-            freeze('q0','p0'), '{q0,p1}',
-            '{q1,p0}', '{q1,p1}',
-            '{q2,p0}', '{q2,p1}',
-            '{q3,p0}', '{q3,p1}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            freeze('q0','p0'), freeze('q0','p1'),
+            freeze('q1','p0'), freeze('q1','p1'),
+            freeze('q2','p0'), freeze('q2','p1'),
+            freeze('q3','p0'), freeze('q3','p1'),
+            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
         })
 
     def test_intersection(self) -> None:
@@ -364,33 +364,33 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.intersection(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
-            freeze('q0','p0'), '{q0,p1}', '{q0,p2}',
-            '{q1,p0}', '{q1,p1}', '{q1,p2}',
-            '{q2,p0}', '{q2,p1}', '{q2,p2}',
-            '{q3,p0}', '{q3,p1}', '{q3,p2}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            freeze('q0','p0'), freeze('q0','p1'), freeze('q0','p2'),
+            freeze('q1','p0'), freeze('q1','p1'), freeze('q1','p2'),
+            freeze('q2','p0'), freeze('q2','p1'), freeze('q2','p2'),
+            freeze('q3','p0'), freeze('q3','p1'), freeze('q3','p2'),
+            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
         })
         nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(new_dfa.transitions, {
-            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': '{q1,p1}'},
-            '{q0,p1}': {'0': freeze('q0','p0'), '1': '{q1,p2}'},
-            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
-            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
-            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
-            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
-            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
-            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
-            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
-            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
-            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
-            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
-            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
-            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
-            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': freeze('q1','p1')},
+            freeze('q0','p1'): {'0': freeze('q0','p0'), '1': freeze('q1','p2')},
+            freeze('q0','p2'): {'0': freeze('q0','p2'), '1': freeze('q1','p2')},
+            freeze('q1','p0'): {'0': freeze('q1','p0'), '1': freeze('q2','p1')},
+            freeze('q1','p1'): {'0': freeze('q1','p0'), '1': freeze('q2','p2')},
+            freeze('q1','p2'): {'0': freeze('q1','p2'), '1': freeze('q2','p2')},
+            freeze('q2','p0'): {'0': freeze('q2','p0'), '1': freeze('q3','p1')},
+            freeze('q2','p1'): {'0': freeze('q2','p0'), '1': freeze('q3','p2')},
+            freeze('q2','p2'): {'0': freeze('q2','p2'), '1': freeze('q3','p2')},
+            freeze('q3','p0'): {'0': freeze('q3','p0'), '1': freeze('q4','p1')},
+            freeze('q3','p1'): {'0': freeze('q3','p0'), '1': freeze('q4','p2')},
+            freeze('q3','p2'): {'0': freeze('q3','p2'), '1': freeze('q4','p2')},
+            freeze('q4','p0'): {'0': freeze('q4','p0'), '1': freeze('q4','p1')},
+            freeze('q4','p1'): {'0': freeze('q4','p0'), '1': freeze('q4','p2')},
+            freeze('q4','p2'): {'0': freeze('q4','p2'), '1': freeze('q4','p2')}
         })
         nose.assert_equal(new_dfa.initial_state, freeze('q0','p0'))
         nose.assert_equal(new_dfa.final_states, {
-            '{q4,p0}', '{q4,p1}',
+            freeze('q4','p0'), freeze('q4','p1'),
         })
 
     def frozenseterence(self) -> None:
@@ -424,33 +424,33 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.difference(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
-            freeze('q0','p0'), '{q0,p1}', '{q0,p2}',
-            '{q1,p0}', '{q1,p1}', '{q1,p2}',
-            '{q2,p0}', '{q2,p1}', '{q2,p2}',
-            '{q3,p0}', '{q3,p1}', '{q3,p2}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            freeze('q0','p0'), freeze('q0','p1'), freeze('q0','p2'),
+            freeze('q1','p0'), freeze('q1','p1'), freeze('q1','p2'),
+            freeze('q2','p0'), freeze('q2','p1'), freeze('q2','p2'),
+            freeze('q3','p0'), freeze('q3','p1'), freeze('q3','p2'),
+            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
         })
         nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(new_dfa.transitions, {
-            freeze('q0','p0') : {'0': freeze('q0','p0'), '1': '{q1,p1}'},
-            '{q0,p1}': {'0': freeze('q0','p0'), '1': '{q1,p2}'},
-            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
-            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
-            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
-            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
-            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
-            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
-            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
-            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
-            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
-            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
-            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
-            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
-            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+            freeze('q0','p0') : {'0': freeze('q0','p0'), '1': freeze('q1','p1')},
+            freeze('q0','p1'): {'0': freeze('q0','p0'), '1': freeze('q1','p2')},
+            freeze('q0','p2'): {'0': freeze('q0','p2'), '1': freeze('q1','p2')},
+            freeze('q1','p0'): {'0': freeze('q1','p0'), '1': freeze('q2','p1')},
+            freeze('q1','p1'): {'0': freeze('q1','p0'), '1': freeze('q2','p2')},
+            freeze('q1','p2'): {'0': freeze('q1','p2'), '1': freeze('q2','p2')},
+            freeze('q2','p0'): {'0': freeze('q2','p0'), '1': freeze('q3','p1')},
+            freeze('q2','p1'): {'0': freeze('q2','p0'), '1': freeze('q3','p2')},
+            freeze('q2','p2'): {'0': freeze('q2','p2'), '1': freeze('q3','p2')},
+            freeze('q3','p0'): {'0': freeze('q3','p0'), '1': freeze('q4','p1')},
+            freeze('q3','p1'): {'0': freeze('q3','p0'), '1': freeze('q4','p2')},
+            freeze('q3','p2'): {'0': freeze('q3','p2'), '1': freeze('q4','p2')},
+            freeze('q4','p0'): {'0': freeze('q4','p0'), '1': freeze('q4','p1')},
+            freeze('q4','p1'): {'0': freeze('q4','p0'), '1': freeze('q4','p2')},
+            freeze('q4','p2'): {'0': freeze('q4','p2'), '1': freeze('q4','p2')}
         })
         nose.assert_equal(new_dfa.initial_state, freeze('q0','p0'))
         nose.assert_equal(new_dfa.final_states, {
-            '{q4,p2}'
+            freeze('q4','p2')
         })
 
     def test_symmetric_difference(self) -> None:
@@ -484,37 +484,37 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.symmetric_difference(B, retain_names=True, minify=False)
         nose.assert_equal(new_dfa.states, {
-            freeze('q0','p0'), '{q0,p1}', '{q0,p2}',
-            '{q1,p0}', '{q1,p1}', '{q1,p2}',
-            '{q2,p0}', '{q2,p1}', '{q2,p2}',
-            '{q3,p0}', '{q3,p1}', '{q3,p2}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            freeze('q0','p0'), freeze('q0','p1'), freeze('q0','p2'),
+            freeze('q1','p0'), freeze('q1','p1'), freeze('q1','p2'),
+            freeze('q2','p0'), freeze('q2','p1'), freeze('q2','p2'),
+            freeze('q3','p0'), freeze('q3','p1'), freeze('q3','p2'),
+            freeze('q4','p0'), freeze('q4','p1'), freeze('q4','p2')
         })
         nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(new_dfa.transitions, {
-            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': '{q1,p1}'},
-            '{q0,p1}': {'0': freeze('q0','p0'), '1': '{q1,p2}'},
-            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
-            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
-            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
-            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
-            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
-            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
-            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
-            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
-            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
-            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
-            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
-            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
-            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+            freeze('q0','p0'): {'0': freeze('q0','p0'), '1': freeze('q1','p1')},
+            freeze('q0','p1'): {'0': freeze('q0','p0'), '1': freeze('q1','p2')},
+            freeze('q0','p2'): {'0': freeze('q0','p2'), '1': freeze('q1','p2')},
+            freeze('q1','p0'): {'0': freeze('q1','p0'), '1': freeze('q2','p1')},
+            freeze('q1','p1'): {'0': freeze('q1','p0'), '1': freeze('q2','p2')},
+            freeze('q1','p2'): {'0': freeze('q1','p2'), '1': freeze('q2','p2')},
+            freeze('q2','p0'): {'0': freeze('q2','p0'), '1': freeze('q3','p1')},
+            freeze('q2','p1'): {'0': freeze('q2','p0'), '1': freeze('q3','p2')},
+            freeze('q2','p2'): {'0': freeze('q2','p2'), '1': freeze('q3','p2')},
+            freeze('q3','p0'): {'0': freeze('q3','p0'), '1': freeze('q4','p1')},
+            freeze('q3','p1'): {'0': freeze('q3','p0'), '1': freeze('q4','p2')},
+            freeze('q3','p2'): {'0': freeze('q3','p2'), '1': freeze('q4','p2')},
+            freeze('q4','p0'): {'0': freeze('q4','p0'), '1': freeze('q4','p1')},
+            freeze('q4','p1'): {'0': freeze('q4','p0'), '1': freeze('q4','p2')},
+            freeze('q4','p2'): {'0': freeze('q4','p2'), '1': freeze('q4','p2')}
         })
         nose.assert_equal(new_dfa.initial_state, freeze('q0','p0'))
         nose.assert_equal(new_dfa.final_states, {
-            freeze('q0','p0'), '{q0,p1}',
-            '{q1,p0}', '{q1,p1}',
-            '{q2,p0}', '{q2,p1}',
-            '{q3,p0}', '{q3,p1}',
-            '{q4,p2}'
+            freeze('q0','p0'), freeze('q0','p1'),
+            freeze('q1','p0'), freeze('q1','p1'),
+            freeze('q2','p0'), freeze('q2','p1'),
+            freeze('q3','p0'), freeze('q3','p1'),
+            freeze('q4','p2')
         })
 
     def test_issubset(self) -> None:
@@ -1061,13 +1061,13 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'},
         )
         minimal_dfa = dfa.minify()
-        nose.assert_equal(minimal_dfa.states, {'{q0,q1}'})
+        nose.assert_equal(minimal_dfa.states, {freeze('q0','q1')})
         nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(minimal_dfa.transitions, {
-            '{q0,q1}': {'0': '{q0,q1}', '1': '{q0,q1}'},
+            freeze('q0','q1'): {'0': freeze('q0','q1'), '1': freeze('q0','q1')},
         })
-        nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
-        nose.assert_equal(minimal_dfa.final_states, {'{q0,q1}'})
+        nose.assert_equal(minimal_dfa.initial_state, freeze('q0','q1'))
+        nose.assert_equal(minimal_dfa.final_states, {freeze('q0','q1')})
 
     def test_minify_dfa_no_final_states(self) -> None:
         dfa = DFA(
@@ -1081,12 +1081,12 @@ class TestDFA(test_fa.TestFA):
             final_states=set(),
         )
         minimal_dfa = dfa.minify()
-        nose.assert_equal(minimal_dfa.states, {'{q0,q1}'})
+        nose.assert_equal(minimal_dfa.states, {freeze('q0','q1')})
         nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
         nose.assert_equal(minimal_dfa.transitions, {
-            '{q0,q1}': {'0': '{q0,q1}', '1': '{q0,q1}'},
+            freeze('q0','q1'): {'0': freeze('q0','q1'), '1': freeze('q0','q1')},
         })
-        nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
+        nose.assert_equal(minimal_dfa.initial_state, freeze('q0','q1'))
         nose.assert_equal(minimal_dfa.final_states, set())
 
     def test_init_nfa_simple(self) -> None:
@@ -1103,16 +1103,16 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa)
-        nose.assert_equal(dfa.states, {'{}', '{q0}', '{q0,q1}', '{q2}'})
+        nose.assert_equal(dfa.states, {freeze(), freeze('q0'), freeze('q0','q1'), freeze('q2')})
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
-            '{}': {'0': '{}', '1': '{}'},
-            '{q0}': {'0': '{q0,q1}', '1': '{}'},
-            '{q0,q1}': {'0': '{q0,q1}', '1': '{q2}'},
-            '{q2}': {'0': '{}', '1': '{}'}
+            freeze(): {'0': freeze(), '1': freeze()},
+            freeze('q0'): {'0': freeze('q0','q1'), '1': freeze()},
+            freeze('q0','q1'): {'0': freeze('q0','q1'), '1': freeze('q2')},
+            freeze('q2'): {'0': freeze(), '1': freeze()}
         })
-        nose.assert_equal(dfa.initial_state, '{q0}')
-        nose.assert_equal(dfa.final_states, {'{q2}'})
+        nose.assert_equal(dfa.initial_state, freeze('q0'))
+        nose.assert_equal(dfa.final_states, {freeze('q2')})
 
     def test_init_nfa_more_complex(self) -> None:
         """Should convert to a DFA a more complex NFA."""
@@ -1129,17 +1129,17 @@ class TestDFA(test_fa.TestFA):
         )
         dfa = DFA.from_nfa(nfa)
         nose.assert_equal(dfa.states, {
-            '{q0}', '{q0,q1}', '{q0,q2}', '{q0,q1,q2}'
+            freeze('q0'), freeze('q0','q1'), freeze('q0','q2'), freeze('q0','q1','q2')
         })
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
-            '{q0}': {'1': '{q0}', '0': '{q0,q1}'},
-            '{q0,q1}': {'1': '{q0,q2}', '0': '{q0,q1}'},
-            '{q0,q2}': {'1': '{q0,q1}', '0': '{q0,q1,q2}'},
-            '{q0,q1,q2}': {'1': '{q0,q1,q2}', '0': '{q0,q1,q2}'}
+            freeze('q0'): {'1': freeze('q0'), '0': freeze('q0','q1')},
+            freeze('q0','q1'): {'1': freeze('q0','q2'), '0': freeze('q0','q1')},
+            freeze('q0','q2'): {'1': freeze('q0','q1'), '0': freeze('q0','q1','q2')},
+            freeze('q0','q1','q2'): {'1': freeze('q0','q1','q2'), '0': freeze('q0','q1','q2')}
         })
-        nose.assert_equal(dfa.initial_state, '{q0}')
-        nose.assert_equal(dfa.final_states, {'{q0,q1,q2}', '{q0,q2}'})
+        nose.assert_equal(dfa.initial_state, freeze('q0'))
+        nose.assert_equal(dfa.final_states, {freeze('q0','q1','q2'), freeze('q0','q2')})
 
     def test_init_nfa_lambda_transition(self) -> None:
         """Should convert to a DFA an NFA with a lambda transition."""
