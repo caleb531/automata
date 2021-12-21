@@ -4,7 +4,7 @@ machines."""
 
 import copy
 from collections import deque
-from typing import Tuple, Dict, Set, Optional, Iterable, List
+from typing import Tuple, Dict, Set, Optional, Iterable, List, Generator
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -72,7 +72,7 @@ class MNTM(tm.NTM):
                     )
                 )
     #TODO remove this redundant override
-    #def _validate_transition_state_(self, transition_state : MNTMStateT) -> None:
+    #def _validate_transition_state(self, transition_state : MNTMStateT) -> None:
     #    if transition_state not in self.states:
     #        raise exceptions.InvalidStateError(
     #            'transition state is not valid ({})'.format(transition_state)
@@ -118,7 +118,7 @@ class MNTM(tm.NTM):
                             error
                         )
 
-    def validate(self):
+    def validate(self) -> bool:
         """Return True if this MNTM is internally consistent."""
         for state, paths in self.transitions.items():
             self._validate_transition_state(state)
@@ -136,7 +136,7 @@ class MNTM(tm.NTM):
         self._validate_tapes_consistency()
         return True
 
-    def _restart_configuration(self, input_str):
+    def _restart_configuration(self, input_str : str) -> None:
         """Restarts all variables so that the Turing machine can be used
         again with a new input string."""
         self.current_state = self.initial_state
@@ -146,12 +146,12 @@ class MNTM(tm.NTM):
         for i, tape in enumerate(self.tapes[1:]):
             self.tapes[i + 1] = tape.load_symbols(self.blank_symbol, 0)
 
-    def _read_current_tape_symbols(self):
+    def _read_current_tape_symbols(self) -> MNTMSymbolT:
         """Reads the current tape symbols in each of the tapes and their
         corresponding heads."""
         return tuple(tape.read_symbol() for tape in self.tapes)
 
-    def _get_transition(self):
+    def _get_transition(self) -> Optional[List[MNTMResultT]]:
         """Get the transition tuple for the given state and tape symbols in
         each tape."""
         current_tape_symbols = self._read_current_tape_symbols()
@@ -163,7 +163,7 @@ class MNTM(tm.NTM):
         else:
             return None
 
-    def _get_next_configuration(self, old_config):
+    def _get_next_configuration(self, old_config : 'TMConfiguration') -> 'MNTM':
         """Advances to the next configuration."""
         self.current_state, moves = old_config
         i = 0
@@ -175,10 +175,10 @@ class MNTM(tm.NTM):
 
         return self
 
-    def _has_accepted(self):
+    def _has_accepted(self) -> bool:
         return self.current_state in self.final_states
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str : str) -> Generator[Set['MTMConfiguration'], None, None]:
         """Checks if the given string is accepted by this Turing machine,
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
@@ -208,8 +208,9 @@ class MNTM(tm.NTM):
         )
 
     @staticmethod
-    def _read_extended_tape(tape: str, head_symbol: str = '^',
-                            tape_separator_symbol: str = '_'):
+    def _read_extended_tape(tape : str,
+                            head_symbol: str = '^',
+                            tape_separator_symbol : str = '_') -> List[MNTMResultT]:
         """Returns a tuple with the symbols extracted from the given
         tape, that are the virtual heads for their corresponding
         virtual tape."""

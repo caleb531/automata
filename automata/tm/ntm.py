@@ -112,7 +112,7 @@ class NTM(tm.TM):
         else:
             return set()
 
-    def _has_accepted(self, configuration : 'TMConfiguration') -> bool:
+    def _config_has_accepted(self, configuration : 'TMConfiguration') -> bool:
         """Check whether the given config indicates accepted input."""
         return configuration.state in self.final_states
 
@@ -148,7 +148,7 @@ class NTM(tm.TM):
         while current_configurations:
             new_configurations = set()
             for config in current_configurations:
-                if self._has_accepted(config):
+                if self._config_has_accepted(config):
                     # One accepting configuration is enough.
                     return
                 new_configurations.update(
