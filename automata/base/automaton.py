@@ -16,7 +16,7 @@ class Automaton(metaclass=abc.ABCMeta):
     states : Set[AutomatonStateT]
     initial_state : AutomatonStateT
     final_states : Set[AutomatonStateT]
-    transitions : Dict[AutomatonStateT, Dict[str, Any]]
+    transitions : Dict[AutomatonStateT, Any]
 
     @abc.abstractmethod
     def __init__(self) -> None:
