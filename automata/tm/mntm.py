@@ -4,7 +4,6 @@ machines."""
 
 import copy
 from collections import deque
-from typing import Tuple, Dict, Set, Optional, Iterable
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -12,27 +11,13 @@ import automata.tm.ntm as tm
 from automata.tm.configuration import MTMConfiguration, TMConfiguration
 from automata.tm.tape import TMTape
 
-MNTMStateT = tm.NTMStateT
-
-MNTMResultT = Tuple[MNTMStateT, str, str]
-MNTMPathT = Dict[str, Set[MNTMResultT]]
-MNTMTransitionsT = Dict[MNTMStateT, MNTMPathT]
 
 class MNTM(tm.NTM):
     """A multitape nondeterministic Turing machine."""
 
-    def __init__(self,
-                 *,
-                 states : Set[MNTMStateT],
-                 input_symbols : Set[str],
-                 tape_symbols : Set[str],
-                 n_tapes : int,
-                 transitions : MNTMTransitionsT,
-                 initial_state : MNTMStateT,
-                 blank_symbol : str,
-                 final_states : Set[MNTMStateT],
-                 tapes : Optional[Iterable['TMTape']]= None,
-                 current_state : Optional[MNTMStateT] = None):
+    def __init__(self, *, states, input_symbols, tape_symbols, n_tapes,
+                 transitions, initial_state, blank_symbol, final_states,
+                 tapes=None, current_state=None):
         """Initialize a complete Turing machine."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -58,7 +43,7 @@ class MNTM(tm.NTM):
 
         self.validate()
 
-    def _validate_transition_symbols_multitape(self, state : MNTMStateT, paths : MNTMPathT) -> None:
+    def _validate_transition_symbols(self, state, paths):
         for tape_symbol in [tape_symbol
                             for symbol in paths.keys() for tape_symbol in
                             symbol]:
@@ -68,14 +53,14 @@ class MNTM(tm.NTM):
                         tape_symbol, state
                     )
                 )
-    #TODO remove this redundant override
-    #def _validate_transition_state_(self, transition_state : MNTMStateT) -> None:
-    #    if transition_state not in self.states:
-    #        raise exceptions.InvalidStateError(
-    #            'transition state is not valid ({})'.format(transition_state)
-    #        )
 
-    def _validate_transition_results_multitape(self, paths : MNTMPathT) -> None:
+    def _validate_transition_state(self, transition_state):
+        if transition_state not in self.states:
+            raise exceptions.InvalidStateError(
+                'transition state is not valid ({})'.format(transition_state)
+            )
+
+    def _validate_transition_results(self, paths):
         for results in paths.values():
             for result in results:
                 state, moves = result
@@ -84,7 +69,7 @@ class MNTM(tm.NTM):
                     possible_result = (state, symbol, direction)
                     self._validate_transition_result(possible_result)
 
-    def _validate_tapes_consistency(self) -> None:
+    def _validate_tapes_consistency(self):
         for state in self.transitions:
             for read_tape_symbols in self.transitions[state]:
                 if len(read_tape_symbols) != self.n_tapes:
@@ -117,19 +102,7 @@ class MNTM(tm.NTM):
 
     def validate(self):
         """Return True if this MNTM is internally consistent."""
-        #super().validate()
-        for state, paths in self.transitions.items():
-            self._validate_transition_state(state)
-            self._validate_transition_symbols_multitape(state, paths)
-            self._validate_transition_results_multitape(paths)
-
-        self._read_input_symbol_subset()
-        self._validate_blank_symbol()
-        self._validate_initial_state()
-        self._validate_initial_state_transitions()
-        self._validate_nonfinal_initial_state()
-        self._validate_final_states()
-        self._validate_final_state_transitions()
+        super().validate()
         self._validate_tapes_consistency()
         return True
 
