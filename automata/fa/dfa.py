@@ -385,13 +385,12 @@ class DFA(fa.FA):
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.states:
-            for state_b in other.states:
-                if ((state_a in self.final_states and
-                        state_b not in other.final_states) or
-                    (state_a not in self.final_states and
-                        state_b in other.final_states)):
-                    new_dfa.final_states.add((state_a, state_b))
+        for state_a, state_b in product(self.states, other.states):
+            if (state_a in self.final_states) != (state_b in other.final_states):
+                #    state_b not in other.final_states) or
+                #(state_a not in self.final_states and
+                #    )):
+                new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
