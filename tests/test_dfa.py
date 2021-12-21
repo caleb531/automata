@@ -17,7 +17,7 @@ from automata.fa.nfa import NFA
 
 
 def freeze(*items : Hashable) -> Tuple:
-    return tuple(sorted(items))
+    return tuple(items)
 
 class TestDFA(test_fa.TestFA):
     """A test class for testing deterministic finite automata."""
