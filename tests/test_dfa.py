@@ -20,7 +20,7 @@ class TestDFA(test_fa.TestFA):
 
     temp_dir_path = tempfile.gettempdir()
 
-    def test_init_dfa(self):
+    def test_init_dfa(self) -> None:
         """Should copy DFA if passed into DFA constructor."""
         new_dfa = DFA.copy(self.dfa)
         self.assert_is_copy(new_dfa, self.dfa)
@@ -35,93 +35,93 @@ class TestDFA(test_fa.TestFA):
                 final_states={'q1'}
             )
 
-    def test_copy_dfa(self):
+    def test_copy_dfa(self) -> None:
         """Should create exact copy of DFA if copy() method is called."""
         new_dfa = self.dfa.copy()
         self.assert_is_copy(new_dfa, self.dfa)
 
     @patch('automata.fa.dfa.DFA.validate')
-    def test_init_validation(self, validate):
+    def test_init_validation(self, validate) -> None:
         """Should validate DFA when initialized."""
         DFA.copy(self.dfa)
         validate.assert_called_once_with()
 
-    def test_dfa_equal(self):
+    def test_dfa_equal(self) -> None:
         """Should correctly determine if two DFAs are equal."""
         new_dfa = self.dfa.copy()
         nose.assert_true(self.dfa == new_dfa, 'DFAs are not equal')
 
-    def test_dfa_not_equal(self):
+    def test_dfa_not_equal(self) -> None:
         """Should correctly determine if two DFAs are not equal."""
         new_dfa = self.dfa.copy()
         new_dfa.final_states.add('q2')
         nose.assert_true(self.dfa != new_dfa, 'DFAs are equal')
 
-    def test_validate_missing_state(self):
+    def test_validate_missing_state(self) -> None:
         """Should raise error if a state has no transitions defined."""
         with nose.assert_raises(exceptions.MissingStateError):
             del self.dfa.transitions['q1']
             self.dfa.validate()
 
-    def test_validate_missing_symbol(self):
+    def test_validate_missing_symbol(self) -> None:
         """Should raise error if a symbol transition is missing."""
         with nose.assert_raises(exceptions.MissingSymbolError):
             del self.dfa.transitions['q1']['1']
             self.dfa.validate()
 
-    def test_validate_invalid_symbol(self):
+    def test_validate_invalid_symbol(self) -> None:
         """Should raise error if a transition references an invalid symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dfa.transitions['q1']['2'] = 'q2'
             self.dfa.validate()
 
-    def test_validate_invalid_state(self):
+    def test_validate_invalid_state(self) -> None:
         """Should raise error if a transition references an invalid state."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.transitions['q1']['1'] = 'q3'
             self.dfa.validate()
 
-    def test_validate_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self) -> None:
         """Should raise error if the initial state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.initial_state = 'q3'
             self.dfa.validate()
 
-    def test_validate_invalid_final_state(self):
+    def test_validate_invalid_final_state(self) -> None:
         """Should raise error if the final state is invalid."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.final_states = {'q3'}
             self.dfa.validate()
 
-    def test_validate_invalid_final_state_non_str(self):
+    def test_validate_invalid_final_state_non_str(self) -> None:
         """Should raise InvalidStateError even for non-string final states."""
         with nose.assert_raises(exceptions.InvalidStateError):
             self.dfa.final_states = {3}
             self.dfa.validate()
 
-    def test_read_input_accepted(self):
+    def test_read_input_accepted(self) -> None:
         """Should return correct state if acceptable DFA input is given."""
         nose.assert_equal(self.dfa.read_input('0111'), 'q1')
 
-    def test_read_input_rejection(self):
+    def test_read_input_rejection(self) -> None:
         """Should raise error if the stop state is not a final state."""
         with nose.assert_raises(exceptions.RejectionException):
             self.dfa.read_input('011')
 
-    def test_read_input_rejection_invalid_symbol(self):
+    def test_read_input_rejection_invalid_symbol(self) -> None:
         """Should raise error if an invalid symbol is read."""
         with nose.assert_raises(exceptions.RejectionException):
             self.dfa.read_input('01112')
 
-    def test_accepts_input_true(self):
+    def test_accepts_input_true(self) -> None:
         """Should return True if DFA input is accepted."""
         nose.assert_equal(self.dfa.accepts_input('0111'), True)
 
-    def test_accepts_input_false(self):
+    def test_accepts_input_false(self) -> None:
         """Should return False if DFA input is rejected."""
         nose.assert_equal(self.dfa.accepts_input('011'), False)
 
-    def test_read_input_step(self):
+    def test_read_input_step(self) -> None:
         """Should return validation generator if step flag is supplied."""
         validation_generator = self.dfa.read_input_stepwise('0111')
         nose.assert_is_instance(validation_generator, types.GeneratorType)
@@ -163,7 +163,7 @@ class TestDFA(test_fa.TestFA):
         with nose.assert_raises(NotImplementedError):
             dfa >= other
 
-    def test_equivalence_not_equal(self):
+    def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
@@ -193,7 +193,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_true(no_consecutive_11_dfa != zero_or_one_1_dfa)
 
-    def test_equivalence_minify(self):
+    def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
         no_consecutive_11_dfa = DFA(
             states={'q0', 'q1', 'q2', 'q3'},
@@ -210,7 +210,7 @@ class TestDFA(test_fa.TestFA):
         minimal_dfa = no_consecutive_11_dfa.minify()
         nose.assert_equal(no_consecutive_11_dfa, minimal_dfa)
 
-    def test_equivalence_two_non_minimal(self):
+    def test_equivalence_two_non_minimal(self) -> None:
         """Should be equivalent even though they are non minimal."""
         no_consecutive_11_dfa = DFA(
             states={'q0', 'q1', 'q2', 'q3'},
@@ -238,7 +238,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_equal(no_consecutive_11_dfa, other_dfa)
 
-    def test_complement(self):
+    def test_complement(self) -> None:
         no_consecutive_11_dfa = DFA(
             states={'q0', 'q1', 'q2'},
             input_symbols={'0', '1'},
@@ -265,7 +265,7 @@ class TestDFA(test_fa.TestFA):
             complement_dfa.final_states, {'q2'}
         )
 
-    def test_union(self):
+    def test_union(self) -> None:
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         A = DFA(
@@ -329,7 +329,7 @@ class TestDFA(test_fa.TestFA):
             '{q4,p0}', '{q4,p1}', '{q4,p2}'
         })
 
-    def test_intersection(self):
+    def test_intersection(self) -> None:
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         A = DFA(
@@ -389,7 +389,7 @@ class TestDFA(test_fa.TestFA):
             '{q4,p0}', '{q4,p1}',
         })
 
-    def test_difference(self):
+    def test_difference(self) -> None:
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         A = DFA(
@@ -449,7 +449,7 @@ class TestDFA(test_fa.TestFA):
             '{q4,p2}'
         })
 
-    def test_symmetric_difference(self):
+    def test_symmetric_difference(self) -> None:
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         A = DFA(
@@ -513,7 +513,7 @@ class TestDFA(test_fa.TestFA):
             '{q4,p2}'
         })
 
-    def test_issubset(self):
+    def test_issubset(self) -> None:
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         no_consecutive_11_dfa = DFA(
@@ -546,7 +546,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_false(no_consecutive_11_dfa < zero_or_one_1_dfa)
         nose.assert_false(no_consecutive_11_dfa <= zero_or_one_1_dfa)
 
-    def test_issuperset(self):
+    def test_issuperset(self) -> None:
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         no_consecutive_11_dfa = DFA(
@@ -579,7 +579,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_true(no_consecutive_11_dfa > zero_or_one_1_dfa)
         nose.assert_true(no_consecutive_11_dfa >= zero_or_one_1_dfa)
 
-    def test_isdisjoint(self):
+    def test_isdisjoint(self) -> None:
         # This DFA accepts all words which contain at least
         # three occurrences of 1
         A = DFA(
@@ -624,7 +624,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_false(A.isdisjoint(C))
         nose.assert_false(B.isdisjoint(C))
 
-    def test_isempty_non_empty(self):
+    def test_isempty_non_empty(self) -> None:
         # This DFA accepts all words which contain at least
         # three occurrences of 1
         A = DFA(
@@ -641,7 +641,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_false(A.isempty())
 
-    def test_isempty_empty(self):
+    def test_isempty_empty(self) -> None:
         # This DFA has no reachable final states and
         # therefore accepts the empty language
         A = DFA(
@@ -658,7 +658,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_true(A.isempty())
 
-    def test_isfinite_infinite(self):
+    def test_isfinite_infinite(self) -> None:
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         A = DFA(
@@ -674,7 +674,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_false(A.isfinite())
 
-    def test_isfinite_infinite_case_2(self):
+    def test_isfinite_infinite_case_2(self) -> None:
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
         A = DFA(
@@ -694,7 +694,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_false(A.isfinite())
 
-    def test_isfinite_finite(self):
+    def test_isfinite_finite(self) -> None:
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
         A = DFA(
@@ -714,7 +714,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_true(A.isfinite())
 
-    def test_isfinite_empty(self):
+    def test_isfinite_empty(self) -> None:
         # This DFA has no reachable final states and
         # therefore is finite.
         A = DFA(
@@ -731,7 +731,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_true(A.isfinite())
 
-    def test_isfinite_universe(self):
+    def test_isfinite_universe(self) -> None:
         # This DFA accepts all binary strings and
         # therefore is infinite.
         A = DFA(
@@ -745,7 +745,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_false(A.isfinite())
 
-    def test_set_laws(self):
+    def test_set_laws(self) -> None:
         """Tests many set laws that are true for all sets"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
@@ -819,7 +819,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(A & B, B & A)
         nose.assert_equal(A ^ B, B ^ A)
 
-    def test_minify_dfa(self):
+    def test_minify_dfa(self) -> None:
         """Should minify a given DFA."""
         # This DFA accepts all words which are at least two characters long.
         # The states q1/q2 and q3/q4/q5/q6 are redundant.
@@ -853,7 +853,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(minimal_dfa.initial_state, 'q0')
         nose.assert_equal(minimal_dfa.final_states, {'{q3,q4,q5,q6}'})
 
-    def test_minify_dfa_complex(self):
+    def test_minify_dfa_complex(self) -> None:
         """Should minify a given large DFA."""
         dfa = DFA(
             states={'13', '56', '18', '10', '15', '26', '24', '54', '32', '27',
@@ -1022,7 +1022,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(minimal_dfa.initial_state, check_dfa.initial_state)
         nose.assert_equal(minimal_dfa.final_states, check_dfa.final_states)
 
-    def test_minify_minimal_dfa(self):
+    def test_minify_minimal_dfa(self) -> None:
         """Should minify an already minimal DFA."""
         # This DFA just accepts words ending in 1.
         dfa = DFA(
@@ -1042,7 +1042,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(minimal_dfa.initial_state, dfa.initial_state)
         nose.assert_equal(minimal_dfa.final_states, dfa.final_states)
 
-    def test_minify_dfa_initial_state(self):
+    def test_minify_dfa_initial_state(self) -> None:
         """Should minify a DFA where the initial state is being changed."""
         # This DFA accepts all words with ones and zeroes.
         # The two states can be merged into one.
@@ -1065,7 +1065,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
         nose.assert_equal(minimal_dfa.final_states, {'{q0,q1}'})
 
-    def test_minify_dfa_no_final_states(self):
+    def test_minify_dfa_no_final_states(self) -> None:
         dfa = DFA(
             states={'q0', 'q1'},
             input_symbols={'0', '1'},
@@ -1085,7 +1085,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
         nose.assert_equal(minimal_dfa.final_states, set())
 
-    def test_init_nfa_simple(self):
+    def test_init_nfa_simple(self) -> None:
         """Should convert to a DFA a simple NFA."""
         nfa = NFA(
             states={'q0', 'q1', 'q2'},
@@ -1110,7 +1110,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(dfa.initial_state, '{q0}')
         nose.assert_equal(dfa.final_states, {'{q2}'})
 
-    def test_init_nfa_more_complex(self):
+    def test_init_nfa_more_complex(self) -> None:
         """Should convert to a DFA a more complex NFA."""
         nfa = NFA(
             states={'q0', 'q1', 'q2'},
@@ -1137,7 +1137,7 @@ class TestDFA(test_fa.TestFA):
         nose.assert_equal(dfa.initial_state, '{q0}')
         nose.assert_equal(dfa.final_states, {'{q0,q1,q2}', '{q0,q2}'})
 
-    def test_init_nfa_lambda_transition(self):
+    def test_init_nfa_lambda_transition(self) -> None:
         """Should convert to a DFA an NFA with a lambda transition."""
         dfa = DFA.from_nfa(self.nfa)
         nose.assert_equal(dfa.states, {'{}', '{q0}', '{q1,q2}'})
@@ -1166,7 +1166,7 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
         nose.assert_equal(dfa.read_input('a'), '{q1}')
 
-    def test_partial_dfa(self):
+    def test_partial_dfa(self) -> None:
         """Should allow for partial DFA when flag is set"""
         dfa = DFA(
             states={'', 'a', 'b', 'aa', 'bb', 'ab', 'ba'},
@@ -1186,7 +1186,7 @@ class TestDFA(test_fa.TestFA):
         )
         nose.assert_equal(dfa.read_input('aa'), 'aa')
 
-    def test_show_diagram_initial_final_different(self):
+    def test_show_diagram_initial_final_different(self) -> None:
         """
         Should construct the diagram for a DFA whose initial state
         is not a final state.
@@ -1210,7 +1210,7 @@ class TestDFA(test_fa.TestFA):
                 ('q2', '1', 'q1')
             })
 
-    def test_show_diagram_initial_final_same(self):
+    def test_show_diagram_initial_final_same(self) -> None:
         """
         Should construct the diagram for a DFA whose initial state
         is also a final state.
@@ -1248,7 +1248,7 @@ class TestDFA(test_fa.TestFA):
                 ('q2', '1', 'q2')
             })
 
-    def test_show_diagram_write_file(self):
+    def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a DFA
         and write it to the specified file.

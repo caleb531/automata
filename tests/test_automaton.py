@@ -6,7 +6,7 @@ import nose.tools as nose
 from automata.base.automaton import Automaton
 
 
-def test_abstract_methods_not_implemented():
+def test_abstract_methods_not_implemented() -> None:
     """Should raise NotImplementedError when calling abstract methods."""
     abstract_methods = {
         '__init__': (Automaton,),
