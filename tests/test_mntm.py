@@ -83,14 +83,14 @@ class TestMNTM(test_tm.TestTM):
                 ('q3', (('#', HeadDirection.L), ('#', HeadDirection.R)))]
             self.mntm1.validate()
 
-    def test_validate_invalid_transition_result_symbol(self) -> None:
+    def test_validate_invalid_transition_result_symbol(self):
         """Should raise error if a transition result symbol is invalid."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.mntm1.transitions['q0'][("1", "#")] = [
                 ('q1', (('.', 'U'), ('#', HeadDirection.R)))]
             self.mntm1.validate()
 
-    def test_validate_invalid_transition_result_direction(self) -> None:
+    def test_validate_invalid_transition_result_direction(self):
         """Should raise error if a transition result direction is invalid."""
         with nose.assert_raises(tm_exceptions.InvalidDirectionError):
             self.mntm1.transitions['q0'][("1", "#")] = [

@@ -14,15 +14,16 @@ from automata.tm.tape import TMTape, HeadDirection
 
 MNTMStateT = tm.NTMStateT
 
-MNTMSymbolT = Tuple[str, ...]
-MNTMResultT = Tuple[MNTMStateT, Tuple[MNTMSymbolT, ...]]
-MNTMPathT = Dict[MNTMSymbolT, List[MNTMResultT]]
+MNTMMoveT = Tuple[str, HeadDirection]
+MNTMResultT = Tuple[MNTMStateT, Tuple[MNTMMoveT, ...]]
+MNTMPathT = Dict[Tuple[str, ...], List[MNTMResultT]]
 MNTMTransitionsT = Dict[MNTMStateT, MNTMPathT]
 
 class MNTM(tm.NTM):
     """A multitape nondeterministic Turing machine."""
 
     transitions : MNTMTransitionsT
+    tapes : List[TMTape]
 
     def __init__(self,
                  *,
@@ -140,7 +141,7 @@ class MNTM(tm.NTM):
         for i, tape in enumerate(self.tapes[1:]):
             self.tapes[i + 1] = tape.load_symbols(self.blank_symbol, 0)
 
-    def _read_current_tape_symbols(self) -> MNTMSymbolT:
+    def _read_current_tape_symbols(self) -> Tuple[str, ...]:
         """Reads the current tape symbols in each of the tapes and their
         corresponding heads."""
         return tuple(tape.read_symbol() for tape in self.tapes)

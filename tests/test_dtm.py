@@ -85,7 +85,7 @@ class TestDTM(test_tm.TestTM):
             self.dtm1.transitions['q0']['y'] = ('q3', 'z', HeadDirection.R)
             self.dtm1.validate()
 
-    def test_validate_invalid_transition_result_direction(self) -> None:
+    def test_validate_invalid_transition_result_direction(self):
         """Should raise error if a transition result direction is invalid."""
         with nose.assert_raises(tm_exceptions.InvalidDirectionError):
             self.dtm1.transitions['q0']['y'] = ('q3', 'y', 'U')
