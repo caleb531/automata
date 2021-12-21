@@ -54,7 +54,7 @@ class TestDPDA(test_pda.TestPDA):
             self.dpda.acceptance_mode = 'foo'
             self.dpda.validate()
 
-    def test_validate_invalid_input_symbol(self) -> None:
+    def test_validate_invalid_input_symbol(self):
         """Should raise error if a transition has an invalid input symbol."""
         with nose.assert_raises(exceptions.InvalidSymbolError):
             self.dpda.transitions['q1']['c'] = 'q2'

@@ -10,7 +10,7 @@ from automata.pda.npda import NPDA
 class TestPDA(object):
     """A test class for testing all pushdown automata."""
 
-    def setup(self):
+    def setup(self) -> None:
         """Reset test automata before every test function."""
         # DPDA which which matches zero or more 'a's, followed by the same
         # number of 'b's (accepting by final state)
@@ -79,7 +79,7 @@ class TestPDA(object):
             acceptance_mode='final_state'
         )
 
-    def assert_is_copy(self, first, second):
+    def assert_is_copy(self, first, second) -> None:
         """Assert that the first PDA is a deep copy of the second."""
         nose.assert_is_not(first.states, second.states)
         nose.assert_equal(first.states, second.states)

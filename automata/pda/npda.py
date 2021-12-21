@@ -2,7 +2,7 @@
 """Classes and methods for working with nondeterministic pushdown automata."""
 
 import copy
-from typing import Set, Dict, Tuple, Optional, Generator, Iterable
+from typing import Set, Dict, Tuple, Optional, Generator, Iterable, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.pda as pda
@@ -11,7 +11,8 @@ from automata.pda.stack import PDAStack
 
 NPDAStateT = pda.PDAStateT
 
-NPDASibblingPathT = Dict[str, Iterable[Tuple[NPDAStateT, str]]]
+NPDAOutputT = Union[str, Tuple[str, ...]]
+NPDASibblingPathT = Dict[str, Iterable[Tuple[NPDAStateT, NPDAOutputT]]]
 NPDAPathT = Dict[str, NPDASibblingPathT]
 NPDATransitionsT = Dict[NPDAStateT, NPDAPathT]
 
@@ -53,7 +54,7 @@ class NPDA(pda.PDA):
     def _get_transitions(self,
                          state : NPDAStateT,
                          input_symbol : str,
-                         stack_symbol : str) -> Set[Tuple[str, NPDAStateT, str]]:
+                         stack_symbol : str) -> Set[Tuple[str, NPDAStateT, NPDAOutputT]]:
         """Get the transition tuples for the given state and symbols."""
         transitions = set()
         if (state in self.transitions and

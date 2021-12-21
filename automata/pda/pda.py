@@ -2,7 +2,7 @@
 """Classes and methods for working with all pushdown automata."""
 
 import abc
-from typing import Set, Dict, Any, Tuple
+from typing import Set, Dict, Any, Tuple, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -78,7 +78,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 '' in self.transitions[state] and
                 stack_symbol in self.transitions[state][''])
 
-    def _replace_stack_top(self, stack : 'PDAStack', new_stack_top : str) -> 'PDAStack':
+    def _replace_stack_top(self, stack : 'PDAStack', new_stack_top : Union[str, Tuple[str, ...]]) -> 'PDAStack':
         """Replace the top of the PDA stack with another symbol"""
         if new_stack_top == '':
             new_stack = stack.pop()
