@@ -311,7 +311,7 @@ class DFA(fa.FA):
         with an empty set of final states.
         """
         assert self.input_symbols == other.input_symbols
-        new_states = set(product(self.states, other.states))
+        new_states = set(map(frozenset, product(self.states, other.states)))
 
         new_transitions : DFATransitionsT = dict()
         for state_a, transitions_a in self.transitions.items():
