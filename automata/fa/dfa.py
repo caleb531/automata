@@ -315,9 +315,7 @@ class DFA(fa.FA):
         assert self.input_symbols == other.input_symbols
         states_a = list(self.states)
         states_b = list(other.states)
-        print(states_a)
-        print(states_b)
-        print()
+
         new_states = {
             (a, b)
             for a in states_a for b in states_b

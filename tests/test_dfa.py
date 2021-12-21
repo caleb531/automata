@@ -1100,16 +1100,16 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa)
-        nose.assert_equal(dfa.states, {(), ('q0'), ('q0','q1'), ('q2')})
+        nose.assert_equal(dfa.states, {(), ('q0',), ('q0','q1'), ('q2',)})
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
-            (): {'0': (), '1': ()},
-            ('q0'): {'0': ('q0','q1'), '1': ()},
-            ('q0','q1'): {'0': ('q0','q1'), '1': ('q2')},
-            ('q2'): {'0': (), '1': ()}
+            tuple(): {'0': tuple(), '1': tuple()},
+            ('q0',): {'0': ('q0','q1'), '1': tuple()},
+            ('q0','q1'): {'0': ('q0','q1'), '1': ('q2',)},
+            ('q2',): {'0': tuple(), '1': tuple()}
         })
-        nose.assert_equal(dfa.initial_state, ('q0'))
-        nose.assert_equal(dfa.final_states, {('q2')})
+        nose.assert_equal(dfa.initial_state, ('q0',))
+        nose.assert_equal(dfa.final_states, {('q2',)})
 
     def test_init_nfa_more_complex(self) -> None:
         """Should convert to a DFA a more complex NFA."""
@@ -1126,29 +1126,29 @@ class TestDFA(test_fa.TestFA):
         )
         dfa = DFA.from_nfa(nfa)
         nose.assert_equal(dfa.states, {
-            ('q0'), ('q0','q1'), ('q0','q2'), ('q0','q1','q2')
+            ('q0',), ('q0','q1'), ('q0','q2'), ('q0','q1','q2')
         })
         nose.assert_equal(dfa.input_symbols, {'0', '1'})
         nose.assert_equal(dfa.transitions, {
-            ('q0'): {'1': ('q0'), '0': ('q0','q1')},
+            ('q0',): {'1': ('q0',), '0': ('q0','q1')},
             ('q0','q1'): {'1': ('q0','q2'), '0': ('q0','q1')},
             ('q0','q2'): {'1': ('q0','q1'), '0': ('q0','q1','q2')},
             ('q0','q1','q2'): {'1': ('q0','q1','q2'), '0': ('q0','q1','q2')}
         })
-        nose.assert_equal(dfa.initial_state, ('q0'))
+        nose.assert_equal(dfa.initial_state, ('q0',))
         nose.assert_equal(dfa.final_states, {('q0','q1','q2'), ('q0','q2')})
 
     def test_init_nfa_lambda_transition(self) -> None:
         """Should convert to a DFA an NFA with a lambda transition."""
         dfa = DFA.from_nfa(self.nfa)
-        nose.assert_equal(dfa.states, {(), ('q0'), ('q1','q2')})
+        nose.assert_equal(dfa.states, {tuple(), ('q0',), ('q1','q2')})
         nose.assert_equal(dfa.input_symbols, {'a', 'b'})
         nose.assert_equal(dfa.transitions, {
-            () : {'a': (), 'b': ()},
-            ('q0') : {'a': ('q1', 'q2'), 'b': ()},
-            ('q1', 'q2') : {'a': ('q1', 'q2'), 'b': ('q0')},
+            tuple() : {'a': tuple(), 'b': tuple()},
+            ('q0',) : {'a': ('q1', 'q2'), 'b': tuple()},
+            ('q1', 'q2') : {'a': ('q1', 'q2'), 'b': ('q0',)},
         })
-        nose.assert_equal(dfa.initial_state, ('q0'))
+        nose.assert_equal(dfa.initial_state, ('q0',))
         nose.assert_equal(dfa.final_states, {('q1', 'q2')})
 
     def test_nfa_to_dfa_with_lambda_transitions(self):
@@ -1165,7 +1165,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'q1'}
         )
         dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
-        nose.assert_equal(dfa.read_input('a'), ('q1'))
+        nose.assert_equal(dfa.read_input('a'), ('q1',))
 
     def test_partial_dfa(self) -> None:
         """Should allow for partial DFA when flag is set"""
