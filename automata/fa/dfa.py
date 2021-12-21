@@ -2,9 +2,10 @@
 """Classes and methods for working with deterministic finite automata."""
 
 import copy
+from itertools import product
 from collections import defaultdict, deque
 from pydot import Dot, Edge, Node
-from typing import Dict, Set, Generator, Deque, Iterable, Any, Optional
+from typing import Dict, Set, Generator, Deque, Iterable, Any, Optional, FrozenSet
 
 import automata.fa.nfa as nfa
 import automata.base.exceptions as exceptions
@@ -310,28 +311,18 @@ class DFA(fa.FA):
         with an empty set of final states.
         """
         assert self.input_symbols == other.input_symbols
-        states_a = list(self.states)
-        states_b = list(other.states)
-        new_states = {
-            self._stringify_states_unsorted((a, b))
-            for a in states_a for b in states_b
-        }
+        new_states = set(product(self.states, other.states))
+
         new_transitions : DFATransitionsT = dict()
         for state_a, transitions_a in self.transitions.items():
             for state_b, transitions_b in other.transitions.items():
-                new_state = self._stringify_states_unsorted(
-                    (state_a, state_b)
-                )
+                new_state = (state_a, state_b)
                 new_transitions[new_state] = dict()
                 for symbol in self.input_symbols:
                     new_transitions[new_state][symbol] = (
-                        self._stringify_states_unsorted(
-                            (transitions_a[symbol], transitions_b[symbol])
-                        )
+                        transitions_a[symbol], transitions_b[symbol]
                     )
-        new_initial_state = self._stringify_states_unsorted(
-            (self.initial_state, other.initial_state)
-        )
+        new_initial_state = (self.initial_state, other.initial_state)
 
         return DFA(
             states=new_states,
@@ -352,9 +343,7 @@ class DFA(fa.FA):
             for state_b in other.states:
                 if (state_a in self.final_states or
                         state_b in other.final_states):
-                    new_dfa.final_states.add(
-                        self._stringify_states_unsorted((state_a, state_b))
-                    )
+                    new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -368,9 +357,7 @@ class DFA(fa.FA):
         new_dfa = self._cross_product(other)
         for state_a in self.final_states:
             for state_b in other.final_states:
-                new_dfa.final_states.add(
-                    self._stringify_states_unsorted((state_a, state_b))
-                )
+                new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -385,9 +372,7 @@ class DFA(fa.FA):
         for state_a in self.final_states:
             for state_b in other.states:
                 if state_b not in other.final_states:
-                    new_dfa.final_states.add(
-                        self._stringify_states_unsorted((state_a, state_b))
-                    )
+                    new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -405,9 +390,7 @@ class DFA(fa.FA):
                         state_b not in other.final_states) or
                     (state_a not in self.final_states and
                         state_b in other.final_states)):
-                    new_dfa.final_states.add(
-                        self._stringify_states_unsorted((state_a, state_b))
-                    )
+                    new_dfa.final_states.add((state_a, state_b))
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -515,11 +498,11 @@ class DFA(fa.FA):
 
         return not contains_cycle
 
-    #TODO remove these functions as used in the cross product thing
+
     @staticmethod
-    def _stringify_states_unsorted(states : Iterable[DFAStateT]) -> Any:
-        """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(states)) #type: ignore
+    def _to_canonical_form(states : Iterable[DFAStateT]) -> FrozenSet[DFAStateT]:
+        """Return a canonical (hashable) form of the given iterable of states."""
+        return frozenset(states)
 
     @staticmethod
     def _stringify_states(states : Iterable[DFAStateT]) -> Any:
@@ -549,10 +532,11 @@ class DFA(fa.FA):
                                          dfa_transitions : DFATransitionsT):
         """Enqueue the next set of current states for the generated DFA."""
         for input_symbol in nfa.input_symbols:
-            next_current_states = nfa._get_next_current_states(
-                current_states, input_symbol)
-            dfa_transitions[current_state_name][input_symbol] = (
-                cls._stringify_states(next_current_states))
+            next_current_states = cls._to_canonical_form(
+                nfa._get_next_current_states(current_states, input_symbol)
+            )
+            dfa_transitions[current_state_name][input_symbol] = \
+                cls._to_canonical_form(next_current_states)
             state_queue.append(next_current_states)
 
     @classmethod
@@ -562,19 +546,20 @@ class DFA(fa.FA):
         dfa_symbols = nfa.input_symbols
         dfa_transitions : DFATransitionsT = {}
         # equivalent DFA states states
-        nfa_initial_states = nfa._get_lambda_closure(nfa.initial_state)
-        dfa_initial_state = cls._stringify_states(nfa_initial_states)
+        nfa_initial_states = cls._to_canonical_form(nfa._get_lambda_closure(nfa.initial_state))
+        dfa_initial_state = nfa_initial_states
         dfa_final_states : Set[DFAStateT] = set()
 
-        state_queue : Deque[Set[DFAStateT]] = deque()
+        state_queue : Deque[FrozenSet[DFAStateT]] = deque()
         state_queue.append(nfa_initial_states)
         while state_queue:
 
             current_states = state_queue.popleft()
-            current_state_name : DFAStateT = cls._stringify_states(current_states)
+            current_state_name : DFAStateT = current_states
             if current_state_name in dfa_states:
                 # We've been here before and nothing should have changed.
                 continue
+
             cls._add_nfa_states_from_queue(nfa, current_states,
                                            current_state_name, dfa_states,
                                            dfa_transitions, dfa_final_states)
