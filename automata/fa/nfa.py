@@ -5,7 +5,6 @@ import copy
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-import automata.fa.dfa as dfa
 
 from typing import Dict, Set, Generator, Deque, Iterable, Any, Optional
 
@@ -42,8 +41,10 @@ class NFA(fa.FA):
         else:
             raise NotImplementedError
 
+    # Type annotating the dfa would induce a circular dependency. The
+    # annotation only causes an issue with Python 3.6.
     @classmethod
-    def from_dfa(cls, dfa : 'dfa.DFA') -> 'NFA':
+    def from_dfa(cls, dfa) -> 'NFA':
         """Initialize this NFA as one equivalent to the given DFA."""
         nfa_transitions : NFATransitionsT = {}
 
