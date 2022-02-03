@@ -1,6 +1,6 @@
 # Automata
 
-*Copyright 2016-2021 Caleb Evans*  
+*Copyright 2016-2022 Caleb Evans*  
 *Released under the MIT license*
 
 [![Build Status](https://app.travis-ci.com/caleb531/automata.svg?branch=master)](https://app.travis-ci.com/caleb531/automata)
