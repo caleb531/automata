@@ -7,7 +7,7 @@ import tempfile
 import types
 from unittest.mock import patch
 
-import nose.tools as nose
+import unittest
 
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
@@ -27,7 +27,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_dfa_missing_formal_params(self):
         """Should raise an error if formal DFA parameters are missing."""
-        with nose.assert_raises(TypeError):
+        with self.assertRaises(TypeError):
             DFA(
                 states={'q0', 'q1'},
                 input_symbols={'0', '1'},
@@ -49,83 +49,83 @@ class TestDFA(test_fa.TestFA):
     def test_dfa_equal(self):
         """Should correctly determine if two DFAs are equal."""
         new_dfa = self.dfa.copy()
-        nose.assert_true(self.dfa == new_dfa, 'DFAs are not equal')
+        self.assertTrue(self.dfa == new_dfa, 'DFAs are not equal')
 
     def test_dfa_not_equal(self):
         """Should correctly determine if two DFAs are not equal."""
         new_dfa = self.dfa.copy()
         new_dfa.final_states.add('q2')
-        nose.assert_true(self.dfa != new_dfa, 'DFAs are equal')
+        self.assertTrue(self.dfa != new_dfa, 'DFAs are equal')
 
     def test_validate_missing_state(self):
         """Should raise error if a state has no transitions defined."""
-        with nose.assert_raises(exceptions.MissingStateError):
+        with self.assertRaises(exceptions.MissingStateError):
             del self.dfa.transitions['q1']
             self.dfa.validate()
 
     def test_validate_missing_symbol(self):
         """Should raise error if a symbol transition is missing."""
-        with nose.assert_raises(exceptions.MissingSymbolError):
+        with self.assertRaises(exceptions.MissingSymbolError):
             del self.dfa.transitions['q1']['1']
             self.dfa.validate()
 
     def test_validate_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
-        with nose.assert_raises(exceptions.InvalidSymbolError):
+        with self.assertRaises(exceptions.InvalidSymbolError):
             self.dfa.transitions['q1']['2'] = 'q2'
             self.dfa.validate()
 
     def test_validate_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
-        with nose.assert_raises(exceptions.InvalidStateError):
+        with self.assertRaises(exceptions.InvalidStateError):
             self.dfa.transitions['q1']['1'] = 'q3'
             self.dfa.validate()
 
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
-        with nose.assert_raises(exceptions.InvalidStateError):
+        with self.assertRaises(exceptions.InvalidStateError):
             self.dfa.initial_state = 'q3'
             self.dfa.validate()
 
     def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
-        with nose.assert_raises(exceptions.InvalidStateError):
+        with self.assertRaises(exceptions.InvalidStateError):
             self.dfa.final_states = {'q3'}
             self.dfa.validate()
 
     def test_validate_invalid_final_state_non_str(self):
         """Should raise InvalidStateError even for non-string final states."""
-        with nose.assert_raises(exceptions.InvalidStateError):
+        with self.assertRaises(exceptions.InvalidStateError):
             self.dfa.final_states = {3}
             self.dfa.validate()
 
     def test_read_input_accepted(self):
         """Should return correct state if acceptable DFA input is given."""
-        nose.assert_equal(self.dfa.read_input('0111'), 'q1')
+        self.assertEqual(self.dfa.read_input('0111'), 'q1')
 
     def test_read_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
-        with nose.assert_raises(exceptions.RejectionException):
+        with self.assertRaises(exceptions.RejectionException):
             self.dfa.read_input('011')
 
     def test_read_input_rejection_invalid_symbol(self):
         """Should raise error if an invalid symbol is read."""
-        with nose.assert_raises(exceptions.RejectionException):
+        with self.assertRaises(exceptions.RejectionException):
             self.dfa.read_input('01112')
 
     def test_accepts_input_true(self):
         """Should return True if DFA input is accepted."""
-        nose.assert_equal(self.dfa.accepts_input('0111'), True)
+        self.assertEqual(self.dfa.accepts_input('0111'), True)
 
     def test_accepts_input_false(self):
         """Should return False if DFA input is rejected."""
-        nose.assert_equal(self.dfa.accepts_input('011'), False)
+        self.assertEqual(self.dfa.accepts_input('011'), False)
 
     def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""
         validation_generator = self.dfa.read_input_stepwise('0111')
-        nose.assert_is_instance(validation_generator, types.GeneratorType)
-        nose.assert_equal(list(validation_generator), [
+        self.assertIsInstance(validation_generator, types.GeneratorType)
+        self.assertEqual(list(validation_generator), [
             'q0', 'q0', 'q1', 'q2', 'q1'
         ])
 
@@ -145,22 +145,22 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'}
         )
         other = 42
-        nose.assert_not_equal(dfa, other)
-        with nose.assert_raises(NotImplementedError):
+        self.assertNotEqual(dfa, other)
+        with self.assertRaises(NotImplementedError):
             dfa | other
-        with nose.assert_raises(NotImplementedError):
+        with self.assertRaises(NotImplementedError):
             dfa & other
-        with nose.assert_raises(NotImplementedError):
+        with self.assertRaises(NotImplementedError):
             dfa - other
-        with nose.assert_raises(NotImplementedError):
+        with self.assertRaises(NotImplementedError):
             dfa ^ other
-        with nose.assert_raises(NotImplementedError):
+        with self.assertRaises(NotImplementedError):
             dfa < other
-        with nose.assert_raises(NotImplementedError):
+        with self.assertRaises(NotImplementedError):
             dfa <= other
-        with nose.assert_raises(NotImplementedError):
+        with self.assertRaises(NotImplementedError):
             dfa > other
-        with nose.assert_raises(NotImplementedError):
+        with self.assertRaises(NotImplementedError):
             dfa >= other
 
     def test_equivalence_not_equal(self):
@@ -191,7 +191,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1'}
         )
-        nose.assert_true(no_consecutive_11_dfa != zero_or_one_1_dfa)
+        self.assertTrue(no_consecutive_11_dfa != zero_or_one_1_dfa)
 
     def test_equivalence_minify(self):
         """Should be equivalent after minify."""
@@ -208,7 +208,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1', 'q3'}
         )
         minimal_dfa = no_consecutive_11_dfa.minify()
-        nose.assert_equal(no_consecutive_11_dfa, minimal_dfa)
+        self.assertEqual(no_consecutive_11_dfa, minimal_dfa)
 
     def test_equivalence_two_non_minimal(self):
         """Should be equivalent even though they are non minimal."""
@@ -236,7 +236,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1'}
         )
-        nose.assert_equal(no_consecutive_11_dfa, other_dfa)
+        self.assertEqual(no_consecutive_11_dfa, other_dfa)
 
     def test_complement(self):
         no_consecutive_11_dfa = DFA(
@@ -251,17 +251,17 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'}
         )
         complement_dfa = ~no_consecutive_11_dfa
-        nose.assert_equal(complement_dfa.states, no_consecutive_11_dfa.states)
-        nose.assert_equal(
+        self.assertEqual(complement_dfa.states, no_consecutive_11_dfa.states)
+        self.assertEqual(
             complement_dfa.input_symbols, no_consecutive_11_dfa.input_symbols
         )
-        nose.assert_equal(
+        self.assertEqual(
             complement_dfa.transitions, no_consecutive_11_dfa.transitions
         )
-        nose.assert_equal(
+        self.assertEqual(
             complement_dfa.initial_state, no_consecutive_11_dfa.initial_state
         )
-        nose.assert_equal(
+        self.assertEqual(
             complement_dfa.final_states, {'q2'}
         )
 
@@ -295,15 +295,15 @@ class TestDFA(test_fa.TestFA):
             final_states={'p0', 'p1'}
         )
         new_dfa = A.union(B, retain_names=True, minify=False)
-        nose.assert_equal(new_dfa.states, {
+        self.assertEqual(new_dfa.states, {
             '{q0,p0}', '{q0,p1}', '{q0,p2}',
             '{q1,p0}', '{q1,p1}', '{q1,p2}',
             '{q2,p0}', '{q2,p1}', '{q2,p2}',
             '{q3,p0}', '{q3,p1}', '{q3,p2}',
             '{q4,p0}', '{q4,p1}', '{q4,p2}'
         })
-        nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(new_dfa.transitions, {
+        self.assertEqual(new_dfa.input_symbols, {'0', '1'})
+        self.assertEqual(new_dfa.transitions, {
             '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
             '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
             '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
@@ -320,8 +320,8 @@ class TestDFA(test_fa.TestFA):
             '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
             '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
         })
-        nose.assert_equal(new_dfa.initial_state, '{q0,p0}')
-        nose.assert_equal(new_dfa.final_states, {
+        self.assertEqual(new_dfa.initial_state, '{q0,p0}')
+        self.assertEqual(new_dfa.final_states, {
             '{q0,p0}', '{q0,p1}',
             '{q1,p0}', '{q1,p1}',
             '{q2,p0}', '{q2,p1}',
@@ -359,15 +359,15 @@ class TestDFA(test_fa.TestFA):
             final_states={'p0', 'p1'}
         )
         new_dfa = A.intersection(B, retain_names=True, minify=False)
-        nose.assert_equal(new_dfa.states, {
+        self.assertEqual(new_dfa.states, {
             '{q0,p0}', '{q0,p1}', '{q0,p2}',
             '{q1,p0}', '{q1,p1}', '{q1,p2}',
             '{q2,p0}', '{q2,p1}', '{q2,p2}',
             '{q3,p0}', '{q3,p1}', '{q3,p2}',
             '{q4,p0}', '{q4,p1}', '{q4,p2}'
         })
-        nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(new_dfa.transitions, {
+        self.assertEqual(new_dfa.input_symbols, {'0', '1'})
+        self.assertEqual(new_dfa.transitions, {
             '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
             '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
             '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
@@ -384,8 +384,8 @@ class TestDFA(test_fa.TestFA):
             '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
             '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
         })
-        nose.assert_equal(new_dfa.initial_state, '{q0,p0}')
-        nose.assert_equal(new_dfa.final_states, {
+        self.assertEqual(new_dfa.initial_state, '{q0,p0}')
+        self.assertEqual(new_dfa.final_states, {
             '{q4,p0}', '{q4,p1}',
         })
 
@@ -419,15 +419,15 @@ class TestDFA(test_fa.TestFA):
             final_states={'p0', 'p1'}
         )
         new_dfa = A.difference(B, retain_names=True, minify=False)
-        nose.assert_equal(new_dfa.states, {
+        self.assertEqual(new_dfa.states, {
             '{q0,p0}', '{q0,p1}', '{q0,p2}',
             '{q1,p0}', '{q1,p1}', '{q1,p2}',
             '{q2,p0}', '{q2,p1}', '{q2,p2}',
             '{q3,p0}', '{q3,p1}', '{q3,p2}',
             '{q4,p0}', '{q4,p1}', '{q4,p2}'
         })
-        nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(new_dfa.transitions, {
+        self.assertEqual(new_dfa.input_symbols, {'0', '1'})
+        self.assertEqual(new_dfa.transitions, {
             '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
             '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
             '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
@@ -444,8 +444,8 @@ class TestDFA(test_fa.TestFA):
             '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
             '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
         })
-        nose.assert_equal(new_dfa.initial_state, '{q0,p0}')
-        nose.assert_equal(new_dfa.final_states, {
+        self.assertEqual(new_dfa.initial_state, '{q0,p0}')
+        self.assertEqual(new_dfa.final_states, {
             '{q4,p2}'
         })
 
@@ -479,15 +479,15 @@ class TestDFA(test_fa.TestFA):
             final_states={'p0', 'p1'}
         )
         new_dfa = A.symmetric_difference(B, retain_names=True, minify=False)
-        nose.assert_equal(new_dfa.states, {
+        self.assertEqual(new_dfa.states, {
             '{q0,p0}', '{q0,p1}', '{q0,p2}',
             '{q1,p0}', '{q1,p1}', '{q1,p2}',
             '{q2,p0}', '{q2,p1}', '{q2,p2}',
             '{q3,p0}', '{q3,p1}', '{q3,p2}',
             '{q4,p0}', '{q4,p1}', '{q4,p2}'
         })
-        nose.assert_equal(new_dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(new_dfa.transitions, {
+        self.assertEqual(new_dfa.input_symbols, {'0', '1'})
+        self.assertEqual(new_dfa.transitions, {
             '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
             '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
             '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
@@ -504,8 +504,8 @@ class TestDFA(test_fa.TestFA):
             '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
             '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
         })
-        nose.assert_equal(new_dfa.initial_state, '{q0,p0}')
-        nose.assert_equal(new_dfa.final_states, {
+        self.assertEqual(new_dfa.initial_state, '{q0,p0}')
+        self.assertEqual(new_dfa.final_states, {
             '{q0,p0}', '{q0,p1}',
             '{q1,p0}', '{q1,p1}',
             '{q2,p0}', '{q2,p1}',
@@ -541,10 +541,10 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'}
         )
         # Test both proper subset and subset with each set as left hand side
-        nose.assert_true(zero_or_one_1_dfa < no_consecutive_11_dfa)
-        nose.assert_true(zero_or_one_1_dfa <= no_consecutive_11_dfa)
-        nose.assert_false(no_consecutive_11_dfa < zero_or_one_1_dfa)
-        nose.assert_false(no_consecutive_11_dfa <= zero_or_one_1_dfa)
+        self.assertTrue(zero_or_one_1_dfa < no_consecutive_11_dfa)
+        self.assertTrue(zero_or_one_1_dfa <= no_consecutive_11_dfa)
+        self.assertFalse(no_consecutive_11_dfa < zero_or_one_1_dfa)
+        self.assertFalse(no_consecutive_11_dfa <= zero_or_one_1_dfa)
 
     def test_issuperset(self):
         # This DFA accepts all words which do not contain two
@@ -574,10 +574,10 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'}
         )
         # Test both proper subset and subset with each set as left hand side
-        nose.assert_false(zero_or_one_1_dfa > no_consecutive_11_dfa)
-        nose.assert_false(zero_or_one_1_dfa >= no_consecutive_11_dfa)
-        nose.assert_true(no_consecutive_11_dfa > zero_or_one_1_dfa)
-        nose.assert_true(no_consecutive_11_dfa >= zero_or_one_1_dfa)
+        self.assertFalse(zero_or_one_1_dfa > no_consecutive_11_dfa)
+        self.assertFalse(zero_or_one_1_dfa >= no_consecutive_11_dfa)
+        self.assertTrue(no_consecutive_11_dfa > zero_or_one_1_dfa)
+        self.assertTrue(no_consecutive_11_dfa >= zero_or_one_1_dfa)
 
     def test_isdisjoint(self):
         # This DFA accepts all words which contain at least
@@ -619,10 +619,10 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q1'}
         )
-        nose.assert_true(A.isdisjoint(B))
-        nose.assert_true(B.isdisjoint(A))
-        nose.assert_false(A.isdisjoint(C))
-        nose.assert_false(B.isdisjoint(C))
+        self.assertTrue(A.isdisjoint(B))
+        self.assertTrue(B.isdisjoint(A))
+        self.assertFalse(A.isdisjoint(C))
+        self.assertFalse(B.isdisjoint(C))
 
     def test_isempty_non_empty(self):
         # This DFA accepts all words which contain at least
@@ -639,7 +639,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q3'}
         )
-        nose.assert_false(A.isempty())
+        self.assertFalse(A.isempty())
 
     def test_isempty_empty(self):
         # This DFA has no reachable final states and
@@ -656,7 +656,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q3'}
         )
-        nose.assert_true(A.isempty())
+        self.assertTrue(A.isempty())
 
     def test_isfinite_infinite(self):
         # This DFA accepts all words which do not contain two
@@ -672,7 +672,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1'}
         )
-        nose.assert_false(A.isfinite())
+        self.assertFalse(A.isfinite())
 
     def test_isfinite_infinite_case_2(self):
         # This DFA accepts all binary strings which have length
@@ -692,7 +692,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'}
         )
-        nose.assert_false(A.isfinite())
+        self.assertFalse(A.isfinite())
 
     def test_isfinite_finite(self):
         # This DFA accepts all binary strings which have length
@@ -712,7 +712,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5'}
         )
-        nose.assert_true(A.isfinite())
+        self.assertTrue(A.isfinite())
 
     def test_isfinite_empty(self):
         # This DFA has no reachable final states and
@@ -729,7 +729,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q3'}
         )
-        nose.assert_true(A.isfinite())
+        self.assertTrue(A.isfinite())
 
     def test_isfinite_universe(self):
         # This DFA accepts all binary strings and
@@ -743,7 +743,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0'}
         )
-        nose.assert_false(A.isfinite())
+        self.assertFalse(A.isfinite())
 
     def test_set_laws(self):
         """Tests many set laws that are true for all sets"""
@@ -796,28 +796,28 @@ class TestDFA(test_fa.TestFA):
             final_states=set()
         )
         # De Morgan's laws
-        nose.assert_equal(~(A | B), ~A & ~B)
-        nose.assert_equal(~(A & B), ~A | ~B)
+        self.assertEqual(~(A | B), ~A & ~B)
+        self.assertEqual(~(A & B), ~A | ~B)
         # Complement laws
-        nose.assert_equal(A | ~A, U)
-        nose.assert_equal(A & ~A, empty)
-        nose.assert_equal(~U, empty)
-        nose.assert_equal(~empty, U)
+        self.assertEqual(A | ~A, U)
+        self.assertEqual(A & ~A, empty)
+        self.assertEqual(~U, empty)
+        self.assertEqual(~empty, U)
         # Involution
-        nose.assert_equal(A, ~(~A))
+        self.assertEqual(A, ~(~A))
         # Relationships between relative and absolute complements
-        nose.assert_equal(A - B, A & ~B)
-        nose.assert_equal(~(A - B), ~A | B)
-        nose.assert_equal(~(A - B), ~A | (B & A))
+        self.assertEqual(A - B, A & ~B)
+        self.assertEqual(~(A - B), ~A | B)
+        self.assertEqual(~(A - B), ~A | (B & A))
         # Relationship with set difference
-        nose.assert_equal(~A - ~B, B - A)
+        self.assertEqual(~A - ~B, B - A)
         # Symmetric difference
-        nose.assert_equal(A ^ B, (A - B) | (B - A))
-        nose.assert_equal(A ^ B, (A | B) - (A & B))
+        self.assertEqual(A ^ B, (A - B) | (B - A))
+        self.assertEqual(A ^ B, (A | B) - (A & B))
         # Commutativity
-        nose.assert_equal(A | B, B | A)
-        nose.assert_equal(A & B, B & A)
-        nose.assert_equal(A ^ B, B ^ A)
+        self.assertEqual(A | B, B | A)
+        self.assertEqual(A & B, B & A)
+        self.assertEqual(A ^ B, B ^ A)
 
     def test_minify_dfa(self):
         """Should minify a given DFA."""
@@ -841,17 +841,17 @@ class TestDFA(test_fa.TestFA):
             final_states={'q3', 'q4', 'q5', 'q6'}
         )
         minimal_dfa = dfa.minify(retain_names=True)
-        nose.assert_equal(minimal_dfa.states, {
+        self.assertEqual(minimal_dfa.states, {
             'q0', '{q1,q2}', '{q3,q4,q5,q6}'
         })
-        nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(minimal_dfa.transitions, {
+        self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
+        self.assertEqual(minimal_dfa.transitions, {
             'q0': {'0': '{q1,q2}', '1': '{q1,q2}'},
             '{q1,q2}': {'0': '{q3,q4,q5,q6}', '1': '{q3,q4,q5,q6}'},
             '{q3,q4,q5,q6}': {'0': '{q3,q4,q5,q6}', '1': '{q3,q4,q5,q6}'}
         })
-        nose.assert_equal(minimal_dfa.initial_state, 'q0')
-        nose.assert_equal(minimal_dfa.final_states, {'{q3,q4,q5,q6}'})
+        self.assertEqual(minimal_dfa.initial_state, 'q0')
+        self.assertEqual(minimal_dfa.final_states, {'{q3,q4,q5,q6}'})
 
     def test_minify_dfa_complex(self):
         """Should minify a given large DFA."""
@@ -1016,11 +1016,11 @@ class TestDFA(test_fa.TestFA):
             final_states={'5', '1', '36', '49', '40', '25', '46', '6', '55',
                           '33', '11', '20', '48', '44', '32'})
         minimal_dfa = dfa.minify(retain_names=True)
-        nose.assert_equal(minimal_dfa.states, check_dfa.states)
-        nose.assert_equal(minimal_dfa.input_symbols, check_dfa.input_symbols)
-        nose.assert_equal(minimal_dfa.transitions, check_dfa.transitions)
-        nose.assert_equal(minimal_dfa.initial_state, check_dfa.initial_state)
-        nose.assert_equal(minimal_dfa.final_states, check_dfa.final_states)
+        self.assertEqual(minimal_dfa.states, check_dfa.states)
+        self.assertEqual(minimal_dfa.input_symbols, check_dfa.input_symbols)
+        self.assertEqual(minimal_dfa.transitions, check_dfa.transitions)
+        self.assertEqual(minimal_dfa.initial_state, check_dfa.initial_state)
+        self.assertEqual(minimal_dfa.final_states, check_dfa.final_states)
 
     def test_minify_minimal_dfa(self):
         """Should minify an already minimal DFA."""
@@ -1036,11 +1036,11 @@ class TestDFA(test_fa.TestFA):
             final_states={'q1'}
         )
         minimal_dfa = dfa.minify(retain_names=True)
-        nose.assert_equal(minimal_dfa.states, dfa.states)
-        nose.assert_equal(minimal_dfa.input_symbols, dfa.input_symbols)
-        nose.assert_equal(minimal_dfa.transitions, dfa.transitions)
-        nose.assert_equal(minimal_dfa.initial_state, dfa.initial_state)
-        nose.assert_equal(minimal_dfa.final_states, dfa.final_states)
+        self.assertEqual(minimal_dfa.states, dfa.states)
+        self.assertEqual(minimal_dfa.input_symbols, dfa.input_symbols)
+        self.assertEqual(minimal_dfa.transitions, dfa.transitions)
+        self.assertEqual(minimal_dfa.initial_state, dfa.initial_state)
+        self.assertEqual(minimal_dfa.final_states, dfa.final_states)
 
     def test_minify_dfa_initial_state(self):
         """Should minify a DFA where the initial state is being changed."""
@@ -1057,13 +1057,13 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'},
         )
         minimal_dfa = dfa.minify()
-        nose.assert_equal(minimal_dfa.states, {'{q0,q1}'})
-        nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(minimal_dfa.transitions, {
+        self.assertEqual(minimal_dfa.states, {'{q0,q1}'})
+        self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
+        self.assertEqual(minimal_dfa.transitions, {
             '{q0,q1}': {'0': '{q0,q1}', '1': '{q0,q1}'},
         })
-        nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
-        nose.assert_equal(minimal_dfa.final_states, {'{q0,q1}'})
+        self.assertEqual(minimal_dfa.initial_state, '{q0,q1}')
+        self.assertEqual(minimal_dfa.final_states, {'{q0,q1}'})
 
     def test_minify_dfa_no_final_states(self):
         dfa = DFA(
@@ -1077,13 +1077,13 @@ class TestDFA(test_fa.TestFA):
             final_states=set(),
         )
         minimal_dfa = dfa.minify()
-        nose.assert_equal(minimal_dfa.states, {'{q0,q1}'})
-        nose.assert_equal(minimal_dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(minimal_dfa.transitions, {
+        self.assertEqual(minimal_dfa.states, {'{q0,q1}'})
+        self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
+        self.assertEqual(minimal_dfa.transitions, {
             '{q0,q1}': {'0': '{q0,q1}', '1': '{q0,q1}'},
         })
-        nose.assert_equal(minimal_dfa.initial_state, '{q0,q1}')
-        nose.assert_equal(minimal_dfa.final_states, set())
+        self.assertEqual(minimal_dfa.initial_state, '{q0,q1}')
+        self.assertEqual(minimal_dfa.final_states, set())
 
     def test_init_nfa_simple(self):
         """Should convert to a DFA a simple NFA."""
@@ -1099,16 +1099,16 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa)
-        nose.assert_equal(dfa.states, {'{}', '{q0}', '{q0,q1}', '{q2}'})
-        nose.assert_equal(dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(dfa.transitions, {
+        self.assertEqual(dfa.states, {'{}', '{q0}', '{q0,q1}', '{q2}'})
+        self.assertEqual(dfa.input_symbols, {'0', '1'})
+        self.assertEqual(dfa.transitions, {
             '{}': {'0': '{}', '1': '{}'},
             '{q0}': {'0': '{q0,q1}', '1': '{}'},
             '{q0,q1}': {'0': '{q0,q1}', '1': '{q2}'},
             '{q2}': {'0': '{}', '1': '{}'}
         })
-        nose.assert_equal(dfa.initial_state, '{q0}')
-        nose.assert_equal(dfa.final_states, {'{q2}'})
+        self.assertEqual(dfa.initial_state, '{q0}')
+        self.assertEqual(dfa.final_states, {'{q2}'})
 
     def test_init_nfa_more_complex(self):
         """Should convert to a DFA a more complex NFA."""
@@ -1124,31 +1124,31 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa)
-        nose.assert_equal(dfa.states, {
+        self.assertEqual(dfa.states, {
             '{q0}', '{q0,q1}', '{q0,q2}', '{q0,q1,q2}'
         })
-        nose.assert_equal(dfa.input_symbols, {'0', '1'})
-        nose.assert_equal(dfa.transitions, {
+        self.assertEqual(dfa.input_symbols, {'0', '1'})
+        self.assertEqual(dfa.transitions, {
             '{q0}': {'1': '{q0}', '0': '{q0,q1}'},
             '{q0,q1}': {'1': '{q0,q2}', '0': '{q0,q1}'},
             '{q0,q2}': {'1': '{q0,q1}', '0': '{q0,q1,q2}'},
             '{q0,q1,q2}': {'1': '{q0,q1,q2}', '0': '{q0,q1,q2}'}
         })
-        nose.assert_equal(dfa.initial_state, '{q0}')
-        nose.assert_equal(dfa.final_states, {'{q0,q1,q2}', '{q0,q2}'})
+        self.assertEqual(dfa.initial_state, '{q0}')
+        self.assertEqual(dfa.final_states, {'{q0,q1,q2}', '{q0,q2}'})
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
         dfa = DFA.from_nfa(self.nfa)
-        nose.assert_equal(dfa.states, {'{}', '{q0}', '{q1,q2}'})
-        nose.assert_equal(dfa.input_symbols, {'a', 'b'})
-        nose.assert_equal(dfa.transitions, {
+        self.assertEqual(dfa.states, {'{}', '{q0}', '{q1,q2}'})
+        self.assertEqual(dfa.input_symbols, {'a', 'b'})
+        self.assertEqual(dfa.transitions, {
             '{}': {'a': '{}', 'b': '{}'},
             '{q0}': {'a': '{q1,q2}', 'b': '{}'},
             '{q1,q2}': {'a': '{q1,q2}', 'b': '{q0}'},
         })
-        nose.assert_equal(dfa.initial_state, '{q0}')
-        nose.assert_equal(dfa.final_states, {'{q1,q2}'})
+        self.assertEqual(dfa.initial_state, '{q0}')
+        self.assertEqual(dfa.final_states, {'{q1,q2}'})
 
     def test_nfa_to_dfa_with_lambda_transitions(self):
         """ Test NFA->DFA when initial state has lambda transitions """
@@ -1164,7 +1164,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'q1'}
         )
         dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
-        nose.assert_equal(dfa.read_input('a'), '{q1}')
+        self.assertEqual(dfa.read_input('a'), '{q1}')
 
     def test_partial_dfa(self):
         """Should allow for partial DFA when flag is set"""
@@ -1184,7 +1184,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'aa'},
             allow_partial=True
         )
-        nose.assert_equal(dfa.read_input('aa'), 'aa')
+        self.assertEqual(dfa.read_input('aa'), 'aa')
 
     def test_show_diagram_initial_final_different(self):
         """
@@ -1192,13 +1192,13 @@ class TestDFA(test_fa.TestFA):
         is not a final state.
         """
         graph = self.dfa.show_diagram()
-        nose.assert_equal(
+        self.assertEqual(
             {node.get_name() for node in graph.get_nodes()},
             {'q0', 'q1', 'q2'})
-        nose.assert_equal(graph.get_node('q0')[0].get_style(), 'filled')
-        nose.assert_equal(graph.get_node('q1')[0].get_peripheries(), 2)
-        nose.assert_equal(graph.get_node('q2')[0].get_peripheries(), None)
-        nose.assert_equal(
+        self.assertEqual(graph.get_node('q0')[0].get_style(), 'filled')
+        self.assertEqual(graph.get_node('q1')[0].get_peripheries(), 2)
+        self.assertEqual(graph.get_node('q2')[0].get_peripheries(), None)
+        self.assertEqual(
             {(edge.get_source(), edge.get_label(), edge.get_destination())
              for edge in graph.get_edges()},
             {
@@ -1229,14 +1229,14 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'}
         )
         graph = dfa.show_diagram()
-        nose.assert_equal(
+        self.assertEqual(
             {node.get_name() for node in graph.get_nodes()},
             {'q0', 'q1', 'q2'})
-        nose.assert_equal(graph.get_node('q0')[0].get_style(), 'filled')
-        nose.assert_equal(graph.get_node('q0')[0].get_peripheries(), 2)
-        nose.assert_equal(graph.get_node('q1')[0].get_peripheries(), 2)
-        nose.assert_equal(graph.get_node('q2')[0].get_peripheries(), None)
-        nose.assert_equal(
+        self.assertEqual(graph.get_node('q0')[0].get_style(), 'filled')
+        self.assertEqual(graph.get_node('q0')[0].get_peripheries(), 2)
+        self.assertEqual(graph.get_node('q1')[0].get_peripheries(), 2)
+        self.assertEqual(graph.get_node('q2')[0].get_peripheries(), None)
+        self.assertEqual(
             {(edge.get_source(), edge.get_label(), edge.get_destination())
              for edge in graph.get_edges()},
             {
@@ -1258,7 +1258,7 @@ class TestDFA(test_fa.TestFA):
             os.remove(diagram_path)
         except OSError:
             pass
-        nose.assert_false(os.path.exists(diagram_path))
+        self.assertFalse(os.path.exists(diagram_path))
         self.dfa.show_diagram(path=diagram_path)
-        nose.assert_true(os.path.exists(diagram_path))
+        self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)

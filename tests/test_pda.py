@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of PDAs."""
 
-import nose.tools as nose
+import unittest
 
 from automata.pda.dpda import DPDA
 from automata.pda.npda import NPDA
 
 
-class TestPDA(object):
+class TestPDA(unittest.TestCase):
     """A test class for testing all pushdown automata."""
 
-    def setup(self):
+    def setUp(self):
         """Reset test automata before every test function."""
         # DPDA which which matches zero or more 'a's, followed by the same
         # number of 'b's (accepting by final state)
@@ -81,17 +81,17 @@ class TestPDA(object):
 
     def assert_is_copy(self, first, second):
         """Assert that the first PDA is a deep copy of the second."""
-        nose.assert_is_not(first.states, second.states)
-        nose.assert_equal(first.states, second.states)
-        nose.assert_is_not(first.input_symbols, second.input_symbols)
-        nose.assert_equal(first.input_symbols, second.input_symbols)
-        nose.assert_is_not(first.stack_symbols, second.stack_symbols)
-        nose.assert_equal(first.stack_symbols, second.stack_symbols)
-        nose.assert_is_not(first.transitions, second.transitions)
-        nose.assert_equal(first.transitions, second.transitions)
-        nose.assert_equal(first.initial_state, second.initial_state)
-        nose.assert_equal(
+        self.assertIsNot(first.states, second.states)
+        self.assertEqual(first.states, second.states)
+        self.assertIsNot(first.input_symbols, second.input_symbols)
+        self.assertEqual(first.input_symbols, second.input_symbols)
+        self.assertIsNot(first.stack_symbols, second.stack_symbols)
+        self.assertEqual(first.stack_symbols, second.stack_symbols)
+        self.assertIsNot(first.transitions, second.transitions)
+        self.assertEqual(first.transitions, second.transitions)
+        self.assertEqual(first.initial_state, second.initial_state)
+        self.assertEqual(
             first.initial_stack_symbol, second.initial_stack_symbol)
-        nose.assert_is_not(first.final_states, second.final_states)
-        nose.assert_equal(first.final_states, second.final_states)
-        nose.assert_equal(first.acceptance_mode, second.acceptance_mode)
+        self.assertIsNot(first.final_states, second.final_states)
+        self.assertEqual(first.final_states, second.final_states)
+        self.assertEqual(first.acceptance_mode, second.acceptance_mode)

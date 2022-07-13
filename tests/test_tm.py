@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of DTMs."""
 
-import nose.tools as nose
+import unittest
 
 import automata.base.exceptions as exceptions
 from automata.tm.dtm import DTM
@@ -9,10 +9,10 @@ from automata.tm.ntm import NTM
 from automata.tm.mntm import MNTM
 
 
-class TestTM(object):
+class TestTM(unittest.TestCase):
     """A test class for testing all Turing machines."""
 
-    def setup(self):
+    def setUp(self):
         """Reset test machines before every test function."""
         # DTM which matches all strings beginning with '0's, and followed by
         # the same number of '1's
@@ -355,20 +355,20 @@ class TestTM(object):
 
     def assert_is_copy(self, first, second):
         """Assert that the first FA is a deep copy of the second."""
-        nose.assert_is_not(first.states, second.states)
-        nose.assert_equal(first.states, second.states)
-        nose.assert_is_not(first.input_symbols, second.input_symbols)
-        nose.assert_equal(first.input_symbols, second.input_symbols)
-        nose.assert_is_not(first.tape_symbols, second.tape_symbols)
-        nose.assert_equal(first.tape_symbols, second.tape_symbols)
-        nose.assert_is_not(first.transitions, second.transitions)
-        nose.assert_equal(first.transitions, second.transitions)
-        nose.assert_equal(first.initial_state, second.initial_state)
-        nose.assert_equal(first.blank_symbol, second.blank_symbol)
-        nose.assert_is_not(first.final_states, second.final_states)
-        nose.assert_equal(first.final_states, second.final_states)
+        self.assertIsNot(first.states, second.states)
+        self.assertEqual(first.states, second.states)
+        self.assertIsNot(first.input_symbols, second.input_symbols)
+        self.assertEqual(first.input_symbols, second.input_symbols)
+        self.assertIsNot(first.tape_symbols, second.tape_symbols)
+        self.assertEqual(first.tape_symbols, second.tape_symbols)
+        self.assertIsNot(first.transitions, second.transitions)
+        self.assertEqual(first.transitions, second.transitions)
+        self.assertEqual(first.initial_state, second.initial_state)
+        self.assertEqual(first.blank_symbol, second.blank_symbol)
+        self.assertIsNot(first.final_states, second.final_states)
+        self.assertEqual(first.final_states, second.final_states)
 
     def test_validate_blank_symbol(self):
         self.dtm1.blank_symbol = '-'
-        with nose.assert_raises(exceptions.InvalidSymbolError):
+        with self.assertRaises(exceptions.InvalidSymbolError):
             self.dtm1.validate()

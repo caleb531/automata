@@ -3,7 +3,7 @@
 
 # from unittest.mock import patch
 
-import nose.tools as nose
+import unittest
 
 import tests.test_pda as test_pda
 from automata.pda.configuration import PDAConfiguration
@@ -16,7 +16,7 @@ class TestPDAConfiguration(test_pda.TestPDA):
     def test_config_repr(self):
         """Should create proper string representation of PDA stack."""
         config = PDAConfiguration('q0', 'ab', PDAStack(['a', 'b']))
-        nose.assert_equal(
+        self.assertEqual(
             repr(config),
             'PDAConfiguration(\'q0\', \'ab\', PDAStack(\'a\', \'b\'))'
         )

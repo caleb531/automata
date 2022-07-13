@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of both DFAs and NFAs."""
 
-import nose.tools as nose
+import unittest
 
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 
 
-class TestFA(object):
+class TestFA(unittest.TestCase):
     """A test class for testing all finite automata."""
 
-    def setup(self):
+    def setUp(self):
         """Reset test automata before every test function."""
         # DFA which matches all binary strings ending in an odd number of '1's
         self.dfa = DFA(
@@ -40,12 +40,12 @@ class TestFA(object):
 
     def assert_is_copy(self, first, second):
         """Assert that the first FA is a deep copy of the second."""
-        nose.assert_is_not(first.states, second.states)
-        nose.assert_equal(first.states, second.states)
-        nose.assert_is_not(first.input_symbols, second.input_symbols)
-        nose.assert_equal(first.input_symbols, second.input_symbols)
-        nose.assert_is_not(first.transitions, second.transitions)
-        nose.assert_equal(first.transitions, second.transitions)
-        nose.assert_equal(first.initial_state, second.initial_state)
-        nose.assert_is_not(first.final_states, second.final_states)
-        nose.assert_equal(first.final_states, second.final_states)
+        self.assertIsNot(first.states, second.states)
+        self.assertEqual(first.states, second.states)
+        self.assertIsNot(first.input_symbols, second.input_symbols)
+        self.assertEqual(first.input_symbols, second.input_symbols)
+        self.assertIsNot(first.transitions, second.transitions)
+        self.assertEqual(first.transitions, second.transitions)
+        self.assertEqual(first.initial_state, second.initial_state)
+        self.assertIsNot(first.final_states, second.final_states)
+        self.assertEqual(first.final_states, second.final_states)

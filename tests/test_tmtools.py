@@ -5,7 +5,7 @@ import contextlib
 import io
 from unittest.mock import call, patch
 
-import nose.tools as nose
+import unittest
 
 import automata.tm.tools as tmtools
 import tests.test_tm as test_tm
@@ -13,10 +13,10 @@ from automata.tm.configuration import MTMConfiguration, TMConfiguration
 from automata.tm.tape import TMTape
 
 
-class TestTMTools(object):
+class TestTMTools(unittest.TestCase):
     """A test class for testing Turing machine utility functions."""
 
-    def setup(self):
+    def setUp(self):
         """Provide a configuration for testing."""
         self.config = TMConfiguration(
             'q2',
@@ -41,11 +41,11 @@ class TestTMTools(object):
 
     def test_repr_config(self):
         """Should return a string representation ot the given configuration."""
-        nose.assert_equal(
+        self.assertEqual(
             repr(self.config),
             'TMConfiguration(\'q2\', TMTape(\'abcdefghij\', 2))'
         )
-        nose.assert_equal(
+        self.assertEqual(
             repr(self.config2),
             'MTMConfiguration(\'q1\', (TMTape(\'abcdefghij\', 2), ' +
             'TMTape(\'klmnopq\', 5)))'
@@ -56,7 +56,7 @@ class TestTMTools(object):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             self.config.print()
-        nose.assert_equal(out.getvalue().rstrip(), '{}: {}\n{}'.format(
+        self.assertEqual(out.getvalue().rstrip(), '{}: {}\n{}'.format(
             'q2', 'abcdefghij', '^'.rjust(7)))
 
     @patch('automata.tm.configuration.TMConfiguration.print')
@@ -83,12 +83,14 @@ class TestTMTools(object):
             TMConfiguration(tape3, 'q2'),
             MTMConfiguration('q1', (tape1, tape2, tape3))
         ]
-        tmtools.print_configs(configs)
-        nose.assert_equal(print_config.call_args_list, [
-            call(),
-            call(),
-            call()
-        ])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            tmtools.print_configs(configs)
+            self.assertEqual(print_config.call_args_list, [
+                call(),
+                call(),
+                call()
+            ])
 
     def test_tape_iteration(self):
         """Should be able to iterate over a Turing machine tape."""
@@ -97,7 +99,7 @@ class TestTMTools(object):
             blank_symbol='.',
             current_position=2,
         )
-        nose.assert_equal(tuple(tape), ('a', 'b', 'c', 'd', 'e', 'f'))
+        self.assertEqual(tuple(tape), ('a', 'b', 'c', 'd', 'e', 'f'))
 
     def test_get_symbols_as_str(self):
         """Should print tape contents as a string without spaces."""
@@ -106,4 +108,4 @@ class TestTMTools(object):
             blank_symbol='.',
             current_position=2,
         )
-        nose.assert_equal(tape.get_symbols_as_str(), 'abcdef')
+        self.assertEqual(tape.get_symbols_as_str(), 'abcdef')
