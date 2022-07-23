@@ -2,13 +2,11 @@
 """Classes and methods for working with generalized non-deterministic finite automata."""
 
 import copy
-from abc import ABC
 
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-from automata.base.regex import RegEx as re
 
 
 class GNFA(fa.FA):
@@ -245,6 +243,9 @@ class GNFA(fa.FA):
             return self._to_regex(gnfa)
 
     def to_regex(self):
+        """
+        Convert GNFA to regular expression.
+        """
         gnfa = self.copy()
         return self._to_regex(gnfa)
 
