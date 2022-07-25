@@ -40,6 +40,8 @@ pip install automata-lib
   - [Finite Automaton (FA)](#class-faautomaton-metaclassabcmeta)
     - [Deterministic (DFA)](#class-dfafa)
     - [Non-Deterministic (NFA)](#class-nfafa)
+    - [Generalised Non-Deterministic (GNFA)](#class-gnfafa)
+    - [Regular Expressions](#regular-expressions)
   - [Pushdown Automaton (PDA)](#class-pdaautomaton-metaclassabcmeta)
     - [Deterministic (DPDA)](#class-dpdapda)
     - [Non-Deterministic (NPDA)](#class-npdapda)
@@ -427,6 +429,14 @@ nfa1.concatenate(nfa2)
 nfa1.kleene_star()
 ```
 
+#### NFA.eliminate_lambda(self)
+
+Removes epsilon transitions from the NFA which recognizes the same language.
+
+```python
+nfa1.eliminate_lambda()
+```
+
 #### NFA.from_dfa(cls, dfa)
 
 Creates an NFA that is equivalent to the given DFA.
@@ -435,6 +445,14 @@ Creates an NFA that is equivalent to the given DFA.
 from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
 nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
+```
+
+#### NFA.to_regex(self)
+
+Return a regular expression (string) equivalent to given NFA.
+
+```python
+regex = nfa1.to_regex()
 ```
 
 ### class GNFA(FA)
@@ -460,8 +478,7 @@ regular expressions and `None` also in addition to normal symbols.
 for each state except `final_state`. Each key is a state name and each value is `dict`
 which maps a state (the key) to the transition expression (the value).
     - value: a regular expression (string) consisting of `input_symbols` and the following symbols only:
-    `|` - Either or ; `*` - star: zero or more occurrences of previous symbol. `()` - 
-   parenthesis: Capture and group. Rest any of the characters and sequences as in the python module RegEx are not supported here.
+    `*`, `|`, `?`, `()`. Check [Regular Expressions](#regular-expressions) 
 
 ```python
 from automata.fa.gnfa import GNFA
@@ -487,6 +504,7 @@ from automata.fa.gnfa import GNFA
 from automata.fa.dfa import DFA
 gnfa = GNFA.from_dfa(dfa) # returns an equivalent GNFA
 ```
+
 #### GNFA.from_nfa(self, nfa)
 Initialize this GNFA as one equivalent to the given NFA.
 ```python
@@ -495,10 +513,16 @@ from automata.fa.nfa import NFA
 gnfa = GNFA.from_nfa(nfa) # returns an equivalent GNFA
 ```
 
+#### GNFA.validate(self)
+Validates GNFA
+```python
+gnfa.validate()
+```
+
 #### GNFA.to_regex(self)
 Convert GNFA to regular expression.
 ```python
-gnfa.to_regex() # returns a regular expression
+gnfa.to_regex() # returns a regular expression (string)
 ```
 
 #### GNFA.show_diagram(self, path=None, show_None = True):
@@ -510,6 +534,51 @@ gnfa.to_regex() # returns a regular expression
 gnfa.show_diagram(path='./gnfa.png', show_None=False)
 ```
 
+### Regular Expressions
+A set of tools for working with regular languages. These can be found under
+`automata/base/regex.py`
+
+A regular expression with the following operations only are supported in this library:
+
+
+- `*`: Kleene star operation. language repeated zero or more times. Ex: `a*`,`(ab)*`
+- `?`: Language repeated zero or one time. Ex: `a?`
+- Concatenation: Ex: `abcd`
+- `|`: Union. Ex: `a|b`
+- `()`: Grouping
+
+This is similar to the python RE module but this library does not support any other
+special character than given above. All regular languages can be written with these.
+
+Preferably the tools for the same can be imported as
+```python
+import automata.base.regex as re
+```
+
+#### automata.base.regex.validate(regex)
+Raise an error(`InvalidRegExError`) if the regular expression is invalid.
+
+```python
+re.validate('ab(c|d)*ba?')
+```
+
+#### automata.base.regex.isequal(re1, re2)
+Return True if both regular expressions are equivalent
+```python
+re.isequal('aa?', 'a|aa')
+```
+
+#### automata.base.regex.issubset(re1, re2)
+Return True if re1 is a subset of re2
+```python
+re.issubset('aa?', 'a*')
+```
+
+#### autumata.issuperset(re1, re2)
+Return True if re1 is a subset of re2
+```python
+re.issuperset('a*', 'a?')
+```
 
 ### class PDA(Automaton, metaclass=ABCMeta)
 
@@ -1164,6 +1233,13 @@ prohibited for Turing machines).
 
 Raised if the automaton did not accept the input string after validating (e.g.
 the automaton stopped on a non-final state after validating input).
+
+#### class RegExException
+
+A base class for all regular expression related errors.
+
+#### class InvalidRegExError
+Raised if the input regular expression is invalid.
 
 ### Turing machine exception classes
 
