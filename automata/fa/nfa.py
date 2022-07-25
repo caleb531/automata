@@ -25,7 +25,7 @@ class NFA(fa.FA):
         self.validate()
 
     def __add__(self, other):
-        """Return the concatenation of this DFA and another DFA."""
+        """Return the concatenation of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.concatenate(other)
         else:

@@ -41,7 +41,6 @@ pip install automata-lib
     - [Deterministic (DFA)](#class-dfafa)
     - [Non-Deterministic (NFA)](#class-nfafa)
     - [Generalised Non-Deterministic (GNFA)](#class-gnfafa)
-    - [Regular Expressions](#regular-expressions)
   - [Pushdown Automaton (PDA)](#class-pdaautomaton-metaclassabcmeta)
     - [Deterministic (DPDA)](#class-dpdapda)
     - [Non-Deterministic (NPDA)](#class-npdapda)
@@ -49,6 +48,7 @@ pip install automata-lib
     - [Deterministic (DTM)](#class-dtmtm)
     - [Non-Deterministic (NTM)](#class-ntmtm)
     - [Multi-Tape Non-Deterministic (MNTM)](#class-mntmtm)
+- [Regular Expressions](#regular-expressions)
 - [Base exception classes](#base-exception-classes)
 - [Turing machine exceptions](#turing-machine-exception-classes)
 
@@ -429,6 +429,15 @@ nfa1.concatenate(nfa2)
 nfa1.kleene_star()
 ```
 
+#### NFA.union(self, other)
+Returns union of two NFAs
+```python
+new_nfa = nfa1.union(nfa2)
+```
+```python
+new_nfa = nfa1 | nfa2
+```
+
 #### NFA.eliminate_lambda(self)
 
 Removes epsilon transitions from the NFA which recognizes the same language.
@@ -453,6 +462,11 @@ Return a regular expression (string) equivalent to given NFA.
 
 ```python
 regex = nfa1.to_regex()
+```
+
+#### show_diagram(self, path=None)
+```python
+nfa1.show_diagram(path = './abc.png')
 ```
 
 ### class GNFA(FA)
@@ -519,6 +533,12 @@ Validates GNFA
 gnfa.validate()
 ```
 
+#### GNFA.copy()
+Returns a deep copy of GNFA
+```python
+gnfa2 = gnfa1.copy()
+```
+
 #### GNFA.to_regex(self)
 Convert GNFA to regular expression.
 ```python
@@ -532,52 +552,6 @@ gnfa.to_regex() # returns a regular expression (string)
 
 ```python
 gnfa.show_diagram(path='./gnfa.png', show_None=False)
-```
-
-### Regular Expressions
-A set of tools for working with regular languages. These can be found under
-`automata/base/regex.py`
-
-A regular expression with the following operations only are supported in this library:
-
-
-- `*`: Kleene star operation. language repeated zero or more times. Ex: `a*`,`(ab)*`
-- `?`: Language repeated zero or one time. Ex: `a?`
-- Concatenation: Ex: `abcd`
-- `|`: Union. Ex: `a|b`
-- `()`: Grouping
-
-This is similar to the python RE module but this library does not support any other
-special character than given above. All regular languages can be written with these.
-
-Preferably the tools for the same can be imported as
-```python
-import automata.base.regex as re
-```
-
-#### automata.base.regex.validate(regex)
-Raise an error(`InvalidRegExError`) if the regular expression is invalid.
-
-```python
-re.validate('ab(c|d)*ba?')
-```
-
-#### automata.base.regex.isequal(re1, re2)
-Return True if both regular expressions are equivalent
-```python
-re.isequal('aa?', 'a|aa')
-```
-
-#### automata.base.regex.issubset(re1, re2)
-Return True if re1 is a subset of re2
-```python
-re.issubset('aa?', 'a*')
-```
-
-#### autumata.issuperset(re1, re2)
-Return True if re1 is a subset of re2
-```python
-re.issuperset('a*', 'a?')
 ```
 
 ### class PDA(Automaton, metaclass=ABCMeta)
@@ -1175,6 +1149,52 @@ ntm.validate()  # returns True
 
 ```python
 ntm.copy()  # returns deep copy of ntm
+```
+
+### Regular Expressions
+A set of tools for working with regular languages. These can be found under
+`automata/base/regex.py`
+
+A regular expression with the following operations only are supported in this library:
+
+
+- `*`: Kleene star operation. language repeated zero or more times. Ex: `a*`,`(ab)*`
+- `?`: Language repeated zero or one time. Ex: `a?`
+- Concatenation: Ex: `abcd`
+- `|`: Union. Ex: `a|b`
+- `()`: Grouping
+
+This is similar to the python RE module but this library does not support any other
+special character than given above. All regular languages can be written with these.
+
+Preferably the tools for the same can be imported as
+```python
+import automata.base.regex as re
+```
+
+#### automata.base.regex.validate(regex)
+Raise an error(`InvalidRegExError`) if the regular expression is invalid.
+
+```python
+re.validate('ab(c|d)*ba?')
+```
+
+#### automata.base.regex.isequal(re1, re2)
+Return True if both regular expressions are equivalent
+```python
+re.isequal('aa?', 'a|aa')
+```
+
+#### automata.base.regex.issubset(re1, re2)
+Return True if re1 is a subset of re2
+```python
+re.issubset('aa?', 'a*')
+```
+
+#### autumata.issuperset(re1, re2)
+Return True if re1 is a subset of re2
+```python
+re.issuperset('a*', 'a?')
 ```
 
 ### Base exception classes
