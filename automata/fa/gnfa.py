@@ -71,16 +71,19 @@ class GNFA(fa.FA):
         gnfa.eliminate_lambda()
         for state in gnfa.states:
             gnfa_transitions = dict()
-            for input_symbol, to_states in gnfa.transitions[state].items():
-                for to_state in to_states:
-                    if to_state in gnfa_transitions.keys():
-                        if gnfa_transitions[to_state] == '' or input_symbol == '':
-                            gnfa_transitions[to_state] = ''
+            if state in gnfa.transitions:
+                for input_symbol, to_states in gnfa.transitions[state].items():
+                    for to_state in to_states:
+                        if to_state in gnfa_transitions.keys():
+                            if gnfa_transitions[to_state] == '' or input_symbol == '':
+                                gnfa_transitions[to_state] = ''
+                            else:
+                                gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
                         else:
-                            gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
-                    else:
-                        gnfa_transitions[to_state] = input_symbol
-            gnfa.transitions[state] = gnfa_transitions
+                            gnfa_transitions[to_state] = input_symbol
+                gnfa.transitions[state] = gnfa_transitions
+            else:
+                gnfa.transitions[state] = dict()
 
         new_initial_state = 0
         while new_initial_state in gnfa.states:

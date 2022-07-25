@@ -10,8 +10,6 @@ from automata.fa.dfa import DFA
 
 from pydot import Dot, Edge, Node
 
-import automata.base.regex as re
-
 
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
@@ -30,6 +28,13 @@ class NFA(fa.FA):
         """Return the concatenation of this DFA and another DFA."""
         if isinstance(other, NFA):
             return self.concatenate(other)
+        else:
+            raise NotImplementedError
+
+    def __or__(self, other):
+        """Return the union of this DFA and another DFA."""
+        if isinstance(other, NFA):
+            return self.union(other)
         else:
             raise NotImplementedError
 
@@ -185,7 +190,7 @@ class NFA(fa.FA):
     def from_regex(cls, regex):
         """Initialize this NFA as one equivalent to the given regular expression"""
 
-        re.validate(regex)
+        cls._validate_regex(regex)
         symbols = set(regex) - {'*', '|', '(', ')', '?'}
         master = list(regex)
         for i in range(len(master)):
@@ -234,6 +239,49 @@ class NFA(fa.FA):
                     raise exceptions.InvalidStateError(
                         'end state {} for transition on {} is '
                         'not valid'.format(end_state, start_state))
+
+    @staticmethod
+    def _validate_regex(regex):
+        """Return True if the regular expression is valid"""
+
+        result = True
+        stack1 = 0
+        for i in range(len(regex)):
+            if regex[i] == '(':
+                stack1 += 1
+            elif regex[i] == ')':
+                stack1 = stack1 - 1
+
+            if stack1 < 0:
+                result = False
+
+            if regex[i] == '*':
+                if i > 0 and regex[i - 1] in {'(', '|', '*', '?'}:
+                    result = False
+                elif i == 0:
+                    result = False
+
+            if regex[i] == '|':
+                if i > 1 and regex[i - 1] in {'(', '|'}:
+                    result = False
+                elif i < len(regex) - 1 and regex[i + 1] in {')', '|', '*', '?'}:
+                    result = False
+                elif i == 0 or i == len(regex) - 1:
+                    result = False
+
+            if regex[i] == '(':
+                if i < len(regex) - 1 and regex[i + 1] == ')':
+                    result = False
+
+            if i == 0 and regex[i] == '?':
+                result = False
+        if stack1 != 0:
+            result = False
+
+        if not result:
+            raise exceptions.InvalidRegExError(
+                '{} is an invalid regular expression'.format(
+                    regex))
 
     def validate(self):
         """Return True if this NFA is internally consistent."""
@@ -286,10 +334,11 @@ class NFA(fa.FA):
         next_current_states = set()
 
         for current_state in current_states:
-            symbol_end_states = self.transitions[current_state].get(
-                input_symbol)
-            if symbol_end_states:
-                next_current_states.update(symbol_end_states)
+            if current_state in self.transitions:
+                symbol_end_states = self.transitions[current_state].get(
+                    input_symbol)
+                if symbol_end_states:
+                    next_current_states.update(symbol_end_states)
 
         return next_current_states
 
@@ -318,6 +367,25 @@ class NFA(fa.FA):
                         states_to_check.append(dst_state)
         return reachable_states
 
+    def _remove_empty_transitions(self):
+        """Deletes transitions to empty set of states"""
+        to_delete_sym = {}
+        for state in self.transitions.keys():
+            for input_symbol, to_states in self.transitions[state].items():
+                if to_states == set():
+                    if state in to_delete_sym:
+                        to_delete_sym[state].add(input_symbol)
+                    else:
+                        to_delete_sym[state] = {input_symbol}
+
+        for state, input_symbols in to_delete_sym.items():
+            for input_symbol in input_symbols:
+                del self.transitions[state][input_symbol]
+
+        for state in list(self.transitions.keys()):
+            if self.transitions[state] == dict():
+                del self.transitions[state]
+
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
         for state in self.states:
@@ -336,6 +404,7 @@ class NFA(fa.FA):
             self.transitions[state].pop('', None)
 
         self._remove_unreachable_states()
+        self._remove_empty_transitions()
 
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
@@ -503,6 +572,7 @@ class NFA(fa.FA):
         """
         Given an NFA which accepts the language L returns
         an NFA which accepts L repeated 0 or 1 times. (option - ?)
+        Note: still you cannot pass empty string to the machine.
         """
         new_states = set(self.states)
         new_initial_state = 0

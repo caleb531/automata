@@ -9,6 +9,7 @@ import unittest
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.nfa import NFA
+from automata.fa.dfa import DFA
 
 
 class TestNFA(test_fa.TestFA):
@@ -168,14 +169,14 @@ class TestNFA(test_fa.TestFA):
     def test_operations_other_type(self):
         """Should raise NotImplementedError for concatenate."""
         nfa = NFA(
-                states={'q1', 'q2', 'q3', 'q4'},
-                input_symbols={'0', '1'},
-                transitions={'q1': {'0': {'q1'}, '1': {'q1', 'q2'}},
-                             'q2': {'': {'q2'}, '0': {'q2'}},
-                             'q3': {'1': {'q4'}},
-                             'q4': {'0': {'q4'}, '1': {'q4'}}},
-                initial_state='q1',
-                final_states={'q2', 'q4'})
+            states={'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={'q1': {'0': {'q1'}, '1': {'q1', 'q2'}},
+                         'q2': {'': {'q2'}, '0': {'q2'}},
+                         'q3': {'1': {'q4'}},
+                         'q4': {'0': {'q4'}, '1': {'q4'}}},
+            initial_state='q1',
+            final_states={'q2', 'q4'})
         other = 42
         with self.assertRaises(NotImplementedError):
             nfa + other
@@ -272,3 +273,108 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(reverse_nfa.accepts_input('ba'), True)
         self.assertEqual(reverse_nfa.accepts_input('bba'), True)
         self.assertEqual(reverse_nfa.accepts_input('bbba'), True)
+
+    def test_from_regex(self):
+        """Test if from_regex produces correct NFA"""
+        nfa1 = NFA.from_regex('ab(cd*|dc)|a?')
+        nfa2 = NFA(
+            states={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
+            input_symbols={'a', 'b', 'c', 'd'},
+            initial_state=0,
+            transitions={
+                0: {'': {1, 10}},
+                1: {'a': {2}},
+                2: {'b': {3}},
+                3: {'': {4, 7}},
+                4: {'d': {5}},
+                5: {'c': {6}},
+                7: {'c': {8}},
+                8: {'d': {9}},
+                9: {'d': {9}},
+                10: {'a': {11}}
+            },
+            final_states={6, 8, 9, 10, 11}
+        )
+        # convert them to dfa then check equivalence
+        dfa1 = DFA.from_nfa(nfa1)
+        dfa2 = DFA.from_nfa(nfa2)
+
+        self.assertEqual(dfa1, dfa2)
+
+    def test_eliminate_lambda(self):
+        nfa1 = NFA(
+            states={0, 1, 2, 3, 4, 5, 6},
+            initial_state=0,
+            input_symbols={'a', 'b', 'c'},
+            transitions={
+                0: {'a': {1}},
+                1: {'': {2, 6}, 'b': {2}},
+                2: {'': {4}, 'c': {3}},
+                4: {'a': {5}},
+            },
+            final_states={3, 6}
+        )
+        nfa1.eliminate_lambda()
+        print(nfa1.transitions)
+        nfa2 = NFA(
+            states={0, 1, 2, 3, 5},
+            initial_state=0,
+            input_symbols={'a', 'b', 'c'},
+            transitions={
+                0: {'a': {1}},
+                1: {'a': {5}, 'b': {2}, 'c': {3}},
+                2: {'a': {5}, 'c': {3}}
+            },
+            final_states={1, 3}
+        )
+
+        self.assertEqual(nfa1.states, nfa2.states)
+        self.assertEqual(nfa1.initial_state, nfa2.initial_state)
+        self.assertEqual(nfa1.transitions, nfa2.transitions)
+        self.assertEqual(nfa1.final_states, nfa2.final_states)
+        self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
+
+    def test_option(self):
+        """
+        Given a NFA recognizing language L, should return NFA
+        such that it accepts the language 'L?'
+        that zero or one occurrence of L.
+        """
+        nfa1 = NFA.from_regex('a*b')
+        nfa1 = nfa1.option()
+        self.assertTrue(nfa1.accepts_input('aab'))
+        self.assertTrue(nfa1.initial_state in nfa1.final_states
+                        and nfa1.initial_state
+                        not in sum([list(nfa1.transitions[state].values()) for state in nfa1.transitions.keys()], []))
+
+    def test_union(self):
+        nfa1 = NFA.from_regex('ab*')
+        nfa2 = NFA.from_regex('ba*')
+
+        nfa3 = nfa1.union(nfa2)
+
+        nfa4 = NFA(
+            states={0, 1, 2, 3, 4},
+            input_symbols={'a', 'b'},
+            transitions={
+                0: {'': {1, 3}},
+                2: {'b': {2}},
+                1: {'a': {2}},
+                3: {'b': {4}},
+                4: {'a': {4}}
+            },
+            final_states={2, 4},
+            initial_state=0
+        )
+        dfa1 = DFA.from_nfa(nfa3)
+        dfa2 = DFA.from_nfa(nfa4)
+
+        self.assertEqual(dfa1, dfa2)
+
+    def test_validate_regex(self):
+        """Should raise an error if invalid regex is passed into NFA.to_regex()"""
+
+        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'ab|')
+        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, '?')
+        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'a|b|*')
+        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'a||b')

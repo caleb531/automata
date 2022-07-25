@@ -37,6 +37,8 @@ def _validate(regex):
         if regex[i] == '(':
             if i < len(regex) - 1 and regex[i + 1] == ')':
                 return False
+        if i == 0 and regex[i] == '?':
+            return False
     if stack1 != 0:
         return False
     else:
@@ -63,9 +65,8 @@ def isequal(re1, re2):
     dfa2 = DFA.from_nfa(nfa2)
     dfa1 = dfa1.minify()
     dfa2 = dfa2.minify()
-    diff = dfa1.symmetric_difference(dfa2)
 
-    return diff.isempty()
+    return dfa1 == dfa2
 
 
 def issubset(re1, re2):
@@ -76,7 +77,7 @@ def issubset(re1, re2):
     dfa1 = DFA.from_nfa(nfa1)
     dfa2 = DFA.from_nfa(nfa2)
 
-    return dfa1.intersection(dfa2) == dfa1
+    return dfa1.issubset(dfa2)
 
 
 def issuperset(re1, re2):
