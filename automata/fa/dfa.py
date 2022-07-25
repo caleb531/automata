@@ -506,12 +506,12 @@ class DFA(fa.FA):
     @staticmethod
     def _stringify_states_unsorted(states):
         """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(states))
+        return '{{{}}}'.format(','.join(str(states)))
 
     @staticmethod
     def _stringify_states(states):
         """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(sorted(states)))
+        return '{{{}}}'.format(','.join(str(sorted(states))))
 
     @classmethod
     def _add_nfa_states_from_queue(cls, nfa, current_states,

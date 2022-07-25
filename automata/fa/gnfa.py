@@ -8,6 +8,8 @@ from pydot import Dot, Edge, Node
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 
+import automata.base.regex as re
+
 
 class GNFA(fa.FA):
     """A generalized nondeterministic finite automaton."""
@@ -36,16 +38,22 @@ class GNFA(fa.FA):
                     gnfa_transitions[to_state] = input_symbol
             gnfa.transitions[state] = gnfa_transitions
 
-        gnfa.states.add(0)  # add new start state
-        gnfa.transitions[0] = {gnfa.initial_state: ''}
-        gnfa.initial_state = 0
-        gnfa.states.add(1)  # add new accept state
+        new_initial_state = 0
+        while new_initial_state in gnfa.states:
+            new_initial_state += 1
+        new_final_state = new_initial_state + 1
+        while new_final_state in gnfa.states:
+            new_final_state += 1
+        gnfa.states.add(new_initial_state)  # add new start state
+        gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
+        gnfa.initial_state = new_initial_state
+        gnfa.states.add(new_final_state)  # add new accept state
 
         for state in gnfa.final_states:
-            gnfa.transitions[state][1] = ''
-        gnfa.final_state = 1
+            gnfa.transitions[state][new_final_state] = ''
+        gnfa.final_state = new_final_state
 
-        for state in gnfa.states - {1}:
+        for state in gnfa.states - {new_final_state}:
             if gnfa.states - gnfa.transitions[state].keys():
                 for leftover_state in gnfa.states - gnfa.transitions[state].keys():
                     if leftover_state is not gnfa.initial_state:
@@ -60,7 +68,7 @@ class GNFA(fa.FA):
     def from_nfa(cls, nfa):
         """Initialize this GNFA as one equivalent to the given NFA."""
         gnfa = nfa.copy()
-
+        gnfa.eliminate_lambda()
         for state in gnfa.states:
             gnfa_transitions = dict()
             for input_symbol, to_states in gnfa.transitions[state].items():
@@ -74,16 +82,22 @@ class GNFA(fa.FA):
                         gnfa_transitions[to_state] = input_symbol
             gnfa.transitions[state] = gnfa_transitions
 
-        gnfa.states.add(0)  # add new start state
-        gnfa.transitions[0] = {gnfa.initial_state: ''}
-        gnfa.initial_state = 0
-        gnfa.states.add(1)  # add new accept state
+        new_initial_state = 0
+        while new_initial_state in gnfa.states:
+            new_initial_state += 1
+        new_final_state = new_initial_state + 1
+        while new_final_state in gnfa.states:
+            new_final_state += 1
+        gnfa.states.add(new_initial_state)  # add new start state
+        gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
+        gnfa.initial_state = new_initial_state
+        gnfa.states.add(new_final_state)  # add new accept state
 
         for state in gnfa.final_states:
-            gnfa.transitions[state][1] = ''
-        gnfa.final_state = 1
+            gnfa.transitions[state][new_final_state] = ''
+        gnfa.final_state = new_final_state
 
-        for state in gnfa.states - {1}:
+        for state in gnfa.states - {new_final_state}:
             if gnfa.states - gnfa.transitions[state].keys():
                 for leftover_state in gnfa.states - gnfa.transitions[state].keys():
                     if leftover_state is not gnfa.initial_state:
@@ -94,59 +108,35 @@ class GNFA(fa.FA):
             transitions=gnfa.transitions, initial_state=gnfa.initial_state,
             final_state=gnfa.final_state)
 
-    @staticmethod
-    def _validate_regex(regex):
-        """Return True if the regular expression is valid"""
-
-        stack1 = 0
-        for i in range(len(regex)):
-            if regex[i] == '(':
-                stack1 += 1
-            elif regex[i] == ')':
-                stack1 = stack1 - 1
-
-            if stack1 < 0:
-                return False
-
-            if regex[i] == '*':
-                if i > 0 and regex[i-1] in {'(', '|', '*'}:
-                    return False
-                elif i == 0:
-                    return False
-
-            if regex[i] == '|':
-                if i > 1 and regex[i-1] in {'(', '|'}:
-                    return False
-                elif i < len(regex)-1 and regex[i+1] in {')', '|', '*'}:
-                    return False
-                elif i == 0 or i == len(regex)-1:
-                    return False
-
-            if regex[i] == '(':
-                if i < len(regex)-1 and regex[i+1] == ')':
-                    return False
-        if stack1 != 0:
-            return False
-        else:
-            return True
-
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
         for regex in paths.values():
             check = self.input_symbols.copy()
-            check = check.union({'*', '|', '(', ')'})
-            if regex is not None and (set(regex) - check and regex != '' or not self._validate_regex(regex)):
-                raise exceptions.InvalidSymbolError(
+            check = check.union({'*', '|', '(', ')', '?'})
+            if regex is not None and (set(regex) - check and regex != '' or not re._validate(regex)):
+                raise exceptions.InvalidRegExError(
                     'state {} has invalid transition expression {}'.format(
                         start_state, regex))
 
     def _validate_transition_end_states(self, start_state, paths):
-        """Raise an error if transition end states are invalid."""
+        """Raise an error if transition end states are invalid or missing"""
+        if start_state == self.final_state:
+            raise exceptions.InvalidStateError(
+                'No transitions should be defined for '
+                'final state {}'.format(start_state))
+        elif start_state == self.initial_state and self.states - paths.keys() - {self.initial_state} != set():
+            raise exceptions.MissingStateError(
+                'state {} does not have transitions defined for states {}'.format(
+                    start_state, str(self.states - paths.keys() - {self.initial_state})))
+        elif start_state != self.initial_state and self.states - paths.keys() - {self.initial_state} != set():
+            raise exceptions.MissingStateError(
+                'state {} does not have transitions defined for states {}'.format(
+                    start_state, str(self.states - paths.keys()- {self.initial_state})))
         for end_state in paths.keys():
-                if end_state not in self.states:
-                    raise exceptions.InvalidStateError(
-                        'end state {} for transition on {} is '
-                        'not valid'.format(end_state, start_state))
+            if end_state not in self.states:
+                raise exceptions.InvalidStateError(
+                    'end state {} for transition on {} is '
+                    'not valid'.format(end_state, start_state))
 
     def _validate_final_state(self):
         """Raise an error if the initial state is invalid."""
@@ -156,15 +146,16 @@ class GNFA(fa.FA):
 
     def validate(self):
         """Return True if this NFA is internally consistent."""
+        self._validate_initial_state()
+        self._validate_final_state()
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
             self._validate_transition_end_states(start_state, paths)
-        self._validate_initial_state()
         self._validate_initial_state_transitions()
-        self._validate_final_state()
         return True
 
-    def _isbracket_req(self, regex):
+    @staticmethod
+    def _isbracket_req(regex):
         bracket_open = 0
         for i in range(len(regex)):
             if regex[i] == '(':
@@ -173,8 +164,8 @@ class GNFA(fa.FA):
                 bracket_open = bracket_open - 1
             if bracket_open == 0 and regex[i] == '|':
                 return True
-            else:
-                return False
+
+        return False
 
     @staticmethod
     def _find_min_connected_node(gnfa):
@@ -230,11 +221,17 @@ class GNFA(fa.FA):
                         if r4 is None:
                             r4 = ''
                         elif self._isbracket_req(r4):
-                            r4 = '|({})'.format(r2)
+                            r4 = '|({})'.format(r4)
+                        elif r4 == '':
+                            r4 = '?'
                         else:
                             r4 = '|{}'.format(r4)
 
-                        gnfa.transitions[q_i][q_j] = r1 + r2 + r3 + r4
+                        if r4 == '?' and len(r1+r2+r3) > 1:
+                            gnfa.transitions[q_i][q_j] = '(' + r1 + r2 + r3 + ')' + r4
+                        else:
+                            gnfa.transitions[q_i][q_j] = r1 + r2 + r3 + r4
+
             gnfa.states = new_states
             del gnfa.transitions[q_rip]
             for state in gnfa.states-{gnfa.final_state}:
