@@ -315,7 +315,6 @@ class TestNFA(test_fa.TestFA):
             final_states={3, 6}
         )
         nfa1.eliminate_lambda()
-        print(nfa1.transitions)
         nfa2 = NFA(
             states={0, 1, 2, 3, 5},
             initial_state=0,
