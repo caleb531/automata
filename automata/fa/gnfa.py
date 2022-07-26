@@ -6,12 +6,12 @@ import copy
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
-import automata.fa.fa as fa
+import automata.fa.nfa as nfa
 
 import automata.base.regex as re
 
 
-class GNFA(fa.FA):
+class GNFA(nfa.NFA):
     """A generalized nondeterministic finite automaton."""
 
     def __init__(self, *, states, input_symbols, transitions,
@@ -134,7 +134,7 @@ class GNFA(fa.FA):
         elif start_state != self.initial_state and self.states - paths.keys() - {self.initial_state} != set():
             raise exceptions.MissingStateError(
                 'state {} does not have transitions defined for states {}'.format(
-                    start_state, str(self.states - paths.keys()- {self.initial_state})))
+                    start_state, str(self.states - paths.keys() - {self.initial_state})))
         for end_state in paths.keys():
             if end_state not in self.states:
                 raise exceptions.InvalidStateError(
@@ -291,10 +291,6 @@ class GNFA(fa.FA):
             graph.write_png(path)
         return graph
 
-    def read_input_stepwise(self, input_str):
-        """This method is not implemented yet in GNFA, wait for future versions"""
-
-        pass
 
 
 
