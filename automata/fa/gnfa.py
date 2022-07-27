@@ -31,12 +31,15 @@ class GNFA(nfa.NFA):
 
         for state in gnfa.states:
             gnfa_transitions = dict()
-            for input_symbol, to_state in gnfa.transitions[state].items():
-                if to_state in gnfa_transitions.keys():
-                    gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
-                else:
-                    gnfa_transitions[to_state] = input_symbol
-            gnfa.transitions[state] = gnfa_transitions
+            if state in gnfa.transitions:
+                for input_symbol, to_state in gnfa.transitions[state].items():
+                    if to_state in gnfa_transitions.keys():
+                        gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
+                    else:
+                        gnfa_transitions[to_state] = input_symbol
+                gnfa.transitions[state] = gnfa_transitions
+            else:
+                gnfa.transitions[state] = dict()
 
         new_initial_state = 0
         while new_initial_state in gnfa.states:
@@ -50,7 +53,10 @@ class GNFA(nfa.NFA):
         gnfa.states.add(new_final_state)  # add new accept state
 
         for state in gnfa.final_states:
-            gnfa.transitions[state][new_final_state] = ''
+            if state not in gnfa.transitions:
+                gnfa.transitions[state] = {new_final_state: ''}
+            else:
+                gnfa.transitions[state][new_final_state] = ''
         gnfa.final_state = new_final_state
 
         for state in gnfa.states - {new_final_state}:
@@ -68,15 +74,19 @@ class GNFA(nfa.NFA):
     def from_nfa(cls, nfa):
         """Initialize this GNFA as one equivalent to the given NFA."""
         gnfa = nfa.copy()
-        gnfa.eliminate_lambda()
         for state in gnfa.states:
             gnfa_transitions = dict()
             if state in gnfa.transitions:
                 for input_symbol, to_states in gnfa.transitions[state].items():
                     for to_state in to_states:
                         if to_state in gnfa_transitions.keys():
-                            if gnfa_transitions[to_state] == '' or input_symbol == '':
-                                gnfa_transitions[to_state] = ''
+                            if gnfa_transitions[to_state] == '' and input_symbol != '':
+                                gnfa_transitions[to_state] = '{}?'.format(input_symbol)
+                            elif gnfa_transitions[to_state] != '' and input_symbol == '':
+                                if cls._isbracket_req(gnfa_transitions[to_state]):
+                                    gnfa_transitions[to_state] = '({})?'.format(gnfa_transitions[to_state])
+                                else:
+                                    gnfa_transitions[to_state] = '{}?'.format(gnfa_transitions[to_state])
                             else:
                                 gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
                         else:
@@ -97,7 +107,10 @@ class GNFA(nfa.NFA):
         gnfa.states.add(new_final_state)  # add new accept state
 
         for state in gnfa.final_states:
-            gnfa.transitions[state][new_final_state] = ''
+            if state not in gnfa.transitions:
+                gnfa.transitions[state] = {new_final_state: ''}
+            else:
+                gnfa.transitions[state][new_final_state] = ''
         gnfa.final_state = new_final_state
 
         for state in gnfa.states - {new_final_state}:
@@ -124,9 +137,10 @@ class GNFA(nfa.NFA):
     def _validate_transition_end_states(self, start_state, paths):
         """Raise an error if transition end states are invalid or missing"""
         if start_state == self.final_state:
-            raise exceptions.InvalidStateError(
-                'No transitions should be defined for '
-                'final state {}'.format(start_state))
+            if len(paths) != 0:
+                raise exceptions.InvalidStateError(
+                    'No transitions should be defined for '
+                    'final state {}'.format(start_state))
         elif start_state == self.initial_state and self.states - paths.keys() - {self.initial_state} != set():
             raise exceptions.MissingStateError(
                 'state {} does not have transitions defined for states {}'.format(
