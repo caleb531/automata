@@ -16,6 +16,12 @@ class TestRegEx(unittest.TestCase):
         self.assertRaises(exceptions.InvalidRegExError, re.validate, '?')
         self.assertRaises(exceptions.InvalidRegExError, re.validate, 'a|b|*')
         self.assertRaises(exceptions.InvalidRegExError, re.validate, 'a||b')
+        self.assertRaises(exceptions.InvalidRegExError, re.validate, '((abc*)))((abd)')
+        self.assertRaises(exceptions.InvalidRegExError, re.validate, '*')
+        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'abcd()')
+        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'ab(bc)*((bbcd)')
+        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'a(*)')
+        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'a(|)')
 
     def test_isequal(self):
         """Should correctly check equivalence of two regular expressions"""
