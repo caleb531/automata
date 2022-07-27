@@ -32,7 +32,7 @@ class NFA(fa.FA):
             raise NotImplementedError
 
     def __or__(self, other):
-        """Return the union of this DFA and another DFA."""
+        """Return the union of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.union(other)
         else:
@@ -435,6 +435,9 @@ class NFA(fa.FA):
         L1 and L2 respectively, returns an NFA which accepts
         the union of L1 and L2.
         """
+        if not isinstance(other, NFA):
+            raise NotImplementedError
+
         # first check superset or subset relation
         if DFA.from_nfa(self).issubset(DFA.from_nfa(other)):
             return other.copy()
