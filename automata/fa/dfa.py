@@ -110,6 +110,8 @@ class DFA(fa.FA):
 
     def _validate_transition_start_states(self):
         """Raise an error if transition start states are missing."""
+        if self.allow_partial:
+            return
         for state in self.states:
             if state not in self.transitions:
                 raise exceptions.MissingStateError(
