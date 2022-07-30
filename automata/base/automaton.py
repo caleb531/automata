@@ -51,7 +51,7 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def _validate_initial_state_transitions(self):
         """Raise an error if the initial state has no transitions defined."""
-        if self.initial_state not in self.transitions:
+        if self.initial_state not in self.transitions and len(self.states) > 1:
             raise exceptions.MissingStateError(
                 'initial state {} has no transitions defined'.format(
                     self.initial_state))
