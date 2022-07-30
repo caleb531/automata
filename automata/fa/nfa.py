@@ -135,7 +135,7 @@ class NFA(fa.FA):
 
         bracket_level = 0
         highest_bracket = None
-        for i in range(len(master)):
+        for i in range(len(master)):  # pragma: no branch
             if not isinstance(master[i], NFA):
                 if master[i] == '|':
                     if highest_bracket is None or highest_bracket < bracket_level:
@@ -189,6 +189,15 @@ class NFA(fa.FA):
     @classmethod
     def from_regex(cls, regex):
         """Initialize this NFA as one equivalent to the given regular expression"""
+
+        if regex == '':
+            return NFA(
+                states={0},
+                initial_state=0,
+                final_states={0},
+                transitions={},
+                input_symbols=set()
+            )
 
         cls._validate_regex(regex)
         symbols = set(regex) - {'*', '|', '(', ')', '?'}

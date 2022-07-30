@@ -53,10 +53,7 @@ class GNFA(nfa.NFA):
         gnfa.states.add(new_final_state)  # add new accept state
 
         for state in gnfa.final_states:
-            if state not in gnfa.transitions:
-                gnfa.transitions[state] = {new_final_state: ''}
-            else:
-                gnfa.transitions[state][new_final_state] = ''
+            gnfa.transitions[state][new_final_state] = ''
         gnfa.final_state = new_final_state
 
         for state in gnfa.states - {new_final_state}:
@@ -107,10 +104,7 @@ class GNFA(nfa.NFA):
         gnfa.states.add(new_final_state)  # add new accept state
 
         for state in gnfa.final_states:
-            if state not in gnfa.transitions:
-                gnfa.transitions[state] = {new_final_state: ''}
-            else:
-                gnfa.transitions[state][new_final_state] = ''
+            gnfa.transitions[state][new_final_state] = ''
         gnfa.final_state = new_final_state
 
         for state in gnfa.states - {new_final_state}:
@@ -149,7 +143,7 @@ class GNFA(nfa.NFA):
             raise exceptions.MissingStateError(
                 'state {} does not have transitions defined for states {}'.format(
                     start_state, str(self.states - paths.keys() - {self.initial_state})))
-        for end_state in paths.keys():
+        for end_state in paths.keys():  # pragma: no branch
             if end_state not in self.states:
                 raise exceptions.InvalidStateError(
                     'end state {} for transition on {} is '
@@ -287,7 +281,7 @@ class GNFA(nfa.NFA):
                 graph.add_node(state_node)
         # adding edges
         for from_state, lookup in self.transitions.items():
-            for to_state, to_label in lookup.items():
+            for to_state, to_label in lookup.items():  # pragma: no branch
                 if to_label is None and show_None:
                     to_label = "ø"
                     graph.add_edge(Edge(

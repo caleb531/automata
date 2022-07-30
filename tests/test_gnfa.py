@@ -161,7 +161,6 @@ class TestGNFA(test_fa.TestFA):
         )
 
         gnfa = GNFA.from_dfa(dfa)
-
         gnfa2 = GNFA(
             states = {0, 1, 2, 3, 4, 5},
             input_symbols={'a', 'b'},
@@ -173,6 +172,41 @@ class TestGNFA(test_fa.TestFA):
                 2: {4: 'b', 0: None, 1: None, 2: None, 5: None},
                 3: {0: '', 1: None, 2: None, 4: None, 5: None},
                 4: {5: '', 0: None, 1: None, 2: None, 4: None}}
+        )
+
+        self.assertEqual(gnfa, gnfa2)
+
+    def test_from_dfa_single_state(self):
+        nfa = NFA.from_regex('')
+        dfa = DFA.from_nfa(nfa)
+        gnfa = GNFA.from_nfa(dfa)
+
+        gnfa2 = GNFA(
+            states={0, 1, '{0}'},
+            input_symbols=set(),
+            initial_state=0,
+            final_state=1,
+            transitions={
+                '{0}': {1: '', '{0}': None},
+                0: {'{0}': '', 1: None}
+            }
+        )
+
+        self.assertEqual(gnfa, gnfa2)
+
+    def test_from_nfa_single_state(self):
+        nfa = NFA.from_regex('')
+        gnfa = GNFA.from_nfa(nfa)
+
+        gnfa2 = GNFA(
+            states={0, 1, 2},
+            input_symbols=set(),
+            initial_state=1,
+            final_state=2,
+            transitions={
+                0: {2: '', 0: None},
+                1: {0: '', 2: None}
+            }
         )
 
         self.assertEqual(gnfa, gnfa2)
@@ -217,7 +251,7 @@ class TestGNFA(test_fa.TestFA):
         and check for equivalence of NFA and previous DFA
         """
 
-        nfa = NFA.from_regex('(aaa*bbcd|abbcd)d*|(aaa*bb(dcc*|(d|c))|abb(dcc*|(d|c)))')
+        nfa = NFA.from_regex('(aaa*bbcd|abbcd)d*|(aaa*bb(dcc*|(d|c))*|abb(dcc*|(d|c)))')
         gnfa = GNFA.from_nfa(nfa)
         regex = gnfa.to_regex()
         nfa = NFA.from_regex(regex)
@@ -253,9 +287,9 @@ class TestGNFA(test_fa.TestFA):
                 ('q_in', '', 'q0')
             })
 
-    def test_show_diagram_showNone(self):
+    def test_show_diagram(self):
         """
-        Should construct the diagram for a GNFA when show_None = False
+        Should construct the diagram for a GNFA when show_None = True
         """
 
         gnfa = self.gnfa

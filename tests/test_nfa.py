@@ -304,6 +304,9 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(dfa1, dfa2)
 
+    def test_from_regex_empty_string(self):
+        nfa = NFA.from_regex('')
+
     def test_eliminate_lambda(self):
         nfa1 = NFA(
             states={0, 1, 2, 3, 4, 5, 6},
@@ -462,6 +465,6 @@ class TestNFA(test_fa.TestFA):
         except OSError:
             pass
         self.assertFalse(os.path.exists(diagram_path))
-        self.dfa.show_diagram(path=diagram_path)
+        self.nfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
