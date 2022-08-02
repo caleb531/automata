@@ -56,7 +56,7 @@ class GNFA(nfa.NFA):
             gnfa.transitions[state][new_final_state] = ''
         gnfa.final_state = new_final_state
 
-        for state in gnfa.states - {new_final_state}:
+        for state in gnfa.states - {new_final_state}:  # pragma: no branch
             if gnfa.states - gnfa.transitions[state].keys():
                 for leftover_state in gnfa.states - gnfa.transitions[state].keys():
                     if leftover_state is not gnfa.initial_state:
@@ -107,7 +107,7 @@ class GNFA(nfa.NFA):
             gnfa.transitions[state][new_final_state] = ''
         gnfa.final_state = new_final_state
 
-        for state in gnfa.states - {new_final_state}:
+        for state in gnfa.states - {new_final_state}:  # pragma: no branch
             if gnfa.states - gnfa.transitions[state].keys():
                 for leftover_state in gnfa.states - gnfa.transitions[state].keys():
                     if leftover_state is not gnfa.initial_state:
