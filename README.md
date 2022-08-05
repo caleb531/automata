@@ -4,7 +4,7 @@
 *Released under the MIT license*
 
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
-[![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=master)](https://coveralls.io/r/caleb531/automata?branch=master)
+[![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=main)](https://coveralls.io/r/caleb531/automata?branch=main)
 
 Automata is a Python 3 library which implements the structures and algorithms
 for finite automata, pushdown automata, and Turing machines. The library
@@ -24,7 +24,7 @@ code contributions to this project!
 If you wish to migrate to Automata v5 from an older version, please follow the
 [migration guide][migration].
 
-[migration]: https://github.com/caleb531/automata/blob/master/MIGRATION.md
+[migration]: https://github.com/caleb531/automata/blob/main/MIGRATION.md
 
 ## Installing
 
