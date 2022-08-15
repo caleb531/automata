@@ -1173,7 +1173,7 @@ import automata.base.regex as re
 ```
 
 #### automata.base.regex.validate(regex)
-Raise an error(`InvalidRegexError`) if the regular expression is invalid.
+Return True if the regular expression is valid. Otherwise, raise an `InvalidRegexError`.
 
 ```python
 re.validate('ab(c|d)*ba?')

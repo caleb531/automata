@@ -10,7 +10,11 @@ import automata.base.exceptions as exceptions
 class TestRegex(unittest.TestCase):
     """A test class for testing regular expression tools"""
 
-    def test_validate(self):
+    def test_validate_valid(self):
+        """Should pass validation for valid regular expression"""
+        self.assertEqual(re.validate('a*'), True)
+
+    def test_validate_invalid(self):
         """Should raise error for invalid regular expressions"""
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'ab|')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, '?')

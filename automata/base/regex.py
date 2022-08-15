@@ -52,6 +52,7 @@ def validate(regex):
         raise exceptions.InvalidRegexError(
             '{} is an invalid regular expression'.format(
                 regex))
+    return True
 
 
 def isequal(re1, re2):
