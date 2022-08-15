@@ -142,7 +142,7 @@ class NFA(fa.FA):
                         highest_bracket = bracket_level
                 elif master[i] == '(':
                     bracket_level += 1
-                elif master[i] == ')':
+                elif master[i] == ')':  # pragma: no branch
                     bracket_level = bracket_level - 1
 
         if highest_bracket is None:
