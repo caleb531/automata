@@ -214,8 +214,10 @@ class NFA(fa.FA):
                 cls._remove_excess_parenthesis(master)
                 if len(master) < initial_length:
                     initial_length = len(master)
-                else:
+                elif len(master) == initial_length:
                     break
+                else:
+                    pass
 
         def star_option_concatenate():
             initial_length = len(master)
@@ -225,8 +227,10 @@ class NFA(fa.FA):
                 cls._remove_excess_parenthesis(master)
                 if len(master) < initial_length:
                     initial_length = len(master)
-                else:
+                elif len(master) == initial_length:
                     break
+                else:
+                    pass
 
         def star_option_concatenate_union():
             initial_length = len(master)
