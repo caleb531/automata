@@ -3,14 +3,13 @@
 import os
 import tempfile
 import types
-from unittest.mock import patch
-
 import unittest
+from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
-from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
 
 
 class TestNFA(test_fa.TestFA):

@@ -2,7 +2,6 @@
 """Methods for working with regular expressions"""
 
 import automata.base.exceptions as exceptions
-
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 

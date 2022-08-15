@@ -3,8 +3,8 @@
 
 import unittest
 
-import automata.base.regex as re
 import automata.base.exceptions as exceptions
+import automata.base.regex as re
 
 
 class TestRegex(unittest.TestCase):

@@ -4,8 +4,8 @@
 import unittest
 
 from automata.fa.dfa import DFA
-from automata.fa.nfa import NFA
 from automata.fa.gnfa import GNFA
+from automata.fa.nfa import NFA
 
 
 class TestFA(unittest.TestCase):

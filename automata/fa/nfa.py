@@ -4,11 +4,11 @@
 import copy
 from collections import deque
 
+from pydot import Dot, Edge, Node
+
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.fa.dfa import DFA
-
-from pydot import Dot, Edge, Node
 
 
 class NFA(fa.FA):

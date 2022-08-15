@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of GNFAs."""
 import os
-import types
 import tempfile
-from unittest.mock import patch
-
+import types
 import unittest
+from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
-from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
 from automata.fa.gnfa import GNFA
+from automata.fa.nfa import NFA
 
 
 class TestGNFA(test_fa.TestFA):
