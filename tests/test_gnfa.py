@@ -250,7 +250,7 @@ class TestGNFA(test_fa.TestFA):
         and check for equivalence of NFA and previous DFA
         """
 
-        nfa = NFA.from_regex('(aaa*bbcd|abbcd)d*|aaa*bb(dcc*|(d|c)|abb(dcc*|(d|c)))')
+        nfa = NFA.from_regex('a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?')
         gnfa = GNFA.from_nfa(nfa)
         regex = gnfa.to_regex()
         nfa = NFA.from_regex(regex)
