@@ -49,7 +49,7 @@ def validate(regex):
     """Raise an error if the regular expression is invalid"""
 
     if not _validate(regex):
-        raise exceptions.InvalidRegExError(
+        raise exceptions.InvalidRegexError(
             '{} is an invalid regular expression'.format(
                 regex))
 

@@ -124,7 +124,7 @@ class GNFA(nfa.NFA):
             check = self.input_symbols.copy()
             check = check.union({'*', '|', '(', ')', '?'})
             if regex is not None and (set(regex) - check and regex != '' or not re._validate(regex)):
-                raise exceptions.InvalidRegExError(
+                raise exceptions.InvalidRegexError(
                     'state {} has invalid transition expression {}'.format(
                         start_state, regex))
 

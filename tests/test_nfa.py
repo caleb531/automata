@@ -397,16 +397,16 @@ class TestNFA(test_fa.TestFA):
     def test_validate_regex(self):
         """Should raise an error if invalid regex is passed into NFA.to_regex()"""
 
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'ab|')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, '?')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'a|b|*')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'a||b')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, '((abc*)))((abd)')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, '*')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'abcd()')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'ab(bc)*((bbcd)')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'a(*)')
-        self.assertRaises(exceptions.InvalidRegExError, NFA.from_regex, 'ab(|)')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'ab|')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, '?')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'a|b|*')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'a||b')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, '((abc*)))((abd)')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, '*')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'abcd()')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'ab(bc)*((bbcd)')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'a(*)')
+        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'ab(|)')
 
     def test_from_symbol(self):
         """Should generate NFA from single transition symbol"""

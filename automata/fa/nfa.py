@@ -288,7 +288,7 @@ class NFA(fa.FA):
             result = False
 
         if not result:
-            raise exceptions.InvalidRegExError(
+            raise exceptions.InvalidRegexError(
                 '{} is an invalid regular expression'.format(
                     regex))
 

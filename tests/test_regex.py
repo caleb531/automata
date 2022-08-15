@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classes and functions for testing the behavior of RegEx tools"""
+"""Classes and functions for testing the behavior of Regex tools"""
 
 import unittest
 
@@ -7,21 +7,21 @@ import automata.base.regex as re
 import automata.base.exceptions as exceptions
 
 
-class TestRegEx(unittest.TestCase):
+class TestRegex(unittest.TestCase):
     """A test class for testing regular expression tools"""
 
     def test_validate(self):
         """Should raise error for invalid regular expressions"""
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'ab|')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, '?')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'a|b|*')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'a||b')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, '((abc*)))((abd)')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, '*')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'abcd()')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'ab(bc)*((bbcd)')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'a(*)')
-        self.assertRaises(exceptions.InvalidRegExError, re.validate, 'a(|)')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'ab|')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, '?')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a|b|*')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a||b')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, '((abc*)))((abd)')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, '*')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'abcd()')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'ab(bc)*((bbcd)')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a(*)')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a(|)')
 
     def test_isequal(self):
         """Should correctly check equivalence of two regular expressions"""

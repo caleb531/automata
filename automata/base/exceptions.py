@@ -50,13 +50,13 @@ class RejectionException(AutomatonException):
     pass
 
 
-class RegExException(Exception):
+class RegexException(Exception):
     """The base class for all regular expression related errors"""
 
     pass
 
 
-class InvalidRegExError(RegExException):
+class InvalidRegexError(RegexException):
     """Regular expression is invalid"""
 
     pass

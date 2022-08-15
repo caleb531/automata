@@ -83,7 +83,7 @@ class TestGNFA(test_fa.TestFA):
 
     def test_validate_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
-        with self.assertRaises(exceptions.InvalidRegExError):
+        with self.assertRaises(exceptions.InvalidRegexError):
             self.gnfa.transitions['q1']['q2'] = {'c'}
             self.gnfa.validate()
 

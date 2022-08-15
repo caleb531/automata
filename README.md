@@ -1173,7 +1173,7 @@ import automata.base.regex as re
 ```
 
 #### automata.base.regex.validate(regex)
-Raise an error(`InvalidRegExError`) if the regular expression is invalid.
+Raise an error(`InvalidRegexError`) if the regular expression is invalid.
 
 ```python
 re.validate('ab(c|d)*ba?')
@@ -1254,11 +1254,11 @@ prohibited for Turing machines).
 Raised if the automaton did not accept the input string after validating (e.g.
 the automaton stopped on a non-final state after validating input).
 
-#### class RegExException
+#### class RegexException
 
 A base class for all regular expression related errors.
 
-#### class InvalidRegExError
+#### class InvalidRegexError
 Raised if the input regular expression is invalid.
 
 ### Turing machine exception classes
