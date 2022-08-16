@@ -21,9 +21,9 @@ contributions to this project!
 [lewiuberg-profile]: https://github.com/lewiuberg
 [abhinavsinha-adrino-profile]: https://github.com/abhinavsinha-adrino
 
-## Migrating to v5
+## Migrating to v6
 
-If you wish to migrate to Automata v5 from an older version, please follow the
+If you wish to migrate to Automata v6 from an older version, please follow the
 [migration guide][migration].
 
 [migration]: https://github.com/caleb531/automata/blob/main/MIGRATION.md
