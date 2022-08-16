@@ -8,7 +8,7 @@
 
 Automata is a Python 3 library which implements the structures and algorithms
 for finite automata, pushdown automata, and Turing machines. The library
-requires Python 3.6 or newer.
+requires Python 3.7 or newer.
 
 Huge thanks to [@YtvwlD][YtvwlD-profile], [@dengl11][dengl11-profile],
 [@Tagl][Tagl-profile], [@lewiuberg][lewiuberg-profile], and

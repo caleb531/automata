@@ -1,6 +1,11 @@
 # Automata Migration Guide
 
-## Backwards-incompatible changes from v5 to v4
+## Backwards-incompatible changes from v5 to v6
+
+Python 3.6 support has been dropped, since it has been end-of-life since
+December 2021. Please upgrade to Python 3.7 or later to use Automata v6.
+
+## Backwards-incompatible changes from v4 to v5
 
 Python 3.5 support has been dropped, since it has been end-of-life since
 September 2020. Please upgrade to Python 3.6 or later to use Automata v5.
