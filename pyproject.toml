@@ -1,0 +1,26 @@
+[project]
+name = "automata-lib"
+version = "6.0.0-beta.1"
+description = "A Python library for simulating finite automata, pushdown automata, and Turing machines"
+readme = "README.md"
+requires-python = ">=3.7"
+keywords = ["automata", "finite", "non-deterministic", "pushdown", "turing", "machine"]
+license = {file = 'LICENSE.txt'}
+authors = [
+    {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
+]
+maintainers = [
+    {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
+]
+dependencies = [
+    "pydot>=1.4.2"
+]
+
+[project.urls]
+homepage = "https://github.com/caleb531/automata"
+documentation = "https://github.com/caleb531/automata#readme"
+repository = "https://github.com/caleb531/automata"
+changelog = "https://github.com/caleb531/automata/releases"
+
+[build-system]
+requires = ["setuptools", "wheel"]
