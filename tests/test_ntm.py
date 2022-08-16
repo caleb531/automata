@@ -2,7 +2,6 @@
 """Classes and functions for testing the behavior of NTMs."""
 
 import types
-import unittest
 from unittest.mock import patch
 
 import automata.base.exceptions as exceptions

@@ -17,7 +17,6 @@ class TM(Automaton, metaclass=abc.ABCMeta):
                 'symbol set ({})'.format(
                     self.tape_symbols - self.input_symbols))
 
-
     def _validate_blank_symbol(self):
         """Raise an error if blank symbol is not a tape symbol."""
         if self.blank_symbol not in self.tape_symbols:

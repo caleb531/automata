@@ -7,7 +7,6 @@ import unittest
 from unittest.mock import call, patch
 
 import automata.tm.tools as tmtools
-import tests.test_tm as test_tm
 from automata.tm.configuration import MTMConfiguration, TMConfiguration
 from automata.tm.tape import TMTape
 

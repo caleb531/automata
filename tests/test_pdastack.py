@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of PDAStacks."""
 
-# from unittest.mock import patch
-
-import unittest
-
 import tests.test_pda as test_pda
 from automata.pda.stack import PDAStack
 

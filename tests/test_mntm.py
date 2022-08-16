@@ -4,7 +4,6 @@
 import math
 import random
 import types
-import unittest
 from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
@@ -147,7 +146,7 @@ class TestMNTM(test_tm.TestTM):
         subtm = self.mntm1._get_next_configuration(("q0", (
             ("0", "R"), ("#", "N"))))
         self.assertEqual(str(subtm.tapes[0]), 'TMTape(\'0#\', 1)',
-                          'TMTape(\'#\', 0)')
+                         'TMTape(\'#\', 0)')
 
     def test_read_extended_tape(self):
         self.assertEqual(self.mntm1._read_extended_tape(
@@ -158,26 +157,26 @@ class TestMNTM(test_tm.TestTM):
             '10#^_00#^_00^_', '^'), ('#', '#', '0'))
 
         with self.assertRaisesRegex(tm_exceptions.MalformedExtendedTapeError,
-                                      "head symbol was found on leftmost " +
-                                      "end of the extended tape"):
+                                    "head symbol was found on leftmost " +
+                                    "end of the extended tape"):
             self.assertEqual(self.mntm1._read_extended_tape(
                 '^10#_1^010#_00^', '^'), ('', '1', '0'))
 
         with self.assertRaisesRegex(tm_exceptions.MalformedExtendedTapeError,
-                                      "no head symbol found on one of the " +
-                                      "virtual tapes"):
+                                    "no head symbol found on one of the " +
+                                    "virtual tapes"):
             self.assertEqual(self.mntm1._read_extended_tape(
                 '0^10#_1010#_00^_', '^'), ('0', '', '0'))
 
         with self.assertRaisesRegex(tm_exceptions.MalformedExtendedTapeError,
-                                      "there must be 1 virtual head for " +
-                                      "every tape separator symbol"):
+                                    "there must be 1 virtual head for " +
+                                    "every tape separator symbol"):
             self.assertEqual(self.mntm1._read_extended_tape(
                 '0^1010^10#^', '^'), ('0', '0', '#'))
 
         with self.assertRaisesRegex(tm_exceptions.MalformedExtendedTapeError,
-                                      "more than one head symbol found on " +
-                                      "one of the virtual tapes"):
+                                    "more than one head symbol found on " +
+                                    "one of the virtual tapes"):
             self.assertEqual(self.mntm1._read_extended_tape(
                 '0^101010^_#^_', '^'), ('0', '0', '#'))
 
@@ -190,7 +189,7 @@ class TestMNTM(test_tm.TestTM):
         last_config = configs[-1].pop()
         self.assertEqual(last_config[0], 'qf')
         self.assertEqual(str(last_config[1]),
-                          'TMTape(\'#0000#^_#0000#^_#XYYY#^_\', 23)')
+                         'TMTape(\'#0000#^_#0000#^_#XYYY#^_\', 23)')
 
         with self.assertRaises(exceptions.RejectionException):
             for _ in self.mntm2.read_input_as_ntm('#00'):

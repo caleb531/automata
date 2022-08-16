@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of NPDAs."""
 
-# from unittest.mock import patch
-
-import unittest
-
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import tests.test_pda as test_pda

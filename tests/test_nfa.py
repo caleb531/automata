@@ -3,7 +3,6 @@
 import os
 import tempfile
 import types
-import unittest
 from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
@@ -304,7 +303,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(dfa1, dfa2)
 
     def test_from_regex_empty_string(self):
-        nfa = NFA.from_regex('')
+        NFA.from_regex('')
 
     def test_eliminate_lambda(self):
         nfa1 = NFA(
@@ -391,7 +390,7 @@ class TestNFA(test_fa.TestFA):
         # raise error if other is not NFA
         self.assertRaises(NotImplementedError, self.nfa.union, self.dfa)
         with self.assertRaises(NotImplementedError):
-            check = self.nfa | self.dfa
+            self.nfa | self.dfa
 
     def test_validate_regex(self):
         """Should raise an error if invalid regex is passed into NFA.to_regex()"""

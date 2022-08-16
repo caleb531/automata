@@ -233,7 +233,6 @@ class NFA(fa.FA):
                     pass
 
         def star_option_concatenate_union():
-            initial_length = len(master)
             while True:
                 star_option_concatenate()
                 cls._union(master)

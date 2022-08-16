@@ -2,8 +2,6 @@
 """Classes and functions for testing the behavior of GNFAs."""
 import os
 import tempfile
-import types
-import unittest
 from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
@@ -161,7 +159,7 @@ class TestGNFA(test_fa.TestFA):
 
         gnfa = GNFA.from_dfa(dfa)
         gnfa2 = GNFA(
-            states = {0, 1, 2, 3, 4, 5},
+            states={0, 1, 2, 3, 4, 5},
             input_symbols={'a', 'b'},
             initial_state=3,
             final_state=5,
@@ -228,7 +226,7 @@ class TestGNFA(test_fa.TestFA):
         gnfa = GNFA.from_nfa(nfa)
 
         gnfa2 = GNFA(
-            states = {0, 1, 2, 3, 4, 5},
+            states={0, 1, 2, 3, 4, 5},
             initial_state=3,
             final_state=5,
             input_symbols={'a', 'b'},
@@ -336,4 +334,3 @@ class TestGNFA(test_fa.TestFA):
         self.gnfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
-

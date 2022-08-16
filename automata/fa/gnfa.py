@@ -261,7 +261,7 @@ class GNFA(nfa.NFA):
         gnfa = self.copy()
         return self._to_regex(gnfa)
 
-    def show_diagram(self, path=None, show_None = True):
+    def show_diagram(self, path=None, show_None=True):
         """
             Creates the graph associated with this DFA
         """
@@ -302,7 +302,3 @@ class GNFA(nfa.NFA):
         if path:
             graph.write_png(path)
         return graph
-
-
-
-

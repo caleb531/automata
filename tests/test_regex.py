@@ -53,6 +53,3 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(re.issuperset('aa?', 'a*'))
         self.assertTrue(re.issuperset('a*', 'a?'))
         self.assertTrue(re.issuperset('a*b|b*c*', 'aaa*b|bc'))
-
-
-

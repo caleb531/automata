@@ -5,7 +5,6 @@ import os
 import os.path
 import tempfile
 import types
-import unittest
 from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
