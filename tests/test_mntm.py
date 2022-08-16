@@ -4,9 +4,8 @@
 import math
 import random
 import types
-from unittest.mock import patch
-
 import unittest
+from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions

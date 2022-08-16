@@ -3,9 +3,8 @@
 
 import contextlib
 import io
-from unittest.mock import call, patch
-
 import unittest
+from unittest.mock import call, patch
 
 import automata.tm.tools as tmtools
 import tests.test_tm as test_tm

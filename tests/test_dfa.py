@@ -5,9 +5,8 @@ import os
 import os.path
 import tempfile
 import types
-from unittest.mock import patch
-
 import unittest
+from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa

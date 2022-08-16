@@ -48,3 +48,15 @@ class RejectionException(AutomatonException):
     """The input was rejected by the automaton."""
 
     pass
+
+
+class RegexException(Exception):
+    """The base class for all regular expression related errors"""
+
+    pass
+
+
+class InvalidRegexError(RegexException):
+    """Regular expression is invalid"""
+
+    pass

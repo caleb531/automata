@@ -40,6 +40,7 @@ pip install automata-lib
   - [Finite Automaton (FA)](#class-faautomaton-metaclassabcmeta)
     - [Deterministic (DFA)](#class-dfafa)
     - [Non-Deterministic (NFA)](#class-nfafa)
+    - [Generalised Non-Deterministic (GNFA)](#class-gnfafa)
   - [Pushdown Automaton (PDA)](#class-pdaautomaton-metaclassabcmeta)
     - [Deterministic (DPDA)](#class-dpdapda)
     - [Non-Deterministic (NPDA)](#class-npdapda)
@@ -47,6 +48,7 @@ pip install automata-lib
     - [Deterministic (DTM)](#class-dtmtm)
     - [Non-Deterministic (NTM)](#class-ntmtm)
     - [Multi-Tape Non-Deterministic (MNTM)](#class-mntmtm)
+- [Regular Expressions](#regular-expressions)
 - [Base exception classes](#base-exception-classes)
 - [Turing machine exceptions](#turing-machine-exception-classes)
 
@@ -427,6 +429,23 @@ nfa1.concatenate(nfa2)
 nfa1.kleene_star()
 ```
 
+#### NFA.union(self, other)
+Returns union of two NFAs
+```python
+new_nfa = nfa1.union(nfa2)
+```
+```python
+new_nfa = nfa1 | nfa2
+```
+
+#### NFA.eliminate_lambda(self)
+
+Removes epsilon transitions from the NFA which recognizes the same language.
+
+```python
+nfa1.eliminate_lambda()
+```
+
 #### NFA.from_dfa(cls, dfa)
 
 Creates an NFA that is equivalent to the given DFA.
@@ -435,6 +454,119 @@ Creates an NFA that is equivalent to the given DFA.
 from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
 nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
+```
+
+#### NFA.to_regex(self)
+
+Return a regular expression (string) equivalent to given NFA.
+
+```python
+regex = nfa1.to_regex()
+```
+
+#### show_diagram(self, path=None)
+
+```python
+nfa1.show_diagram(path='./abc.png')
+```
+
+### class GNFA(FA)
+
+The `GNFA` class is a subclass of `FA` and represents a generalized
+nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
+Its main usage is for conversion of DFAs and NFAs to regular expressions. 
+
+Every `GNFA` has the same five NFA properties: `states`, `input_sympols`, `transitions`,
+`initial_state`, and `final_state`. However a `GNFA` has several differences with respect to `NFA`
+- The `initial_state` has transitions going to every other state but no transitions
+coming in from any other state.
+- There is only a single `final_state`, and it has transitions coming in from every
+other state but no transitions going to any other state. Futhermore, the `final_state`
+is not the same has `initial_state`.
+- Except for `initial_state` and `final_state`, one transition arrow goes from every state to every other
+state and also from each state to itself. To accommodate this, transitions can be
+regular expressions and `None` also in addition to normal symbols.
+
+`GNFA` is modified with respect to `NFA` in the following parameters:
+
+1. `final_state`: a string (single state).
+2. `transitions`: (its structure is changed from `NFA`) a `dict` consisting of the transitions
+for each state except `final_state`. Each key is a state name and each value is `dict`
+which maps a state (the key) to the transition expression (the value).
+    - value: a regular expression (string) consisting of `input_symbols` and the following symbols only:
+    `*`, `|`, `?`, `()`. Check [Regular Expressions](#regular-expressions) 
+
+```python
+from automata.fa.gnfa import GNFA
+# GNFA which matches strings beginning with 'a', ending with 'a', and containing
+# no consecutive 'b's
+gnfa = GNFA(
+    states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
+    input_symbols={'a', 'b'},
+    transitions={
+        'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
+        'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
+        'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
+        'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None}
+    },
+    initial_state='q_in',
+    final_state='q_f'
+)
+```
+
+#### GNFA.from_dfa(self, dfa)
+
+Initialize this GNFA as one equivalent to the given DFA.
+
+```python
+from automata.fa.gnfa import GNFA
+from automata.fa.dfa import DFA
+gnfa = GNFA.from_dfa(dfa) # returns an equivalent GNFA
+```
+
+#### GNFA.from_nfa(self, nfa)
+
+Initialize this GNFA as one equivalent to the given NFA.
+
+```python
+from automata.fa.gnfa import GNFA
+from automata.fa.nfa import NFA
+gnfa = GNFA.from_nfa(nfa) # returns an equivalent GNFA
+```
+
+#### GNFA.validate(self)
+
+Returns `True` if the GNFA instance is valid; raises an exception otherwise.
+
+```python
+gnfa.validate()
+```
+
+#### GNFA.copy()
+
+Returns a deep copy of GNFA.
+
+```python
+gnfa2 = gnfa1.copy()
+```
+
+#### GNFA.to_regex(self)
+
+Convert GNFA to regular expression.
+
+```python
+gnfa.to_regex() # returns a regular expression (string)
+```
+
+#### GNFA.show_diagram(self, path=None, show_None=True):
+
+Writes a visual diagram of the GNFA to an image file. 
+
+1. `path`: the path of the image to be saved
+2. `show_None`: A boolean indicating when to show or hide `None` transitions; defaults to `True`.
+
+```python
+gnfa.show_diagram(path='./gnfa.png', show_None=False)
 ```
 
 ### class PDA(Automaton, metaclass=ABCMeta)
@@ -1034,6 +1166,61 @@ ntm.validate()  # returns True
 ntm.copy()  # returns deep copy of ntm
 ```
 
+### Regular Expressions
+
+A set of tools for working with regular languages. These can be found under
+`automata/base/regex.py`
+
+A regular expression with the following operations only are supported in this library:
+
+- `*`: Kleene star operation. language repeated zero or more times. Ex: `a*`,`(ab)*`
+- `?`: Language repeated zero or one time. Ex: `a?`
+- Concatenation: Ex: `abcd`
+- `|`: Union. Ex: `a|b`
+- `()`: Grouping
+
+This is similar to the python RE module but this library does not support any other
+special character than given above. All regular languages can be written with these.
+
+Preferably the tools for the same can be imported as:
+
+```python
+import automata.base.regex as re
+```
+
+#### automata.base.regex.validate(regex)
+
+Returns True if the regular expression is valid. Otherwise, raise an
+`InvalidRegexError`.
+
+```python
+re.validate('ab(c|d)*ba?')
+```
+
+#### automata.base.regex.isequal(re1, re2)
+
+Returns True if both regular expressions are equivalent.
+
+```python
+re.isequal('aa?', 'a|aa')
+```
+
+#### automata.base.regex.issubset(re1, re2)
+
+Returns True if re1 is a subset of re2.
+
+```python
+re.issubset('aa?', 'a*')
+```
+
+#### autumata.issuperset(re1, re2)
+
+Returns True if re1 is a subset of re2.
+
+```python
+re.issuperset('a*', 'a?')
+```
+
 ### Base exception classes
 
 The library also includes a number of exception classes to ensure that errors
@@ -1090,6 +1277,13 @@ prohibited for Turing machines).
 
 Raised if the automaton did not accept the input string after validating (e.g.
 the automaton stopped on a non-final state after validating input).
+
+#### class RegexException
+
+A base class for all regular expression related errors.
+
+#### class InvalidRegexError
+Raised if the input regular expression is invalid.
 
 ### Turing machine exception classes
 
