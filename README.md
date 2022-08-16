@@ -465,8 +465,9 @@ regex = nfa1.to_regex()
 ```
 
 #### show_diagram(self, path=None)
+
 ```python
-nfa1.show_diagram(path = './abc.png')
+nfa1.show_diagram(path='./abc.png')
 ```
 
 ### class GNFA(FA)
@@ -486,7 +487,8 @@ is not the same has `initial_state`.
 state and also from each state to itself. To accommodate this, transitions can be
 regular expressions and `None` also in addition to normal symbols.
 
-`GNFA` is modified with respect to `NFA` in the following parameters.
+`GNFA` is modified with respect to `NFA` in the following parameters:
+
 1. `final_state`: a string (single state).
 2. `transitions`: (its structure is changed from `NFA`) a `dict` consisting of the transitions
 for each state except `final_state`. Each key is a state name and each value is `dict`
@@ -511,8 +513,11 @@ gnfa = GNFA(
     final_state='q_f'
 )
 ```
+
 #### GNFA.from_dfa(self, dfa)
+
 Initialize this GNFA as one equivalent to the given DFA.
+
 ```python
 from automata.fa.gnfa import GNFA
 from automata.fa.dfa import DFA
@@ -520,7 +525,9 @@ gnfa = GNFA.from_dfa(dfa) # returns an equivalent GNFA
 ```
 
 #### GNFA.from_nfa(self, nfa)
+
 Initialize this GNFA as one equivalent to the given NFA.
+
 ```python
 from automata.fa.gnfa import GNFA
 from automata.fa.nfa import NFA
@@ -528,27 +535,35 @@ gnfa = GNFA.from_nfa(nfa) # returns an equivalent GNFA
 ```
 
 #### GNFA.validate(self)
-Validates GNFA
+
+Returns `True` if the GNFA instance is valid; raises an exception otherwise.
+
 ```python
 gnfa.validate()
 ```
 
 #### GNFA.copy()
-Returns a deep copy of GNFA
+
+Returns a deep copy of GNFA.
+
 ```python
 gnfa2 = gnfa1.copy()
 ```
 
 #### GNFA.to_regex(self)
+
 Convert GNFA to regular expression.
+
 ```python
 gnfa.to_regex() # returns a regular expression (string)
 ```
 
-#### GNFA.show_diagram(self, path=None, show_None = True):
-`path`: path for saving image
+#### GNFA.show_diagram(self, path=None, show_None=True):
 
-`show_None`: Boolean, show or hide `None` transitions.
+Writes a visual diagram of the GNFA to an image file. 
+
+1. `path`: the path of the image to be saved
+2. `show_None`: A boolean indicating when to show or hide `None` transitions; defaults to `True`.
 
 ```python
 gnfa.show_diagram(path='./gnfa.png', show_None=False)
@@ -1152,11 +1167,11 @@ ntm.copy()  # returns deep copy of ntm
 ```
 
 ### Regular Expressions
+
 A set of tools for working with regular languages. These can be found under
 `automata/base/regex.py`
 
 A regular expression with the following operations only are supported in this library:
-
 
 - `*`: Kleene star operation. language repeated zero or more times. Ex: `a*`,`(ab)*`
 - `?`: Language repeated zero or one time. Ex: `a?`
@@ -1167,32 +1182,41 @@ A regular expression with the following operations only are supported in this li
 This is similar to the python RE module but this library does not support any other
 special character than given above. All regular languages can be written with these.
 
-Preferably the tools for the same can be imported as
+Preferably the tools for the same can be imported as:
+
 ```python
 import automata.base.regex as re
 ```
 
 #### automata.base.regex.validate(regex)
-Return True if the regular expression is valid. Otherwise, raise an `InvalidRegexError`.
+
+Returns True if the regular expression is valid. Otherwise, raise an
+`InvalidRegexError`.
 
 ```python
 re.validate('ab(c|d)*ba?')
 ```
 
 #### automata.base.regex.isequal(re1, re2)
-Return True if both regular expressions are equivalent
+
+Returns True if both regular expressions are equivalent.
+
 ```python
 re.isequal('aa?', 'a|aa')
 ```
 
 #### automata.base.regex.issubset(re1, re2)
-Return True if re1 is a subset of re2
+
+Returns True if re1 is a subset of re2.
+
 ```python
 re.issubset('aa?', 'a*')
 ```
 
 #### autumata.issuperset(re1, re2)
-Return True if re1 is a subset of re2
+
+Returns True if re1 is a subset of re2.
+
 ```python
 re.issuperset('a*', 'a?')
 ```
