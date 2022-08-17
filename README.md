@@ -197,8 +197,11 @@ else:
 
 #### DFA.validate(self)
 
+Returns True if the DFA is valid, otherwise the appropriate exception is
+raised.
+
 ```python
-dfa.validate()  # returns True
+dfa.validate()  # returns True or raises an exception
 ```
 
 #### DFA.copy(self)
@@ -395,8 +398,11 @@ else:
 
 #### NFA.validate(self)
 
+Returns True if the NFA is valid, otherwise the appropriate exception is
+raised.
+
 ```python
-nfa.validate()  # returns True
+nfa.validate()  # returns True or raises an exception
 ```
 
 #### NFA.copy(self)
@@ -538,7 +544,8 @@ gnfa = GNFA.from_nfa(nfa) # returns an equivalent GNFA
 
 #### GNFA.validate(self)
 
-Returns `True` if the GNFA instance is valid; raises an exception otherwise.
+Returns True if the GNFA is valid, otherwise the appropriate exception is
+raised.
 
 ```python
 gnfa.validate()
