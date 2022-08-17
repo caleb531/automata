@@ -4,7 +4,7 @@ version = "6.0.0-beta.1"
 description = "A Python library for simulating finite automata, pushdown automata, and Turing machines"
 readme = "README.md"
 requires-python = ">=3.7"
-keywords = ["automata", "finite", "non-deterministic", "pushdown", "turing", "machine"]
+keywords = ["automata", "finite", "non-deterministic", "pushdown", "turing", "machine", "state"]
 license = {file = 'LICENSE.txt'}
 authors = [
     {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
