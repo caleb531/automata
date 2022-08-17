@@ -8,6 +8,7 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
+import networkx as nx
 
 
 class DFA(fa.FA):
@@ -25,10 +26,71 @@ class DFA(fa.FA):
         self.validate()
 
     def __eq__(self, other):
-        """Return True if two DFAs are equivalent."""
-        if isinstance(other, DFA):
-            return self.symmetric_difference(other).isempty()
-        return False
+        """
+        Return True if two DFAs are equivalent. Uses an optimized version of
+        the Hopcroft-Karp algorithm. See https://arxiv.org/abs/0907.5058
+        """
+
+        # Must be another DFA and have equal alphabets
+        if not isinstance(other, DFA) or self.input_symbols != other.input_symbols:
+            return False
+
+        # Get new state labels
+        (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states)
+
+        # Load new transition dicts
+        new_transitions: DFATransitionsT = dict()
+
+        # Transitions of self
+        DFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
+        # Transitions of other
+        DFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
+
+        # Compute total set of final states
+        new_final_states = (
+            {state_map_a[state] for state in self.final_states}
+            | {state_map_b[state] for state in other.final_states}
+        )
+
+        # Get new initial states
+        initial_state_a = state_map_a[self.initial_state]
+        initial_state_b = state_map_b[other.initial_state]
+
+        # Get data structures
+        state_sets = nx.utils.union_find.UnionFind([initial_state_a, initial_state_b])
+        pair_stack: Deque[Tuple[int, int]] = deque()
+
+        # Do union find
+        state_sets.union(initial_state_a, initial_state_b)
+        pair_stack.append((initial_state_a, initial_state_b))
+
+        while pair_stack:
+            q_a, q_b = pair_stack.pop()
+
+            if (q_a in new_final_states) ^ (q_b in new_final_states):
+                return False
+
+            for symbol in self.input_symbols:
+                r_1 = state_sets[new_transitions[q_a][symbol]]
+                r_2 = state_sets[new_transitions[q_b][symbol]]
+
+                if r_1 != r_2:
+                    state_sets.union(r_1, r_2)
+                    pair_stack.append((r_1, r_2))
+
+        return True
+
+    @staticmethod
+    def _load_new_transition_dict(state_map_dict, old_transition_dict, new_transition_dict):
+        """
+        Load the new_transition_dict with the old transitions corresponding to
+        the given state_map_dict.
+        """
+        for state_a, transitions in old_transition_dict.items():
+            new_transition_dict[state_map_dict[state_a]] = {
+                symbol: state_map_dict[state_b]
+                for symbol, state_b in transitions.items()
+            }
 
     def __le__(self, other):
         """Return True if this DFA is a subset of (or equal to) another DFA."""
