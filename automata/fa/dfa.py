@@ -39,7 +39,7 @@ class DFA(fa.FA):
         (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states)
 
         # Load new transition dicts
-        new_transitions: DFATransitionsT = dict()
+        new_transitions = dict()
 
         # Transitions of self
         DFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
@@ -58,7 +58,7 @@ class DFA(fa.FA):
 
         # Get data structures
         state_sets = nx.utils.union_find.UnionFind([initial_state_a, initial_state_b])
-        pair_stack: Deque[Tuple[int, int]] = deque()
+        pair_stack = deque()
 
         # Do union find
         state_sets.union(initial_state_a, initial_state_b)
