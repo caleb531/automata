@@ -13,7 +13,7 @@ requires Python 3.7 or newer.
 Huge thanks to [@YtvwlD][YtvwlD-profile], [@dengl11][dengl11-profile],
 [@Tagl][Tagl-profile], [@lewiuberg][lewiuberg-profile], and
 [@abhinavsinha‑adrino][abhinavsinha-adrino-profile] for their invaluable code
-contributions to this project!
+contributions to this project! 🎉
 
 [YtvwlD-profile]: https://github.com/YtvwlD
 [dengl11-profile]: https://github.com/dengl11
