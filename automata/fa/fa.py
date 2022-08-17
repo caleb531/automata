@@ -16,12 +16,12 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         to be a union of the state sets of component FAs.
         """
 
-        state_map_a: Dict[FAStateT, int] = {
+        state_map_a = {
             state: i
             for i, state in enumerate(state_set_a)
         }
 
-        state_map_b: Dict[FAStateT, int] = {
+        state_map_b = {
             state: i + len(state_map_a)
             for i, state in enumerate(state_set_b)
         }
