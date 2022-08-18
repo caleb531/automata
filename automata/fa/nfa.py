@@ -383,18 +383,15 @@ class NFA(fa.FA):
 
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
-        reachable_states = set()
-        states_to_check = deque()
-        states_to_check.append(self.initial_state)
-        reachable_states.add(self.initial_state)
-        while states_to_check:
-            state = states_to_check.popleft()
-            for symbol, dst_states in self.transitions[state].items():
-                for dst_state in dst_states:
-                    if dst_state not in reachable_states:
-                        reachable_states.add(dst_state)
-                        states_to_check.append(dst_state)
-        return reachable_states
+        graph = nx.DiGraph([
+            (start_state, end_state)
+            for start_state, transition in self.transitions.items()
+            for end_states in transition.values()
+            for end_state in end_states
+        ])
+        graph.add_nodes_from(self.states)
+
+        return nx.descendants(graph, self.initial_state) | {self.initial_state}
 
     def _remove_empty_transitions(self):
         """Deletes transitions to empty set of states"""
