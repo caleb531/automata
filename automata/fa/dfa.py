@@ -260,6 +260,11 @@ class DFA(fa.FA):
             for end_state in transition.values()
         ])
 
+    def _compute_reachable_states(self):
+        """Compute the states which are reachable from the initial state."""
+        G = self._get_digraph()
+        return nx.descendants(G, self.initial_state) | {self.initial_state}
+
     def _remove_unreachable_states(self):
         """Remove states which are not reachable from the initial state."""
         reachable_states = self._compute_reachable_states()
@@ -269,11 +274,6 @@ class DFA(fa.FA):
             del self.transitions[state]
             if state in self.final_states:
                 self.final_states.remove(state)
-
-    def _compute_reachable_states(self):
-        """Compute the states which are reachable from the initial state."""
-        G = self._get_digraph()
-        return nx.descendants(G, self.initial_state) | {self.initial_state}
 
     def _merge_states(self, retain_names=False):
         eq_classes = []
@@ -483,88 +483,28 @@ class DFA(fa.FA):
 
     def isempty(self):
         """Return True if this DFA is completely empty."""
-        return len(self.minify().final_states) == 0
-
-    def _make_graph(self):
-        """
-        Returns a simple graph representation of the DFA.
-        """
-        G = defaultdict(set)
-        for k, v in self.transitions.items():
-            for c, u in v.items():
-                G[k].add(u)
-        return G
-
-    def _reverse_graph(self, G):
-        """
-        Returns the graph G where all edges have been reversed.
-        """
-        rev_G = defaultdict(set)
-        for k, v in G.items():
-            for u in v:
-                rev_G[u].add(k)
-        return rev_G
-
-    def _reachable_nodes(self, G, v, vis):
-        """
-        Computes the set of reachable nodes
-        in the graph G starting at vertex v.
-        """
-        if v not in vis:
-            vis.add(v)
-            for u in G[v]:
-                self._reachable_nodes(G, u, vis)
-
-    def _induced_subgraph(self, G, S):
-        """
-        Computes the induced subgraph G[S].
-        """
-        return {k: {x for x in G[k] if x in S} for k in G if k in S}
-
-    def _has_cycle(self, G):
-        """
-        Returns True if the graph G contains a cycle, False otherwise.
-        """
-        def dfs(G, at, vis, stack):
-            """
-            Helper function which accepts input parameters for
-            the graph, current node, visited set and current stack
-            """
-            if at not in vis:
-                vis.add(at)
-                stack.add(at)
-                for k in G[at]:
-                    if k not in vis and dfs(G, k, vis, stack):
-                        return True
-                    elif k in stack:
-                        # We have seen this vertex before in the path
-                        return True
-                stack.remove(at)
-            return False
-        vis = set()
-        stack = set()
-        return any(dfs(G, k, vis, stack) for k in G)
+        return len(self._compute_reachable_states() & self.final_states) == 0
 
     def isfinite(self):
         """
         Returns True if the DFA accepts a finite language, False otherwise.
         """
-        G = self._make_graph()
-        rev_G = self._reverse_graph(G)
+        G = self._get_digraph()
+        
+        accessible_nodes = nx.descendants(G, self.initial_state) | {self.initial_state}
 
-        accessible_nodes = set()
-        self._reachable_nodes(G, self.initial_state, accessible_nodes)
-        coaccessible_nodes = set()
-        for state in self.final_states:
-            self._reachable_nodes(rev_G, state, coaccessible_nodes)
+        coaccessible_nodes = self.final_states.union(*(
+            nx.ancestors(G, state)
+            for state in self.final_states
+        ))
 
         important_nodes = accessible_nodes.intersection(coaccessible_nodes)
 
-        constrained_G = self._induced_subgraph(G, important_nodes)
-
-        contains_cycle = self._has_cycle(constrained_G)
-
-        return not contains_cycle
+        try:
+            nx.find_cycle(G.subgraph(important_nodes))
+            return False
+        except nx.exception.NetworkXNoCycle:
+            return True
 
     @staticmethod
     def _stringify_states_unsorted(states):
