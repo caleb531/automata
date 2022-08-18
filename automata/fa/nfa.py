@@ -480,23 +480,17 @@ class NFA(fa.FA):
 
         # Connect new initial state to both branch
         new_transitions[0] = {'': {state_map_a[self.initial_state], state_map_b[other.initial_state]}}
-        # Transitions of self
-        for state_a, transitions in self.transitions.items():
-            for symbol, states in transitions.items():
-                new_transitions[state_map_a[state_a]][symbol] = {
-                    state_map_a[state_b] for state_b in states
-                }
 
+        # Transitions of self
+        NFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
         # Transitions of other
-        for state_a, transitions in other.transitions.items():
-            for symbol, states in transitions.items():
-                new_transitions[state_map_b[state_a]][symbol] = {
-                    state_map_b[state_b] for state_b in states
-                }
+        NFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
 
         # Final states
-        new_final_states = {state_map_a[state] for state in self.final_states} | {state_map_b[state] for state in
-                                                                                  other.final_states}
+        new_final_states = (
+            {state_map_a[state] for state in self.final_states}
+            | {state_map_b[state] for state in other.final_states}
+        )
 
         return NFA(
             states=new_states,
@@ -512,19 +506,18 @@ class NFA(fa.FA):
         L1 and L2 respectively, returns an NFA which accepts
         the languages L1 concatenated with L2.
         """
-        
-        (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states, start=1)
+
+        (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states)
 
         new_states = set(state_map_a.values()) | set(state_map_b.values())
         new_transitions = dict()
         for state in new_states:
             new_transitions[state] = dict()
+
         # Transitions of self
-        for state_a, transitions in self.transitions.items():
-            for symbol, states in transitions.items():
-                new_transitions[state_map_a[state_a]][symbol] = {
-                    state_map_a[state_b] for state_b in states
-                }
+        NFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
+        # Transitions of other
+        NFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
 
         # Transitions from self to other
         for state in self.final_states:
@@ -533,13 +526,6 @@ class NFA(fa.FA):
             new_transitions[state_map_a[state]][''].add(
                 state_map_b[other.initial_state]
             )
-
-        # Transitions of other
-        for state_a, transitions in other.transitions.items():
-            for symbol, states in transitions.items():
-                new_transitions[state_map_b[state_a]][symbol] = {
-                    state_map_b[state_b] for state_b in states
-                }
 
         # Final states of other
         new_final_states = {state_map_b[state] for state in other.final_states}
@@ -693,3 +679,18 @@ class NFA(fa.FA):
         if path:
             graph.write_png(path)
         return graph
+
+    @staticmethod
+    def _load_new_transition_dict(state_map_dict,
+                                 old_transition_dict,
+                                 new_transition_dict):
+        """
+        Load the new_transition_dict with the old transitions corresponding to
+        the given state_map_dict.
+        """
+
+        for state_a, transitions in old_transition_dict.items():
+            for symbol, states in transitions.items():
+                new_transition_dict[state_map_dict[state_a]][symbol] = {
+                    state_map_dict[state_b] for state_b in states
+                }
