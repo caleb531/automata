@@ -50,16 +50,11 @@ class GNFA(nfa.NFA):
             else:
                 gnfa.transitions[state] = dict()
 
-        new_initial_state = 0
-        while new_initial_state in gnfa.states:
-            new_initial_state += 1
-        new_final_state = new_initial_state + 1
-        while new_final_state in gnfa.states:
-            new_final_state += 1
-        gnfa.states.add(new_initial_state)  # add new start state
+        new_initial_state = GNFA._add_new_state(gnfa.states)
+        new_final_state = GNFA._add_new_state(gnfa.states)
+
         gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
         gnfa.initial_state = new_initial_state
-        gnfa.states.add(new_final_state)  # add new accept state
 
         for state in gnfa.final_states:
             gnfa.transitions[state][new_final_state] = ''
@@ -101,16 +96,12 @@ class GNFA(nfa.NFA):
             else:
                 gnfa.transitions[state] = dict()
 
-        new_initial_state = 0
-        while new_initial_state in gnfa.states:
-            new_initial_state += 1
-        new_final_state = new_initial_state + 1
-        while new_final_state in gnfa.states:
-            new_final_state += 1
-        gnfa.states.add(new_initial_state)  # add new start state
+        new_initial_state = GNFA._add_new_state(gnfa.states)
+        new_final_state = GNFA._add_new_state(gnfa.states)
+
         gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
         gnfa.initial_state = new_initial_state
-        gnfa.states.add(new_final_state)  # add new accept state
+
 
         for state in gnfa.final_states:
             gnfa.transitions[state][new_final_state] = ''
