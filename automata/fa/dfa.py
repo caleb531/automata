@@ -252,6 +252,14 @@ class DFA(fa.FA):
         new_dfa._merge_states(retain_names=retain_names)
         return new_dfa
 
+    def _get_digraph(self) -> nx.DiGraph:
+        """Return a digraph corresponding to this DFA with transition symbols ignored"""
+        return nx.DiGraph([
+            (start_state, end_state)
+            for start_state, transition in self.transitions.items()
+            for end_state in transition.values()
+        ])
+
     def _remove_unreachable_states(self):
         """Remove states which are not reachable from the initial state."""
         reachable_states = self._compute_reachable_states()
@@ -264,17 +272,8 @@ class DFA(fa.FA):
 
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
-        reachable_states = set()
-        states_to_check = deque()
-        states_to_check.append(self.initial_state)
-        reachable_states.add(self.initial_state)
-        while states_to_check:
-            state = states_to_check.popleft()
-            for symbol, dst_state in self.transitions[state].items():
-                if dst_state not in reachable_states:
-                    reachable_states.add(dst_state)
-                    states_to_check.append(dst_state)
-        return reachable_states
+        G = self._get_digraph()
+        return nx.descendants(G, self.initial_state) | {self.initial_state}
 
     def _merge_states(self, retain_names=False):
         eq_classes = []
