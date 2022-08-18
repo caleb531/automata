@@ -42,7 +42,7 @@ pip install automata-lib
   - [Finite Automaton (FA)](#class-faautomaton-metaclassabcmeta)
     - [Deterministic (DFA)](#class-dfafa)
     - [Non-Deterministic (NFA)](#class-nfafa)
-    - [Generalised Non-Deterministic (GNFA)](#class-gnfafa)
+    - [Generalized Non-Deterministic (GNFA)](#class-gnfafa)
   - [Pushdown Automaton (PDA)](#class-pdaautomaton-metaclassabcmeta)
     - [Deterministic (DPDA)](#class-dpdapda)
     - [Non-Deterministic (NPDA)](#class-npdapda)

@@ -12,7 +12,7 @@ from automata.fa.nfa import NFA
 
 
 class TestGNFA(test_fa.TestFA):
-    """A test class for testing generalised nondeterministic finite automata."""
+    """A test class for testing generalized nondeterministic finite automata."""
 
     temp_dir_path = tempfile.gettempdir()
 
