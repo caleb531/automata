@@ -8,6 +8,7 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
+import networkx as nx
 from automata.fa.dfa import DFA
 
 
@@ -23,6 +24,32 @@ class NFA(fa.FA):
         self.initial_state = initial_state
         self.final_states = final_states.copy()
         self.validate()
+
+        # Precompute lambda closures
+        lambda_graph = nx.DiGraph()
+        lambda_graph.add_nodes_from(self.states)
+        lambda_graph.add_edges_from([
+            (start_state, end_state)
+            for start_state, transition in self.transitions.items()
+            for char, end_states in transition.items()
+            for end_state in end_states
+            if char == ''
+        ])
+
+        self._lambda_closure_dict = {
+            state: nx.descendants(lambda_graph, state) | {state}
+            for state in self.states
+        }
+
+    def copy(self):
+        """Create a deep copy of the NFA. Overrides copy in base class due to extra parameter."""
+        return NFA(
+            states = self.states,
+            input_symbols = self.input_symbols,
+            transitions = self.transitions,
+            initial_state = self.initial_state,
+            final_states = self.final_states
+        )
 
     def __add__(self, other):
         """Return the concatenation of this NFA and another NFA."""
@@ -313,18 +340,8 @@ class NFA(fa.FA):
         every state that can be reached from q by following only lambda
         transitions.
         """
-        stack = []
-        encountered_states = set()
-        stack.append(start_state)
 
-        while stack:
-            state = stack.pop()
-            if state not in encountered_states:
-                encountered_states.add(state)
-                if state in self.transitions and '' in self.transitions[state]:
-                    stack.extend(self.transitions[state][''])
-
-        return encountered_states
+        return self._lambda_closure_dict[start_state]
 
     def _get_next_current_states(self, current_states, input_symbol):
         """Return the next set of current states given the current set."""
@@ -337,7 +354,7 @@ class NFA(fa.FA):
                 if symbol_end_states:
                     for end_state in symbol_end_states:
                         next_current_states.update(
-                            self._get_lambda_closure(end_state))
+                            self._lambda_closure_dict[end_state])
 
         return next_current_states
 
@@ -401,7 +418,7 @@ class NFA(fa.FA):
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
         for state in self.states:
-            lambda_enclosure = self._get_lambda_closure(state) - {state}
+            lambda_enclosure = self._lambda_closure_dict[state] - {state}
             for input_symbol in self.input_symbols:
                 next_current_states = self._get_next_current_states2(lambda_enclosure, input_symbol)
                 if state not in self.transitions:
@@ -431,7 +448,7 @@ class NFA(fa.FA):
 
         Yield the current configuration of the NFA at each step.
         """
-        current_states = self._get_lambda_closure(self.initial_state)
+        current_states = self._lambda_closure_dict[self.initial_state]
 
         yield current_states
         for input_symbol in input_str:
