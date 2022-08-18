@@ -23,6 +23,16 @@ class GNFA(nfa.NFA):
         self.final_state = final_state
         self.validate()
 
+    def copy(self):
+        """Create a deep copy of the GNFA. Overrides copy in base class due to extra parameter."""
+        return GNFA(
+            states = self.states,
+            input_symbols = self.input_symbols,
+            transitions = self.transitions,
+            initial_state = self.initial_state,
+            final_state = self.final_state
+        )
+
     @classmethod
     def from_dfa(cls, dfa):
         """Initialize this GNFA as one equivalent to the given DFA."""
@@ -40,16 +50,11 @@ class GNFA(nfa.NFA):
             else:
                 gnfa.transitions[state] = dict()
 
-        new_initial_state = 0
-        while new_initial_state in gnfa.states:
-            new_initial_state += 1
-        new_final_state = new_initial_state + 1
-        while new_final_state in gnfa.states:
-            new_final_state += 1
-        gnfa.states.add(new_initial_state)  # add new start state
+        new_initial_state = GNFA._add_new_state(gnfa.states)
+        new_final_state = GNFA._add_new_state(gnfa.states, new_initial_state)
+
         gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
         gnfa.initial_state = new_initial_state
-        gnfa.states.add(new_final_state)  # add new accept state
 
         for state in gnfa.final_states:
             gnfa.transitions[state][new_final_state] = ''
@@ -91,16 +96,12 @@ class GNFA(nfa.NFA):
             else:
                 gnfa.transitions[state] = dict()
 
-        new_initial_state = 0
-        while new_initial_state in gnfa.states:
-            new_initial_state += 1
-        new_final_state = new_initial_state + 1
-        while new_final_state in gnfa.states:
-            new_final_state += 1
-        gnfa.states.add(new_initial_state)  # add new start state
+        new_initial_state = GNFA._add_new_state(gnfa.states)
+        new_final_state = GNFA._add_new_state(gnfa.states, new_initial_state)
+
         gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
         gnfa.initial_state = new_initial_state
-        gnfa.states.add(new_final_state)  # add new accept state
+
 
         for state in gnfa.final_states:
             gnfa.transitions[state][new_final_state] = ''
