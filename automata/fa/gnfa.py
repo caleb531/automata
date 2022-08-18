@@ -51,7 +51,7 @@ class GNFA(nfa.NFA):
                 gnfa.transitions[state] = dict()
 
         new_initial_state = GNFA._add_new_state(gnfa.states)
-        new_final_state = GNFA._add_new_state(gnfa.states)
+        new_final_state = GNFA._add_new_state(gnfa.states, new_initial_state)
 
         gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
         gnfa.initial_state = new_initial_state
@@ -97,7 +97,7 @@ class GNFA(nfa.NFA):
                 gnfa.transitions[state] = dict()
 
         new_initial_state = GNFA._add_new_state(gnfa.states)
-        new_final_state = GNFA._add_new_state(gnfa.states)
+        new_final_state = GNFA._add_new_state(gnfa.states, new_initial_state)
 
         gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
         gnfa.initial_state = new_initial_state
