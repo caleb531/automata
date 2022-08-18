@@ -474,9 +474,7 @@ class NFA(fa.FA):
         (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states, start=1)
 
         new_states = set(state_map_a.values()) | set(state_map_b.values()) | {0}
-        new_transitions = dict()
-        for state in new_states:
-            new_transitions[state] = dict()
+        new_transitions = {state: dict() for state in new_states}
 
         # Connect new initial state to both branch
         new_transitions[0] = {'': {state_map_a[self.initial_state], state_map_b[other.initial_state]}}
@@ -510,9 +508,7 @@ class NFA(fa.FA):
         (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states)
 
         new_states = set(state_map_a.values()) | set(state_map_b.values())
-        new_transitions = dict()
-        for state in new_states:
-            new_transitions[state] = dict()
+        new_transitions = {state: dict() for state in new_states}
 
         # Transitions of self
         NFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
@@ -544,10 +540,7 @@ class NFA(fa.FA):
         an NFA which accepts L repeated 0 or more times.
         """
         new_states = set(self.states)
-        new_initial_state = 0
-        while new_initial_state in self.states:
-            new_initial_state += 1
-        new_states.add(new_initial_state)
+        new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same with a few additions.
         new_transitions = copy.deepcopy(self.transitions)
@@ -580,10 +573,7 @@ class NFA(fa.FA):
         Note: still you cannot pass empty string to the machine.
         """
         new_states = set(self.states)
-        new_initial_state = 0
-        while new_initial_state in self.states:
-            new_initial_state += 1
-        new_states.add(new_initial_state)
+        new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same with a few additions.
         new_transitions = copy.deepcopy(self.transitions)
@@ -607,10 +597,7 @@ class NFA(fa.FA):
         returns an NFA which accepts the reverse of L.
         """
         new_states = set(self.states)
-        new_initial_state = 0
-        while new_initial_state in self.states:
-            new_initial_state += 1
-        new_states.add(new_initial_state)
+        new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same except reversed
         new_transitions = dict()
@@ -694,3 +681,14 @@ class NFA(fa.FA):
                 new_transition_dict[state_map_dict[state_a]][symbol] = {
                     state_map_dict[state_b] for state_b in states
                 }
+
+    @staticmethod
+    def _add_new_state(state_set, start=0):
+        """Adds new state to the state set and returns it"""
+        new_state = start
+        while new_state in state_set:
+            new_state += 1
+
+        state_set.add(new_state)
+
+        return new_state
