@@ -490,7 +490,7 @@ class DFA(fa.FA):
         Returns True if the DFA accepts a finite language, False otherwise.
         """
         G = self._get_digraph()
-        
+
         accessible_nodes = nx.descendants(G, self.initial_state) | {self.initial_state}
 
         coaccessible_nodes = self.final_states.union(*(
@@ -517,53 +517,41 @@ class DFA(fa.FA):
         return '{{{}}}'.format(','.join(sorted(str(state) for state in states)))
 
     @classmethod
-    def _add_nfa_states_from_queue(cls, nfa, current_states,
-                                   current_state_name, dfa_states,
-                                   dfa_transitions, dfa_final_states):
-        """Add NFA states to DFA as it is constructed from NFA."""
-        dfa_states.add(current_state_name)
-        dfa_transitions[current_state_name] = {}
-        if (current_states & nfa.final_states):
-            dfa_final_states.add(current_state_name)
-
-    @classmethod
-    def _enqueue_next_nfa_current_states(cls, nfa, current_states,
-                                         current_state_name, state_queue,
-                                         dfa_transitions):
-        """Enqueue the next set of current states for the generated DFA."""
-        for input_symbol in nfa.input_symbols:
-            next_current_states = nfa._get_next_current_states(
-                current_states, input_symbol)
-            dfa_transitions[current_state_name][input_symbol] = (
-                cls._stringify_states(next_current_states))
-            state_queue.append(next_current_states)
-
-    @classmethod
-    def from_nfa(cls, nfa):
+    def from_nfa(cls, target_nfa):
         """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states = set()
-        dfa_symbols = nfa.input_symbols
-        dfa_transitions = {}
+        dfa_symbols = target_nfa.input_symbols
+        dfa_transitions = dict()
+
         # equivalent DFA states states
-        nfa_initial_states = nfa._get_lambda_closure(nfa.initial_state)
+        nfa_initial_states = target_nfa._get_lambda_closure(target_nfa.initial_state)
         dfa_initial_state = cls._stringify_states(nfa_initial_states)
         dfa_final_states = set()
 
         state_queue = deque()
         state_queue.append(nfa_initial_states)
         while state_queue:
-
             current_states = state_queue.popleft()
             current_state_name = cls._stringify_states(current_states)
             if current_state_name in dfa_states:
                 # We've been here before and nothing should have changed.
                 continue
-            cls._add_nfa_states_from_queue(nfa, current_states,
-                                           current_state_name, dfa_states,
-                                           dfa_transitions, dfa_final_states)
-            cls._enqueue_next_nfa_current_states(
-                nfa, current_states, current_state_name, state_queue,
-                dfa_transitions)
+
+
+            # Add NFA states to DFA as it is constructed from NFA.
+            dfa_states.add(current_state_name)
+            dfa_transitions[current_state_name] = {}
+            if (current_states & target_nfa.final_states):
+                dfa_final_states.add(current_state_name)
+
+
+            # Enqueue the next set of current states for the generated DFA.
+            for input_symbol in target_nfa.input_symbols:
+                next_current_states = target_nfa._get_next_current_states(
+                    current_states, input_symbol)
+                dfa_transitions[current_state_name][input_symbol] = cls._stringify_states(next_current_states)
+                state_queue.append(next_current_states)
+
 
         return cls(
             states=dfa_states, input_symbols=dfa_symbols,
