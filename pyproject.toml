@@ -13,7 +13,8 @@ maintainers = [
     {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
 ]
 dependencies = [
-    "pydot>=1.4.2"
+    "pydot>=1.4.2",
+    "networkx>=2.6.2"
 ]
 
 [project.urls]
