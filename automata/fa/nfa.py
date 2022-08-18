@@ -470,13 +470,8 @@ class NFA(fa.FA):
         elif DFA.from_nfa(self).issuperset(DFA.from_nfa(other)):
             return self.copy()
 
-        state_map_a = dict()
-        for state in self.states:
-            state_map_a[state] = len(state_map_a) + 1
-
-        state_map_b = dict()
-        for state in other.states:
-            state_map_b[state] = len(state_map_a) + len(state_map_b) + 1
+        # Starting at 1 because 0 is for the initial state
+        (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states, start=1)
 
         new_states = set(state_map_a.values()) | set(state_map_b.values()) | {0}
         new_transitions = dict()
@@ -517,13 +512,8 @@ class NFA(fa.FA):
         L1 and L2 respectively, returns an NFA which accepts
         the languages L1 concatenated with L2.
         """
-        state_map_a = dict()
-        for state in self.states:
-            state_map_a[state] = len(state_map_a)
-
-        state_map_b = dict()
-        for state in other.states:
-            state_map_b[state] = len(state_map_a) + len(state_map_b)
+        
+        (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states, start=1)
 
         new_states = set(state_map_a.values()) | set(state_map_b.values())
         new_transitions = dict()
