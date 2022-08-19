@@ -6,8 +6,10 @@
 name: publish
 
 on:
-  push:
-    branches: [ "main", "develop" ]
+  workflow_run:
+    workflows: [tests]
+    types:
+      - completed
 
 jobs:
   publish:
