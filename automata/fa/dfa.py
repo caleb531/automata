@@ -2,13 +2,13 @@
 """Classes and methods for working with deterministic finite automata."""
 
 import copy
-from collections import defaultdict, deque
+from collections import deque
 
+import networkx as nx
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-import networkx as nx
 
 
 class DFA(fa.FA):
@@ -537,13 +537,11 @@ class DFA(fa.FA):
                 # We've been here before and nothing should have changed.
                 continue
 
-
             # Add NFA states to DFA as it is constructed from NFA.
             dfa_states.add(current_state_name)
             dfa_transitions[current_state_name] = {}
             if (current_states & target_nfa.final_states):
                 dfa_final_states.add(current_state_name)
-
 
             # Enqueue the next set of current states for the generated DFA.
             for input_symbol in target_nfa.input_symbols:
@@ -551,7 +549,6 @@ class DFA(fa.FA):
                     current_states, input_symbol)
                 dfa_transitions[current_state_name][input_symbol] = cls._stringify_states(next_current_states)
                 state_queue.append(next_current_states)
-
 
         return cls(
             states=dfa_states, input_symbols=dfa_symbols,

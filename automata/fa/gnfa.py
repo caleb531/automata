@@ -26,11 +26,11 @@ class GNFA(nfa.NFA):
     def copy(self):
         """Create a deep copy of the GNFA. Overrides copy in base class due to extra parameter."""
         return GNFA(
-            states = self.states,
-            input_symbols = self.input_symbols,
-            transitions = self.transitions,
-            initial_state = self.initial_state,
-            final_state = self.final_state
+            states=self.states,
+            input_symbols=self.input_symbols,
+            transitions=self.transitions,
+            initial_state=self.initial_state,
+            final_state=self.final_state
         )
 
     @classmethod
@@ -101,7 +101,6 @@ class GNFA(nfa.NFA):
 
         gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
         gnfa.initial_state = new_initial_state
-
 
         for state in gnfa.final_states:
             gnfa.transitions[state][new_final_state] = ''

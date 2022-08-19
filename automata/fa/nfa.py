@@ -2,13 +2,12 @@
 """Classes and methods for working with nondeterministic finite automata."""
 
 import copy
-from collections import deque
 
+import networkx as nx
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-import networkx as nx
 from automata.fa.dfa import DFA
 
 
@@ -44,11 +43,11 @@ class NFA(fa.FA):
     def copy(self):
         """Create a deep copy of the NFA. Overrides copy in base class due to extra parameter."""
         return NFA(
-            states = self.states,
-            input_symbols = self.input_symbols,
-            transitions = self.transitions,
-            initial_state = self.initial_state,
-            final_states = self.final_states
+            states=self.states,
+            input_symbols=self.input_symbols,
+            transitions=self.transitions,
+            initial_state=self.initial_state,
+            final_states=self.final_states
         )
 
     def __add__(self, other):
@@ -669,8 +668,8 @@ class NFA(fa.FA):
 
     @staticmethod
     def _load_new_transition_dict(state_map_dict,
-                                 old_transition_dict,
-                                 new_transition_dict):
+                                  old_transition_dict,
+                                  new_transition_dict):
         """
         Load the new_transition_dict with the old transitions corresponding to
         the given state_map_dict.
