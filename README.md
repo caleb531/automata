@@ -10,16 +10,16 @@ Automata is a Python 3 library which implements the structures and algorithms
 for finite automata, pushdown automata, and Turing machines. The library
 requires Python 3.7 or newer.
 
-Huge thanks to [@YtvwlD][YtvwlD-profile], [@dengl11][dengl11-profile],
-[@Tagl][Tagl-profile], [@lewiuberg][lewiuberg-profile], and
-[@abhinavsinha‑adrino][abhinavsinha-adrino-profile] for their invaluable code
+Huge thanks to [@YtvwlD][YtvwlD], [@dengl11][dengl11],
+[@Tagl][Tagl], [@lewiuberg][lewiuberg], and
+[@abhinavsinha‑adrino][abhinavsinha-adrino] for their invaluable code
 contributions to this project! 🎉
 
-[YtvwlD-profile]: https://github.com/YtvwlD
-[dengl11-profile]: https://github.com/dengl11
-[Tagl-profile]: https://github.com/Tagl
-[lewiuberg-profile]: https://github.com/lewiuberg
-[abhinavsinha-adrino-profile]: https://github.com/abhinavsinha-adrino
+[YtvwlD]: https://github.com/YtvwlD
+[dengl11]: https://github.com/dengl11
+[Tagl]: https://github.com/Tagl
+[lewiuberg]: https://github.com/lewiuberg
+[abhinavsinha-adrino]: https://github.com/abhinavsinha-adrino
 
 ## Migrating to v6
 
@@ -32,7 +32,7 @@ If you wish to migrate to Automata v6 from an older version, please follow the
 
 You can install the latest version of Automata via pip:
 
-```
+```sh
 pip install automata-lib
 ```
 
@@ -58,7 +58,7 @@ pip install automata-lib
 
 The `Automaton` class is an abstract base class from which all automata
 (including Turing machines) inherit. As such, it cannot be instantiated on its
-own; you must use a defined subclasses instead (or you may create your own
+own; you must use a defined subclass instead (or you may create your own
 subclass if you're feeling adventurous). The `Automaton` class can be found
 under `automata/base/automaton.py`.
 
@@ -68,7 +68,8 @@ If you wish to subclass `Automaton`, you can import it like so:
 from automata.base.automaton import Automaton
 ```
 
-The following methods are common to all Automaton subtypes:
+The following methods are common to all Automaton subtypes, and must be
+implemented if you create your own subclass:
 
 #### Automaton.read_input(self, input_str)
 
@@ -197,7 +198,7 @@ else:
 
 #### DFA.validate(self)
 
-Returns True if the DFA is valid, otherwise the appropriate exception is
+Returns `True` if the DFA is valid, otherwise the appropriate exception is
 raised.
 
 ```python
@@ -301,7 +302,7 @@ dfa.isdisjoint(other_dfa)
 
 ### DFA.isempty(self)
 
-Returns True if the DFA does not accept any inputs, False otherwise.
+Returns `True` if the DFA does not accept any inputs, False otherwise.
 
 ```python
 dfa.isempty()
@@ -309,7 +310,7 @@ dfa.isempty()
 
 ### DFA.isfinite(self)
 
-Returns True if the DFA accepts a finite language, False otherwise.
+Returns `True` if the DFA accepts a finite language, False otherwise.
 
 ```python
 dfa.isfinite()
@@ -398,7 +399,7 @@ else:
 
 #### NFA.validate(self)
 
-Returns True if the NFA is valid, otherwise the appropriate exception is
+Returns `True` if the NFA is valid, otherwise the appropriate exception is
 raised.
 
 ```python
@@ -438,10 +439,13 @@ nfa1.kleene_star()
 ```
 
 #### NFA.union(self, other)
+
 Returns union of two NFAs
+
 ```python
 new_nfa = nfa1.union(nfa2)
 ```
+
 ```python
 new_nfa = nfa1 | nfa2
 ```
@@ -544,7 +548,7 @@ gnfa = GNFA.from_nfa(nfa) # returns an equivalent GNFA
 
 #### GNFA.validate(self)
 
-Returns True if the GNFA is valid, otherwise the appropriate exception is
+Returns `True` if the GNFA is valid, otherwise the appropriate exception is
 raised.
 
 ```python
@@ -1199,7 +1203,7 @@ import automata.base.regex as re
 
 #### automata.base.regex.validate(regex)
 
-Returns True if the regular expression is valid. Otherwise, raise an
+Returns `True` if the regular expression is valid. Otherwise, raise an
 `InvalidRegexError`.
 
 ```python
@@ -1208,7 +1212,7 @@ re.validate('ab(c|d)*ba?')
 
 #### automata.base.regex.isequal(re1, re2)
 
-Returns True if both regular expressions are equivalent.
+Returns `True` if both regular expressions are equivalent.
 
 ```python
 re.isequal('aa?', 'a|aa')
@@ -1216,7 +1220,7 @@ re.isequal('aa?', 'a|aa')
 
 #### automata.base.regex.issubset(re1, re2)
 
-Returns True if re1 is a subset of re2.
+Returns `True` if re1 is a subset of re2.
 
 ```python
 re.issubset('aa?', 'a*')
@@ -1224,7 +1228,7 @@ re.issubset('aa?', 'a*')
 
 #### autumata.issuperset(re1, re2)
 
-Returns True if re1 is a subset of re2.
+Returns `True` if re1 is a subset of re2.
 
 ```python
 re.issuperset('a*', 'a?')
