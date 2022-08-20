@@ -9,7 +9,9 @@ If you are submitting a bug report, please answer the following questions:
 1. What version of Automata were you using?
 2. What were you doing?
 3. What did you expect to happen?
-3. What happened instead?
+4. What happened instead?
+
+Please provide any code to reproduce the issue, if possible.
 
 ## New features
 
@@ -25,12 +27,13 @@ features:
 
 1. All new code must comply with PEP 8. If you install Automata with
 `virtualenv`, the `flake8` package should already be available to you for this
-purpose.
+purpose. The only exception to this is that the maximum line length has been
+increased from 79 characters to 120 characters.
 
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests
 to verify that your code additions function correctly and break nothing else.
 
-3. Please run `coverage run -m nose && coverage report` to ensure that code
+3. Please run `coverage run -m nose2 && coverage report` to ensure that code
 coverage remains at 100%.
 
 4. If you are adding a new feature or changing behavior, I ask that you please
@@ -48,19 +51,22 @@ section of the Hitchhiker's Guide to Python.
 You can install all project dependencies via `pip` (assuming your project
 virtualenv is active):
 
-```bash
+```sh
 pip install -r requirements.txt
 ```
 
 ### Running unit tests
 
-The project's unit tests are written using and managed under the [nose][nose]
-Python package. You can run all unit tests via the `nosetests` command (you can
-also pass `--rednose` for colored test output):
+The project's unit tests are written using [unittest][unittest] and run using
+the [nose2][nose2] Python package. You can run all unit tests via the `nose2`
+command.
 
-```bash
-nosetests --rednose
+```sh
+nose2
 ```
+
+[unittest]: https://docs.python.org/3/library/unittest.html
+[nose2]: https://docs.nose2.io/en/latest/
 
 ### Code coverage
 
@@ -68,15 +74,15 @@ The project currently boasts 100% code coverage across all source files. New
 contributions are expected to maintain this high standard. You can view the
 current coverage report via the `coverage` command:
 
-```bash
-coverage run -m nose --rednose
+```sh
+coverage run -m nose2
 coverage report
 ```
 
-If the coverage is ever less than 100%, you can generate and view a detailed
+If the coverage is ever less than 100%, you can generate and open a detailed
 HTML view of the coverage report like so:
 
-```bash
+```sh
 coverage html
 open htmlcov/index.html
 ```
