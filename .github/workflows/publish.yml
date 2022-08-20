@@ -6,6 +6,8 @@
 name: publish
 
 on:
+  # This only seems to trigger on the main branch; see
+  # <https://github.com/orgs/community/discussions/25288#discussioncomment-3247293>
   workflow_run:
     workflows: [tests]
     types:
