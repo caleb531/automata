@@ -130,12 +130,10 @@ class GNFA(nfa.NFA):
     def _validate_transition_end_states(self, start_state, paths):
         """Raise an error if transition end states are invalid or missing"""
         if start_state == self.final_state:
-            if len(paths) != 0:
+            if len(paths) != 0:  # pragma: no branch
                 raise exceptions.InvalidStateError(
                     'No transitions should be defined for '
                     'final state {}'.format(start_state))
-            else:  # pragma: no branch
-                pass
         elif start_state == self.initial_state and self.states - paths.keys() - {self.initial_state} != set():
             raise exceptions.MissingStateError(
                 'state {} does not have transitions defined for states {}'.format(
@@ -144,14 +142,11 @@ class GNFA(nfa.NFA):
             raise exceptions.MissingStateError(
                 'state {} does not have transitions defined for states {}'.format(
                     start_state, str(self.states - paths.keys() - {self.initial_state})))
-        if paths.keys():
-            for end_state in paths.keys():  # pragma: no branch
-                if end_state not in self.states:
-                    raise exceptions.InvalidStateError(
-                        'end state {} for transition on {} is '
-                        'not valid'.format(end_state, start_state))
-        else:  # pragma: no cover
-            pass
+        for end_state in paths.keys():  # pragma: no branch
+            if end_state not in self.states:
+                raise exceptions.InvalidStateError(
+                    'end state {} for transition on {} is '
+                    'not valid'.format(end_state, start_state))
 
     def _validate_final_state(self):
         """Raise an error if the initial state is invalid."""
@@ -223,8 +218,6 @@ class GNFA(nfa.NFA):
 
                         if r2 is None:
                             r2 = ''
-                        elif len(r2) == 2 and r2[1] == '*':
-                            pass
                         elif len(r2) == 1:
                             r2 = '{}*'.format(r2)
                         else:
