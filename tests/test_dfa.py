@@ -237,6 +237,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(no_consecutive_11_dfa, other_dfa)
 
     def test_complement(self):
+        """Should compute the complement of a DFA"""
         no_consecutive_11_dfa = DFA(
             states={'q0', 'q1', 'q2'},
             input_symbols={'0', '1'},
@@ -264,6 +265,7 @@ class TestDFA(test_fa.TestFA):
         )
 
     def test_union(self):
+        """Should compute the union between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         A = DFA(
@@ -328,6 +330,7 @@ class TestDFA(test_fa.TestFA):
         })
 
     def test_intersection(self):
+        """Should compute the intersection between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         A = DFA(
@@ -388,6 +391,7 @@ class TestDFA(test_fa.TestFA):
         })
 
     def test_difference(self):
+        """Should compute the difference between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         A = DFA(
@@ -448,6 +452,7 @@ class TestDFA(test_fa.TestFA):
         })
 
     def test_symmetric_difference(self):
+        """Should compute the symmetric difference between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         A = DFA(
@@ -512,6 +517,7 @@ class TestDFA(test_fa.TestFA):
         })
 
     def test_issubset(self):
+        """Should test if one DFA is a subset of another"""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         no_consecutive_11_dfa = DFA(
@@ -545,6 +551,7 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(no_consecutive_11_dfa <= zero_or_one_1_dfa)
 
     def test_issuperset(self):
+        """Should test if one DFA is a superset of another"""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         no_consecutive_11_dfa = DFA(
@@ -578,6 +585,7 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(no_consecutive_11_dfa >= zero_or_one_1_dfa)
 
     def test_isdisjoint(self):
+        """Should test if two DFAs are disjoint"""
         # This DFA accepts all words which contain at least
         # three occurrences of 1
         A = DFA(
@@ -623,6 +631,7 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(B.isdisjoint(C))
 
     def test_isempty_non_empty(self):
+        """Should test if a non-empty DFA is empty"""
         # This DFA accepts all words which contain at least
         # three occurrences of 1
         A = DFA(
@@ -640,6 +649,7 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(A.isempty())
 
     def test_isempty_empty(self):
+        """Should test if an empty DFA is empty"""
         # This DFA has no reachable final states and
         # therefore accepts the empty language
         A = DFA(
@@ -657,6 +667,7 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(A.isempty())
 
     def test_isfinite_infinite(self):
+        """Should test if an infinite DFA is finite (case #1)"""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         A = DFA(
@@ -673,6 +684,7 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(A.isfinite())
 
     def test_isfinite_infinite_case_2(self):
+        """Should test if an infinite DFA is finite (case #2)"""
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
         A = DFA(
@@ -693,6 +705,7 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(A.isfinite())
 
     def test_isfinite_finite(self):
+        """Should test if a finite DFA is finite"""
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
         A = DFA(
@@ -713,6 +726,7 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(A.isfinite())
 
     def test_isfinite_empty(self):
+        """Should test if an empty DFA is finite"""
         # This DFA has no reachable final states and
         # therefore is finite.
         A = DFA(

@@ -156,7 +156,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa.read_input('a'), {'q0', 'q1', 'q2', 'q3'})
 
     def test_non_str_states(self):
-        """should handle non-string state names"""
+        """Should handle non-string state names"""
         nfa = NFA(
             states={0},
             input_symbols={0},
@@ -222,6 +222,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(concat_nfa.accepts_input('1010'), True)
 
     def test_kleene_star(self):
+        """Should perform the Kleene Star operation on an NFA"""
         # This NFA accepts aa and ab
         nfa = NFA(
             states={0, 1, 2, 3, 4, 6},
@@ -256,6 +257,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(kleene_nfa.accepts_input('aaabababaaaaba'), False)
 
     def test_reverse(self):
+        """Should reverse an NFA"""
         nfa = NFA(
             states={0, 1, 2, 4},
             input_symbols={'a', 'b'},

@@ -369,6 +369,7 @@ class TestTM(unittest.TestCase):
         self.assertEqual(first.final_states, second.final_states)
 
     def test_validate_blank_symbol(self):
+        """Should raise an error if the blank symbol is not valid"""
         self.dtm1.blank_symbol = '-'
         with self.assertRaises(exceptions.InvalidSymbolError):
             self.dtm1.validate()
