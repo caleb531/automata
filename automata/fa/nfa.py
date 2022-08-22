@@ -42,7 +42,7 @@ class NFA(fa.FA):
 
     def copy(self):
         """Create a deep copy of the NFA. Overrides copy in base class due to extra parameter."""
-        return NFA(
+        return self.__class__(
             states=self.states,
             input_symbols=self.input_symbols,
             transitions=self.transitions,
@@ -101,7 +101,7 @@ class NFA(fa.FA):
         transitions = {0: {symbol: {1}}}
         final_states = {1}
 
-        return NFA(
+        return cls(
             states=states,
             input_symbols=input_symbols,
             initial_state=initial_state,
@@ -217,7 +217,7 @@ class NFA(fa.FA):
         """Initialize this NFA as one equivalent to the given regular expression"""
 
         if regex == '':
-            return NFA(
+            return cls(
                 states={0},
                 initial_state=0,
                 final_states={0},
@@ -489,7 +489,7 @@ class NFA(fa.FA):
             | {state_map_b[state] for state in other.final_states}
         )
 
-        return NFA(
+        return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols | other.input_symbols,
             transitions=new_transitions,
@@ -525,7 +525,7 @@ class NFA(fa.FA):
         # Final states of other
         new_final_states = {state_map_b[state] for state in other.final_states}
 
-        return NFA(
+        return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols | other.input_symbols,
             transitions=new_transitions,
@@ -557,7 +557,7 @@ class NFA(fa.FA):
                 new_transitions[state][''] = set()
             new_transitions[state][''].add(self.initial_state)
 
-        return NFA(
+        return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions=new_transitions,
@@ -582,7 +582,7 @@ class NFA(fa.FA):
             '': {self.initial_state}
         }
 
-        return NFA(
+        return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions=new_transitions,
@@ -616,7 +616,7 @@ class NFA(fa.FA):
 
         new_final_states = {self.initial_state}
 
-        return NFA(
+        return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions=new_transitions,

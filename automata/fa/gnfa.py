@@ -25,7 +25,7 @@ class GNFA(nfa.NFA):
 
     def copy(self):
         """Create a deep copy of the GNFA. Overrides copy in base class due to extra parameter."""
-        return GNFA(
+        return self.__class__(
             states=self.states,
             input_symbols=self.input_symbols,
             transitions=self.transitions,
