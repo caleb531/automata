@@ -384,7 +384,7 @@ class DFA(fa.FA):
             (self.initial_state, other.initial_state)
         )
 
-        return DFA(
+        return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions=new_transitions,
