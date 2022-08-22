@@ -31,6 +31,7 @@ class Automaton(metaclass=abc.ABCMeta):
         Return the automaton's final configuration if this string is valid.
         """
         validation_generator = self.read_input_stepwise(input_str)
+        # "Fast-forward" generator to get its final value
         for config in validation_generator:
             pass
         return config
