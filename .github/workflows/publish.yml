@@ -7,7 +7,7 @@ name: publish
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    tags: [ "*" ]
 
 jobs:
   publish:
