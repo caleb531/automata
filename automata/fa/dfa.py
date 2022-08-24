@@ -3,6 +3,7 @@
 
 import copy
 from collections import deque
+from itertools import product
 
 import networkx as nx
 from pydot import Dot, Edge, Node
@@ -322,32 +323,36 @@ class DFA(fa.FA):
                         else:
                             processing.add(XdiffY)
 
-        # now eq_classes are good to go, make them a list for ordering
-        eq_classes = list(eq_classes)
+        def get_name(eq, i):
+            if retain_names:
+                return list(eq)[0] if len(eq) == 1 else DFA._stringify_states(eq)
 
-        def rename(eq):
-            return list(eq)[0] if len(eq) == 1 else DFA._stringify_states(eq)
+            return str(i)
+
+        # now eq_classes are good to go, make them a list for ordering
+        eq_class_name_pairs = [
+            (eq, get_name(eq, i))
+            for i, eq in enumerate(eq_classes)
+        ]
 
         # need a backmap to prevent constant calls to index
-        back_map = {}
-        for i, eq in enumerate(eq_classes):
-            name = rename(eq) if retain_names else str(i)
-            for state in eq:
-                back_map[state] = name
+        back_map = {
+            state: name
+            for eq, name in eq_class_name_pairs
+            for state in eq
+        }
 
         new_input_symbols = self.input_symbols
-        new_states = ({rename(eq) for eq in eq_classes} if retain_names
-                      else set(str(i) for i in range(len(eq_classes))))
+        new_states = set(back_map.values())
         new_initial_state = back_map[self.initial_state]
-        new_final_states = set([back_map[acc] for acc in self.final_states])
-        new_transitions = {}
-        for i, eq in enumerate(eq_classes):
-            name = rename(eq) if retain_names else str(i)
-            new_transitions[name] = {}
-            for letter in self.input_symbols:
-                new_transitions[name][letter] = back_map[
-                    self.transitions[list(eq)[0]][letter]
-                ]
+        new_final_states = {back_map[acc] for acc in self.final_states}
+        new_transitions = {
+            name: {
+                letter: back_map[self.transitions[list(eq)[0]][letter]]
+                for letter in self.input_symbols
+            }
+            for eq, name in eq_class_name_pairs
+        }
 
         self.states = new_states
         self.input_symbols = new_input_symbols
@@ -361,25 +366,20 @@ class DFA(fa.FA):
         with an empty set of final states.
         """
         assert self.input_symbols == other.input_symbols
-        states_a = list(self.states)
-        states_b = list(other.states)
         new_states = {
             self._stringify_states_unsorted((a, b))
-            for a in states_a for b in states_b
+            for (a, b) in product(self.states, other.states)
         }
-        new_transitions = dict()
-        for state_a, transitions_a in self.transitions.items():
-            for state_b, transitions_b in other.transitions.items():
-                new_state = self._stringify_states_unsorted(
-                    (state_a, state_b)
-                )
-                new_transitions[new_state] = dict()
-                for symbol in self.input_symbols:
-                    new_transitions[new_state][symbol] = (
-                        self._stringify_states_unsorted(
-                            (transitions_a[symbol], transitions_b[symbol])
-                        )
-                    )
+
+        new_transitions = {
+            self._stringify_states_unsorted((state_a, state_b)): {
+                symbol: self._stringify_states_unsorted((transitions_a[symbol], transitions_b[symbol]))
+                for symbol in self.input_symbols
+            }
+            for (state_a, transitions_a), (state_b, transitions_b) in
+            product(self.transitions.items(), other.transitions.items())
+        }
+
         new_initial_state = self._stringify_states_unsorted(
             (self.initial_state, other.initial_state)
         )
@@ -399,13 +399,13 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.states:
-            for state_b in other.states:
-                if (state_a in self.final_states or
-                        state_b in other.final_states):
-                    new_dfa.final_states.add(
-                        self._stringify_states_unsorted((state_a, state_b))
-                    )
+
+        new_dfa.final_states = {
+            self._stringify_states_unsorted((state_a, state_b))
+            for state_a, state_b in product(self.states, other.states)
+            if (state_a in self.final_states or state_b in other.final_states)
+        }
+
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -417,11 +417,12 @@ class DFA(fa.FA):
         Returns a DFA which accepts the intersection of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.final_states:
-            for state_b in other.final_states:
-                new_dfa.final_states.add(
-                    self._stringify_states_unsorted((state_a, state_b))
-                )
+
+        new_dfa.final_states = {
+            self._stringify_states_unsorted((state_a, state_b))
+            for state_a, state_b in product(self.final_states, other.final_states)
+        }
+
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -433,12 +434,12 @@ class DFA(fa.FA):
         Returns a DFA which accepts the difference of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.final_states:
-            for state_b in other.states:
-                if state_b not in other.final_states:
-                    new_dfa.final_states.add(
-                        self._stringify_states_unsorted((state_a, state_b))
-                    )
+
+        new_dfa.final_states = {
+            self._stringify_states_unsorted((state_a, state_b))
+            for state_a, state_b in product(self.final_states, other.states - other.final_states)
+        }
+
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -450,15 +451,12 @@ class DFA(fa.FA):
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.states:
-            for state_b in other.states:
-                if ((state_a in self.final_states and
-                        state_b not in other.final_states) or
-                    (state_a not in self.final_states and
-                        state_b in other.final_states)):
-                    new_dfa.final_states.add(
-                        self._stringify_states_unsorted((state_a, state_b))
-                    )
+        new_dfa.final_states = {
+            self._stringify_states_unsorted((state_a, state_b))
+            for state_a, state_b in product(self.states, other.states)
+            if (state_a in self.final_states) ^ (state_b in other.final_states)
+        }
+
         if minify:
             return new_dfa.minify(retain_names=retain_names)
         return new_dfa
@@ -466,12 +464,12 @@ class DFA(fa.FA):
     def complement(self):
         """Return the complement of this DFA."""
         new_dfa = self.copy()
-        new_dfa.final_states = self.states - self.final_states
+        new_dfa.final_states ^= self.states
         return new_dfa
 
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
-        return self.intersection(other) == self
+        return self.difference(other, minify=False).isempty()
 
     def issuperset(self, other):
         """Return True if this DFA is a superset of another DFA."""
@@ -479,7 +477,7 @@ class DFA(fa.FA):
 
     def isdisjoint(self, other):
         """Return True if this DFA has no common elements with another DFA."""
-        return self.intersection(other).isempty()
+        return self.intersection(other, minify=False).isempty()
 
     def isempty(self):
         """Return True if this DFA is completely empty."""
