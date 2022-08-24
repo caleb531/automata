@@ -323,13 +323,13 @@ class DFA(fa.FA):
                         else:
                             processing.add(XdiffY)
 
-        # now eq_classes are good to go, make them a list for ordering
         def get_name(eq, i):
             if retain_names:
                 return list(eq)[0] if len(eq) == 1 else DFA._stringify_states(eq)
 
             return str(i)
 
+        # now eq_classes are good to go, make them a list for ordering
         eq_class_name_pairs = [
             (eq, get_name(eq, i))
             for i, eq in enumerate(eq_classes)
@@ -366,11 +366,9 @@ class DFA(fa.FA):
         with an empty set of final states.
         """
         assert self.input_symbols == other.input_symbols
-        states_a = list(self.states)
-        states_b = list(other.states)
         new_states = {
             self._stringify_states_unsorted((a, b))
-            for (a,b) in product(states_a, states_b)
+            for (a, b) in product(self.states, other.states)
         }
 
         new_transitions = {
@@ -401,6 +399,7 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
         new_dfa = self._cross_product(other)
+
         new_dfa.final_states = {
             self._stringify_states_unsorted((state_a, state_b))
             for state_a, state_b in product(self.states, other.states)
@@ -418,11 +417,11 @@ class DFA(fa.FA):
         Returns a DFA which accepts the intersection of L1 and L2.
         """
         new_dfa = self._cross_product(other)
-        for state_a in self.final_states:
-            for state_b in other.final_states:
-                new_dfa.final_states.add(
-                    self._stringify_states_unsorted((state_a, state_b)))
 
+        new_dfa.final_states = {
+            self._stringify_states_unsorted((state_a, state_b))
+            for state_a, state_b in product(self.final_states, other.final_states)
+        }
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
