@@ -464,7 +464,7 @@ class DFA(fa.FA):
     def complement(self):
         """Return the complement of this DFA."""
         new_dfa = self.copy()
-        new_dfa.final_states = self.states - self.final_states
+        new_dfa.final_states ^= self.states
         return new_dfa
 
     def issubset(self, other):
