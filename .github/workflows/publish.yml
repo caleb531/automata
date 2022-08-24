@@ -6,12 +6,8 @@
 name: publish
 
 on:
-  # This only seems to trigger on the main branch; see
-  # <https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run>
-  workflow_run:
-    workflows: [tests]
-    types:
-      - completed
+  push:
+    branches: [ "main", "develop" ]
 
 jobs:
   publish:
