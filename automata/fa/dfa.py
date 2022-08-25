@@ -3,6 +3,7 @@
 
 import copy
 from collections import deque
+from enum import IntEnum
 from itertools import product
 
 import networkx as nx
@@ -10,6 +11,11 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
+
+
+class OriginEnum(IntEnum):
+    SELF = 0
+    OTHER = 1
 
 
 class DFA(fa.FA):
@@ -34,28 +40,29 @@ class DFA(fa.FA):
 
         # Must be another DFA and have equal alphabets
         if not isinstance(other, DFA) or self.input_symbols != other.input_symbols:
-            return False
-
-        # Get new state labels
-        (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states)
-
-        # Load new transition dicts
-        new_transitions = dict()
-
-        # Transitions of self
-        DFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
-        # Transitions of other
-        DFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
-
-        # Compute total set of final states
-        new_final_states = (
-            {state_map_a[state] for state in self.final_states}
-            | {state_map_b[state] for state in other.final_states}
-        )
+            return NotImplemented
 
         # Get new initial states
-        initial_state_a = state_map_a[self.initial_state]
-        initial_state_b = state_map_b[other.initial_state]
+        initial_state_a = (self.initial_state, OriginEnum.SELF)
+        initial_state_b = (other.initial_state, OriginEnum.OTHER)
+
+        def is_final_state(state_pair):
+            state, origin_enum = state_pair
+
+            if origin_enum is OriginEnum.SELF:
+                return state in self.final_states
+
+            # origin_enum is OriginEnum.OTHER:
+            return state in other.final_states
+
+        def transition(state_pair, symbol):
+            state, origin_enum = state_pair
+
+            if origin_enum is OriginEnum.SELF:
+                return (self.transitions[state][symbol], origin_enum)
+
+            # origin_enum is OriginEnum.OTHER:
+            return (other.transitions[state][symbol], origin_enum)
 
         # Get data structures
         state_sets = nx.utils.union_find.UnionFind([initial_state_a, initial_state_b])
@@ -68,30 +75,18 @@ class DFA(fa.FA):
         while pair_stack:
             q_a, q_b = pair_stack.pop()
 
-            if (q_a in new_final_states) ^ (q_b in new_final_states):
+            if is_final_state(q_a) ^ is_final_state(q_b):
                 return False
 
             for symbol in self.input_symbols:
-                r_1 = state_sets[new_transitions[q_a][symbol]]
-                r_2 = state_sets[new_transitions[q_b][symbol]]
+                r_1 = state_sets[transition(q_a, symbol)]
+                r_2 = state_sets[transition(q_b, symbol)]
 
                 if r_1 != r_2:
                     state_sets.union(r_1, r_2)
                     pair_stack.append((r_1, r_2))
 
         return True
-
-    @staticmethod
-    def _load_new_transition_dict(state_map_dict, old_transition_dict, new_transition_dict):
-        """
-        Load the new_transition_dict with the old transitions corresponding to
-        the given state_map_dict.
-        """
-        for state_a, transitions in old_transition_dict.items():
-            new_transition_dict[state_map_dict[state_a]] = {
-                symbol: state_map_dict[state_b]
-                for symbol, state_b in transitions.items()
-            }
 
     def __le__(self, other):
         """Return True if this DFA is a subset of (or equal to) another DFA."""
@@ -365,7 +360,9 @@ class DFA(fa.FA):
         Creates a new DFA which is the cross product of DFAs self and other
         with an empty set of final states.
         """
-        assert self.input_symbols == other.input_symbols
+        if self.input_symbols != other.input_symbols:
+            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
+
         new_states = {
             self._stringify_states_unsorted((a, b))
             for (a, b) in product(self.states, other.states)
@@ -467,9 +464,32 @@ class DFA(fa.FA):
         new_dfa.final_states ^= self.states
         return new_dfa
 
+    def _get_reachable_states_product_graph(self, other):
+        """Get reachable states corresponding to product graph between self and other"""
+        if self.input_symbols != other.input_symbols:
+            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
+
+        # Generate product graph corresponding to component DFAs
+        product_graph = nx.DiGraph([
+            ((start_state_a, start_state_b), (transitions_a[symbol], transitions_b[symbol]))
+            for (start_state_a, transitions_a), (start_state_b, transitions_b), symbol in
+            product(self.transitions.items(), other.transitions.items(), self.input_symbols)
+        ])
+
+        product_initial_state = (self.initial_state, other.initial_state)
+        reachable_states = nx.descendants(product_graph, product_initial_state)
+        reachable_states.add(product_initial_state)
+
+        return reachable_states
+
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
-        return self.difference(other, minify=False).isempty()
+        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+            # Check for reachable state that is counterexample to subset
+            if state_a in self.final_states and state_b not in other.final_states:
+                return False
+
+        return True
 
     def issuperset(self, other):
         """Return True if this DFA is a superset of another DFA."""
@@ -477,7 +497,12 @@ class DFA(fa.FA):
 
     def isdisjoint(self, other):
         """Return True if this DFA has no common elements with another DFA."""
-        return self.intersection(other, minify=False).isempty()
+        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+            # Check for reachable state that is counterexample to disjointness
+            if state_a in self.final_states and state_b in other.final_states:
+                return False
+
+        return True
 
     def isempty(self):
         """Return True if this DFA is completely empty."""

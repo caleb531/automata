@@ -454,6 +454,25 @@ class NFA(fa.FA):
 
         self._check_for_input_rejection(current_states)
 
+    @staticmethod
+    def _get_state_maps(state_set_a, state_set_b, *, start=0):
+        """
+        Generate state map dicts from given sets. Useful when the state set has
+        to be a union of the state sets of component FAs.
+        """
+
+        state_map_a = {
+            state: i
+            for i, state in enumerate(state_set_a, start=start)
+        }
+
+        state_map_b = {
+            state: i
+            for i, state in enumerate(state_set_b, start=max(state_map_a.values())+1)
+        }
+
+        return (state_map_a, state_map_b)
+
     def union(self, other):
         """
         Given two NFAs, M1 and M2, which accept the languages
@@ -470,7 +489,7 @@ class NFA(fa.FA):
             return self.copy()
 
         # Starting at 1 because 0 is for the initial state
-        (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states, start=1)
+        (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
 
         new_states = set(state_map_a.values()) | set(state_map_b.values()) | {0}
         new_transitions = {state: dict() for state in new_states}
@@ -504,7 +523,7 @@ class NFA(fa.FA):
         the languages L1 concatenated with L2.
         """
 
-        (state_map_a, state_map_b) = DFA._get_state_maps(self.states, other.states)
+        (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states)
 
         new_states = set(state_map_a.values()) | set(state_map_b.values())
         new_transitions = {state: dict() for state in new_states}

@@ -584,6 +584,40 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(no_consecutive_11_dfa > zero_or_one_1_dfa)
         self.assertTrue(no_consecutive_11_dfa >= zero_or_one_1_dfa)
 
+    def test_symbol_mismatch(self):
+        """Should test if symbol mismatch is raised"""
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        no_consecutive_11_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q0', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        # This DFA accepts all words which contain either zero
+        # or one occurrence of b
+        zero_or_one_b_dfa = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            transitions={
+                'q0': {'a': 'q0', 'b': 'q1'},
+                'q1': {'a': 'q1', 'b': 'q2'},
+                'q2': {'a': 'q2', 'b': 'q2'}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        with self.assertRaises(exceptions.SymbolMismatchError):
+            zero_or_one_b_dfa.issubset(no_consecutive_11_dfa)
+
+        with self.assertRaises(exceptions.SymbolMismatchError):
+            zero_or_one_b_dfa.difference(no_consecutive_11_dfa)
+
     def test_isdisjoint(self):
         """Should test if two DFAs are disjoint"""
         # This DFA accepts all words which contain at least
