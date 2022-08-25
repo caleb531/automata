@@ -474,9 +474,8 @@ class DFA(fa.FA):
         # Generate product graph corresponding to component DFAs
         product_graph = nx.DiGraph([
             ((start_state_a, start_state_b), (transitions_a[symbol], transitions_b[symbol]))
-            for (start_state_a, transitions_a), (start_state_b, transitions_b) in
-            product(self.transitions.items(), other.transitions.items())
-            for symbol in self.input_symbols
+            for (start_state_a, transitions_a), (start_state_b, transitions_b), symbol in
+            product(self.transitions.items(), other.transitions.items(), self.input_symbols)
         ])
 
         product_initial_state = (self.initial_state, other.initial_state)
