@@ -467,9 +467,32 @@ class DFA(fa.FA):
         new_dfa.final_states ^= self.states
         return new_dfa
 
+    def _get_reachable_states_product_graph(self, other):
+        """Get reachable states corresponding to product graph between self and other"""
+        assert self.input_symbols == other.input_symbols
+
+        # Generate product graph corresponding to component DFAs
+        product_graph = nx.DiGraph([
+            ((start_state_a, start_state_b), (transitions_a[symbol], transitions_b[symbol]))
+            for (start_state_a, transitions_a), (start_state_b, transitions_b) in
+            product(self.transitions.items(), other.transitions.items())
+            for symbol in self.input_symbols
+        ])
+
+        product_initial_state = (self.initial_state, other.initial_state)
+        reachable_states = nx.descendants(product_graph, product_initial_state)
+        reachable_states.add(product_initial_state)
+
+        return reachable_states
+
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
-        return self.difference(other, minify=False).isempty()
+        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+            # Check for reachable state that is counterexample to subset
+            if state_a in self.final_states and state_b not in other.final_states:
+                return False
+
+        return True
 
     def issuperset(self, other):
         """Return True if this DFA is a superset of another DFA."""
@@ -477,7 +500,12 @@ class DFA(fa.FA):
 
     def isdisjoint(self, other):
         """Return True if this DFA has no common elements with another DFA."""
-        return self.intersection(other, minify=False).isempty()
+        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+            # Check for reachable state that is counterexample to disjointness
+            if state_a in self.final_states and state_b in other.final_states:
+                return False
+
+        return True
 
     def isempty(self):
         """Return True if this DFA is completely empty."""
