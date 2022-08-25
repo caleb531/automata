@@ -55,7 +55,7 @@ class DFA(fa.FA):
             # origin_enum is OriginEnum.OTHER:
             return state in other.final_states
 
-        def transition(state_pair, symbol: str):
+        def transition(state_pair, symbol):
             state, origin_enum = state_pair
 
             if origin_enum is OriginEnum.SELF:
