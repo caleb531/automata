@@ -60,3 +60,8 @@ class InvalidRegexError(RegexException):
     """Regular expression is invalid"""
 
     pass
+
+
+class SymbolMismatchError(AutomatonException):
+    """The input symbols between the given automata do not match"""
+    pass

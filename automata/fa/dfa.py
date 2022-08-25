@@ -365,7 +365,9 @@ class DFA(fa.FA):
         Creates a new DFA which is the cross product of DFAs self and other
         with an empty set of final states.
         """
-        assert self.input_symbols == other.input_symbols
+        if self.input_symbols != other.input_symbols:
+            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
+
         new_states = {
             self._stringify_states_unsorted((a, b))
             for (a, b) in product(self.states, other.states)
@@ -469,7 +471,8 @@ class DFA(fa.FA):
 
     def _get_reachable_states_product_graph(self, other):
         """Get reachable states corresponding to product graph between self and other"""
-        assert self.input_symbols == other.input_symbols
+        if self.input_symbols != other.input_symbols:
+            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
         # Generate product graph corresponding to component DFAs
         product_graph = nx.DiGraph([

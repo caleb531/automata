@@ -1,6 +1,6 @@
 # Automata
 
-*Copyright 2016-2022 Caleb Evans*  
+*Copyright 2016-2022 Caleb Evans*
 *Released under the MIT license*
 
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
@@ -486,7 +486,7 @@ nfa1.show_diagram(path='./abc.png')
 
 The `GNFA` class is a subclass of `FA` and represents a generalized
 nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
-Its main usage is for conversion of DFAs and NFAs to regular expressions. 
+Its main usage is for conversion of DFAs and NFAs to regular expressions.
 
 Every `GNFA` has the same five NFA properties: `states`, `input_sympols`, `transitions`,
 `initial_state`, and `final_state`. However a `GNFA` has several differences with respect to `NFA`
@@ -506,7 +506,7 @@ regular expressions and `None` also in addition to normal symbols.
 for each state except `final_state`. Each key is a state name and each value is `dict`
 which maps a state (the key) to the transition expression (the value).
     - value: a regular expression (string) consisting of `input_symbols` and the following symbols only:
-    `*`, `|`, `?`, `()`. Check [Regular Expressions](#regular-expressions) 
+    `*`, `|`, `?`, `()`. Check [Regular Expressions](#regular-expressions)
 
 ```python
 from automata.fa.gnfa import GNFA
@@ -573,7 +573,7 @@ gnfa.to_regex() # returns a regular expression (string)
 
 #### GNFA.show_diagram(self, path=None, show_None=True):
 
-Writes a visual diagram of the GNFA to an image file. 
+Writes a visual diagram of the GNFA to an image file.
 
 1. `path`: the path of the image to be saved
 2. `show_None`: A boolean indicating when to show or hide `None` transitions; defaults to `True`.
@@ -1113,7 +1113,7 @@ Calling `config.print()` will produce a more readable output:
 
 ```python
 ntm.read_input('01').pop().print()
-# q1: 
+# q1:
 #> Tape 1: 01#
 #            ^
 #> Tape 2: 1#
@@ -1143,7 +1143,7 @@ ntm.read_input_stepwise('0111')
 
 Simulates the MNTM as an NTM by using an extended tape consisting of all tapes of the MNTM separated by a `tape_separator_symbol = _` and
 `'virtual heads'` for each `'virtual tape'` (which are basically the portions of the extended tape separated by `'_'`). Each `'virtual head'`
-corresponds to a special symbol (`original_symbol + '^'`) on the extended tape which denotes where the actual head of that tape would be if 
+corresponds to a special symbol (`original_symbol + '^'`) on the extended tape which denotes where the actual head of that tape would be if
 the MNTM was being run as a MNTM and not a NTM. This is the classic algorithm for performing a single-tape simulation of a multi-tape Turing
 machine. For more information, visit Sipser's **Introduction to the Theory of Computation** 3rd Edition, Section 3.2.
 
@@ -1226,7 +1226,7 @@ Returns `True` if re1 is a subset of re2.
 re.issubset('aa?', 'a*')
 ```
 
-#### autumata.issuperset(re1, re2)
+#### automata.issuperset(re1, re2)
 
 Returns `True` if re1 is a subset of re2.
 
@@ -1298,6 +1298,10 @@ A base class for all regular expression related errors.
 #### class InvalidRegexError
 Raised if the input regular expression is invalid.
 
+#### class SymbolMismatchError
+Raised if input symbols don't match between two automata but are expected to (e.g.
+in the creation of a product automaton).
+
 ### Turing machine exception classes
 
 The `automata.tm` package also includes a module for exceptions specific to
@@ -1317,9 +1321,9 @@ Raised if a direction specified in this machine's transition map is not a valid
 direction (valid directions include `'L'`, `'R'`, and `'N'`).
 
 #### class InconsistentTapesException(TMException):
-    
+
 Raised if the number of tapes defined for the mntm is not consistent with the transitions.
 
 #### class MalformedExtendedTape(TMException):
-    
+
 Raised if the extended tape for simulating a mntm as a ntm is not valid.
