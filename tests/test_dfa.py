@@ -600,7 +600,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'}
         )
         # This DFA accepts all words which contain either zero
-        # or one occurrence of 1
+        # or one occurrence of b
         zero_or_one_b_dfa = DFA(
             states={'q0', 'q1', 'q2'},
             input_symbols={'a', 'b'},
