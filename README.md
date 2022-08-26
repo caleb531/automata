@@ -483,9 +483,9 @@ regex = nfa1.to_regex()
 nfa1.show_diagram(path='./abc.png')
 ```
 
-### class GNFA(FA)
+### class GNFA(NFA)
 
-The `GNFA` class is a subclass of `FA` and represents a generalized
+The `GNFA` class is a subclass of `NFA` and represents a generalized
 nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
 Its main usage is for conversion of DFAs and NFAs to regular expressions.
 
