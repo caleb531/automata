@@ -5,6 +5,12 @@
 Python 3.6 support has been dropped, since it has been end-of-life since
 December 2021. Please upgrade to Python 3.7 or later to use Automata v6.
 
+The [networkx][networkx] package has been added as a required dependency, providing
+substantial performance improvements for certain DFA/NFA methods, and also
+streamlining the code to improve maintainability.
+
+[networkx]: https://pypi.org/project/networkx/
+
 ## Backwards-incompatible changes from v4 to v5
 
 Python 3.5 support has been dropped, since it has been end-of-life since
