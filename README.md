@@ -469,7 +469,7 @@ from automata.fa.dfa import DFA
 nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
 ```
 
-#### show_diagram(self, path=None)
+#### NFA.show_diagram(self, path=None)
 
 ```python
 nfa1.show_diagram(path='./abc.png')
