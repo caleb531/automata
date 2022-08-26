@@ -469,14 +469,6 @@ from automata.fa.dfa import DFA
 nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
 ```
 
-#### NFA.to_regex(self)
-
-Return a regular expression (string) equivalent to given NFA.
-
-```python
-regex = nfa1.to_regex()
-```
-
 #### show_diagram(self, path=None)
 
 ```python
