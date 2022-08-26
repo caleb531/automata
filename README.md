@@ -26,7 +26,7 @@ contributions to this project! 🎉
 If you wish to migrate to Automata v6 from an older version, please follow the
 [migration guide][migration].
 
-[migration]: MIGRATION.md
+[migration]: https://github.com/caleb531/automata/blob/main/MIGRATION.md
 
 ## Installing
 
