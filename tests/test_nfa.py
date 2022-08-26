@@ -395,7 +395,7 @@ class TestNFA(test_fa.TestFA):
             self.nfa | self.dfa
 
     def test_validate_regex(self):
-        """Should raise an error if invalid regex is passed into NFA.to_regex()"""
+        """Should raise an error if invalid regex is passed into NFA.from_regex()"""
 
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'ab|')
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, '?')
