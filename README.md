@@ -469,6 +469,26 @@ from automata.fa.dfa import DFA
 nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
 ```
 
+#### NFA.from_regex(cls, regex)
+
+Returns a new NFA instance from the given regular expression.
+
+```python
+from automata.fa.nfa import NFA
+NFA.from_regex('ab(c|d)*ba?')
+```
+
+#### Converting to regular expression
+
+Due to circular dependency constraints, there is no method to convert an NFA
+directly to a regular expression. However, it can be accomplished by first
+converting to a GNFA:
+
+```python
+from automata.fa.gnfa import GNFA
+GNFA.from_nfa(my_nfa).to_regex()
+```
+
 #### NFA.show_diagram(self, path=None)
 
 ```python
