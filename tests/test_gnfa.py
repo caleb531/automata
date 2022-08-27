@@ -251,8 +251,8 @@ class TestGNFA(test_fa.TestFA):
         nfa = NFA.from_regex('a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?')
         gnfa = GNFA.from_nfa(nfa)
         regex = gnfa.to_regex()
-        nfa = NFA.from_regex(regex)
-        dfa2 = DFA.from_nfa(nfa)
+        nfa1 = NFA.from_regex(regex)
+        dfa2 = DFA.from_nfa(nfa1)
 
         dfa = DFA.from_nfa(nfa)
 
