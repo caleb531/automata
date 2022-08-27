@@ -468,14 +468,3 @@ class TestNFA(test_fa.TestFA):
         self.nfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
-
-    def test_to_regex(self):
-        """Should properly convert NFA to regex"""
-        nfa = NFA.from_regex('a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?')
-        regex = nfa.to_regex()
-        nfa1 = NFA.from_regex(regex)
-        dfa2 = DFA.from_nfa(nfa1)
-
-        dfa = DFA.from_nfa(nfa)
-
-        self.assertEqual(dfa, dfa2)

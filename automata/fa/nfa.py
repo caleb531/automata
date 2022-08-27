@@ -8,7 +8,6 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-import automata.fa.gnfa as gnfa
 from automata.fa.dfa import DFA
 
 
@@ -711,7 +710,3 @@ class NFA(fa.FA):
         state_set.add(new_state)
 
         return new_state
-
-    def to_regex(self):
-        """Returns regular expression equivalent to given NFA"""
-        return gnfa.GNFA.from_nfa(self).to_regex()
