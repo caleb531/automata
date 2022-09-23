@@ -2,6 +2,7 @@
 """Classes and functions for testing the behavior of GNFAs."""
 import os
 import tempfile
+import types
 from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
@@ -257,6 +258,22 @@ class TestGNFA(test_fa.TestFA):
         dfa = DFA.from_nfa(nfa)
 
         self.assertEqual(dfa, dfa2)
+
+    def test_read_input_step(self):
+        """Should implement read_input_stepwise() via underlying NFA."""
+        validation_generator = self.gnfa.read_input_stepwise('aaa')
+        self.assertIsInstance(validation_generator, types.GeneratorType)
+        self.assertEqual(list(validation_generator), [
+            {0}, {1, 2, 3, 7, 9}, {8, 2, 3, 7}, {8, 2, 3, 7}
+        ])
+
+    def test_accepts_input_true(self):
+        """Should return True if GNFA input is accepted."""
+        self.assertEqual(self.gnfa.accepts_input('aba'), True)
+
+    def test_accepts_input_false(self):
+        """Should return False if GNFA input is rejected."""
+        self.assertEqual(self.gnfa.accepts_input('abba'), False)
 
     def test_show_diagram_showNone(self):
         """

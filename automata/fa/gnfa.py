@@ -254,6 +254,15 @@ class GNFA(nfa.NFA):
         gnfa = self.copy()
         return self._to_regex(gnfa)
 
+    def read_input_stepwise(self, input_str):
+        """
+        Check if the given string is accepted by this GNFA.
+
+        Yield the current configuration of the GNFA at each step.
+        """
+        self.nfa = nfa.NFA.from_regex(self.to_regex())
+        return self.nfa.read_input_stepwise(input_str)
+
     def show_diagram(self, path=None, show_None=True):
         """
             Creates the graph associated with this DFA
