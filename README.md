@@ -501,8 +501,10 @@ The `GNFA` class is a subclass of `NFA` and represents a generalized
 nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
 Its main usage is for conversion of DFAs and NFAs to regular expressions.
 
-Every `GNFA` has the same five NFA properties: `states`, `input_sympols`, `transitions`,
-`initial_state`, and `final_state`. However a `GNFA` has several differences with respect to `NFA`
+Every `GNFA` has the following properties: `states`, `input_sympols`,
+`transitions`, `initial_state`, and `final_state`. This is very similar to the
+`NFA` signature, except that a `GNFA` has several differences with respect to
+`NFA`
 - The `initial_state` has transitions going to every other state but no transitions
 coming in from any other state.
 - There is only a single `final_state`, and it has transitions coming in from every
