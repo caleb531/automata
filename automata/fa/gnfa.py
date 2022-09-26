@@ -254,14 +254,15 @@ class GNFA(nfa.NFA):
         gnfa = self.copy()
         return self._to_regex(gnfa)
 
-    def read_input_stepwise(self, input_str):
-        """
-        Check if the given string is accepted by this GNFA.
-
-        Yield the current configuration of the GNFA at each step.
-        """
-        self.nfa = nfa.NFA.from_regex(self.to_regex())
-        return self.nfa.read_input_stepwise(input_str)
+    # The following NFA methods are not supported on GNFA instances because
+    # they are out of scope for the purpose of the GNFA class (which is focused
+    # on regular expression conversion)
+    def read_input_stepwise(self, input_str): raise NotImplementedError
+    def union(self, other): raise NotImplementedError
+    def concatenate(self, other): raise NotImplementedError
+    def kleene_star(self): raise NotImplementedError
+    def option(self): raise NotImplementedError
+    def reverse(self): raise NotImplementedError
 
     def show_diagram(self, path=None, show_None=True):
         """
