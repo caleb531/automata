@@ -478,7 +478,7 @@ from automata.fa.nfa import NFA
 NFA.from_regex('ab(c|d)*ba?')
 ```
 
-#### Converting to regular expression
+#### Converting NFA to regular expression
 
 Due to circular dependency constraints, there is no method to convert an NFA
 directly to a regular expression. However, it can be accomplished by first
