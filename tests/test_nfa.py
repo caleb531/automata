@@ -468,3 +468,23 @@ class TestNFA(test_fa.TestFA):
         self.nfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
+
+    def test_init_nfa_state_type_integrity(self):
+        """
+        Should properly add new state of different type than original states;
+        see <https://github.com/caleb531/automata/issues/60> for more details
+        """
+        A = NFA(
+            states={'0', '1'},
+            input_symbols={'0'},
+            transitions={'0': {'0': {'1'}}, '1': {'0': {'1'}}},
+            initial_state='0',
+            final_states={'1'}
+        )
+
+        B = DFA.from_nfa(A.reverse())
+
+        self.assertEqual(
+            A.accepts_input('00'),
+            B.accepts_input('00'),
+            'DFA and NFA are not equivalent when they should be')
