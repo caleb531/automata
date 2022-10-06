@@ -469,7 +469,7 @@ class TestNFA(test_fa.TestFA):
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
 
-    def test_init_nfa_state_type_integrity(self):
+    def test_add_new_state_type_integrity(self):
         """
         Should properly add new state of different type than original states;
         see <https://github.com/caleb531/automata/issues/60> for more details
