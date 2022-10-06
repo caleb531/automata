@@ -1102,7 +1102,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1'},
         )
-        minimal_dfa = dfa.minify()
+        minimal_dfa = dfa.minify(retain_names=True)
         self.assertEqual(minimal_dfa.states, {'{q0,q1}'})
         self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
         self.assertEqual(minimal_dfa.transitions, {
@@ -1122,7 +1122,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states=set(),
         )
-        minimal_dfa = dfa.minify()
+        minimal_dfa = dfa.minify(retain_names=True)
         self.assertEqual(minimal_dfa.states, {'{q0,q1}'})
         self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
         self.assertEqual(minimal_dfa.transitions, {

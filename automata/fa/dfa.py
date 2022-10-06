@@ -234,7 +234,7 @@ class DFA(fa.FA):
 
         self._check_for_input_rejection(current_state)
 
-    def minify(self, retain_names=True):
+    def minify(self, retain_names=False):
         """
         Create a minimal DFA which accepts the same inputs as this DFA.
 
