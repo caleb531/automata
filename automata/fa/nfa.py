@@ -136,49 +136,6 @@ class NFA(fa.FA):
                         'end state {} for transition on {} is '
                         'not valid'.format(end_state, start_state))
 
-    @staticmethod
-    def _validate_regex(regex):
-        """Return True if the regular expression is valid"""
-
-        result = True
-        stack1 = 0
-        for i in range(len(regex)):
-            if regex[i] == '(':
-                stack1 += 1
-            elif regex[i] == ')':
-                stack1 = stack1 - 1
-
-            if stack1 < 0:
-                result = False
-
-            if regex[i] == '*':
-                if i > 0 and regex[i - 1] in {'(', '|', '*', '?'}:
-                    result = False
-                elif i == 0:
-                    result = False
-
-            if regex[i] == '|':
-                if i > 1 and regex[i - 1] in {'(', '|'}:
-                    result = False
-                elif i < len(regex) - 1 and regex[i + 1] in {')', '|', '*', '?'}:
-                    result = False
-                elif i == 0 or i == len(regex) - 1:
-                    result = False
-
-            if regex[i] == '(':
-                if i < len(regex) - 1 and regex[i + 1] == ')':
-                    result = False
-
-            if i == 0 and regex[i] == '?':
-                result = False
-        if stack1 != 0:
-            result = False
-
-        if not result:
-            raise exceptions.InvalidRegexError(
-                '{} is an invalid regular expression'.format(
-                    regex))
-
     def validate(self):
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():

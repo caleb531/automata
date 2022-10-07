@@ -45,27 +45,18 @@ def validate_tokens(token_list: List[Token]) -> None:
     paren_counter = 0
 
     for prev_token, curr_token in zip_longest(token_list_prev, token_list):
-        if prev_token is None and (
-            isinstance(curr_token, InfixOperator) or isinstance(curr_token, PostfixOperator)
-        ):
+        if prev_token is None and isinstance(curr_token, (InfixOperator, PostfixOperator)):
             raise exceptions.InvalidRegexError(f"Token '{curr_token}' cannot appear at the start of a statement.")
-
-        elif isinstance(prev_token, InfixOperator) and (
-            isinstance(curr_token, InfixOperator) or isinstance(curr_token, PostfixOperator)
-        ):
-            raise exceptions.InvalidRegexError(f"'{prev_token}' cannot appear next to '{curr_token}'.")
 
         elif isinstance(prev_token, InfixOperator):
             if curr_token is None:
                 raise exceptions.InvalidRegexError(f"'{prev_token}' cannot appear at the end of a statement.")
-            elif isinstance(curr_token, RightParen):
-                raise exceptions.InvalidRegexError(f"'{prev_token}' cannot appear immediately before ')'.")
+            elif isinstance(curr_token, (InfixOperator, PostfixOperator, RightParen)):
+                raise exceptions.InvalidRegexError(f"'{prev_token}' cannot appear immediately before '{curr_token}'.")
 
         elif isinstance(prev_token, LeftParen):
-            if isinstance(curr_token, RightParen):
-                raise exceptions.InvalidRegexError("Cannot have right paren immediately after left paren.")
-            elif isinstance(curr_token, InfixOperator) or isinstance(curr_token, PostfixOperator):
-                raise exceptions.InvalidRegexError(f"'(' cannot appear immediately before '{prev_token}'.")
+            if isinstance(curr_token, (InfixOperator, PostfixOperator, RightParen)):
+                raise exceptions.InvalidRegexError(f"'{prev_token}' cannot appear immediately before '{prev_token}'.")
 
             paren_counter += 1
 
