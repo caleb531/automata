@@ -1,6 +1,6 @@
 from collections import deque
 from itertools import zip_longest
-from automata.parse.lexer import Token
+from automata.regex.lexer import Token
 import automata.base.exceptions as exceptions
 import abc
 from typing import Deque, List, Optional, TypeVar

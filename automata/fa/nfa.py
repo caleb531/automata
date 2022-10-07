@@ -7,7 +7,7 @@ import networkx as nx
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
-from automata.parse.parser import parse_regex
+from automata.regex.parser import parse_regex
 import automata.fa.fa as fa
 from automata.fa.dfa import DFA
 

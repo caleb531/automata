@@ -1,6 +1,6 @@
 from itertools import zip_longest, count
-from automata.parse.lexer import Lexer, Token
-from automata.parse.postfix import (
+from automata.regex.lexer import Lexer, Token
+from automata.regex.postfix import (
     LeftParen, RightParen, parse_postfix_tokens,
     InfixOperator, PostfixOperator, Literal, tokens_to_postfix, validate_tokens
 )
