@@ -1,7 +1,7 @@
 from itertools import zip_longest, count
 from automata.parse.lexer import Lexer, Token
 from automata.parse.postfix import (
-    InvalidTokenOrdering, LeftParen, RightParen, parse_postfix_tokens,
+    LeftParen, RightParen, parse_postfix_tokens,
     InfixOperator, PostfixOperator, Literal, tokens_to_postfix, validate_tokens
 )
 
@@ -217,6 +217,10 @@ def add_concat_tokens(token_list: List[Token[NFARegexBuilder]]) -> List[Token[NF
 
 
 def parse_regex(regexstr: str):
+    if not regexstr:
+        return NFARegexBuilder.from_string_literal('')
+
+
     lexer: Lexer[NFARegexBuilder] = Lexer()
 
     lexer.register_token(lambda x: LeftParen(x), r'\(')
