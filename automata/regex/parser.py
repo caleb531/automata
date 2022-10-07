@@ -215,12 +215,7 @@ def add_concat_tokens(token_list: List[Token[NFARegexBuilder]]) -> List[Token[NF
 
     return final_token_list
 
-
-def parse_regex(regexstr: str):
-    if len(regexstr) == 0:
-        return NFARegexBuilder.from_string_literal(regexstr)
-
-
+def get_regex_lexer():
     lexer: Lexer[NFARegexBuilder] = Lexer()
 
     lexer.register_token(lambda x: LeftParen(x), r'\(')
@@ -231,6 +226,13 @@ def parse_regex(regexstr: str):
     lexer.register_token(lambda x: KleeneToken(x), r'\*')
     lexer.register_token(lambda x: OptionToken(x), r'\?')
 
+    return lexer
+
+def parse_regex(regexstr: str):
+    if len(regexstr) == 0:
+        return NFARegexBuilder.from_string_literal(regexstr)
+
+    lexer = get_regex_lexer()
     lexed_tokens = lexer.lex(regexstr)
     validate_tokens(lexed_tokens)
     tokens_with_concats = add_concat_tokens(lexed_tokens)

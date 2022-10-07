@@ -2,6 +2,7 @@
 """Methods for working with regular expressions"""
 
 import automata.base.exceptions as exceptions
+from automata.regex.parser import get_regex_lexer, validate_tokens
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 
@@ -9,40 +10,12 @@ from automata.fa.nfa import NFA
 def _validate(regex):
     """Return True if the regular expression is valid"""
 
-    stack1 = 0
-    for i in range(len(regex)):
-        if regex[i] == '(':
-            stack1 += 1
-        elif regex[i] == ')':
-            stack1 = stack1 - 1
-
-        if stack1 < 0:
-            return False
-
-        if regex[i] == '*':
-            if i > 0 and regex[i - 1] in {'(', '|', '*', '?'}:
-                return False
-            elif i == 0:
-                return False
-
-        if regex[i] == '|':
-            if i > 1 and regex[i - 1] in {'(', '|'}:
-                return False
-            elif i < len(regex) - 1 and regex[i + 1] in {')', '|', '*', '?'}:
-                return False
-            elif i == 0 or i == len(regex) - 1:
-                return False
-
-        if regex[i] == '(':
-            if i < len(regex) - 1 and regex[i + 1] == ')':
-                return False
-        if i == 0 and regex[i] == '?':
-            return False
-    if stack1 != 0:
+    try:
+        validate_tokens(get_regex_lexer().lex(regex))
+    except exceptions.InvalidRegexError:
         return False
-    else:
-        return True
 
+    return True
 
 def validate(regex):
     """Raise an error if the regular expression is invalid"""
