@@ -99,8 +99,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         registry.register(lambda x: AAToken(x), r'aa')
 
         match = registry.get_token('aaa')
-        assert match is not None
-        assert isinstance(match[0]('aa'), AAToken)
+        self.assertIsNotNone(match)
+        self.assertTrue(isinstance(match[0]('aa'), AAToken))
 
 
 class TestGetTokenTestCase(unittest.TestCase):
@@ -110,55 +110,55 @@ class TestGetTokenTestCase(unittest.TestCase):
         register_parens(lexer)
 
         token_match = lexer.tokens.get_token('')
-        assert token_match is None
+        self.assertIsNone(token_match)
 
     def test_get_token_no_text_no_tokens(self) -> None:
         lexer: Lexer = Lexer()
         token_match = lexer.tokens.get_token('')
-        assert token_match is None
+        self.assertIsNone(token_match)
 
     def test_get_token_unmatched(self) -> None:
         lexer: Lexer = Lexer()
         register_parens(lexer)
 
         token_match = lexer.tokens.get_token('aaa')
-        assert token_match is None
+        self.assertIsNone(token_match)
 
     def test_get_token_no_tokens(self) -> None:
         lexer: Lexer = Lexer()
         register_parens(lexer)
 
         token_match = lexer.tokens.get_token('aaa')
-        assert token_match is None
+        self.assertIsNone(token_match)
 
     def test_get_token(self) -> None:
         lexer: Lexer = Lexer()
         register_parens(lexer)
 
         match = lexer.tokens.get_token('(((')
-        assert match is not None
+        self.assertIsNotNone(match)
         token_factory_fn, re_match = match
 
-        assert isinstance(token_factory_fn('('), LeftParen)
-        assert re_match is not None
+        self.assertTrue(isinstance(token_factory_fn('('), LeftParen))
+        self.assertIsNotNone(re_match)
 
     def test_get_token_picks_first(self) -> None:
         lexer: Lexer = Lexer()
         register_parens(lexer)
 
         token_match = lexer.tokens.get_token('aa(((')
-        assert token_match is None
+        self.assertIsNone(token_match)
 
     def test_get_token_scans_all_possible_tokens(self) -> None:
         lexer: Lexer = Lexer()
         register_parens(lexer)
 
         match = lexer.tokens.get_token(')(')
-        assert match is not None
+        self.assertIsNotNone(match)
         token_factory_fn, re_match = match
 
-        assert isinstance(token_factory_fn(')'), RightParen)
-        assert re_match is not None
+        self.assertTrue(isinstance(token_factory_fn(')'), RightParen))
+        self.assertIsNotNone(re_match)
 
     def test_longest_match(self) -> None:
         lexer: Lexer = Lexer()
@@ -172,10 +172,10 @@ class TestGetTokenTestCase(unittest.TestCase):
         lexer.register_token(lambda x: AAToken(x), r'aa')
 
         match = lexer.tokens.get_token('aaa')
-        assert match is not None
+        self.assertIsNotNone(match)
 
         token_factory_fn, re_match = match
-        assert isinstance(token_factory_fn('aa'), AAToken)
+        self.assertTrue(isinstance(token_factory_fn('aa'), AAToken))
 
 
 class TestRegisterTokensTestCase(unittest.TestCase):
@@ -186,10 +186,10 @@ class TestRegisterTokensTestCase(unittest.TestCase):
             pass
 
         lexer: Lexer = Lexer()
-        assert 0 == len(lexer.tokens)
+        self.assertEqual(0, len(lexer.tokens))
 
         lexer.register_token(lambda x: AToken(x), r'a')
-        assert 1 == len(lexer.tokens)
+        self.assertEqual(1, len(lexer.tokens))
 
     def test_register_tokens(self) -> None:
         class AToken(Token):
@@ -199,25 +199,25 @@ class TestRegisterTokensTestCase(unittest.TestCase):
             pass
 
         lexer: Lexer = Lexer()
-        assert 0 == len(lexer.tokens)
+        self.assertEqual(0, len(lexer.tokens))
 
         lexer.register_token(lambda x: AToken(x), r'a')
         lexer.register_token(lambda x: BToken(x), r'b')
-        assert 2 == len(lexer.tokens)
+        self.assertEqual(2, len(lexer.tokens))
 
         match_a = lexer.tokens.get_token('a')
-        assert match_a is not None
+        self.assertIsNotNone(match_a)
         token_factory_fn_a, re_match_a = match_a
 
-        assert isinstance(token_factory_fn_a('a'), AToken)
-        assert re_match_a is not None
+        self.assertTrue(isinstance(token_factory_fn_a('a'), AToken))
+        self.assertIsNotNone(re_match_a)
 
         match_b = lexer.tokens.get_token('b')
-        assert match_b is not None
+        self.assertIsNotNone(match_b)
         token_factory_fn_b, re_match_b = match_b
 
-        assert isinstance(token_factory_fn_b('b'), BToken)
-        assert re_match_b is not None
+        self.assertTrue(isinstance(token_factory_fn_b('b'), BToken))
+        self.assertIsNotNone(re_match_b)
 
 
 class TestLexTestCase(unittest.TestCase):
@@ -225,7 +225,7 @@ class TestLexTestCase(unittest.TestCase):
     def test_lex_empty(self) -> None:
         lexer: Lexer = Lexer()
         tokens = lexer.lex('')
-        assert 0 == len(tokens)
+        self.assertEqual(0, len(tokens))
 
     def test_lex_tokens(self) -> None:
         text = '((((((()()()))))))((((((('
@@ -233,37 +233,37 @@ class TestLexTestCase(unittest.TestCase):
         register_parens(lexer)
 
         tokens = lexer.lex(text)
-        assert len(text) == len(tokens)
+        self.assertEqual(len(text), len(tokens))
         for i, token in enumerate(tokens[:-1]):
-            assert text[i] == token.text
+            self.assertEqual(text[i], token.text)
             if token.text == '(':
-                assert isinstance(token, LeftParen)
+                self.assertTrue(isinstance(token, LeftParen))
             else:
-                assert isinstance(token, RightParen)
+                self.assertTrue(isinstance(token, RightParen))
 
     def test_lex_skips_blank(self) -> None:
         lexer: Lexer = Lexer()
         register_parens(lexer)
 
         tokens = lexer.lex('  (')
-        assert 1 == len(tokens)
-        assert '(' == tokens[0].text
-        assert isinstance(tokens[0], LeftParen)
+        self.assertEqual(1, len(tokens))
+        self.assertEqual('(', tokens[0].text)
+        self.assertTrue(isinstance(tokens[0], LeftParen))
 
     def test_lex_custom_blank_chars(self) -> None:
         lexer: Lexer = Lexer(blank_chars={'a', ' '})
         register_parens(lexer)
 
         tokens = lexer.lex(' a(')
-        assert 1 == len(tokens)
-        assert '(' == tokens[0].text
-        assert isinstance(tokens[0], LeftParen)
+        self.assertEqual(1, len(tokens))
+        self.assertEqual('(', tokens[0].text)
+        self.assertTrue(isinstance(tokens[0], LeftParen))
 
     def test_lex_invalid_char(self) -> None:
         lexer: Lexer = Lexer()
         with self.assertRaises(LexerError) as cm:
             lexer.lex('foo')
-        assert cm.exception.position == 0
+        self.assertEqual(cm.exception.position, 0)
 
     def test_lex_error_position(self) -> None:
         class AToken(Token):
@@ -274,4 +274,4 @@ class TestLexTestCase(unittest.TestCase):
 
         with self.assertRaises(LexerError) as cm:
             lexer.lex('aaaabaaa')
-        assert cm.exception.position == 4
+        self.assertEqual(cm.exception.position, 4)
