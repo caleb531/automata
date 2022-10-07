@@ -62,14 +62,12 @@ class TokenRegistry(Generic[ResultT]):
             (token_class, re.Match): all token class whose regexp matches the
                 text, and the related re.Match object.
         """
-        res = []
 
         for token_factory_fn, regexp in self._tokens:
             match = regexp.match(text, pos=start)
             if match:
-                res.append((token_factory_fn, match))
+                yield (token_factory_fn, match)
 
-        return res
 
     def get_token(self, text: str, start: int = 0):
         """Retrieve the next token from some text.
@@ -84,11 +82,9 @@ class TokenRegistry(Generic[ResultT]):
         best_match = None
 
         for token_factory_fn, match in self.matching_tokens(text, start):
-            if best_match and best_match.end() >= match.end():
-                continue
-
-            best_token_match = (token_factory_fn, match)
-            best_match = match
+            if not best_match or best_match.end() < match.end():
+                best_token_match = (token_factory_fn, match)
+                best_match = match
 
 
         return best_token_match
