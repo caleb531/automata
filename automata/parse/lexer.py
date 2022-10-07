@@ -38,8 +38,6 @@ class TokenRegistry(Generic[ResultT]):
 
     __slots__ = ['_tokens']
 
-    _tokens: List[Tuple[TokenFactoryT, re.Pattern]]
-
     def __init__(self) -> None:
         self._tokens = []
 
@@ -52,7 +50,7 @@ class TokenRegistry(Generic[ResultT]):
         """
         self._tokens.append((token_factory_fn, re.compile(token_regex)))
 
-    def matching_tokens(self, text: str, start: int) -> List[Tuple[TokenFactoryT, re.Match]]:
+    def matching_tokens(self, text: str, start: int):
         """Retrieve all token definitions matching the beginning of a text.
 
         Args:
@@ -73,7 +71,7 @@ class TokenRegistry(Generic[ResultT]):
 
         return res
 
-    def get_token(self, text: str, start: int = 0) -> Optional[Tuple[TokenFactoryT, re.Match]]:
+    def get_token(self, text: str, start: int = 0):
         """Retrieve the next token from some text.
 
         Args:

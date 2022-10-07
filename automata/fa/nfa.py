@@ -4,9 +4,10 @@
 import copy
 
 import networkx as nx
-from pydot import Dot, Edge, Node
+#from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
+from automata.parse.parser import parse_regex
 import automata.fa.fa as fa
 from automata.fa.dfa import DFA
 
@@ -215,59 +216,19 @@ class NFA(fa.FA):
     @classmethod
     def from_regex(cls, regex):
         """Initialize this NFA as one equivalent to the given regular expression"""
+        input_symbols = set(regex) - {'*', '|', '(', ')', '?'}
+        nfa_builder = parse_regex(regex)
 
-        if regex == '':
-            return cls(
-                states={0},
-                initial_state=0,
-                final_states={0},
-                transitions={},
-                input_symbols=set()
-            )
+        cls(
+            states=set(nfa_builder._transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=nfa_builder._transitions,
+            initial_state=nfa_builder._initial_state,
+            final_states=nfa_builder._final_states
+        )
 
-        cls._validate_regex(regex)
-        symbols = set(regex) - {'*', '|', '(', ')', '?'}
-        master = list(regex)
-        for i in range(len(master)):
-            if master[i] in symbols:
-                master[i] = cls._from_symbol(master[i], symbols)
 
-        def star_and_option():
-            initial_length = len(master)
-            while True:
-                cls._kleene_star(master)
-                cls._option(master)
-                cls._remove_excess_parenthesis(master)
-                if len(master) < initial_length:
-                    initial_length = len(master)
-                elif len(master) == initial_length:
-                    break
-                else:
-                    pass
 
-        def star_option_concatenate():
-            initial_length = len(master)
-            while True:
-                star_and_option()
-                cls._concatenate(master)
-                cls._remove_excess_parenthesis(master)
-                if len(master) < initial_length:
-                    initial_length = len(master)
-                elif len(master) == initial_length:
-                    break
-                else:
-                    pass
-
-        def star_option_concatenate_union():
-            while True:
-                star_option_concatenate()
-                cls._union(master)
-                cls._remove_excess_parenthesis(master)
-                if len(master) == 1:
-                    break
-
-        star_option_concatenate_union()
-        return master[0]
 
     def _validate_transition_end_states(self, start_state, paths):
         """Raise an error if transition end states are invalid."""

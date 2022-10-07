@@ -1,7 +1,6 @@
-from __future__ import annotations
 from collections import deque
 from itertools import zip_longest
-from regular_expressions.lexer import Token
+from automata.parse.lexer import Token
 import abc
 from typing import Deque, List, Optional, Type, TypeVar
 
@@ -29,20 +28,12 @@ class Literal(Token[ExpressionResultT]):
 class RightParen(Token[ExpressionResultT]):
     """A right parenthesis."""
 
-    @classmethod
-    def regexp(cls: Type[RightParen]) -> str:
-        return r'\)'
-
     def __repr__(self) -> str:
         return '<)>'
 
 
 class LeftParen(Token[ExpressionResultT]):
     """A left parenthesis."""
-
-    @classmethod
-    def regexp(cls: Type[LeftParen]) -> str:
-        return r'\('
 
     def __repr__(self) -> str:
         return '<(>'
