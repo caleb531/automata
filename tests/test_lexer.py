@@ -21,21 +21,21 @@ class TestTokenRegistryTestCase(unittest.TestCase):
             pass
 
         registry: TokenRegistry = TokenRegistry()
-        assert 0 == len(registry._tokens)
+        self.assertEqual(0, len(registry._tokens))
 
         registry.register(lambda x: AToken(x), r'a+')
-        assert 1 == len(registry._tokens)
+        self.assertEqual(1, len(registry._tokens))
 
         registry.register(lambda x: BToken(x), r'b+')
-        assert 2 == len(registry._tokens)
+        self.assertEqual(2, len(registry._tokens))
 
     def test_get_matches_no_tokens_notext(self) -> None:
         registry: TokenRegistry = TokenRegistry()
-        assert [] == list(registry.matching_tokens('', 0))
+        self.assertEqual([], list(registry.matching_tokens('', 0)))
 
     def test_get_matches_no_tokens_text(self) -> None:
         registry: TokenRegistry = TokenRegistry()
-        assert [] == list(registry.matching_tokens('foo', 0))
+        self.assertEqual([], list(registry.matching_tokens('foo', 0)))
 
     def test_get_matches_notext(self) -> None:
         class AToken(Token):
@@ -43,7 +43,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
 
         registry: TokenRegistry = TokenRegistry()
         registry.register(lambda x: AToken(x), r'a')
-        assert [] == list(registry.matching_tokens('', 0))
+        self.assertEqual([], list(registry.matching_tokens('', 0)))
 
     def test_get_matches(self) -> None:
         class AToken(Token):
@@ -53,8 +53,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         registry.register(lambda x: AToken(x), r'a')
 
         matches = list(registry.matching_tokens('aaa', 0))
-        assert 1 == len(matches)
-        assert isinstance(matches[0][0]('a'), AToken)
+        self.assertEqual(1, len(matches))
+        self.assertTrue(isinstance(matches[0][0]('a'), AToken))
 
     def test_multiple_matches(self) -> None:
         class AToken(Token):
@@ -68,9 +68,9 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         registry.register(lambda x: AAToken(x), r'aa')
 
         matches = list(registry.matching_tokens('aaa', 0))
-        assert 2 == len(matches)
-        assert isinstance(matches[0][0]('a'), AToken)
-        assert isinstance(matches[1][0]('aa'), AAToken)
+        self.assertEqual(2, len(matches))
+        self.assertTrue(isinstance(matches[0][0]('a'), AToken))
+        self.assertTrue(isinstance(matches[1][0]('aa'), AAToken))
 
     def test_get_token_multiple(self) -> None:
         class AToken(Token):
@@ -84,8 +84,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         registry.register(lambda x: AAToken(x), r'aa')
 
         match = registry.get_token('aaa')
-        assert match is not None
-        assert isinstance(match[0]('aa'), AAToken)
+        self.assertIsNotNone(match)
+        self.assertTrue(isinstance(match[0]('aa'), AAToken))
 
     def test_get_token_multiple_inverted(self) -> None:
         class AToken(Token):
