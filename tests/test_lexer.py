@@ -7,8 +7,8 @@ from automata.regex.lexer import TokenRegistry, Lexer, LexerError
 
 
 def register_parens(lexer: Lexer) -> None:
-    lexer.register_token(lambda text: LeftParen(text), LeftParen.regexp())
-    lexer.register_token(lambda text: RightParen(text), RightParen.regexp())
+    lexer.register_token(lambda text: LeftParen(text), r'\(')
+    lexer.register_token(lambda text: RightParen(text), r'\)')
 
 
 class TestTokenRegistryTestCase(unittest.TestCase):
@@ -103,7 +103,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         assert isinstance(match[0]('aa'), AAToken)
 
 
-class VerifyGetTokenTestCase():
+class TestGetTokenTestCase(unittest.TestCase):
 
     def test_get_token_no_text(self) -> None:
         lexer: Lexer = Lexer()
@@ -178,7 +178,7 @@ class VerifyGetTokenTestCase():
         assert isinstance(token_factory_fn('aa'), AAToken)
 
 
-class VerifyRegisterTokensTestCase():
+class TestRegisterTokensTestCase(unittest.TestCase):
     """Tests for Lexer.register_token / Lexer.register_tokens."""
 
     def test_register_token(self) -> None:
@@ -220,7 +220,7 @@ class VerifyRegisterTokensTestCase():
         assert re_match_b is not None
 
 
-class VerifyLexTestCase():
+class TestLexTestCase(unittest.TestCase):
 
     def test_lex_empty(self) -> None:
         lexer: Lexer = Lexer()
@@ -263,7 +263,7 @@ class VerifyLexTestCase():
         lexer: Lexer = Lexer()
         with self.assertRaises(LexerError) as cm:
             lexer.lex('foo')
-        assert cm.value.position == 0
+        assert cm.exception.position == 0
 
     def test_lex_error_position(self) -> None:
         class AToken(Token):
@@ -274,4 +274,4 @@ class VerifyLexTestCase():
 
         with self.assertRaises(LexerError) as cm:
             lexer.lex('aaaabaaa')
-        assert cm.value.position == 4
+        assert cm.exception.position == 4
