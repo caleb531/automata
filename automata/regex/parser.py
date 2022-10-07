@@ -37,24 +37,6 @@ class NFARegexBuilder:
             for start_state, transition in transitions.items()
         }
 
-
-    @classmethod
-    def from_dfa(cls: Type['NFARegexBuilder'], dfa) -> 'NFARegexBuilder':
-        new_transitions: BuilderTransitionsT = {
-            start_state: {
-                input_symbol: {end_state}
-                for input_symbol, end_state in transition.items()
-            }
-            for start_state, transition in dfa.transitions.items()
-        }
-
-        return cls(
-            transitions = new_transitions,
-            initial_state = dfa.initial_state,
-            final_states = dfa.final_states
-        )
-
-
     @classmethod
     def from_string_literal(cls: Type['NFARegexBuilder'], literal: str) -> 'NFARegexBuilder':
         """
@@ -133,17 +115,6 @@ class NFARegexBuilder:
 
         self._initial_state = new_initial_state
         self._final_states.add(new_initial_state)
-
-
-    def copy(self) -> 'NFARegexBuilder':
-        """
-        Make a copy of this builder.
-        """
-        return NFARegexBuilder(
-            transitions = self._transitions,
-            initial_state = self._initial_state,
-            final_states = self._final_states
-        )
 
 
     @classmethod
