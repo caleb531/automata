@@ -7,7 +7,7 @@ from enum import IntEnum
 from itertools import product
 
 import networkx as nx
-#from pydot import Dot, Edge, Node
+from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa

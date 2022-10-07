@@ -4,7 +4,7 @@
 import copy
 
 import networkx as nx
-#from pydot import Dot, Edge, Node
+from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 from automata.parse.parser import parse_regex
@@ -219,7 +219,7 @@ class NFA(fa.FA):
         input_symbols = set(regex) - {'*', '|', '(', ')', '?'}
         nfa_builder = parse_regex(regex)
 
-        cls(
+        return cls(
             states=set(nfa_builder._transitions.keys()),
             input_symbols=input_symbols,
             transitions=nfa_builder._transitions,

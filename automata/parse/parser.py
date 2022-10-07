@@ -121,6 +121,19 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.add(new_initial_state)
 
+    def option(self) -> None:
+        """
+        Apply the option operation to the NFA represented by this builder
+        """
+        new_initial_state = self.__get_next_state_name()
+
+        self._transitions[new_initial_state] = {
+            '': {self._initial_state}
+        }
+
+        self._initial_state = new_initial_state
+        self._final_states.add(new_initial_state)
+
 
     def copy(self) -> 'NFARegexBuilder':
         """
@@ -153,6 +166,15 @@ class KleeneToken(PostfixOperator[NFARegexBuilder]):
 
     def op(self, left: NFARegexBuilder) -> NFARegexBuilder:
         left.kleene()
+        return left
+
+class OptionToken(PostfixOperator[NFARegexBuilder]):
+
+    def get_precedence(self) -> int:
+        return 3
+
+    def op(self, left: NFARegexBuilder) -> NFARegexBuilder:
+        left.option()
         return left
 
 class ConcatToken(InfixOperator[NFARegexBuilder]):
@@ -199,14 +221,15 @@ def parse_regex(regexstr: str):
 
     lexer.register_token(lambda x: LeftParen(x), r'\(')
     lexer.register_token(lambda x: RightParen(x), r'\)')
-    lexer.register_token(lambda x: StringToken(x), r'[A-Za-z0-9]+')
+    lexer.register_token(lambda x: StringToken(x), r'[A-Za-z0-9]')
     lexer.register_token(lambda x: UnionToken(x), r'\|')
-    lexer.register_token(lambda x: KleeneToken(x), r'\*')
     lexer.register_token(lambda x: ConcatToken(x), r'\.')
+    lexer.register_token(lambda x: KleeneToken(x), r'\*')
+    lexer.register_token(lambda x: OptionToken(x), r'\?')
 
     lexed_tokens = lexer.lex(regexstr)
     validate_tokens(lexed_tokens)
     tokens_with_concats = add_concat_tokens(lexed_tokens)
     postfix: List[Token[NFARegexBuilder]] = tokens_to_postfix(tokens_with_concats)
 
-    return parse_postfix_tokens(postfix).build(symbols)
+    return parse_postfix_tokens(postfix)
