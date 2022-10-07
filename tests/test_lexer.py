@@ -105,6 +105,13 @@ class TestTokenRegistryTestCase(unittest.TestCase):
 
 class TestGetTokenTestCase(unittest.TestCase):
 
+    def test_token_precedence(self):
+        class AToken(Token):
+            pass
+
+        with self.assertRaises(NotImplementedError):
+            AToken('').get_precedence()
+
     def test_get_token_no_text(self) -> None:
         lexer: Lexer = Lexer()
         register_parens(lexer)
@@ -179,7 +186,7 @@ class TestGetTokenTestCase(unittest.TestCase):
 
 
 class TestRegisterTokensTestCase(unittest.TestCase):
-    """Tests for Lexer.register_token / Lexer.register_tokens."""
+    """Tests for Lexer.register_token."""
 
     def test_register_token(self) -> None:
         class AToken(Token):
