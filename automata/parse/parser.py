@@ -217,8 +217,8 @@ def add_concat_tokens(token_list: List[Token[NFARegexBuilder]]) -> List[Token[NF
 
 
 def parse_regex(regexstr: str):
-    if not regexstr:
-        return NFARegexBuilder.from_string_literal('')
+    if len(regexstr) == 0:
+        return NFARegexBuilder.from_string_literal(regexstr)
 
 
     lexer: Lexer[NFARegexBuilder] = Lexer()
