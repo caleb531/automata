@@ -46,41 +46,41 @@ class Divide(postfix.InfixOperator):
         return left // right
 
 
-def test_nested_parenthesized_expression() -> None:
-    # Parsing:
-    # "( 4 + ( 1 + 2 * 3 * ( 4 + 5 ) + 6 ) ) * 7 + 8"
-    tokens: List[Token] = [
-        postfix.LeftParen('('),
-        Integer('4'),
-        Add('+'),
-        postfix.LeftParen('('),
-        Integer('1'),
-        Add('+'),
-        Integer('2'),
-        Mult('*'),
-        Integer('3'),
-        Mult('*'),
-        postfix.LeftParen('('),
-        Integer('4'),
-        Add('+'),
-        Integer('5'),
-        postfix.RightParen(')'),
-        Add('+'),
-        Integer('6'),
-        postfix.RightParen(')'),
-        postfix.RightParen(')'),
-        Mult('*'),
-        Integer('7'),
-        Add('+'),
-        Integer('8'),
-    ]
-
-    postfix_tokens: List[Token] = postfix.tokens_to_postfix(tokens)
-    res = postfix.parse_postfix_tokens(postfix_tokens)
-    assert (4 + (1 + 2 * 3 * (4 + 5) + 6)) * 7 + 8 == res
-
 class TestArithmeticParser(unittest.TestCase):
     """Test parsing arithmetic expressions."""
+
+    def test_nested_parenthesized_expression(self) -> None:
+        # Parsing:
+        # "( 4 + ( 1 + 2 * 3 * ( 4 + 5 ) + 6 ) ) * 7 + 8"
+        tokens: List[Token] = [
+            postfix.LeftParen('('),
+            Integer('4'),
+            Add('+'),
+            postfix.LeftParen('('),
+            Integer('1'),
+            Add('+'),
+            Integer('2'),
+            Mult('*'),
+            Integer('3'),
+            Mult('*'),
+            postfix.LeftParen('('),
+            Integer('4'),
+            Add('+'),
+            Integer('5'),
+            postfix.RightParen(')'),
+            Add('+'),
+            Integer('6'),
+            postfix.RightParen(')'),
+            postfix.RightParen(')'),
+            Mult('*'),
+            Integer('7'),
+            Add('+'),
+            Integer('8'),
+        ]
+
+        postfix_tokens: List[Token] = postfix.tokens_to_postfix(tokens)
+        res = postfix.parse_postfix_tokens(postfix_tokens)
+        self.assertEqual((4 + (1 + 2 * 3 * (4 + 5) + 6)) * 7 + 8, res)
 
     def setUp(self):
         self.arithmetic_lexer: Lexer = Lexer()
@@ -109,35 +109,35 @@ class TestArithmeticParser(unittest.TestCase):
 
     def test_single_number(self) -> None:
         val = self.parse(self.arithmetic_lexer.lex('13'))
-        assert 13 == val
+        self.assertEqual(13, val)
 
     def test_negative_number(self) -> None:
         val = self.parse(self.arithmetic_lexer.lex('0-13'))
-        assert -13 == val
+        self.assertEqual(-13, val)
 
     def test_simple_mult(self) -> None:
-        assert 8 == self.parse(self.arithmetic_lexer.lex('2 * 4'))
-        assert 8 == self.parse(self.arithmetic_lexer.lex('2 * 2 * 2'))
-        assert 8 == self.parse(self.arithmetic_lexer.lex('2 * (2 * 2)'))
-        assert 8 == self.parse(self.arithmetic_lexer.lex('(2 * 2) * 2'))
-        assert 8 == self.parse(self.arithmetic_lexer.lex('(2 + 2) * 2'))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('2 * 4')))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('2 * 2 * 2')))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('2 * (2 * 2)')))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('(2 * 2) * 2')))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('(2 + 2) * 2')))
 
     def test_precedence(self) -> None:
-        assert 8 == self.parse(self.arithmetic_lexer.lex('2 * 3 + 2'))
-        assert 10 == self.parse(self.arithmetic_lexer.lex('2 * (3+2)'))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('2 * 3 + 2')))
+        self.assertEqual(10, self.parse(self.arithmetic_lexer.lex('2 * (3+2)')))
 
     def test_negative_mult(self) -> None:
-        assert 8 == self.parse(self.arithmetic_lexer.lex('(0-2) * (0- 4)'))
-        assert 8 == self.parse(self.arithmetic_lexer.lex('(0-2) * 2 * (0-2)'))
-        assert -5 == self.parse(self.arithmetic_lexer.lex('1 + (0-2) * 3'))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('(0-2) * (0- 4)')))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('(0-2) * 2 * (0-2)')))
+        self.assertEqual(-5, self.parse(self.arithmetic_lexer.lex('1 + (0-2) * 3')))
 
     def test_division(self) -> None:
-        assert 2 == self.parse(self.arithmetic_lexer.lex('4 / 2'))
-        assert 2 == self.parse(self.arithmetic_lexer.lex('5 / 2'))
-        assert 2 == self.parse(self.arithmetic_lexer.lex('6 - 8 / 2'))
-        assert 3 == self.parse(self.arithmetic_lexer.lex('3 * 2 / 2'))
-        assert 3 == self.parse(self.arithmetic_lexer.lex('2 * 3 / 2'))
-        assert 8 == self.parse(self.arithmetic_lexer.lex('8 / 2 * 2'))
-        assert 8 == self.parse(self.arithmetic_lexer.lex('(8 / 2) * 2'))
-        assert 2 == self.parse(self.arithmetic_lexer.lex('8 / (2 * 2)'))
-        assert 2 == self.parse(self.arithmetic_lexer.lex('16/4/2'))
+        self.assertEqual(2, self.parse(self.arithmetic_lexer.lex('4 / 2')))
+        self.assertEqual(2, self.parse(self.arithmetic_lexer.lex('5 / 2')))
+        self.assertEqual(2, self.parse(self.arithmetic_lexer.lex('6 - 8 / 2')))
+        self.assertEqual(3, self.parse(self.arithmetic_lexer.lex('3 * 2 / 2')))
+        self.assertEqual(3, self.parse(self.arithmetic_lexer.lex('2 * 3 / 2')))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('8 / 2 * 2')))
+        self.assertEqual(8, self.parse(self.arithmetic_lexer.lex('(8 / 2) * 2')))
+        self.assertEqual(2, self.parse(self.arithmetic_lexer.lex('8 / (2 * 2)')))
+        self.assertEqual(2, self.parse(self.arithmetic_lexer.lex('16/4/2')))
