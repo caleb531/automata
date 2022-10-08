@@ -248,7 +248,7 @@ class DFA(fa.FA):
         new_dfa._merge_states(retain_names=retain_names)
         return new_dfa
 
-    def _get_digraph(self) -> nx.DiGraph:
+    def _get_digraph(self):
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
         return nx.DiGraph([
             (start_state, end_state)

@@ -225,7 +225,7 @@ class TestNFA(test_fa.TestFA):
         """Should perform the Kleene Star operation on an NFA"""
         # This NFA accepts aa and ab
         nfa = NFA(
-            states={0, 1, 2, 3, 4, 6},
+            states={0, 1, 2, 3, 4, 6, 10},
             input_symbols={'a', 'b'},
             transitions={
                 0: {'a': {1, 3}},
@@ -236,7 +236,7 @@ class TestNFA(test_fa.TestFA):
                 6: {}
             },
             initial_state=0,
-            final_states={2, 4, 6}
+            final_states={2, 4, 6, 10}
         )
         # This NFA should then accept any number of repetitions
         # of aa or ab concatenated together.
@@ -416,6 +416,25 @@ class TestNFA(test_fa.TestFA):
         nfa2 = NFA(
             states={0, 1},
             input_symbols={'a'},
+            initial_state=0,
+            transitions={0: {'a': {1}}},
+            final_states={1}
+        )
+
+        self.assertEqual(nfa1.states, nfa2.states)
+        self.assertEqual(nfa1.initial_state, nfa2.initial_state)
+        self.assertEqual(nfa1.transitions, nfa2.transitions)
+        self.assertEqual(nfa1.final_states, nfa2.final_states)
+        self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
+
+    def test_from_symbol_input_symbols(self):
+        """Should generate NFA from single transition symbol"""
+
+        nfa1 = NFA._from_symbol('a', input_symbols={'a', 'b'})
+
+        nfa2 = NFA(
+            states={0, 1},
+            input_symbols={'a', 'b'},
             initial_state=0,
             transitions={0: {'a': {1}}},
             final_states={1}

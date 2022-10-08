@@ -7,6 +7,7 @@ import networkx as nx
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
+from automata.regex.parser import parse_regex
 import automata.fa.fa as fa
 from automata.fa.dfa import DFA
 
@@ -109,165 +110,19 @@ class NFA(fa.FA):
             final_states=final_states
         )
 
-    @staticmethod
-    def _kleene_star(master_list):
-        """Helper function for from_regex. applies kleene star operation wherever possible."""
-        i = 0
-        while True:
-            if i == len(master_list) - 1:
-                break
-            elif not isinstance(master_list[i], NFA):
-                i += 1
-            elif i != len(master_list) - 1 and not isinstance(master_list[i + 1], NFA) and master_list[i + 1] == '*':
-                master_list[i] = master_list[i].kleene_star()
-                master_list.pop(i + 1)
-            else:
-                i += 1
-
-    @staticmethod
-    def _option(master):
-        """applies ? operator wherever possible in master list"""
-        i = 0
-        while True:
-            if i == len(master) - 1:
-                break
-            elif not isinstance(master[i], NFA):
-                i += 1
-            elif i != len(master) - 1 and not isinstance(master[i + 1], NFA) and master[i + 1] == '?':
-                master[i] = master[i].option()
-                master.pop(i + 1)
-            else:
-                i += 1
-
-    @staticmethod
-    def _concatenate(master_list):
-        """applies concatenation operator wherever possible"""
-        i = 0
-        while True:
-            if i == len(master_list) - 1:
-                break
-            elif not isinstance(master_list[i], NFA):
-                i += 1
-            elif i != len(master_list) - 1 and isinstance(master_list[i + 1], NFA):
-                master_list[i] = master_list[i].concatenate(master_list[i + 1])
-                master_list.pop(i + 1)
-            else:
-                i += 1
-
-    @staticmethod
-    def _union(master):
-        """applies union operation wherever possible in master list"""
-        # apply union in the highest level of parenthesis only
-
-        bracket_level = 0
-        highest_bracket = None
-        for i in range(len(master)):  # pragma: no branch
-            if not isinstance(master[i], NFA):
-                if master[i] == '|':
-                    if highest_bracket is None or highest_bracket < bracket_level:
-                        highest_bracket = bracket_level
-                elif master[i] == '(':
-                    bracket_level += 1
-                elif master[i] == ')':  # pragma: no branch
-                    bracket_level -= 1
-
-        if highest_bracket is None:
-            return
-
-        stack = 0
-        i = 0
-        while True:
-            if i == len(master) - 1:
-                break
-            elif not isinstance(master[i], NFA) and master[i] == '(':
-                stack += 1
-                i += 1
-            elif not isinstance(master[i], NFA) and master[i] == ')':
-                stack = stack - 1
-                i += 1
-            elif stack == highest_bracket and not isinstance(master[i], NFA) and master[i] == '|' \
-                    and isinstance(master[i + 1], NFA) \
-                    and isinstance(master[i - 1], NFA):
-                master[i - 1] = master[i - 1].union(master[i + 1])
-                master.pop(i)
-                master.pop(i)
-                i = i - 1
-            else:
-                i += 1
-
-    @staticmethod
-    def _remove_excess_parenthesis(master):
-        """removes excess parenthesis from the master list"""
-        i = 0
-        while True:
-            if i == len(master) - 1:
-                break
-            elif i != 0 and i != len(master) - 1 \
-                    and isinstance(master[i], NFA) \
-                    and not isinstance(master[i - 1], NFA) and master[i - 1] == '(' \
-                    and not isinstance(master[i + 1], NFA) and master[i + 1] == ')':
-                master.pop(i - 1)
-                master.pop(i)
-                i = i - 1
-            else:
-                i += 1
-
     @classmethod
     def from_regex(cls, regex):
         """Initialize this NFA as one equivalent to the given regular expression"""
+        input_symbols = set(regex) - {'*', '|', '(', ')', '?'}
+        nfa_builder = parse_regex(regex)
 
-        if regex == '':
-            return cls(
-                states={0},
-                initial_state=0,
-                final_states={0},
-                transitions={},
-                input_symbols=set()
-            )
-
-        cls._validate_regex(regex)
-        symbols = set(regex) - {'*', '|', '(', ')', '?'}
-        master = list(regex)
-        for i in range(len(master)):
-            if master[i] in symbols:
-                master[i] = cls._from_symbol(master[i], symbols)
-
-        def star_and_option():
-            initial_length = len(master)
-            while True:
-                cls._kleene_star(master)
-                cls._option(master)
-                cls._remove_excess_parenthesis(master)
-                if len(master) < initial_length:
-                    initial_length = len(master)
-                elif len(master) == initial_length:
-                    break
-                else:
-                    pass
-
-        def star_option_concatenate():
-            initial_length = len(master)
-            while True:
-                star_and_option()
-                cls._concatenate(master)
-                cls._remove_excess_parenthesis(master)
-                if len(master) < initial_length:
-                    initial_length = len(master)
-                elif len(master) == initial_length:
-                    break
-                else:
-                    pass
-
-        def star_option_concatenate_union():
-            while True:
-                star_option_concatenate()
-                cls._union(master)
-                cls._remove_excess_parenthesis(master)
-                if len(master) == 1:
-                    break
-
-        star_option_concatenate_union()
-        return master[0]
+        return cls(
+            states=set(nfa_builder._transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=nfa_builder._transitions,
+            initial_state=nfa_builder._initial_state,
+            final_states=nfa_builder._final_states
+        )
 
     def _validate_transition_end_states(self, start_state, paths):
         """Raise an error if transition end states are invalid."""
@@ -277,49 +132,6 @@ class NFA(fa.FA):
                     raise exceptions.InvalidStateError(
                         'end state {} for transition on {} is '
                         'not valid'.format(end_state, start_state))
-
-    @staticmethod
-    def _validate_regex(regex):
-        """Return True if the regular expression is valid"""
-
-        result = True
-        stack1 = 0
-        for i in range(len(regex)):
-            if regex[i] == '(':
-                stack1 += 1
-            elif regex[i] == ')':
-                stack1 = stack1 - 1
-
-            if stack1 < 0:
-                result = False
-
-            if regex[i] == '*':
-                if i > 0 and regex[i - 1] in {'(', '|', '*', '?'}:
-                    result = False
-                elif i == 0:
-                    result = False
-
-            if regex[i] == '|':
-                if i > 1 and regex[i - 1] in {'(', '|'}:
-                    result = False
-                elif i < len(regex) - 1 and regex[i + 1] in {')', '|', '*', '?'}:
-                    result = False
-                elif i == 0 or i == len(regex) - 1:
-                    result = False
-
-            if regex[i] == '(':
-                if i < len(regex) - 1 and regex[i + 1] == ')':
-                    result = False
-
-            if i == 0 and regex[i] == '?':
-                result = False
-        if stack1 != 0:
-            result = False
-
-        if not result:
-            raise exceptions.InvalidRegexError(
-                '{} is an invalid regular expression'.format(
-                    regex))
 
     def validate(self):
         """Return True if this NFA is internally consistent."""

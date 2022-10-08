@@ -189,7 +189,7 @@ class TestGNFA(test_fa.TestFA):
             }
         )
 
-        self.assertEqual(gnfa, gnfa2)
+        self.assertEqual(gnfa.to_regex(), gnfa2.to_regex())
 
     def test_from_nfa_single_state(self):
         nfa = NFA.from_regex('')
@@ -206,7 +206,7 @@ class TestGNFA(test_fa.TestFA):
             }
         )
 
-        self.assertEqual(gnfa, gnfa2)
+        self.assertEqual(gnfa.to_regex(), gnfa2.to_regex())
 
     def test_from_nfa(self):
         """Should convert NFA to GNFA properly"""

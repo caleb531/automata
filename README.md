@@ -1213,10 +1213,10 @@ special character than given above. All regular languages can be written with th
 Preferably the tools for the same can be imported as:
 
 ```python
-import automata.base.regex as re
+import automata.regex.regex as re
 ```
 
-#### automata.base.regex.validate(regex)
+#### automata.regex.regex.validate(regex)
 
 Returns `True` if the regular expression is valid. Otherwise, raise an
 `InvalidRegexError`.
@@ -1225,7 +1225,7 @@ Returns `True` if the regular expression is valid. Otherwise, raise an
 re.validate('ab(c|d)*ba?')
 ```
 
-#### automata.base.regex.isequal(re1, re2)
+#### automata.regex.regex.isequal(re1, re2)
 
 Returns `True` if both regular expressions are equivalent.
 
@@ -1233,7 +1233,7 @@ Returns `True` if both regular expressions are equivalent.
 re.isequal('aa?', 'a|aa')
 ```
 
-#### automata.base.regex.issubset(re1, re2)
+#### automata.regex.regex.issubset(re1, re2)
 
 Returns `True` if re1 is a subset of re2.
 
@@ -1241,7 +1241,7 @@ Returns `True` if re1 is a subset of re2.
 re.issubset('aa?', 'a*')
 ```
 
-#### automata.issuperset(re1, re2)
+#### automata.regex.regex.issuperset(re1, re2)
 
 Returns `True` if re1 is a subset of re2.
 
