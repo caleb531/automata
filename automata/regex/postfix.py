@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classes and methods for converting expressions to postfix ordering."""
+"""Classes and methods for converting lists of tokens to postfix ordering."""
 
 from collections import deque
 from itertools import zip_longest

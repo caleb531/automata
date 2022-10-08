@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Classes and methods for parsing regexes into NFAs."""
+
 from itertools import zip_longest, count
 from automata.regex.lexer import Lexer, Token
 from automata.regex.postfix import (
