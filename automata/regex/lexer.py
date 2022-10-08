@@ -1,63 +1,39 @@
 import re
 import abc
 import automata.base.exceptions as exceptions
-from typing import Callable, List, Optional, Set, Tuple, TypeVar, Generic
 
-ResultT = TypeVar('ResultT')
-
-
-
-class Token(Generic[ResultT], metaclass=abc.ABCMeta):
+class Token(metaclass=abc.ABCMeta):
     """Base class for tokens."""
 
     __slots__ = ['text']
 
-    text: str
-
-    def __init__(self, text: str) -> None:
+    def __init__(self, text):
         self.text = text
 
-    def get_precedence(self) -> int:
+    def get_precedence(self):
         raise NotImplementedError
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"<{self.__class__.__name__}: {self.text}>"
 
-TokenFactoryT = Callable[[str], Token[ResultT]]
-
-class TokenRegistry(Generic[ResultT]):
-    """Holds a bunch of token rules.
-
-    Attributes:
-        _tokens ((Token, re) list): the registered tokens.
-    """
+class TokenRegistry():
+    """Registry holding token rules."""
 
     __slots__ = ['_tokens']
 
-    def __init__(self) -> None:
+    def __init__(self):
         self._tokens = []
 
-    def register(self, token_factory_fn: TokenFactoryT, token_regex: str) -> None:
-        """Register a token.
-
-        Args:
-            token (Token): the token class to register
-            regexp (str): the regexp for that token
+    def register(self, token_factory_fn, token_regex):
+        """
+        Register a token that can be produced by token_factory_fn (a function
+        taking in a string returning the final token) and recognized by the
+        token_regex pattern.
         """
         self._tokens.append((token_factory_fn, re.compile(token_regex)))
 
-    def matching_tokens(self, text: str, start: int):
-        """Retrieve all token definitions matching the beginning of a text.
-
-        Args:
-            text (str): the text to test
-            start (int): the position where matches should be searched in the
-                string (see re.match(rx, txt, pos))
-
-        Yields:
-            (token_class, re.Match): all token class whose regexp matches the
-                text, and the related re.Match object.
-        """
+    def matching_tokens(self, text, start):
+        """Retrieve all token definitions matching text starting at start."""
 
         for token_factory_fn, regexp in self._tokens:
             match = regexp.match(text, pos=start)
@@ -65,14 +41,10 @@ class TokenRegistry(Generic[ResultT]):
                 yield (token_factory_fn, match)
 
 
-    def get_token(self, text: str, start: int = 0):
-        """Retrieve the next token from some text.
-
-        Args:
-            text (str): the text from which tokens should be extracted
-
-        Returns:
-            (token_kind, token_text): the token kind and its content.
+    def get_token(self, text, start = 0):
+        """
+        Retrieve the next token from some text. Computes the best match by
+        length. Returns None if there is no match in the token registry.
         """
         best_token_match = None
         best_match = None
@@ -89,51 +61,31 @@ class TokenRegistry(Generic[ResultT]):
         return len(self._tokens)
 
 
-class Lexer(Generic[ResultT]):
-    """The core lexer.
-
-    From its list of tokens (provided through the TOKENS class attribute or
-    overridden in the _tokens method), it will parse the given text, with the
-    following rules:
-    - For each (token, regexp) pair, try to match the regexp at the beginning
-      of the text
-    - If this matches, add token_class(match) to the list of tokens and continue
-    - Otherwise, if the first character is either ' ' or '\t', skip it
-    - Otherwise, raise a LexerError.
-
-    Attributes:
-        tokens (Token, re) list: The known tokens, as a (token class, regexp) list.
+class Lexer():
+    """
+    The core lexer. First, tokens are registered with their factory functions and regex
+    patterns. The lexer can then take in a string and splits it into a list of token
+    classes (in infix ordering) matching the regex patterns.
     """
 
     __slots__ = ['tokens', 'blank_chars']
 
-    tokens: TokenRegistry[ResultT]
-    blank_chars: Set[str]
-
-    def __init__(self, blank_chars: Set[str] = {' ', '\t'}) -> None:
+    def __init__(self, blank_chars = {' ', '\t'}):
         self.tokens = TokenRegistry()
-        self.blank_chars = set(blank_chars)
+        self.blank_chars = blank_chars
 
-    def register_token(self, token_factory_fn: TokenFactoryT, token_regex: str) -> None:
-        """Register a token class.
-
-        Args:
-            token_class (tdparser.Token): the token class to register
-            regexp (optional str): the regexp for elements of that token.
-                Defaults to the `regexp` attribute of the token class.
+    def register_token(self, token_factory_fn, token_regex):
+        """
+        Register a token class. The token_factory_fn must taken in a
+        string and return an instance of the desired token, and token_regex
+        is used by the lexer to match tokens in the input text.
         """
 
         self.tokens.register(token_factory_fn, token_regex)
 
-    def lex(self, text: str) -> List[Token[ResultT]]:
-        """Split self.text into a list of tokens.
+    def lex(self, text):
+        """Split text into a list of tokens in infix notation."""
 
-        Args:
-            text (str): text to parse
-
-        Yields:
-            Token: the tokens generated from the given text.
-        """
         pos = 0
         res = []
 
