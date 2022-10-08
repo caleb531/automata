@@ -197,13 +197,13 @@ def get_regex_lexer():
     """Get lexer for parsing regular expressions."""
     lexer: Lexer = Lexer()
 
-    lexer.register_token(lambda x: LeftParen(x), r'\(')
-    lexer.register_token(lambda x: RightParen(x), r'\)')
-    lexer.register_token(lambda x: StringToken(x), r'[A-Za-z0-9]')
-    lexer.register_token(lambda x: UnionToken(x), r'\|')
-    lexer.register_token(lambda x: ConcatToken(x), r'\.')
-    lexer.register_token(lambda x: KleeneToken(x), r'\*')
-    lexer.register_token(lambda x: OptionToken(x), r'\?')
+    lexer.register_token(LeftParen, r'\(')
+    lexer.register_token(RightParen, r'\)')
+    lexer.register_token(StringToken, r'[A-Za-z0-9]')
+    lexer.register_token(UnionToken, r'\|')
+    lexer.register_token(ConcatToken, r'\.')
+    lexer.register_token(KleeneToken, r'\*')
+    lexer.register_token(OptionToken, r'\?')
 
     return lexer
 
