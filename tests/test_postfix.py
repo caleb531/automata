@@ -49,6 +49,10 @@ class Divide(postfix.InfixOperator):
 class TestArithmeticParser(unittest.TestCase):
     """Test parsing arithmetic expressions."""
 
+    def test_parse_invalid_token(self) -> None:
+        with self.assertRaises(exceptions.InvalidRegexError):
+            postfix.parse_postfix_tokens([''])
+
     def test_nested_parenthesized_expression(self) -> None:
         # Parsing:
         # "( 4 + ( 1 + 2 * 3 * ( 4 + 5 ) + 6 ) ) * 7 + 8"

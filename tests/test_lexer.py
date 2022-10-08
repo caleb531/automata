@@ -1,9 +1,10 @@
 """Tests for lexer-related code."""
 
 import unittest
+import automata.base.exceptions as exceptions
 from automata.regex.postfix import Token
 from automata.regex.postfix import LeftParen, RightParen
-from automata.regex.lexer import TokenRegistry, Lexer, LexerError
+from automata.regex.lexer import TokenRegistry, Lexer
 
 
 def register_parens(lexer: Lexer) -> None:
@@ -268,7 +269,7 @@ class TestLexTestCase(unittest.TestCase):
 
     def test_lex_invalid_char(self) -> None:
         lexer: Lexer = Lexer()
-        with self.assertRaises(LexerError) as cm:
+        with self.assertRaises(exceptions.LexerError) as cm:
             lexer.lex('foo')
         self.assertEqual(cm.exception.position, 0)
 
@@ -279,6 +280,6 @@ class TestLexTestCase(unittest.TestCase):
         lexer: Lexer = Lexer()
         lexer.register_token(lambda x: AToken(x), r'a')
 
-        with self.assertRaises(LexerError) as cm:
+        with self.assertRaises(exceptions.LexerError) as cm:
             lexer.lex('aaaabaaa')
         self.assertEqual(cm.exception.position, 4)

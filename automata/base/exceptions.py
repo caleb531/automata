@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Exception classes shared by all automata."""
-
+from dataclasses import dataclass
 
 class AutomatonException(Exception):
     """The base class for all automaton-related errors."""
@@ -54,6 +54,12 @@ class RegexException(Exception):
     """The base class for all regular expression related errors"""
 
     pass
+
+@dataclass
+class LexerError(RegexException):
+    """An exception raised for issues in lexing"""
+    message: str
+    position: int
 
 
 class InvalidRegexError(RegexException):

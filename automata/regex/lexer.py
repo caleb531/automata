@@ -1,14 +1,10 @@
 import re
 import abc
-from dataclasses import dataclass
+import automata.base.exceptions as exceptions
 from typing import Callable, List, Optional, Set, Tuple, TypeVar, Generic
 
 ResultT = TypeVar('ResultT')
-@dataclass
-class LexerError(Exception):
-    """An exception raised for issues in lexing"""
-    message: str
-    position: int
+
 
 
 class Token(Generic[ResultT], metaclass=abc.ABCMeta):
@@ -151,6 +147,6 @@ class Lexer(Generic[ResultT]):
             elif text[pos] in self.blank_chars:
                 pos += 1
             else:
-                raise LexerError(f"Invalid character '{text[pos]}' in '{text}'", position=pos)
+                raise exceptions.LexerError(f"Invalid character '{text[pos]}' in '{text}'", position=pos)
 
         return res
