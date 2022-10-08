@@ -93,7 +93,7 @@ class NFARegexBuilder:
         }
 
         for state in self._final_states:
-            self._transitions[state].setdefault('', set()).update({self._initial_state})
+            self._transitions[state].setdefault('', set()).add(self._initial_state)
 
         self._initial_state = new_initial_state
         self._final_states.add(new_initial_state)
