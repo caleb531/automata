@@ -96,7 +96,7 @@ class Lexer():
             token_match = self.tokens.get_token(text, start=pos)
             if token_match is not None:
                 token_factory_fn, match = token_match
-                matched_text = text[match.start():match.end()]
+                matched_text = match.group(0)
                 res.append(token_factory_fn(matched_text))
                 pos += len(matched_text)
             elif text[pos] in self.blank_chars:
