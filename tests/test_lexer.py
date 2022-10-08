@@ -2,19 +2,20 @@
 
 import unittest
 import automata.base.exceptions as exceptions
-from automata.regex.postfix import Token
-from automata.regex.postfix import LeftParen, RightParen
+from automata.regex.postfix import Token, LeftParen, RightParen
 from automata.regex.lexer import TokenRegistry, Lexer
 
 
-def register_parens(lexer: Lexer) -> None:
+def register_parens(lexer):
     lexer.register_token(lambda text: LeftParen(text), r'\(')
     lexer.register_token(lambda text: RightParen(text), r'\)')
 
 
 class TestTokenRegistryTestCase(unittest.TestCase):
+    """Tests for token registry class."""
 
-    def test_add_token(self) -> None:
+    def test_add_token(self):
+        """Test adding tokens to registry."""
         class AToken(Token):
             pass
 
@@ -30,15 +31,18 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         registry.register(lambda x: BToken(x), r'b+')
         self.assertEqual(2, len(registry._tokens))
 
-    def test_get_matches_no_tokens_notext(self) -> None:
+    def test_get_matches_no_tokens_notext(self):
+        """Test for no matching tokens in registry with empty string."""
         registry: TokenRegistry = TokenRegistry()
         self.assertEqual([], list(registry.matching_tokens('', 0)))
 
-    def test_get_matches_no_tokens_text(self) -> None:
+    def test_get_matches_no_tokens_text(self):
+        """Test for no matching tokens in registry with text."""
         registry: TokenRegistry = TokenRegistry()
         self.assertEqual([], list(registry.matching_tokens('foo', 0)))
 
-    def test_get_matches_notext(self) -> None:
+    def test_get_matches_notext(self):
+        """Test for no matches when given a non-empty registry."""
         class AToken(Token):
             pass
 
@@ -46,7 +50,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         registry.register(lambda x: AToken(x), r'a')
         self.assertEqual([], list(registry.matching_tokens('', 0)))
 
-    def test_get_matches(self) -> None:
+    def test_get_matches(self):
+        """Test for matching a single token."""
         class AToken(Token):
             pass
 
@@ -57,7 +62,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         self.assertEqual(1, len(matches))
         self.assertTrue(isinstance(matches[0][0]('a'), AToken))
 
-    def test_multiple_matches(self) -> None:
+    def test_multiple_matches(self):
+        """Test for multiple matches."""
         class AToken(Token):
             pass
 
@@ -73,7 +79,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         self.assertTrue(isinstance(matches[0][0]('a'), AToken))
         self.assertTrue(isinstance(matches[1][0]('aa'), AAToken))
 
-    def test_get_token_multiple(self) -> None:
+    def test_get_token_multiple(self):
+        """Test getting best match token."""
         class AToken(Token):
             pass
 
@@ -88,7 +95,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         self.assertIsNotNone(match)
         self.assertTrue(isinstance(match[0]('aa'), AAToken))
 
-    def test_get_token_multiple_inverted(self) -> None:
+    def test_get_token_multiple_inverted(self):
+        """Test getting best match token in reverse order"""
         class AToken(Token):
             pass
 
@@ -96,8 +104,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
             pass
 
         registry: TokenRegistry = TokenRegistry()
-        registry.register(lambda x: AToken(x), r'a')
         registry.register(lambda x: AAToken(x), r'aa')
+        registry.register(lambda x: AToken(x), r'a')
 
         match = registry.get_token('aaa')
         self.assertIsNotNone(match)
@@ -105,42 +113,48 @@ class TestTokenRegistryTestCase(unittest.TestCase):
 
 
 class TestGetTokenTestCase(unittest.TestCase):
+    """Test token registry in lexer."""
 
     def test_token_precedence(self):
+        """Test that get_precedence starts as not implemented."""
         class AToken(Token):
             pass
 
         with self.assertRaises(NotImplementedError):
             AToken('').get_precedence()
 
-    def test_get_token_no_text(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_get_token_no_text(self):
+        """Test getting a token given an empty string."""
+        lexer = Lexer()
         register_parens(lexer)
 
         token_match = lexer.tokens.get_token('')
         self.assertIsNone(token_match)
 
-    def test_get_token_no_text_no_tokens(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_get_token_no_text_no_tokens(self):
+        """Test getting a token on an empty string."""
+        lexer = Lexer()
         token_match = lexer.tokens.get_token('')
         self.assertIsNone(token_match)
 
-    def test_get_token_unmatched(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_get_token_unmatched(self):
+        """Test getting a token without any in the registry."""
+        lexer = Lexer()
         register_parens(lexer)
 
         token_match = lexer.tokens.get_token('aaa')
         self.assertIsNone(token_match)
 
-    def test_get_token_no_tokens(self) -> None:
-        lexer: Lexer = Lexer()
-        register_parens(lexer)
+    def test_get_token_no_tokens(self):
+        """Test getting a token with an empty registry."""
+        lexer = Lexer()
 
         token_match = lexer.tokens.get_token('aaa')
         self.assertIsNone(token_match)
 
-    def test_get_token(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_get_token(self):
+        """Test getting left paren tokens."""
+        lexer = Lexer()
         register_parens(lexer)
 
         match = lexer.tokens.get_token('(((')
@@ -150,15 +164,17 @@ class TestGetTokenTestCase(unittest.TestCase):
         self.assertTrue(isinstance(token_factory_fn('('), LeftParen))
         self.assertIsNotNone(re_match)
 
-    def test_get_token_picks_first(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_get_token_picks_first(self):
+        """Test that tokens are retrieved from the start."""
+        lexer = Lexer()
         register_parens(lexer)
 
         token_match = lexer.tokens.get_token('aa(((')
         self.assertIsNone(token_match)
 
-    def test_get_token_scans_all_possible_tokens(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_get_token_scans_all_possible_tokens(self):
+        """Test that the lexer scans all tokens in registry."""
+        lexer = Lexer()
         register_parens(lexer)
 
         match = lexer.tokens.get_token(')(')
@@ -168,8 +184,10 @@ class TestGetTokenTestCase(unittest.TestCase):
         self.assertTrue(isinstance(token_factory_fn(')'), RightParen))
         self.assertIsNotNone(re_match)
 
-    def test_longest_match(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_longest_match(self):
+        """Test that the returned match is the longest one."""
+
+        lexer = Lexer()
         class AToken(Token):
             pass
 
@@ -189,24 +207,26 @@ class TestGetTokenTestCase(unittest.TestCase):
 class TestRegisterTokensTestCase(unittest.TestCase):
     """Tests for Lexer.register_token."""
 
-    def test_register_token(self) -> None:
+    def test_register_token(self):
+        """Test basic token registration."""
         class AToken(Token):
             pass
 
-        lexer: Lexer = Lexer()
+        lexer = Lexer()
         self.assertEqual(0, len(lexer.tokens))
 
         lexer.register_token(lambda x: AToken(x), r'a')
         self.assertEqual(1, len(lexer.tokens))
 
-    def test_register_tokens(self) -> None:
+    def test_register_tokens(self):
+        """Test registering multiple tokens."""
         class AToken(Token):
             pass
 
         class BToken(Token):
             pass
 
-        lexer: Lexer = Lexer()
+        lexer = Lexer()
         self.assertEqual(0, len(lexer.tokens))
 
         lexer.register_token(lambda x: AToken(x), r'a')
@@ -229,15 +249,19 @@ class TestRegisterTokensTestCase(unittest.TestCase):
 
 
 class TestLexTestCase(unittest.TestCase):
+    """Tests for the Lexer class."""
 
-    def test_lex_empty(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_lex_empty(self):
+        """Test lexing an empty string."""
+        lexer = Lexer()
         tokens = lexer.lex('')
         self.assertEqual(0, len(tokens))
 
-    def test_lex_tokens(self) -> None:
+    def test_lex_tokens(self):
+        """Test lexing parenthesis."""
+
         text = '((((((()()()))))))((((((('
-        lexer: Lexer = Lexer()
+        lexer = Lexer()
         register_parens(lexer)
 
         tokens = lexer.lex(text)
@@ -249,8 +273,10 @@ class TestLexTestCase(unittest.TestCase):
             else:
                 self.assertTrue(isinstance(token, RightParen))
 
-    def test_lex_skips_blank(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_lex_skips_blank(self):
+        """Test that the lexer skips blank characters."""
+
+        lexer = Lexer()
         register_parens(lexer)
 
         tokens = lexer.lex('  (')
@@ -258,8 +284,10 @@ class TestLexTestCase(unittest.TestCase):
         self.assertEqual('(', tokens[0].text)
         self.assertTrue(isinstance(tokens[0], LeftParen))
 
-    def test_lex_custom_blank_chars(self) -> None:
-        lexer: Lexer = Lexer(blank_chars={'a', ' '})
+    def test_lex_custom_blank_chars(self):
+        """Test lexing custom blank characters."""
+
+        lexer = Lexer(blank_chars={'a', ' '})
         register_parens(lexer)
 
         tokens = lexer.lex(' a(')
@@ -267,17 +295,19 @@ class TestLexTestCase(unittest.TestCase):
         self.assertEqual('(', tokens[0].text)
         self.assertTrue(isinstance(tokens[0], LeftParen))
 
-    def test_lex_invalid_char(self) -> None:
-        lexer: Lexer = Lexer()
+    def test_lex_invalid_char(self):
+        """Test that the lexer throws an exception on invalid characters."""
+        lexer = Lexer()
         with self.assertRaises(exceptions.LexerError) as cm:
             lexer.lex('foo')
         self.assertEqual(cm.exception.position, 0)
 
-    def test_lex_error_position(self) -> None:
+    def test_lex_error_position(self):
+        """Test the position for the lexer error."""
         class AToken(Token):
             pass
 
-        lexer: Lexer = Lexer()
+        lexer = Lexer()
         lexer.register_token(lambda x: AToken(x), r'a')
 
         with self.assertRaises(exceptions.LexerError) as cm:

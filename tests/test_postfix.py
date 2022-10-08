@@ -3,7 +3,7 @@
 import unittest
 import automata.base.exceptions as exceptions
 import automata.regex.postfix as postfix
-from automata.regex.lexer import Lexer, Token
+from automata.regex.lexer import Lexer
 
 
 class Integer(postfix.Literal):
