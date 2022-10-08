@@ -8,6 +8,7 @@ from automata.regex.postfix import (
     InfixOperator, PostfixOperator, Literal, tokens_to_postfix, validate_tokens
 )
 
+
 class NFARegexBuilder:
     """Builder class designed for speed in parsing regular expressions into NFAs."""
 
@@ -48,11 +49,10 @@ class NFARegexBuilder:
         transitions[final_state] = dict()
 
         return cls(
-            transitions = transitions,
-            initial_state = 0,
-            final_states = {final_state}
+            transitions=transitions,
+            initial_state=0,
+            final_states={final_state}
         )
-
 
     def union(self, other):
         """
@@ -70,7 +70,6 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.update(other._final_states)
 
-
     def concatenate(self, other):
         """
         Apply the concatenate operation to the NFA represented by this builder
@@ -82,7 +81,6 @@ class NFARegexBuilder:
             self._transitions[state].setdefault('', set()).add(other._initial_state)
 
         self._final_states = other._final_states
-
 
     def kleene(self):
         """
@@ -113,10 +111,10 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.add(new_initial_state)
 
-
     @classmethod
     def __get_next_state_name(cls):
         return next(cls._state_name_counter)
+
 
 class UnionToken(InfixOperator):
     """Subclass of infix operator defining the union operator."""
@@ -128,6 +126,7 @@ class UnionToken(InfixOperator):
         left.union(right)
         return left
 
+
 class KleeneToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene star operator."""
 
@@ -137,6 +136,7 @@ class KleeneToken(PostfixOperator):
     def op(self, left):
         left.kleene()
         return left
+
 
 class OptionToken(PostfixOperator):
     """Subclass of postfix operator defining the option operator."""
@@ -148,6 +148,7 @@ class OptionToken(PostfixOperator):
         left.option()
         return left
 
+
 class ConcatToken(InfixOperator):
     """Subclass of infix operator defining the concatenation operator."""
 
@@ -157,6 +158,7 @@ class ConcatToken(InfixOperator):
     def op(self, left, right):
         left.concatenate(right)
         return left
+
 
 class StringToken(Literal):
     """Subclass of literal token defining a string literal."""
@@ -190,6 +192,7 @@ def add_concat_tokens(token_list):
 
     return final_token_list
 
+
 def get_regex_lexer():
     """Get lexer for parsing regular expressions."""
     lexer: Lexer = Lexer()
@@ -203,6 +206,7 @@ def get_regex_lexer():
     lexer.register_token(lambda x: OptionToken(x), r'\?')
 
     return lexer
+
 
 def parse_regex(regexstr):
     """Return an NFARegexBuilder corresponding to regexstr."""
