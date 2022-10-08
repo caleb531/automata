@@ -12,8 +12,8 @@ class TestRegex(unittest.TestCase):
 
     def test_validate_valid(self):
         """Should pass validation for valid regular expression"""
-        self.assertEqual(re.validate('a*'), True)
-        self.assertEqual(re.validate('b|a?*'), True)
+        self.assertTrue(re.validate('a*'))
+        self.assertTrue(re.validate('b|a?*'))
 
     def test_validate_invalid(self):
         """Should raise error for invalid regular expressions"""
@@ -27,6 +27,10 @@ class TestRegex(unittest.TestCase):
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'ab(bc)*((bbcd)')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a(*)')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a(|)')
+
+    def test_helper_validate_invalid(self):
+        """Should pass validation for valid regular expression"""
+        self.assertFalse(re._validate('a(|)'))
 
     def test_isequal(self):
         """Should correctly check equivalence of two regular expressions"""
