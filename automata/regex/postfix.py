@@ -14,11 +14,13 @@ class Operator(Token):
     @abc.abstractmethod
     def get_precedence(self): ...
 
+
 class InfixOperator(Operator):
     """Subclass of operator defining an infix operator."""
 
     @abc.abstractmethod
     def op(self, left, right): ...
+
 
 class PostfixOperator(Operator):
     """Subclass of operator defining an postfix operator."""
@@ -26,11 +28,13 @@ class PostfixOperator(Operator):
     @abc.abstractmethod
     def op(self, left): ...
 
+
 class Literal(Token):
     """Subclass of token defining a literal."""
 
     @abc.abstractmethod
     def val(self): ...
+
 
 class RightParen(Token):
     """Subclass of token defining a right parenthesis."""
@@ -44,6 +48,7 @@ class LeftParen(Token):
 
     def __repr__(self):
         return '<(>'
+
 
 def validate_tokens(token_list):
     """Validate the inputted tokens list (in infix ordering)."""
@@ -81,7 +86,6 @@ def validate_tokens(token_list):
 
     if paren_counter != 0:
         raise exceptions.InvalidRegexError("Token list has unclosed parethesis.")
-
 
 
 def tokens_to_postfix(tokens):
