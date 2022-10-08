@@ -236,7 +236,7 @@ class TestNFA(test_fa.TestFA):
                 6: {}
             },
             initial_state=0,
-            final_states={2, 4, 6}
+            final_states={2, 4, 6, 10}
         )
         # This NFA should then accept any number of repetitions
         # of aa or ab concatenated together.
