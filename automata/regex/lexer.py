@@ -5,6 +5,7 @@ import re
 import abc
 import automata.base.exceptions as exceptions
 
+
 class Token(metaclass=abc.ABCMeta):
     """Base class for tokens."""
 
@@ -18,6 +19,7 @@ class Token(metaclass=abc.ABCMeta):
 
     def __repr__(self):
         return f"<{self.__class__.__name__}: {self.text}>"
+
 
 class TokenRegistry():
     """Registry holding token rules."""
@@ -43,8 +45,7 @@ class TokenRegistry():
             if match:
                 yield (token_factory_fn, match)
 
-
-    def get_token(self, text, start = 0):
+    def get_token(self, text, start=0):
         """
         Retrieve the next token from some text. Computes the best match by
         length. Returns None if there is no match in the token registry.
@@ -56,7 +57,6 @@ class TokenRegistry():
             if not best_match or best_match.end() < match.end():
                 best_token_match = (token_factory_fn, match)
                 best_match = match
-
 
         return best_token_match
 
@@ -73,7 +73,7 @@ class Lexer():
 
     __slots__ = ['tokens', 'blank_chars']
 
-    def __init__(self, blank_chars = {' ', '\t'}):
+    def __init__(self, blank_chars={' ', '\t'}):
         self.tokens = TokenRegistry()
         self.blank_chars = blank_chars
 
