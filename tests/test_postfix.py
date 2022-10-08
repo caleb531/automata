@@ -112,13 +112,13 @@ class TestArithmeticParser(unittest.TestCase):
     def setUp(self):
         self.arithmetic_lexer: Lexer = Lexer()
 
-        self.arithmetic_lexer.register_token(lambda x: postfix.LeftParen(x), r'\(')
-        self.arithmetic_lexer.register_token(lambda x: postfix.RightParen(x), r'\)')
-        self.arithmetic_lexer.register_token(lambda x: Integer(x), r'[0-9]+')
-        self.arithmetic_lexer.register_token(lambda x: Add(x), r'\+')
-        self.arithmetic_lexer.register_token(lambda x: Minus(x), r'-')
-        self.arithmetic_lexer.register_token(lambda x: Mult(x), r'\*')
-        self.arithmetic_lexer.register_token(lambda x: Divide(x), r'/')
+        self.arithmetic_lexer.register_token(postfix.LeftParen, r'\(')
+        self.arithmetic_lexer.register_token(postfix.RightParen, r'\)')
+        self.arithmetic_lexer.register_token(Integer, r'[0-9]+')
+        self.arithmetic_lexer.register_token(Add, r'\+')
+        self.arithmetic_lexer.register_token(Minus, r'-')
+        self.arithmetic_lexer.register_token(Mult, r'\*')
+        self.arithmetic_lexer.register_token(Divide, r'/')
 
     def test_expression_invalid_ordering(self):
         """Check for exception raised when lexing invalid regular expressions."""

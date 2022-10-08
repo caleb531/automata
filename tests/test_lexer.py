@@ -7,8 +7,8 @@ from automata.regex.lexer import TokenRegistry, Lexer
 
 
 def register_parens(lexer):
-    lexer.register_token(lambda text: LeftParen(text), r'\(')
-    lexer.register_token(lambda text: RightParen(text), r'\)')
+    lexer.register_token(LeftParen, r'\(')
+    lexer.register_token(RightParen, r'\)')
 
 
 class TestTokenRegistryTestCase(unittest.TestCase):
@@ -25,10 +25,10 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         registry: TokenRegistry = TokenRegistry()
         self.assertEqual(0, len(registry._tokens))
 
-        registry.register(lambda x: AToken(x), r'a+')
+        registry.register(AToken, r'a+')
         self.assertEqual(1, len(registry._tokens))
 
-        registry.register(lambda x: BToken(x), r'b+')
+        registry.register(BToken, r'b+')
         self.assertEqual(2, len(registry._tokens))
 
     def test_get_matches_no_tokens_notext(self):
@@ -47,7 +47,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
             pass
 
         registry: TokenRegistry = TokenRegistry()
-        registry.register(lambda x: AToken(x), r'a')
+        registry.register(AToken, r'a')
         self.assertEqual([], list(registry.matching_tokens('', 0)))
 
     def test_get_matches(self):
@@ -56,7 +56,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
             pass
 
         registry: TokenRegistry = TokenRegistry()
-        registry.register(lambda x: AToken(x), r'a')
+        registry.register(AToken, r'a')
 
         matches = list(registry.matching_tokens('aaa', 0))
         self.assertEqual(1, len(matches))
@@ -71,8 +71,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
             pass
 
         registry: TokenRegistry = TokenRegistry()
-        registry.register(lambda x: AToken(x), r'a')
-        registry.register(lambda x: AAToken(x), r'aa')
+        registry.register(AToken, r'a')
+        registry.register(AAToken, r'aa')
 
         matches = list(registry.matching_tokens('aaa', 0))
         self.assertEqual(2, len(matches))
@@ -88,8 +88,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
             pass
 
         registry: TokenRegistry = TokenRegistry()
-        registry.register(lambda x: AToken(x), r'a')
-        registry.register(lambda x: AAToken(x), r'aa')
+        registry.register(AToken, r'a')
+        registry.register(AAToken, r'aa')
 
         match = registry.get_token('aaa')
         self.assertIsNotNone(match)
@@ -104,8 +104,8 @@ class TestTokenRegistryTestCase(unittest.TestCase):
             pass
 
         registry: TokenRegistry = TokenRegistry()
-        registry.register(lambda x: AAToken(x), r'aa')
-        registry.register(lambda x: AToken(x), r'a')
+        registry.register(AAToken, r'aa')
+        registry.register(AToken, r'a')
 
         match = registry.get_token('aaa')
         self.assertIsNotNone(match)
@@ -195,8 +195,8 @@ class TestGetTokenTestCase(unittest.TestCase):
         class AAToken(Token):
             pass
 
-        lexer.register_token(lambda x: AToken(x), r'a')
-        lexer.register_token(lambda x: AAToken(x), r'aa')
+        lexer.register_token(AToken, r'a')
+        lexer.register_token(AAToken, r'aa')
 
         match = lexer.tokens.get_token('aaa')
         self.assertIsNotNone(match)
@@ -216,7 +216,7 @@ class TestRegisterTokensTestCase(unittest.TestCase):
         lexer = Lexer()
         self.assertEqual(0, len(lexer.tokens))
 
-        lexer.register_token(lambda x: AToken(x), r'a')
+        lexer.register_token(AToken, r'a')
         self.assertEqual(1, len(lexer.tokens))
 
     def test_register_tokens(self):
@@ -230,8 +230,8 @@ class TestRegisterTokensTestCase(unittest.TestCase):
         lexer = Lexer()
         self.assertEqual(0, len(lexer.tokens))
 
-        lexer.register_token(lambda x: AToken(x), r'a')
-        lexer.register_token(lambda x: BToken(x), r'b')
+        lexer.register_token(AToken, r'a')
+        lexer.register_token(BToken, r'b')
         self.assertEqual(2, len(lexer.tokens))
 
         match_a = lexer.tokens.get_token('a')
@@ -309,7 +309,7 @@ class TestLexTestCase(unittest.TestCase):
             pass
 
         lexer = Lexer()
-        lexer.register_token(lambda x: AToken(x), r'a')
+        lexer.register_token(AToken, r'a')
 
         with self.assertRaises(exceptions.LexerError) as cm:
             lexer.lex('aaaabaaa')
