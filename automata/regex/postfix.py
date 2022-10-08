@@ -81,7 +81,7 @@ def tokens_to_postfix(tokens: List[Token[ExpressionResultT]]) -> List[Token[Expr
         return a.get_precedence() <= b.get_precedence()
 
     for c in tokens:
-        if isinstance(c, Literal) or isinstance(c, PostfixOperator):
+        if isinstance(c, Literal):
             res.append(c)
         elif isinstance(c, RightParen):
             while len(stk) > 0 and not isinstance(stk[-1], LeftParen):
