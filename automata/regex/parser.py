@@ -82,7 +82,7 @@ class NFARegexBuilder:
 
         self._final_states = other._final_states
 
-    def kleene(self):
+    def kleene_star(self):
         """
         Apply the kleene star operation to the NFA represented by this builder
         """
@@ -134,7 +134,7 @@ class KleeneToken(PostfixOperator):
         return 3
 
     def op(self, left):
-        left.kleene()
+        left.kleene_star()
         return left
 
 
