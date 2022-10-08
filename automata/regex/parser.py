@@ -121,7 +121,7 @@ class NFARegexBuilder:
     def __get_next_state_name(cls: Type['NFARegexBuilder']) -> int:
         return next(cls._state_name_counter)
 
-class UnionToken(InfixOperator[NFARegexBuilder]):
+class UnionToken(InfixOperator):
 
     def get_precedence(self) -> int:
         return 1
@@ -130,7 +130,7 @@ class UnionToken(InfixOperator[NFARegexBuilder]):
         left.union(right)
         return left
 
-class KleeneToken(PostfixOperator[NFARegexBuilder]):
+class KleeneToken(PostfixOperator):
 
     def get_precedence(self) -> int:
         return 3
@@ -139,7 +139,7 @@ class KleeneToken(PostfixOperator[NFARegexBuilder]):
         left.kleene()
         return left
 
-class OptionToken(PostfixOperator[NFARegexBuilder]):
+class OptionToken(PostfixOperator):
 
     def get_precedence(self) -> int:
         return 3
@@ -148,7 +148,7 @@ class OptionToken(PostfixOperator[NFARegexBuilder]):
         left.option()
         return left
 
-class ConcatToken(InfixOperator[NFARegexBuilder]):
+class ConcatToken(InfixOperator):
 
     def get_precedence(self) -> int:
         return 2
@@ -157,14 +157,14 @@ class ConcatToken(InfixOperator[NFARegexBuilder]):
         left.concatenate(right)
         return left
 
-class StringToken(Literal[NFARegexBuilder]):
+class StringToken(Literal):
 
     def val(self) -> NFARegexBuilder:
         return NFARegexBuilder.from_string_literal(self.text)
 
 SubsDictT = Dict[str, NFARegexBuilder]
 
-def add_concat_tokens(token_list: List[Token[NFARegexBuilder]]) -> List[Token[NFARegexBuilder]]:
+def add_concat_tokens(token_list: List[Token]) -> List[Token]:
     "Add concat tokens to list of initially parsed tokens"
     final_token_list = []
     concat_pairs = [
@@ -187,7 +187,7 @@ def add_concat_tokens(token_list: List[Token[NFARegexBuilder]]) -> List[Token[NF
     return final_token_list
 
 def get_regex_lexer():
-    lexer: Lexer[NFARegexBuilder] = Lexer()
+    lexer: Lexer = Lexer()
 
     lexer.register_token(lambda x: LeftParen(x), r'\(')
     lexer.register_token(lambda x: RightParen(x), r'\)')
@@ -207,6 +207,6 @@ def parse_regex(regexstr: str):
     lexed_tokens = lexer.lex(regexstr)
     validate_tokens(lexed_tokens)
     tokens_with_concats = add_concat_tokens(lexed_tokens)
-    postfix: List[Token[NFARegexBuilder]] = tokens_to_postfix(tokens_with_concats)
+    postfix: List[Token] = tokens_to_postfix(tokens_with_concats)
 
     return parse_postfix_tokens(postfix)
