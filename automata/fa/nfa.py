@@ -385,10 +385,8 @@ class NFA(fa.FA):
         # For each final state in original NFA we add epsilon
         # transition to the old initial state
         for state in self.final_states:
-            if state not in new_transitions:
-                new_transitions[state] = dict()
             if '' not in new_transitions[state]:
-                new_transitions[state][''] = set()
+                new_transitions.setdefault(state, dict())[''] = set()
             new_transitions[state][''].add(self.initial_state)
 
         return self.__class__(
