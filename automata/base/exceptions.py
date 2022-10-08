@@ -2,6 +2,7 @@
 """Exception classes shared by all automata."""
 from dataclasses import dataclass
 
+
 class AutomatonException(Exception):
     """The base class for all automaton-related errors."""
 
@@ -54,6 +55,7 @@ class RegexException(Exception):
     """The base class for all regular expression related errors"""
 
     pass
+
 
 @dataclass
 class LexerError(RegexException):

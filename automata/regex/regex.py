@@ -17,6 +17,7 @@ def _validate(regex):
 
     return True
 
+
 def validate(regex):
     """Raise an error if the regular expression is invalid"""
 

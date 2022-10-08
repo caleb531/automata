@@ -124,9 +124,6 @@ class NFA(fa.FA):
             final_states=nfa_builder._final_states
         )
 
-
-
-
     def _validate_transition_end_states(self, start_state, paths):
         """Raise an error if transition end states are invalid."""
         for end_states in paths.values():
