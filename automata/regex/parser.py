@@ -5,19 +5,13 @@ from automata.regex.postfix import (
     InfixOperator, PostfixOperator, Literal, tokens_to_postfix, validate_tokens
 )
 
-from typing import Dict, Set, Type, List
-
-BuilderTransitionsT = Dict[int, Dict[str, Set[int]]]
-
 class NFARegexBuilder:
+    """Builder class designed for speed in parsing regular expressions into NFAs."""
+
     __slots__ = ['_transitions', '_initial_state', '_final_states']
     _state_name_counter = count(0)
 
-    _transitions: BuilderTransitionsT
-    _initial_state: int
-    _final_states: Set[int]
-
-    def __init__(self, *, transitions: BuilderTransitionsT, initial_state: int, final_states: Set[int]) -> None:
+    def __init__(self, *, transitions, initial_state, final_states):
         """
         Initialize new builder class and remap state names
         """
@@ -38,11 +32,11 @@ class NFARegexBuilder:
         }
 
     @classmethod
-    def from_string_literal(cls: Type['NFARegexBuilder'], literal: str) -> 'NFARegexBuilder':
+    def from_string_literal(cls, literal):
         """
         Initialize this builder accepting only the given string literal
         """
-        transitions: BuilderTransitionsT = {
+        transitions = {
             i: {chr: {i+1}}
             for i, chr in enumerate(literal)
         }
@@ -57,7 +51,7 @@ class NFARegexBuilder:
         )
 
 
-    def union(self, other: 'NFARegexBuilder') -> None:
+    def union(self, other):
         """
         Apply the union operation to the NFA represented by this builder and other
         """
@@ -74,7 +68,7 @@ class NFARegexBuilder:
         self._final_states.update(other._final_states)
 
 
-    def concatenate(self, other: 'NFARegexBuilder') -> None:
+    def concatenate(self, other):
         """
         Apply the concatenate operation to the NFA represented by this builder
         and other.
@@ -87,7 +81,7 @@ class NFARegexBuilder:
         self._final_states = other._final_states
 
 
-    def kleene(self) -> None:
+    def kleene(self):
         """
         Apply the kleene star operation to the NFA represented by this builder
         """
@@ -103,7 +97,7 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.add(new_initial_state)
 
-    def option(self) -> None:
+    def option(self):
         """
         Apply the option operation to the NFA represented by this builder
         """
@@ -118,55 +112,62 @@ class NFARegexBuilder:
 
 
     @classmethod
-    def __get_next_state_name(cls: Type['NFARegexBuilder']) -> int:
+    def __get_next_state_name(cls):
         return next(cls._state_name_counter)
 
 class UnionToken(InfixOperator):
+    """Subclass of infix operator defining the union operator."""
 
-    def get_precedence(self) -> int:
+    def get_precedence(self):
         return 1
 
-    def op(self, left: NFARegexBuilder, right: NFARegexBuilder) -> NFARegexBuilder:
+    def op(self, left, right):
         left.union(right)
         return left
 
 class KleeneToken(PostfixOperator):
+    """Subclass of postfix operator defining the kleene star operator."""
 
-    def get_precedence(self) -> int:
+    def get_precedence(self):
         return 3
 
-    def op(self, left: NFARegexBuilder) -> NFARegexBuilder:
+    def op(self, left):
         left.kleene()
         return left
 
 class OptionToken(PostfixOperator):
+    """Subclass of postfix operator defining the option operator."""
 
-    def get_precedence(self) -> int:
+    def get_precedence(self):
         return 3
 
-    def op(self, left: NFARegexBuilder) -> NFARegexBuilder:
+    def op(self, left):
         left.option()
         return left
 
 class ConcatToken(InfixOperator):
+    """Subclass of infix operator defining the concatenation operator."""
 
-    def get_precedence(self) -> int:
+    def get_precedence(self):
         return 2
 
-    def op(self, left: NFARegexBuilder, right: NFARegexBuilder) -> NFARegexBuilder:
+    def op(self, left, right):
         left.concatenate(right)
         return left
 
 class StringToken(Literal):
+    """Subclass of literal token defining a string literal."""
 
-    def val(self) -> NFARegexBuilder:
+    def val(self):
         return NFARegexBuilder.from_string_literal(self.text)
 
-SubsDictT = Dict[str, NFARegexBuilder]
 
-def add_concat_tokens(token_list: List[Token]) -> List[Token]:
-    "Add concat tokens to list of initially parsed tokens"
+def add_concat_tokens(token_list):
+    """Add concat tokens to list of parsed infix tokens."""
+
     final_token_list = []
+
+    # Pairs of token types to insert concat tokens in between
     concat_pairs = [
         (Literal, Literal),
         (RightParen, LeftParen),
@@ -187,6 +188,7 @@ def add_concat_tokens(token_list: List[Token]) -> List[Token]:
     return final_token_list
 
 def get_regex_lexer():
+    """Get lexer for parsing regular expressions."""
     lexer: Lexer = Lexer()
 
     lexer.register_token(lambda x: LeftParen(x), r'\(')
@@ -199,7 +201,9 @@ def get_regex_lexer():
 
     return lexer
 
-def parse_regex(regexstr: str):
+def parse_regex(regexstr):
+    """Return an NFARegexBuilder corresponding to regexstr."""
+
     if len(regexstr) == 0:
         return NFARegexBuilder.from_string_literal(regexstr)
 
@@ -207,6 +211,6 @@ def parse_regex(regexstr: str):
     lexed_tokens = lexer.lex(regexstr)
     validate_tokens(lexed_tokens)
     tokens_with_concats = add_concat_tokens(lexed_tokens)
-    postfix: List[Token] = tokens_to_postfix(tokens_with_concats)
+    postfix = tokens_to_postfix(tokens_with_concats)
 
     return parse_postfix_tokens(postfix)
