@@ -12,28 +12,32 @@ class Operator(Token):
     """Subclass of token defining an operator."""
 
     @abc.abstractmethod
-    def get_precedence(self): ...
+    def get_precedence(self):
+        raise NotImplementedError
 
 
 class InfixOperator(Operator):
     """Subclass of operator defining an infix operator."""
 
     @abc.abstractmethod
-    def op(self, left, right): ...
+    def op(self, left, right):
+        raise NotImplementedError
 
 
 class PostfixOperator(Operator):
     """Subclass of operator defining an postfix operator."""
 
     @abc.abstractmethod
-    def op(self, left): ...
+    def op(self, left):
+        raise NotImplementedError
 
 
 class Literal(Token):
     """Subclass of token defining a literal."""
 
     @abc.abstractmethod
-    def val(self): ...
+    def val(self):
+        raise NotImplementedError
 
 
 class RightParen(Token):

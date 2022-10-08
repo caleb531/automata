@@ -48,6 +48,25 @@ class Divide(postfix.InfixOperator):
         return left // right
 
 
+class TestTokens(unittest.TestCase):
+    """Test token subclasses for not implemented errors."""
+
+    def test_token_abstract_methods_not_implemented(self):
+        """Should raise NotImplementedError when calling abstract methods."""
+
+        with self.assertRaises(NotImplementedError):
+            getattr(postfix.Operator, 'get_precedence')(postfix.Operator)
+
+        with self.assertRaises(NotImplementedError):
+            getattr(postfix.InfixOperator, 'op')(postfix.InfixOperator, None, None)
+
+        with self.assertRaises(NotImplementedError):
+            getattr(postfix.PostfixOperator, 'op')(postfix.PostfixOperator, None)
+
+        with self.assertRaises(NotImplementedError):
+            getattr(postfix.Literal, 'val')(postfix.Literal)
+
+
 class TestArithmeticParser(unittest.TestCase):
     """Test parsing arithmetic expressions."""
 
