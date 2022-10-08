@@ -225,7 +225,7 @@ class TestNFA(test_fa.TestFA):
         """Should perform the Kleene Star operation on an NFA"""
         # This NFA accepts aa and ab
         nfa = NFA(
-            states={0, 1, 2, 3, 4, 6},
+            states={0, 1, 2, 3, 4, 6, 10},
             input_symbols={'a', 'b'},
             transitions={
                 0: {'a': {1, 3}},
