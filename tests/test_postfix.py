@@ -11,6 +11,7 @@ class Integer(postfix.Literal):
         """It evaluates to its (integer) value."""
         return int(self.text)
 
+
 class Add(postfix.InfixOperator):
     """Addition."""
     def get_precedence(self):
@@ -18,6 +19,7 @@ class Add(postfix.InfixOperator):
 
     def op(self, left, right):
         return left + right
+
 
 class Minus(postfix.InfixOperator):
     """Subtraction."""
@@ -35,6 +37,7 @@ class Mult(postfix.InfixOperator):
 
     def op(self, left, right):
         return left * right
+
 
 class Divide(postfix.InfixOperator):
     """Division."""
@@ -97,7 +100,6 @@ class TestArithmeticParser(unittest.TestCase):
         self.arithmetic_lexer.register_token(lambda x: Minus(x), r'-')
         self.arithmetic_lexer.register_token(lambda x: Mult(x), r'\*')
         self.arithmetic_lexer.register_token(lambda x: Divide(x), r'/')
-
 
     def test_expression_invalid_ordering(self):
         """Check for exception raised when lexing invalid regular expressions."""

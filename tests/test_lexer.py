@@ -188,6 +188,7 @@ class TestGetTokenTestCase(unittest.TestCase):
         """Test that the returned match is the longest one."""
 
         lexer = Lexer()
+
         class AToken(Token):
             pass
 
