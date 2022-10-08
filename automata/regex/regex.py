@@ -11,7 +11,7 @@ def _validate(regex):
     """Return True if the regular expression is valid"""
 
     try:
-        validate_tokens(get_regex_lexer().lex(regex))
+        validate(regex)
     except exceptions.InvalidRegexError:
         return False
 
@@ -21,10 +21,8 @@ def _validate(regex):
 def validate(regex):
     """Raise an error if the regular expression is invalid"""
 
-    if not _validate(regex):
-        raise exceptions.InvalidRegexError(
-            '{} is an invalid regular expression'.format(
-                regex))
+    validate_tokens(get_regex_lexer().lex(regex))
+
     return True
 
 
