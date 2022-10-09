@@ -982,94 +982,98 @@ class TestDFA(test_fa.TestFA):
                           '20', '12', '59', '38', '44', '52', '16', '1', '58',
                           '48', '22', '2', '36', '34', '49', '40', '25', '30',
                           '53', '42', '33', '19', '50', '29'})
+        large_tuple = ('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')
         check_dfa = DFA(
             states={frozenset(('5',)), frozenset(('36',)), frozenset(('1',)), frozenset(('49',)), frozenset(('40',)),
                     frozenset(('25',)), frozenset(('46',)), frozenset(('6',)), frozenset(('55',)),
-                    frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                    frozenset(large_tuple),
                     frozenset(('33',)), frozenset(('11',)), frozenset(('20',)), frozenset(('48',)), frozenset(('44',)),
                     frozenset(('32',))},
             input_symbols={'L', 'U', 'R', 'D'},
             transitions={
                 frozenset(('48',)):
                 {'L': frozenset(('40',)),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(large_tuple)},
                 frozenset(('44',)):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                {'L': frozenset(large_tuple),
                  'U': frozenset(('48',)),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'R': frozenset(large_tuple),
                  'D': frozenset(('11',))},
                 frozenset(('40',)):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                {'L': frozenset(large_tuple),
                  'U': frozenset(('48',)),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(large_tuple)},
                 frozenset(('33',)):
                 {'L': frozenset(('44',)),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'U': frozenset(large_tuple),
                  'R': frozenset(('36',)),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
-                frozenset(('55',)): {'L': frozenset(('20',)), 'U': frozenset(('49',)), 'R': frozenset(('20',)), 'D': frozenset(('49',))},
+                 'D': frozenset(large_tuple)},
+                frozenset(('55',)): {
+                    'L': frozenset(('20',)), 'U': frozenset(('49',)), 'R': frozenset(('20',)), 'D': frozenset(('49',))
+                },
                 frozenset(('32',)):
                 {'L': frozenset(('36',)),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'U': frozenset(large_tuple),
                  'R': frozenset(('44',)),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
+                 'D': frozenset(large_tuple)},
                 frozenset(('46',)):
                 {'L': frozenset(('44',)),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'U': frozenset(large_tuple),
                  'R': frozenset(('44',)),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
+                 'D': frozenset(large_tuple)},
                 frozenset(('25',)):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(large_tuple),
                  'D': frozenset(('11',))},
                 frozenset(('6',)):
                 {'L': frozenset(('40',)),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'U': frozenset(large_tuple),
                  'R': frozenset(('25',)),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
+                 'D': frozenset(large_tuple)},
                 frozenset(('11',)):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(large_tuple),
                  'R': frozenset(('25',)),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
+                 'D': frozenset(large_tuple)},
                 frozenset(('5',)):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                {'L': frozenset(large_tuple),
                  'U': frozenset(('46',)),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'R': frozenset(large_tuple),
                  'D': frozenset(('6',))},
                 frozenset(('49',)):
                 {'L': frozenset(('1',)),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'U': frozenset(large_tuple),
                  'R': frozenset(('5',)),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
-                frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'U': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
-                 'D': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8'))},
+                 'D': frozenset(large_tuple)},
+                frozenset(large_tuple):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(large_tuple)},
                 frozenset(('20',)):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                {'L': frozenset(large_tuple),
                  'U': frozenset(('33',)),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'R': frozenset(large_tuple),
                  'D': frozenset(('32',))},
                 frozenset(('36',)):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                {'L': frozenset(large_tuple),
                  'U': frozenset(('6',)),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'R': frozenset(large_tuple),
                  'D': frozenset(('6',))},
                 frozenset(('1',)):
-                {'L': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                {'L': frozenset(large_tuple),
                  'U': frozenset(('6',)),
-                 'R': frozenset(('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')),
+                 'R': frozenset(large_tuple),
                  'D': frozenset(('46',))}},
             initial_state=frozenset(('55',)),
-            final_states={frozenset(('5',)), frozenset(('1',)), frozenset(('36',)), frozenset(('49',)), frozenset(('40',)),
-                          frozenset(('25',)), frozenset(('46',)), frozenset(('6',)), frozenset(('55',)),frozenset(('33',)),
-                          frozenset(('11',)), frozenset(('20',)), frozenset(('48',)), frozenset(('44',)), frozenset(('32',))})
+            final_states={frozenset(('5',)), frozenset(('1',)), frozenset(('36',)), frozenset(('49',)),
+                          frozenset(('40',)), frozenset(('25',)), frozenset(('46',)), frozenset(('6',)),
+                          frozenset(('55',)), frozenset(('33',)), frozenset(('11',)), frozenset(('20',)),
+                          frozenset(('48',)), frozenset(('44',)), frozenset(('32',))})
         minimal_dfa = dfa.minify(retain_names=True)
         self.assertEqual(minimal_dfa.states, check_dfa.states)
         self.assertEqual(minimal_dfa.input_symbols, check_dfa.input_symbols)
