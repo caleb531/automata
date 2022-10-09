@@ -546,13 +546,11 @@ class DFA(fa.FA):
                 # We've been here before and nothing should have changed.
                 continue
 
-
             # Add NFA states to DFA as it is constructed from NFA.
             dfa_states.add(current_state_name)
             dfa_transitions[current_state_name] = {}
             if (current_states & target_nfa.final_states):
                 dfa_final_states.add(current_state_name)
-
 
             # Enqueue the next set of current states for the generated DFA.
             for input_symbol in target_nfa.input_symbols:
@@ -561,12 +559,10 @@ class DFA(fa.FA):
                 dfa_transitions[current_state_name][input_symbol] = get_name(next_current_states)
                 state_queue.append(next_current_states)
 
-
         return cls(
             states=dfa_states, input_symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
-
 
     def show_diagram(self, path=None):
         """

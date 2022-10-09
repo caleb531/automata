@@ -892,9 +892,15 @@ class TestDFA(test_fa.TestFA):
         })
         self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
         self.assertEqual(minimal_dfa.transitions, {
-            frozenset(('q0',)): {'0': frozenset(('q1', 'q2')), '1': frozenset(('q1', 'q2'))},
-            frozenset(('q1', 'q2')): {'0': frozenset(('q3', 'q4', 'q5', 'q6')), '1': frozenset(('q3', 'q4', 'q5', 'q6'))},
-            frozenset(('q3', 'q4', 'q5', 'q6')): {'0': frozenset(('q3', 'q4', 'q5', 'q6')), '1': frozenset(('q3', 'q4', 'q5', 'q6'))}
+            frozenset(('q0',)): {
+                '0': frozenset(('q1', 'q2')), '1': frozenset(('q1', 'q2'))
+            },
+            frozenset(('q1', 'q2')): {
+                '0': frozenset(('q3', 'q4', 'q5', 'q6')), '1': frozenset(('q3', 'q4', 'q5', 'q6'))
+            },
+            frozenset(('q3', 'q4', 'q5', 'q6')): {
+                '0': frozenset(('q3', 'q4', 'q5', 'q6')), '1': frozenset(('q3', 'q4', 'q5', 'q6'))
+            }
         })
         self.assertEqual(minimal_dfa.initial_state, frozenset(('q0',)))
         self.assertEqual(minimal_dfa.final_states, {frozenset(('q3', 'q4', 'q5', 'q6'))})
