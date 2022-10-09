@@ -320,14 +320,14 @@ class DFA(fa.FA):
 
         # now eq_classes are good to go, make them a list for ordering
         eq_class_name_pairs = (
-            [(eq, frozenset(eq)) for eq in eq_classes] if retain_names else
-            [(eq, str(i)) for i, eq in enumerate(eq_classes)]
+            [(frozenset(eq), eq) for eq in eq_classes] if retain_names else
+            list(enumerate(eq_classes))
         )
 
         # need a backmap to prevent constant calls to index
         back_map = {
             state: name
-            for eq, name in eq_class_name_pairs
+            for name, eq in eq_class_name_pairs
             for state in eq
         }
 
