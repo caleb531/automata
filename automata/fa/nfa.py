@@ -72,12 +72,13 @@ class NFA(fa.FA):
     @classmethod
     def from_dfa(cls, dfa):
         """Initialize this NFA as one equivalent to the given DFA."""
-        nfa_transitions = {}
-
-        for start_state, paths in dfa.transitions.items():
-            nfa_transitions[start_state] = {}
-            for input_symbol, end_state in paths.items():
-                nfa_transitions[start_state][input_symbol] = {end_state}
+        nfa_transitions = {
+            start_state: {
+                input_symbol: {end_state}
+                for input_symbol, end_state in paths.items()
+            }
+            for start_state, paths in dfa.transitions.items()
+        }
 
         return cls(
             states=dfa.states, input_symbols=dfa.input_symbols,
