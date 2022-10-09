@@ -1060,7 +1060,7 @@ class TestDFA(test_fa.TestFA):
                  'U': frozenset(('6',)),
                  'R': frozenset(('0','10','14','17','18','23','26','28','31','37','4','41','45','47','56','8')),
                  'D': frozenset(('46',))}},
-            initial_state='55',
+            initial_state=frozenset(('55',)),
             final_states={frozenset(('5',)), frozenset(('1',)), frozenset(('36',)), frozenset(('49',)), frozenset(('40',)),
                           frozenset(('25',)), frozenset(('46',)), frozenset(('6',)), frozenset(('55',)),frozenset(('33',)),
                           frozenset(('11',)), frozenset(('20',)), frozenset(('48',)), frozenset(('44',)), frozenset(('32',))})
@@ -1085,11 +1085,22 @@ class TestDFA(test_fa.TestFA):
             final_states={'q1'}
         )
         minimal_dfa = dfa.minify(retain_names=True)
-        self.assertEqual(minimal_dfa.states, dfa.states)
-        self.assertEqual(minimal_dfa.input_symbols, dfa.input_symbols)
-        self.assertEqual(minimal_dfa.transitions, dfa.transitions)
-        self.assertEqual(minimal_dfa.initial_state, dfa.initial_state)
-        self.assertEqual(minimal_dfa.final_states, dfa.final_states)
+        other_minimal_dfa = DFA(
+            states={frozenset(('q0',)), frozenset(('q1',))},
+            input_symbols={'0', '1'},
+            transitions={
+                frozenset(('q0',)): {'0': frozenset(('q0',)), '1': frozenset(('q1',))},
+                frozenset(('q1',)): {'0': frozenset(('q0',)), '1': frozenset(('q1',))}
+            },
+            initial_state=frozenset(('q0',)),
+            final_states={frozenset(('q1',))}
+        )
+
+        self.assertEqual(minimal_dfa.states, other_minimal_dfa.states)
+        self.assertEqual(minimal_dfa.input_symbols, other_minimal_dfa.input_symbols)
+        self.assertEqual(minimal_dfa.transitions, other_minimal_dfa.transitions)
+        self.assertEqual(minimal_dfa.initial_state, other_minimal_dfa.initial_state)
+        self.assertEqual(minimal_dfa.final_states, other_minimal_dfa.final_states)
 
     def test_minify_dfa_initial_state(self):
         """Should minify a DFA where the initial state is being changed."""
