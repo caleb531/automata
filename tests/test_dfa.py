@@ -1144,7 +1144,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q2'}
         )
-        dfa = DFA.from_nfa(nfa)
+        dfa = DFA.from_nfa(nfa, retain_names=True)
         self.assertEqual(dfa.states, {(), ('q0',), ('q0','q1'), ('q2',)})
         self.assertEqual(dfa.input_symbols, {'0', '1'})
         self.assertEqual(dfa.transitions, {
@@ -1169,7 +1169,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q2'}
         )
-        dfa = DFA.from_nfa(nfa)
+        dfa = DFA.from_nfa(nfa, retain_names=True)
         self.assertEqual(dfa.states, {
             ('q0',), ('q0','q1'), ('q0','q2'), ('q0','q1','q2')
         })
@@ -1185,7 +1185,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
-        dfa = DFA.from_nfa(self.nfa)
+        dfa = DFA.from_nfa(self.nfa, retain_names=True)
         self.assertEqual(dfa.states, {tuple(), ('q0',), ('q1','q2')})
         self.assertEqual(dfa.input_symbols, {'a', 'b'})
         self.assertEqual(dfa.transitions, {
@@ -1210,7 +1210,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'q1'}
         )
         dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
-        self.assertEqual(dfa.read_input('a'), '{q1}')
+        self.assertEqual(dfa.read_input('a'), ('q1',))
 
     def test_partial_dfa(self):
         """Should allow for partial DFA when flag is set"""

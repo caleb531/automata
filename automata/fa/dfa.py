@@ -545,7 +545,7 @@ class DFA(fa.FA):
         return tuple(sorted(states, key=str))
 
     @classmethod
-    def from_nfa(cls, target_nfa, retain_names):
+    def from_nfa(cls, target_nfa, retain_names=False):
         """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states = set()
         dfa_symbols = target_nfa.input_symbols
