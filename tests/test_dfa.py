@@ -1145,15 +1145,15 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa, retain_names=True)
-        self.assertEqual(dfa.states, {(), ('q0',), ('q0','q1'), ('q2',)})
+        self.assertEqual(dfa.states, {(), frozenset(('q0',)), frozenset(('q0','q1')), ('q2',)})
         self.assertEqual(dfa.input_symbols, {'0', '1'})
         self.assertEqual(dfa.transitions, {
-            tuple(): {'0': tuple(), '1': tuple()},
-            ('q0',): {'0': ('q0','q1'), '1': tuple()},
-            ('q0','q1'): {'0': ('q0','q1'), '1': ('q2',)},
-            ('q2',): {'0': tuple(), '1': tuple()}
+            frozenset(): {'0': frozenset(), '1': frozenset()},
+            frozenset(('q0',)): {'0': frozenset(('q0','q1')), '1': frozenset()},
+            frozenset(('q0','q1')): {'0': frozenset(('q0','q1')), '1': ('q2',)},
+            ('q2',): {'0': frozenset(), '1': frozenset()}
         })
-        self.assertEqual(dfa.initial_state, ('q0',))
+        self.assertEqual(dfa.initial_state, frozenset(('q0',)))
         self.assertEqual(dfa.final_states, {('q2',)})
 
     def test_init_nfa_more_complex(self):
@@ -1171,30 +1171,30 @@ class TestDFA(test_fa.TestFA):
         )
         dfa = DFA.from_nfa(nfa, retain_names=True)
         self.assertEqual(dfa.states, {
-            ('q0',), ('q0','q1'), ('q0','q2'), ('q0','q1','q2')
+            frozenset(('q0',)), frozenset(('q0','q1')), frozenset(('q0','q2')), frozenset(('q0','q1','q2'))
         })
         self.assertEqual(dfa.input_symbols, {'0', '1'})
         self.assertEqual(dfa.transitions, {
-            ('q0',): {'1': ('q0',), '0': ('q0','q1')},
-            ('q0','q1'): {'1': ('q0','q2'), '0': ('q0','q1')},
-            ('q0','q2'): {'1': ('q0','q1'), '0': ('q0','q1','q2')},
-            ('q0','q1','q2'): {'1': ('q0','q1','q2'), '0': ('q0','q1','q2')}
+            frozenset(('q0',)): {'1': frozenset(('q0',)), '0': frozenset(('q0','q1'))},
+            frozenset(('q0','q1')): {'1': frozenset(('q0','q2')), '0': frozenset(('q0','q1'))},
+            frozenset(('q0','q2')): {'1': frozenset(('q0','q1')), '0': frozenset(('q0','q1','q2'))},
+            frozenset(('q0','q1','q2')): {'1': frozenset(('q0','q1','q2')), '0': frozenset(('q0','q1','q2'))}
         })
-        self.assertEqual(dfa.initial_state, ('q0',))
-        self.assertEqual(dfa.final_states, {('q0','q1','q2'), ('q0','q2')})
+        self.assertEqual(dfa.initial_state, frozenset(('q0',)))
+        self.assertEqual(dfa.final_states, {frozenset(('q0','q1','q2')), frozenset(('q0','q2'))})
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
         dfa = DFA.from_nfa(self.nfa, retain_names=True)
-        self.assertEqual(dfa.states, {tuple(), ('q0',), ('q1','q2')})
+        self.assertEqual(dfa.states, {frozenset(), frozenset(('q0',)), ('q1','q2')})
         self.assertEqual(dfa.input_symbols, {'a', 'b'})
         self.assertEqual(dfa.transitions, {
-            tuple(): {'a': tuple(), 'b': tuple()},
-            ('q0',): {'a': ('q1', 'q2'), 'b': tuple()},
-            ('q1', 'q2'): {'a': ('q1', 'q2'), 'b': ('q0',)},
+            frozenset(): {'a': frozenset(), 'b': frozenset()},
+            frozenset(('q0',)): {'a': frozenset(('q1', 'q2')), 'b': frozenset()},
+            frozenset(('q1', 'q2')): {'a': frozenset(('q1', 'q2')), 'b': frozenset(('q0',))},
         })
-        self.assertEqual(dfa.initial_state, ('q0',))
-        self.assertEqual(dfa.final_states, {('q1', 'q2')})
+        self.assertEqual(dfa.initial_state, frozenset(('q0',)))
+        self.assertEqual(dfa.final_states, {frozenset(('q1', 'q2'))})
 
     def test_nfa_to_dfa_with_lambda_transitions(self):
         """ Test NFA->DFA when initial state has lambda transitions """
@@ -1210,7 +1210,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'q1'}
         )
         dfa = DFA.from_nfa(nfa, retain_names=True)  # returns an equivalent DFA
-        self.assertEqual(dfa.read_input('a'), ('q1',))
+        self.assertEqual(dfa.read_input('a'), frozenset(('q1',)))
 
     def test_partial_dfa(self):
         """Should allow for partial DFA when flag is set"""

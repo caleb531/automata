@@ -539,11 +539,6 @@ class DFA(fa.FA):
         """Stringify the given set of states as a single state name."""
         return '{{{}}}'.format(','.join(sorted(str(state) for state in states)))
 
-    @staticmethod
-    def _to_canonical_form(states):
-        """Return a canonical (hashable) form of the given iterable of states."""
-        return tuple(sorted(states, key=str))
-
     @classmethod
     def from_nfa(cls, target_nfa, retain_names=False):
         """Initialize this DFA as one equivalent to the given NFA."""
@@ -556,7 +551,7 @@ class DFA(fa.FA):
         state_name_counter = 0
         def get_name_renamed(states):
             nonlocal state_name_counter, new_state_name_dict
-            canonical_form_states = cls._to_canonical_form(states)
+            canonical_form_states = frozenset(states)
 
             if canonical_form_states in new_state_name_dict:
                 return new_state_name_dict[canonical_form_states]
@@ -566,7 +561,7 @@ class DFA(fa.FA):
             return state_name_counter-1
 
         def get_name_original(states):
-            return cls._to_canonical_form(states)
+            return frozenset(states)
 
         get_name = get_name_original if retain_names else get_name_renamed
 
