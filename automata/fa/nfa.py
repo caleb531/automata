@@ -295,12 +295,6 @@ class NFA(fa.FA):
         if not isinstance(other, NFA):
             raise NotImplementedError
 
-        # first check superset or subset relation
-        if DFA.from_nfa(self).issubset(DFA.from_nfa(other)):
-            return other.copy()
-        elif DFA.from_nfa(self).issuperset(DFA.from_nfa(other)):
-            return self.copy()
-
         # Starting at 1 because 0 is for the initial state
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
 
