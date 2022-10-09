@@ -1186,15 +1186,15 @@ class TestDFA(test_fa.TestFA):
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
         dfa = DFA.from_nfa(self.nfa)
-        self.assertEqual(dfa.states, {'{}', '{q0}', '{q1,q2}'})
+        self.assertEqual(dfa.states, {tuple(), ('q0',), ('q1','q2')})
         self.assertEqual(dfa.input_symbols, {'a', 'b'})
         self.assertEqual(dfa.transitions, {
-            '{}': {'a': '{}', 'b': '{}'},
-            '{q0}': {'a': '{q1,q2}', 'b': '{}'},
-            '{q1,q2}': {'a': '{q1,q2}', 'b': '{q0}'},
+            tuple(): {'a': tuple(), 'b': tuple()},
+            ('q0',): {'a': ('q1', 'q2'), 'b': tuple()},
+            ('q1', 'q2'): {'a': ('q1', 'q2'), 'b': ('q0',)},
         })
-        self.assertEqual(dfa.initial_state, '{q0}')
-        self.assertEqual(dfa.final_states, {'{q1,q2}'})
+        self.assertEqual(dfa.initial_state, ('q0',))
+        self.assertEqual(dfa.final_states, {('q1', 'q2')})
 
     def test_nfa_to_dfa_with_lambda_transitions(self):
         """ Test NFA->DFA when initial state has lambda transitions """
