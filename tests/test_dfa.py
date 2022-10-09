@@ -1145,16 +1145,16 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa)
-        self.assertEqual(dfa.states, {'{}', '{q0}', '{q0,q1}', '{q2}'})
+        self.assertEqual(dfa.states, {(), ('q0',), ('q0','q1'), ('q2',)})
         self.assertEqual(dfa.input_symbols, {'0', '1'})
         self.assertEqual(dfa.transitions, {
-            '{}': {'0': '{}', '1': '{}'},
-            '{q0}': {'0': '{q0,q1}', '1': '{}'},
-            '{q0,q1}': {'0': '{q0,q1}', '1': '{q2}'},
-            '{q2}': {'0': '{}', '1': '{}'}
+            tuple(): {'0': tuple(), '1': tuple()},
+            ('q0',): {'0': ('q0','q1'), '1': tuple()},
+            ('q0','q1'): {'0': ('q0','q1'), '1': ('q2',)},
+            ('q2',): {'0': tuple(), '1': tuple()}
         })
-        self.assertEqual(dfa.initial_state, '{q0}')
-        self.assertEqual(dfa.final_states, {'{q2}'})
+        self.assertEqual(dfa.initial_state, ('q0',))
+        self.assertEqual(dfa.final_states, {('q2',)})
 
     def test_init_nfa_more_complex(self):
         """Should convert to a DFA a more complex NFA."""

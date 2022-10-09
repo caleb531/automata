@@ -552,9 +552,9 @@ class DFA(fa.FA):
         dfa_transitions = {}
 
         # Data structures for state renaming
-        new_state_name_dict: Dict[Tuple[DFAStateT, ...], int] = dict()
+        new_state_name_dict = dict()
         state_name_counter = 0
-        def get_name_renamed(states: Set[DFAStateT]) -> DFAStateT:
+        def get_name_renamed(states):
             nonlocal state_name_counter, new_state_name_dict
             canonical_form_states = cls._to_canonical_form(states)
 
@@ -565,7 +565,7 @@ class DFA(fa.FA):
             state_name_counter += 1
             return state_name_counter-1
 
-        def get_name_original(states: Set[DFAStateT]) -> DFAStateT:
+        def get_name_original(states):
             return cls._to_canonical_form(states)
 
         get_name = get_name_original if retain_names else get_name_renamed
@@ -573,13 +573,13 @@ class DFA(fa.FA):
         # equivalent DFA states states
         nfa_initial_states = target_nfa._get_lambda_closure(target_nfa.initial_state)
         dfa_initial_state = get_name(nfa_initial_states)
-        dfa_final_states: Set[DFAStateT] = set()
+        dfa_final_states = set()
 
-        state_queue: Deque[Set[DFAStateT]] = deque()
+        state_queue = deque()
         state_queue.append(nfa_initial_states)
         while state_queue:
             current_states = state_queue.popleft()
-            current_state_name: DFAStateT = get_name(current_states)
+            current_state_name = get_name(current_states)
             if current_state_name in dfa_states:
                 # We've been here before and nothing should have changed.
                 continue
