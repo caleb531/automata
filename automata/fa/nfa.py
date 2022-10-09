@@ -516,8 +516,7 @@ class NFA(fa.FA):
     def _add_new_state(state_set, start=0):
         """Adds new state to the state set and returns it"""
         new_state = start
-        str_state_set = {str(state) for state in state_set}
-        while str(new_state) in str_state_set:
+        while new_state in state_set:
             new_state += 1
 
         state_set.add(new_state)
