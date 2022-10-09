@@ -4,7 +4,7 @@
 import copy
 from collections import deque
 from enum import IntEnum
-from itertools import product
+from itertools import product, next
 
 import networkx as nx
 from pydot import Dot, Edge, Node
@@ -548,17 +548,11 @@ class DFA(fa.FA):
 
         # Data structures for state renaming
         new_state_name_dict = dict()
-        state_name_counter = 0
+        state_name_counter = count(0)
+
         def get_name_renamed(states):
             nonlocal state_name_counter, new_state_name_dict
-            canonical_form_states = frozenset(states)
-
-            if canonical_form_states in new_state_name_dict:
-                return new_state_name_dict[canonical_form_states]
-
-            new_state_name_dict[canonical_form_states] = state_name_counter
-            state_name_counter += 1
-            return state_name_counter-1
+            return new_state_name_dict.setdefault(frozenset(states), next(state_name_counter))
 
         def get_name_original(states):
             return frozenset(states)
