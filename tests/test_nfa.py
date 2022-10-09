@@ -386,8 +386,8 @@ class TestNFA(test_fa.TestFA):
         nfa7 = NFA.from_regex('a*')
         nfa8 = nfa6.union(nfa7)
         nfa9 = nfa7.union(nfa6)
-        self.assertEqual(nfa8, nfa7)
-        self.assertEqual(nfa9, nfa7)
+        self.assertEqual(DFA.from_nfa(nfa8), DFA.from_nfa(nfa7))
+        self.assertEqual(DFA.from_nfa(nfa9), DFA.from_nfa(nfa7))
 
         # raise error if other is not NFA
         self.assertRaises(NotImplementedError, self.nfa.union, self.dfa)
