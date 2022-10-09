@@ -319,10 +319,10 @@ class DFA(fa.FA):
                             processing.add(XdiffY)
 
         # now eq_classes are good to go, make them a list for ordering
-        eq_class_name_pairs = [
-            (eq, frozenset(eq) if retain_names else str(i))
-            for i, eq in enumerate(eq_classes)
-        ]
+        eq_class_name_pairs = (
+            [(eq, frozenset(eq)) for eq in eq_classes] if retain_names else
+            [(eq, str(i)) for i, eq in enumerate(eq_classes)]
+        )
 
         # need a backmap to prevent constant calls to index
         back_map = {
