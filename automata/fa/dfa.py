@@ -539,26 +539,51 @@ class DFA(fa.FA):
         """Stringify the given set of states as a single state name."""
         return '{{{}}}'.format(','.join(sorted(str(state) for state in states)))
 
+    @staticmethod
+    def _to_canonical_form(states):
+        """Return a canonical (hashable) form of the given iterable of states."""
+        return tuple(sorted(states, key=str))
+
     @classmethod
-    def from_nfa(cls, target_nfa):
+    def from_nfa(cls, target_nfa, retain_names):
         """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states = set()
         dfa_symbols = target_nfa.input_symbols
-        dfa_transitions = dict()
+        dfa_transitions = {}
+
+        # Data structures for state renaming
+        new_state_name_dict: Dict[Tuple[DFAStateT, ...], int] = dict()
+        state_name_counter = 0
+        def get_name_renamed(states: Set[DFAStateT]) -> DFAStateT:
+            nonlocal state_name_counter, new_state_name_dict
+            canonical_form_states = cls._to_canonical_form(states)
+
+            if canonical_form_states in new_state_name_dict:
+                return new_state_name_dict[canonical_form_states]
+
+            new_state_name_dict[canonical_form_states] = state_name_counter
+            state_name_counter += 1
+            return state_name_counter-1
+
+        def get_name_original(states: Set[DFAStateT]) -> DFAStateT:
+            return cls._to_canonical_form(states)
+
+        get_name = get_name_original if retain_names else get_name_renamed
 
         # equivalent DFA states states
         nfa_initial_states = target_nfa._get_lambda_closure(target_nfa.initial_state)
-        dfa_initial_state = cls._stringify_states(nfa_initial_states)
-        dfa_final_states = set()
+        dfa_initial_state = get_name(nfa_initial_states)
+        dfa_final_states: Set[DFAStateT] = set()
 
-        state_queue = deque()
+        state_queue: Deque[Set[DFAStateT]] = deque()
         state_queue.append(nfa_initial_states)
         while state_queue:
             current_states = state_queue.popleft()
-            current_state_name = cls._stringify_states(current_states)
+            current_state_name: DFAStateT = get_name(current_states)
             if current_state_name in dfa_states:
                 # We've been here before and nothing should have changed.
                 continue
+
 
             # Add NFA states to DFA as it is constructed from NFA.
             dfa_states.add(current_state_name)
@@ -566,17 +591,20 @@ class DFA(fa.FA):
             if (current_states & target_nfa.final_states):
                 dfa_final_states.add(current_state_name)
 
+
             # Enqueue the next set of current states for the generated DFA.
             for input_symbol in target_nfa.input_symbols:
                 next_current_states = target_nfa._get_next_current_states(
                     current_states, input_symbol)
-                dfa_transitions[current_state_name][input_symbol] = cls._stringify_states(next_current_states)
+                dfa_transitions[current_state_name][input_symbol] = get_name(next_current_states)
                 state_queue.append(next_current_states)
+
 
         return cls(
             states=dfa_states, input_symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
+
 
     def show_diagram(self, path=None):
         """
