@@ -317,9 +317,10 @@ Returns `True` if the DFA accepts a finite language, False otherwise.
 dfa.isfinite()
 ```
 
-#### DFA.from_nfa(cls, nfa)
+#### DFA.from_nfa(cls, nfa, retain_names=False)
 
-Creates a DFA that is equivalent to the given NFA.
+Creates a DFA that is equivalent to the given NFA. States are renamed by
+default unless `retain_names` is set to `True`.
 
 ```python
 from automata.fa.dfa import DFA
