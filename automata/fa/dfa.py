@@ -340,7 +340,7 @@ class DFA(fa.FA):
                 letter: back_map[self.transitions[list(eq)[0]][letter]]
                 for letter in self.input_symbols
             }
-            for eq, name in eq_class_name_pairs
+            for name, eq in eq_class_name_pairs
         }
 
         self.states = new_states
