@@ -1209,7 +1209,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q1'}
         )
-        dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
+        dfa = DFA.from_nfa(nfa, retain_names=True)  # returns an equivalent DFA
         self.assertEqual(dfa.read_input('a'), ('q1',))
 
     def test_partial_dfa(self):
