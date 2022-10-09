@@ -318,15 +318,9 @@ class DFA(fa.FA):
                         else:
                             processing.add(XdiffY)
 
-        def get_name(eq, i):
-            if retain_names:
-                return list(eq)[0] if len(eq) == 1 else frozenset(eq)
-
-            return str(i)
-
         # now eq_classes are good to go, make them a list for ordering
         eq_class_name_pairs = [
-            (eq, get_name(eq, i))
+            (eq, frozenset(eq) if retain_names else str(i))
             for i, eq in enumerate(eq_classes)
         ]
 
