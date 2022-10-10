@@ -297,12 +297,12 @@ class DFA(fa.FA):
                     XintY = checking_set.intersection(
                         states_that_move_into_active_state
                     )
-                    if len(XintY) == 0:
+                    if not XintY:
                         continue
                     XdiffY = checking_set.difference(
                         states_that_move_into_active_state
                     )
-                    if len(XdiffY) == 0:
+                    if not XdiffY:
                         continue
                     eq_classes.remove(checking_set)
                     eq_classes.add(XintY)
