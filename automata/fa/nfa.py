@@ -9,7 +9,6 @@ from pydot import Dot, Edge, Node
 import automata.base.exceptions as exceptions
 from automata.regex.parser import parse_regex
 import automata.fa.fa as fa
-from automata.fa.dfa import DFA
 
 
 class NFA(fa.FA):
@@ -72,12 +71,13 @@ class NFA(fa.FA):
     @classmethod
     def from_dfa(cls, dfa):
         """Initialize this NFA as one equivalent to the given DFA."""
-        nfa_transitions = {}
-
-        for start_state, paths in dfa.transitions.items():
-            nfa_transitions[start_state] = {}
-            for input_symbol, end_state in paths.items():
-                nfa_transitions[start_state][input_symbol] = {end_state}
+        nfa_transitions = {
+            start_state: {
+                input_symbol: {end_state}
+                for input_symbol, end_state in paths.items()
+            }
+            for start_state, paths in dfa.transitions.items()
+        }
 
         return cls(
             states=dfa.states, input_symbols=dfa.input_symbols,
@@ -293,12 +293,6 @@ class NFA(fa.FA):
         """
         if not isinstance(other, NFA):
             raise NotImplementedError
-
-        # first check superset or subset relation
-        if DFA.from_nfa(self).issubset(DFA.from_nfa(other)):
-            return other.copy()
-        elif DFA.from_nfa(self).issuperset(DFA.from_nfa(other)):
-            return self.copy()
 
         # Starting at 1 because 0 is for the initial state
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
@@ -516,8 +510,7 @@ class NFA(fa.FA):
     def _add_new_state(state_set, start=0):
         """Adds new state to the state set and returns it"""
         new_state = start
-        str_state_set = {str(state) for state in state_set}
-        while str(new_state) in str_state_set:
+        while new_state in state_set:
             new_state += 1
 
         state_set.add(new_state)

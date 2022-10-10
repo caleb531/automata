@@ -296,37 +296,37 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.union(B, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
-            '{q0,p0}', '{q0,p1}', '{q0,p2}',
-            '{q1,p0}', '{q1,p1}', '{q1,p2}',
-            '{q2,p0}', '{q2,p1}', '{q2,p2}',
-            '{q3,p0}', '{q3,p1}', '{q3,p2}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            ('q0', 'p0'), ('q0', 'p1'), ('q0', 'p2'),
+            ('q1', 'p0'), ('q1', 'p1'), ('q1', 'p2'),
+            ('q2', 'p0'), ('q2', 'p1'), ('q2', 'p2'),
+            ('q3', 'p0'), ('q3', 'p1'), ('q3', 'p2'),
+            ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
         })
         self.assertEqual(new_dfa.input_symbols, {'0', '1'})
         self.assertEqual(new_dfa.transitions, {
-            '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
-            '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
-            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
-            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
-            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
-            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
-            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
-            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
-            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
-            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
-            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
-            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
-            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
-            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
-            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+            ('q0', 'p0'): {'0': ('q0', 'p0'), '1': ('q1', 'p1')},
+            ('q0', 'p1'): {'0': ('q0', 'p0'), '1': ('q1', 'p2')},
+            ('q0', 'p2'): {'0': ('q0', 'p2'), '1': ('q1', 'p2')},
+            ('q1', 'p0'): {'0': ('q1', 'p0'), '1': ('q2', 'p1')},
+            ('q1', 'p1'): {'0': ('q1', 'p0'), '1': ('q2', 'p2')},
+            ('q1', 'p2'): {'0': ('q1', 'p2'), '1': ('q2', 'p2')},
+            ('q2', 'p0'): {'0': ('q2', 'p0'), '1': ('q3', 'p1')},
+            ('q2', 'p1'): {'0': ('q2', 'p0'), '1': ('q3', 'p2')},
+            ('q2', 'p2'): {'0': ('q2', 'p2'), '1': ('q3', 'p2')},
+            ('q3', 'p0'): {'0': ('q3', 'p0'), '1': ('q4', 'p1')},
+            ('q3', 'p1'): {'0': ('q3', 'p0'), '1': ('q4', 'p2')},
+            ('q3', 'p2'): {'0': ('q3', 'p2'), '1': ('q4', 'p2')},
+            ('q4', 'p0'): {'0': ('q4', 'p0'), '1': ('q4', 'p1')},
+            ('q4', 'p1'): {'0': ('q4', 'p0'), '1': ('q4', 'p2')},
+            ('q4', 'p2'): {'0': ('q4', 'p2'), '1': ('q4', 'p2')}
         })
-        self.assertEqual(new_dfa.initial_state, '{q0,p0}')
+        self.assertEqual(new_dfa.initial_state, ('q0', 'p0'))
         self.assertEqual(new_dfa.final_states, {
-            '{q0,p0}', '{q0,p1}',
-            '{q1,p0}', '{q1,p1}',
-            '{q2,p0}', '{q2,p1}',
-            '{q3,p0}', '{q3,p1}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            ('q0', 'p0'), ('q0', 'p1'),
+            ('q1', 'p0'), ('q1', 'p1'),
+            ('q2', 'p0'), ('q2', 'p1'),
+            ('q3', 'p0'), ('q3', 'p1'),
+            ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
         })
 
     def test_intersection(self):
@@ -361,33 +361,33 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.intersection(B, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
-            '{q0,p0}', '{q0,p1}', '{q0,p2}',
-            '{q1,p0}', '{q1,p1}', '{q1,p2}',
-            '{q2,p0}', '{q2,p1}', '{q2,p2}',
-            '{q3,p0}', '{q3,p1}', '{q3,p2}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            ('q0', 'p0'), ('q0', 'p1'), ('q0', 'p2'),
+            ('q1', 'p0'), ('q1', 'p1'), ('q1', 'p2'),
+            ('q2', 'p0'), ('q2', 'p1'), ('q2', 'p2'),
+            ('q3', 'p0'), ('q3', 'p1'), ('q3', 'p2'),
+            ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
         })
         self.assertEqual(new_dfa.input_symbols, {'0', '1'})
         self.assertEqual(new_dfa.transitions, {
-            '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
-            '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
-            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
-            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
-            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
-            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
-            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
-            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
-            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
-            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
-            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
-            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
-            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
-            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
-            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+            ('q0', 'p0'): {'0': ('q0', 'p0'), '1': ('q1', 'p1')},
+            ('q0', 'p1'): {'0': ('q0', 'p0'), '1': ('q1', 'p2')},
+            ('q0', 'p2'): {'0': ('q0', 'p2'), '1': ('q1', 'p2')},
+            ('q1', 'p0'): {'0': ('q1', 'p0'), '1': ('q2', 'p1')},
+            ('q1', 'p1'): {'0': ('q1', 'p0'), '1': ('q2', 'p2')},
+            ('q1', 'p2'): {'0': ('q1', 'p2'), '1': ('q2', 'p2')},
+            ('q2', 'p0'): {'0': ('q2', 'p0'), '1': ('q3', 'p1')},
+            ('q2', 'p1'): {'0': ('q2', 'p0'), '1': ('q3', 'p2')},
+            ('q2', 'p2'): {'0': ('q2', 'p2'), '1': ('q3', 'p2')},
+            ('q3', 'p0'): {'0': ('q3', 'p0'), '1': ('q4', 'p1')},
+            ('q3', 'p1'): {'0': ('q3', 'p0'), '1': ('q4', 'p2')},
+            ('q3', 'p2'): {'0': ('q3', 'p2'), '1': ('q4', 'p2')},
+            ('q4', 'p0'): {'0': ('q4', 'p0'), '1': ('q4', 'p1')},
+            ('q4', 'p1'): {'0': ('q4', 'p0'), '1': ('q4', 'p2')},
+            ('q4', 'p2'): {'0': ('q4', 'p2'), '1': ('q4', 'p2')}
         })
-        self.assertEqual(new_dfa.initial_state, '{q0,p0}')
+        self.assertEqual(new_dfa.initial_state, ('q0', 'p0'))
         self.assertEqual(new_dfa.final_states, {
-            '{q4,p0}', '{q4,p1}',
+            ('q4', 'p0'), ('q4', 'p1'),
         })
 
     def test_difference(self):
@@ -422,33 +422,33 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.difference(B, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
-            '{q0,p0}', '{q0,p1}', '{q0,p2}',
-            '{q1,p0}', '{q1,p1}', '{q1,p2}',
-            '{q2,p0}', '{q2,p1}', '{q2,p2}',
-            '{q3,p0}', '{q3,p1}', '{q3,p2}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            ('q0', 'p0'), ('q0', 'p1'), ('q0', 'p2'),
+            ('q1', 'p0'), ('q1', 'p1'), ('q1', 'p2'),
+            ('q2', 'p0'), ('q2', 'p1'), ('q2', 'p2'),
+            ('q3', 'p0'), ('q3', 'p1'), ('q3', 'p2'),
+            ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
         })
         self.assertEqual(new_dfa.input_symbols, {'0', '1'})
         self.assertEqual(new_dfa.transitions, {
-            '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
-            '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
-            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
-            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
-            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
-            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
-            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
-            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
-            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
-            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
-            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
-            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
-            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
-            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
-            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+            ('q0', 'p0'): {'0': ('q0', 'p0'), '1': ('q1', 'p1')},
+            ('q0', 'p1'): {'0': ('q0', 'p0'), '1': ('q1', 'p2')},
+            ('q0', 'p2'): {'0': ('q0', 'p2'), '1': ('q1', 'p2')},
+            ('q1', 'p0'): {'0': ('q1', 'p0'), '1': ('q2', 'p1')},
+            ('q1', 'p1'): {'0': ('q1', 'p0'), '1': ('q2', 'p2')},
+            ('q1', 'p2'): {'0': ('q1', 'p2'), '1': ('q2', 'p2')},
+            ('q2', 'p0'): {'0': ('q2', 'p0'), '1': ('q3', 'p1')},
+            ('q2', 'p1'): {'0': ('q2', 'p0'), '1': ('q3', 'p2')},
+            ('q2', 'p2'): {'0': ('q2', 'p2'), '1': ('q3', 'p2')},
+            ('q3', 'p0'): {'0': ('q3', 'p0'), '1': ('q4', 'p1')},
+            ('q3', 'p1'): {'0': ('q3', 'p0'), '1': ('q4', 'p2')},
+            ('q3', 'p2'): {'0': ('q3', 'p2'), '1': ('q4', 'p2')},
+            ('q4', 'p0'): {'0': ('q4', 'p0'), '1': ('q4', 'p1')},
+            ('q4', 'p1'): {'0': ('q4', 'p0'), '1': ('q4', 'p2')},
+            ('q4', 'p2'): {'0': ('q4', 'p2'), '1': ('q4', 'p2')}
         })
-        self.assertEqual(new_dfa.initial_state, '{q0,p0}')
+        self.assertEqual(new_dfa.initial_state, ('q0', 'p0'))
         self.assertEqual(new_dfa.final_states, {
-            '{q4,p2}'
+             ('q4', 'p2')
         })
 
     def test_symmetric_difference(self):
@@ -483,37 +483,37 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.symmetric_difference(B, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
-            '{q0,p0}', '{q0,p1}', '{q0,p2}',
-            '{q1,p0}', '{q1,p1}', '{q1,p2}',
-            '{q2,p0}', '{q2,p1}', '{q2,p2}',
-            '{q3,p0}', '{q3,p1}', '{q3,p2}',
-            '{q4,p0}', '{q4,p1}', '{q4,p2}'
+            ('q0', 'p0'), ('q0', 'p1'), ('q0', 'p2'),
+            ('q1', 'p0'), ('q1', 'p1'), ('q1', 'p2'),
+            ('q2', 'p0'), ('q2', 'p1'), ('q2', 'p2'),
+            ('q3', 'p0'), ('q3', 'p1'), ('q3', 'p2'),
+            ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
         })
         self.assertEqual(new_dfa.input_symbols, {'0', '1'})
         self.assertEqual(new_dfa.transitions, {
-            '{q0,p0}': {'0': '{q0,p0}', '1': '{q1,p1}'},
-            '{q0,p1}': {'0': '{q0,p0}', '1': '{q1,p2}'},
-            '{q0,p2}': {'0': '{q0,p2}', '1': '{q1,p2}'},
-            '{q1,p0}': {'0': '{q1,p0}', '1': '{q2,p1}'},
-            '{q1,p1}': {'0': '{q1,p0}', '1': '{q2,p2}'},
-            '{q1,p2}': {'0': '{q1,p2}', '1': '{q2,p2}'},
-            '{q2,p0}': {'0': '{q2,p0}', '1': '{q3,p1}'},
-            '{q2,p1}': {'0': '{q2,p0}', '1': '{q3,p2}'},
-            '{q2,p2}': {'0': '{q2,p2}', '1': '{q3,p2}'},
-            '{q3,p0}': {'0': '{q3,p0}', '1': '{q4,p1}'},
-            '{q3,p1}': {'0': '{q3,p0}', '1': '{q4,p2}'},
-            '{q3,p2}': {'0': '{q3,p2}', '1': '{q4,p2}'},
-            '{q4,p0}': {'0': '{q4,p0}', '1': '{q4,p1}'},
-            '{q4,p1}': {'0': '{q4,p0}', '1': '{q4,p2}'},
-            '{q4,p2}': {'0': '{q4,p2}', '1': '{q4,p2}'}
+            ('q0', 'p0'): {'0': ('q0', 'p0'), '1': ('q1', 'p1')},
+            ('q0', 'p1'): {'0': ('q0', 'p0'), '1': ('q1', 'p2')},
+            ('q0', 'p2'): {'0': ('q0', 'p2'), '1': ('q1', 'p2')},
+            ('q1', 'p0'): {'0': ('q1', 'p0'), '1': ('q2', 'p1')},
+            ('q1', 'p1'): {'0': ('q1', 'p0'), '1': ('q2', 'p2')},
+            ('q1', 'p2'): {'0': ('q1', 'p2'), '1': ('q2', 'p2')},
+            ('q2', 'p0'): {'0': ('q2', 'p0'), '1': ('q3', 'p1')},
+            ('q2', 'p1'): {'0': ('q2', 'p0'), '1': ('q3', 'p2')},
+            ('q2', 'p2'): {'0': ('q2', 'p2'), '1': ('q3', 'p2')},
+            ('q3', 'p0'): {'0': ('q3', 'p0'), '1': ('q4', 'p1')},
+            ('q3', 'p1'): {'0': ('q3', 'p0'), '1': ('q4', 'p2')},
+            ('q3', 'p2'): {'0': ('q3', 'p2'), '1': ('q4', 'p2')},
+            ('q4', 'p0'): {'0': ('q4', 'p0'), '1': ('q4', 'p1')},
+            ('q4', 'p1'): {'0': ('q4', 'p0'), '1': ('q4', 'p2')},
+            ('q4', 'p2'): {'0': ('q4', 'p2'), '1': ('q4', 'p2')}
         })
-        self.assertEqual(new_dfa.initial_state, '{q0,p0}')
+        self.assertEqual(new_dfa.initial_state, ('q0', 'p0'))
         self.assertEqual(new_dfa.final_states, {
-            '{q0,p0}', '{q0,p1}',
-            '{q1,p0}', '{q1,p1}',
-            '{q2,p0}', '{q2,p1}',
-            '{q3,p0}', '{q3,p1}',
-            '{q4,p2}'
+            ('q0', 'p0'), ('q0', 'p1'),
+            ('q1', 'p0'), ('q1', 'p1'),
+            ('q2', 'p0'), ('q2', 'p1'),
+            ('q3', 'p0'), ('q3', 'p1'),
+            ('q4', 'p2')
         })
 
     def test_issubset(self):
@@ -888,16 +888,22 @@ class TestDFA(test_fa.TestFA):
         )
         minimal_dfa = dfa.minify(retain_names=True)
         self.assertEqual(minimal_dfa.states, {
-            'q0', '{q1,q2}', '{q3,q4,q5,q6}'
+            frozenset(('q0',)), frozenset(('q1', 'q2')), frozenset(('q3', 'q4', 'q5', 'q6'))
         })
         self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
         self.assertEqual(minimal_dfa.transitions, {
-            'q0': {'0': '{q1,q2}', '1': '{q1,q2}'},
-            '{q1,q2}': {'0': '{q3,q4,q5,q6}', '1': '{q3,q4,q5,q6}'},
-            '{q3,q4,q5,q6}': {'0': '{q3,q4,q5,q6}', '1': '{q3,q4,q5,q6}'}
+            frozenset(('q0',)): {
+                '0': frozenset(('q1', 'q2')), '1': frozenset(('q1', 'q2'))
+            },
+            frozenset(('q1', 'q2')): {
+                '0': frozenset(('q3', 'q4', 'q5', 'q6')), '1': frozenset(('q3', 'q4', 'q5', 'q6'))
+            },
+            frozenset(('q3', 'q4', 'q5', 'q6')): {
+                '0': frozenset(('q3', 'q4', 'q5', 'q6')), '1': frozenset(('q3', 'q4', 'q5', 'q6'))
+            }
         })
-        self.assertEqual(minimal_dfa.initial_state, 'q0')
-        self.assertEqual(minimal_dfa.final_states, {'{q3,q4,q5,q6}'})
+        self.assertEqual(minimal_dfa.initial_state, frozenset(('q0',)))
+        self.assertEqual(minimal_dfa.final_states, {frozenset(('q3', 'q4', 'q5', 'q6'))})
 
     def test_minify_dfa_complex(self):
         """Should minify a given large DFA."""
@@ -976,91 +982,98 @@ class TestDFA(test_fa.TestFA):
                           '20', '12', '59', '38', '44', '52', '16', '1', '58',
                           '48', '22', '2', '36', '34', '49', '40', '25', '30',
                           '53', '42', '33', '19', '50', '29'})
+        large_tuple = ('0', '10', '14', '17', '18', '23', '26', '28', '31', '37', '4', '41', '45', '47', '56', '8')
         check_dfa = DFA(
-            states={'5', '36', '1', '49', '40', '25', '46', '6', '55',
-                    '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}', '33',
-                    '11', '20', '48', '44', '32'},
+            states={frozenset(('5',)), frozenset(('36',)), frozenset(('1',)), frozenset(('49',)), frozenset(('40',)),
+                    frozenset(('25',)), frozenset(('46',)), frozenset(('6',)), frozenset(('55',)),
+                    frozenset(large_tuple),
+                    frozenset(('33',)), frozenset(('11',)), frozenset(('20',)), frozenset(('48',)), frozenset(('44',)),
+                    frozenset(('32',))},
             input_symbols={'L', 'U', 'R', 'D'},
             transitions={
-                '48':
-                {'L': '40',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '44':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '48',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '11'},
-                '40':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '48',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '33':
-                {'L': '44',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '36',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '55': {'L': '20', 'U': '49', 'R': '20', 'D': '49'},
-                '32':
-                {'L': '36',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '44',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '46':
-                {'L': '44',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '44',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '25':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '11'},
-                '6':
-                {'L': '40',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '25',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '11':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '25',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '5':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '46',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '6'},
-                '49':
-                {'L': '1',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '5',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}'},
-                '20':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '33',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '32'},
-                '36':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '6',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '6'},
-                '1':
-                {'L': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'U': '6',
-                 'R': '{0,10,14,17,18,23,26,28,31,37,4,41,45,47,56,8}',
-                 'D': '46'}},
-            initial_state='55',
-            final_states={'5', '1', '36', '49', '40', '25', '46', '6', '55',
-                          '33', '11', '20', '48', '44', '32'})
+                frozenset(('48',)):
+                {'L': frozenset(('40',)),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(large_tuple)},
+                frozenset(('44',)):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(('48',)),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(('11',))},
+                frozenset(('40',)):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(('48',)),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(large_tuple)},
+                frozenset(('33',)):
+                {'L': frozenset(('44',)),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(('36',)),
+                 'D': frozenset(large_tuple)},
+                frozenset(('55',)): {
+                    'L': frozenset(('20',)), 'U': frozenset(('49',)), 'R': frozenset(('20',)), 'D': frozenset(('49',))
+                },
+                frozenset(('32',)):
+                {'L': frozenset(('36',)),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(('44',)),
+                 'D': frozenset(large_tuple)},
+                frozenset(('46',)):
+                {'L': frozenset(('44',)),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(('44',)),
+                 'D': frozenset(large_tuple)},
+                frozenset(('25',)):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(('11',))},
+                frozenset(('6',)):
+                {'L': frozenset(('40',)),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(('25',)),
+                 'D': frozenset(large_tuple)},
+                frozenset(('11',)):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(('25',)),
+                 'D': frozenset(large_tuple)},
+                frozenset(('5',)):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(('46',)),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(('6',))},
+                frozenset(('49',)):
+                {'L': frozenset(('1',)),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(('5',)),
+                 'D': frozenset(large_tuple)},
+                frozenset(large_tuple):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(large_tuple),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(large_tuple)},
+                frozenset(('20',)):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(('33',)),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(('32',))},
+                frozenset(('36',)):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(('6',)),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(('6',))},
+                frozenset(('1',)):
+                {'L': frozenset(large_tuple),
+                 'U': frozenset(('6',)),
+                 'R': frozenset(large_tuple),
+                 'D': frozenset(('46',))}},
+            initial_state=frozenset(('55',)),
+            final_states={frozenset(('5',)), frozenset(('1',)), frozenset(('36',)), frozenset(('49',)),
+                          frozenset(('40',)), frozenset(('25',)), frozenset(('46',)), frozenset(('6',)),
+                          frozenset(('55',)), frozenset(('33',)), frozenset(('11',)), frozenset(('20',)),
+                          frozenset(('48',)), frozenset(('44',)), frozenset(('32',))})
         minimal_dfa = dfa.minify(retain_names=True)
         self.assertEqual(minimal_dfa.states, check_dfa.states)
         self.assertEqual(minimal_dfa.input_symbols, check_dfa.input_symbols)
@@ -1082,11 +1095,22 @@ class TestDFA(test_fa.TestFA):
             final_states={'q1'}
         )
         minimal_dfa = dfa.minify(retain_names=True)
-        self.assertEqual(minimal_dfa.states, dfa.states)
-        self.assertEqual(minimal_dfa.input_symbols, dfa.input_symbols)
-        self.assertEqual(minimal_dfa.transitions, dfa.transitions)
-        self.assertEqual(minimal_dfa.initial_state, dfa.initial_state)
-        self.assertEqual(minimal_dfa.final_states, dfa.final_states)
+        other_minimal_dfa = DFA(
+            states={frozenset(('q0',)), frozenset(('q1',))},
+            input_symbols={'0', '1'},
+            transitions={
+                frozenset(('q0',)): {'0': frozenset(('q0',)), '1': frozenset(('q1',))},
+                frozenset(('q1',)): {'0': frozenset(('q0',)), '1': frozenset(('q1',))}
+            },
+            initial_state=frozenset(('q0',)),
+            final_states={frozenset(('q1',))}
+        )
+
+        self.assertEqual(minimal_dfa.states, other_minimal_dfa.states)
+        self.assertEqual(minimal_dfa.input_symbols, other_minimal_dfa.input_symbols)
+        self.assertEqual(minimal_dfa.transitions, other_minimal_dfa.transitions)
+        self.assertEqual(minimal_dfa.initial_state, other_minimal_dfa.initial_state)
+        self.assertEqual(minimal_dfa.final_states, other_minimal_dfa.final_states)
 
     def test_minify_dfa_initial_state(self):
         """Should minify a DFA where the initial state is being changed."""
@@ -1103,13 +1127,13 @@ class TestDFA(test_fa.TestFA):
             final_states={'q0', 'q1'},
         )
         minimal_dfa = dfa.minify(retain_names=True)
-        self.assertEqual(minimal_dfa.states, {'{q0,q1}'})
+        self.assertEqual(minimal_dfa.states, {frozenset(('q0', 'q1'))})
         self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
         self.assertEqual(minimal_dfa.transitions, {
-            '{q0,q1}': {'0': '{q0,q1}', '1': '{q0,q1}'},
+            frozenset(('q0', 'q1')): {'0': frozenset(('q0', 'q1')), '1': frozenset(('q0', 'q1'))}
         })
-        self.assertEqual(minimal_dfa.initial_state, '{q0,q1}')
-        self.assertEqual(minimal_dfa.final_states, {'{q0,q1}'})
+        self.assertEqual(minimal_dfa.initial_state, frozenset(('q0', 'q1')))
+        self.assertEqual(minimal_dfa.final_states, {frozenset(('q0', 'q1'))})
 
     def test_minify_dfa_no_final_states(self):
         dfa = DFA(
@@ -1123,12 +1147,12 @@ class TestDFA(test_fa.TestFA):
             final_states=set(),
         )
         minimal_dfa = dfa.minify(retain_names=True)
-        self.assertEqual(minimal_dfa.states, {'{q0,q1}'})
+        self.assertEqual(minimal_dfa.states, {frozenset(('q0', 'q1'))})
         self.assertEqual(minimal_dfa.input_symbols, {'0', '1'})
         self.assertEqual(minimal_dfa.transitions, {
-            '{q0,q1}': {'0': '{q0,q1}', '1': '{q0,q1}'},
+            frozenset(('q0', 'q1')): {'0': frozenset(('q0', 'q1')), '1': frozenset(('q0', 'q1'))},
         })
-        self.assertEqual(minimal_dfa.initial_state, '{q0,q1}')
+        self.assertEqual(minimal_dfa.initial_state, frozenset(('q0', 'q1')))
         self.assertEqual(minimal_dfa.final_states, set())
 
     def test_init_nfa_simple(self):
@@ -1145,12 +1169,12 @@ class TestDFA(test_fa.TestFA):
             final_states={'q2'}
         )
         dfa = DFA.from_nfa(nfa, retain_names=True)
-        self.assertEqual(dfa.states, {frozenset(), frozenset(('q0',)), frozenset(('q0','q1')), frozenset(('q2',))})
+        self.assertEqual(dfa.states, {frozenset(), frozenset(('q0',)), frozenset(('q0', 'q1')), frozenset(('q2',))})
         self.assertEqual(dfa.input_symbols, {'0', '1'})
         self.assertEqual(dfa.transitions, {
             frozenset(): {'0': frozenset(), '1': frozenset()},
-            frozenset(('q0',)): {'0': frozenset(('q0','q1')), '1': frozenset()},
-            frozenset(('q0','q1')): {'0': frozenset(('q0','q1')), '1': frozenset(('q2',))},
+            frozenset(('q0',)): {'0': frozenset(('q0', 'q1')), '1': frozenset()},
+            frozenset(('q0', 'q1')): {'0': frozenset(('q0', 'q1')), '1': frozenset(('q2',))},
             frozenset(('q2',)): {'0': frozenset(), '1': frozenset()}
         })
         self.assertEqual(dfa.initial_state, frozenset(('q0',)))
@@ -1171,17 +1195,17 @@ class TestDFA(test_fa.TestFA):
         )
         dfa = DFA.from_nfa(nfa, retain_names=True)
         self.assertEqual(dfa.states, {
-            frozenset(('q0',)), frozenset(('q0','q1')), frozenset(('q0','q2')), frozenset(('q0','q1','q2'))
+            frozenset(('q0',)), frozenset(('q0', 'q1')), frozenset(('q0', 'q2')), frozenset(('q0', 'q1', 'q2'))
         })
         self.assertEqual(dfa.input_symbols, {'0', '1'})
         self.assertEqual(dfa.transitions, {
-            frozenset(('q0',)): {'1': frozenset(('q0',)), '0': frozenset(('q0','q1'))},
-            frozenset(('q0','q1')): {'1': frozenset(('q0','q2')), '0': frozenset(('q0','q1'))},
-            frozenset(('q0','q2')): {'1': frozenset(('q0','q1')), '0': frozenset(('q0','q1','q2'))},
-            frozenset(('q0','q1','q2')): {'1': frozenset(('q0','q1','q2')), '0': frozenset(('q0','q1','q2'))}
+            frozenset(('q0',)): {'1': frozenset(('q0',)), '0': frozenset(('q0', 'q1'))},
+            frozenset(('q0', 'q1')): {'1': frozenset(('q0', 'q2')), '0': frozenset(('q0', 'q1'))},
+            frozenset(('q0', 'q2')): {'1': frozenset(('q0', 'q1')), '0': frozenset(('q0', 'q1', 'q2'))},
+            frozenset(('q0', 'q1', 'q2')): {'1': frozenset(('q0', 'q1', 'q2')), '0': frozenset(('q0', 'q1', 'q2'))}
         })
         self.assertEqual(dfa.initial_state, frozenset(('q0',)))
-        self.assertEqual(dfa.final_states, {frozenset(('q0','q1','q2')), frozenset(('q0','q2'))})
+        self.assertEqual(dfa.final_states, {frozenset(('q0', 'q1', 'q2')), frozenset(('q0', 'q2'))})
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""

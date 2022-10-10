@@ -318,22 +318,16 @@ class DFA(fa.FA):
                         else:
                             processing.add(XdiffY)
 
-        def get_name(eq, i):
-            if retain_names:
-                return list(eq)[0] if len(eq) == 1 else DFA._stringify_states(eq)
-
-            return str(i)
-
         # now eq_classes are good to go, make them a list for ordering
-        eq_class_name_pairs = [
-            (eq, get_name(eq, i))
-            for i, eq in enumerate(eq_classes)
-        ]
+        eq_class_name_pairs = (
+            [(frozenset(eq), eq) for eq in eq_classes] if retain_names else
+            list(enumerate(eq_classes))
+        )
 
         # need a backmap to prevent constant calls to index
         back_map = {
             state: name
-            for eq, name in eq_class_name_pairs
+            for name, eq in eq_class_name_pairs
             for state in eq
         }
 
@@ -343,10 +337,10 @@ class DFA(fa.FA):
         new_final_states = {back_map[acc] for acc in self.final_states}
         new_transitions = {
             name: {
-                letter: back_map[self.transitions[list(eq)[0]][letter]]
+                letter: back_map[self.transitions[next(iter(eq))][letter]]
                 for letter in self.input_symbols
             }
-            for eq, name in eq_class_name_pairs
+            for name, eq in eq_class_name_pairs
         }
 
         self.states = new_states
@@ -363,23 +357,18 @@ class DFA(fa.FA):
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        new_states = {
-            self._stringify_states_unsorted((a, b))
-            for (a, b) in product(self.states, other.states)
-        }
+        new_states = set(product(self.states, other.states))
 
         new_transitions = {
-            self._stringify_states_unsorted((state_a, state_b)): {
-                symbol: self._stringify_states_unsorted((transitions_a[symbol], transitions_b[symbol]))
+            (state_a, state_b): {
+                symbol: (transitions_a[symbol], transitions_b[symbol])
                 for symbol in self.input_symbols
             }
             for (state_a, transitions_a), (state_b, transitions_b) in
             product(self.transitions.items(), other.transitions.items())
         }
 
-        new_initial_state = self._stringify_states_unsorted(
-            (self.initial_state, other.initial_state)
-        )
+        new_initial_state = (self.initial_state, other.initial_state)
 
         return self.__class__(
             states=new_states,
@@ -398,7 +387,7 @@ class DFA(fa.FA):
         new_dfa = self._cross_product(other)
 
         new_dfa.final_states = {
-            self._stringify_states_unsorted((state_a, state_b))
+            (state_a, state_b)
             for state_a, state_b in product(self.states, other.states)
             if (state_a in self.final_states or state_b in other.final_states)
         }
@@ -415,10 +404,7 @@ class DFA(fa.FA):
         """
         new_dfa = self._cross_product(other)
 
-        new_dfa.final_states = {
-            self._stringify_states_unsorted((state_a, state_b))
-            for state_a, state_b in product(self.final_states, other.final_states)
-        }
+        new_dfa.final_states = set(product(self.final_states, other.final_states))
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -432,10 +418,7 @@ class DFA(fa.FA):
         """
         new_dfa = self._cross_product(other)
 
-        new_dfa.final_states = {
-            self._stringify_states_unsorted((state_a, state_b))
-            for state_a, state_b in product(self.final_states, other.states - other.final_states)
-        }
+        new_dfa.final_states = set(product(self.final_states, other.states - other.final_states))
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -449,7 +432,7 @@ class DFA(fa.FA):
         """
         new_dfa = self._cross_product(other)
         new_dfa.final_states = {
-            self._stringify_states_unsorted((state_a, state_b))
+            (state_a, state_b)
             for state_a, state_b in product(self.states, other.states)
             if (state_a in self.final_states) ^ (state_b in other.final_states)
         }
@@ -529,16 +512,6 @@ class DFA(fa.FA):
         except nx.exception.NetworkXNoCycle:
             return True
 
-    @staticmethod
-    def _stringify_states_unsorted(states):
-        """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(states))
-
-    @staticmethod
-    def _stringify_states(states):
-        """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(sorted(str(state) for state in states)))
-
     @classmethod
     def from_nfa(cls, target_nfa, retain_names=False):
         """Initialize this DFA as one equivalent to the given NFA."""
@@ -573,13 +546,11 @@ class DFA(fa.FA):
                 # We've been here before and nothing should have changed.
                 continue
 
-
             # Add NFA states to DFA as it is constructed from NFA.
             dfa_states.add(current_state_name)
             dfa_transitions[current_state_name] = {}
             if (current_states & target_nfa.final_states):
                 dfa_final_states.add(current_state_name)
-
 
             # Enqueue the next set of current states for the generated DFA.
             for input_symbol in target_nfa.input_symbols:
@@ -588,12 +559,10 @@ class DFA(fa.FA):
                 dfa_transitions[current_state_name][input_symbol] = get_name(next_current_states)
                 state_queue.append(next_current_states)
 
-
         return cls(
             states=dfa_states, input_symbols=dfa_symbols,
             transitions=dfa_transitions, initial_state=dfa_initial_state,
             final_states=dfa_final_states)
-
 
     def show_diagram(self, path=None):
         """
