@@ -272,18 +272,17 @@ class DFA(fa.FA):
                 self.final_states.remove(state)
 
     def _merge_states(self, retain_names=False):
-        eq_classes = []
+        eq_classes = set()
         if len(self.final_states) != 0:
-            eq_classes.append(frozenset(self.final_states))
+            eq_classes.add(frozenset(self.final_states))
         if len(self.final_states) != len(self.states):
-            eq_classes.append(
+            eq_classes.add(
                 frozenset(set(self.states).difference(self.final_states))
             )
-        eq_classes = set(eq_classes)
 
-        processing = set([frozenset(self.final_states)])
+        processing = {frozenset(self.final_states)}
 
-        while len(processing) > 0:
+        while processing:
             active_state = processing.pop()
             for active_letter in self.input_symbols:
                 states_that_move_into_active_state = frozenset(
@@ -292,7 +291,7 @@ class DFA(fa.FA):
                     if self.transitions[state][active_letter] in active_state
                 )
 
-                copy_eq_classes = set(eq_classes)
+                copy_eq_classes = tuple(eq_classes)
 
                 for checking_set in copy_eq_classes:
                     XintY = checking_set.intersection(
