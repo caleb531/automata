@@ -337,7 +337,7 @@ class DFA(fa.FA):
         new_final_states = {back_map[acc] for acc in self.final_states}
         new_transitions = {
             name: {
-                letter: back_map[self.transitions[list(eq)[0]][letter]]
+                letter: back_map[self.transitions[next(iter(eq))][letter]]
                 for letter in self.input_symbols
             }
             for name, eq in eq_class_name_pairs
