@@ -4,7 +4,7 @@
 import copy
 from collections import deque
 from enum import IntEnum
-from itertools import product, count
+from itertools import count, product
 
 import networkx as nx
 from pydot import Dot, Edge, Node

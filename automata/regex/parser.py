@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Classes and methods for parsing regexes into NFAs."""
 
-from itertools import zip_longest, count
+from itertools import count, zip_longest
+
 from automata.regex.lexer import Lexer
-from automata.regex.postfix import (
-    LeftParen, RightParen, parse_postfix_tokens,
-    InfixOperator, PostfixOperator, Literal, tokens_to_postfix, validate_tokens
-)
+from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
+                                    PostfixOperator, RightParen,
+                                    parse_postfix_tokens, tokens_to_postfix,
+                                    validate_tokens)
 
 
 class NFARegexBuilder:

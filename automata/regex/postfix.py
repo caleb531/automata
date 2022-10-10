@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Classes and methods for converting lists of tokens to postfix ordering."""
 
+import abc
 from collections import deque
 from itertools import zip_longest
-from automata.regex.lexer import Token
+
 import automata.base.exceptions as exceptions
-import abc
+from automata.regex.lexer import Token
 
 
 class Operator(Token):

@@ -6,8 +6,8 @@ import copy
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
-import automata.regex.regex as re
 import automata.fa.nfa as nfa
+import automata.regex.regex as re
 
 
 class GNFA(nfa.NFA):

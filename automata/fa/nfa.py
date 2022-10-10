@@ -7,8 +7,8 @@ import networkx as nx
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
-from automata.regex.parser import parse_regex
 import automata.fa.fa as fa
+from automata.regex.parser import parse_regex
 
 
 class NFA(fa.FA):

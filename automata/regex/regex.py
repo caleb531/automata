@@ -2,9 +2,9 @@
 """Methods for working with regular expressions"""
 
 import automata.base.exceptions as exceptions
-from automata.regex.parser import get_regex_lexer, validate_tokens
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
+from automata.regex.parser import get_regex_lexer, validate_tokens
 
 
 def _validate(regex):
