@@ -353,10 +353,10 @@ class DFA(fa.FA):
             for active_letter in self.input_symbols:
 
                 origin_dict = transition_back_map[active_letter]
-                states_that_move_into_active_state_chain = chain(*(
+                states_that_move_into_active_state_chain = chain.from_iterable(
                     origin_dict[end_state]
                     for end_state in eq_classes.get_set_by_id(active_state_id)
-                ))
+                )
 
                 # Using a tuple because we don't need to make a deep copy
                 new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state_chain)
