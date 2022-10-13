@@ -4,7 +4,7 @@
 import copy
 from collections import deque
 from enum import IntEnum
-from itertools import count, product
+from itertools import count, product, chain
 
 import networkx as nx
 from pydot import Dot, Edge, Node
@@ -336,7 +336,7 @@ class DFA(fa.FA):
 
         transition_back_map = {
             symbol: {
-                end_state: set()
+                end_state: list()
                 for end_state in self.states
             }
             for symbol in self.input_symbols
@@ -344,7 +344,7 @@ class DFA(fa.FA):
 
         for start_state, path in self.transitions.items():
             for symbol, end_state in path.items():
-                transition_back_map[symbol][end_state].add(start_state)
+                transition_back_map[symbol][end_state].append(start_state)
 
         processing = {final_states_id}
 
@@ -353,13 +353,13 @@ class DFA(fa.FA):
             for active_letter in self.input_symbols:
 
                 origin_dict = transition_back_map[active_letter]
-                states_that_move_into_active_state = frozenset().union(*(
+                states_that_move_into_active_state_chain = chain(*(
                     origin_dict[end_state]
                     for end_state in eq_classes.get_set_by_id(active_state_id)
                 ))
 
                 # Using a tuple because we don't need to make a deep copy
-                new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state)
+                new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state_chain)
 
                 for (XintY_id, XdiffY_id) in new_eq_class_pairs:
                     if XdiffY_id in processing:
