@@ -272,55 +272,50 @@ class DFA(fa.FA):
                 self.final_states.remove(state)
 
     def _merge_states(self, retain_names=False):
-        eq_classes = set()
-        if len(self.final_states) != 0:
-            eq_classes.add(frozenset(self.final_states))
-        if len(self.final_states) != len(self.states):
-            eq_classes.add(
-                frozenset(set(self.states).difference(self.final_states))
-            )
+        # First, assemble backmap and equivalence class data structure
+        eq_classes = PartitionRefinement(self.states)
+        [(final_states_id, _)] = eq_classes.refine(self.final_states)
 
-        processing = {frozenset(self.final_states)}
+        transition_back_map = {
+            symbol: {
+                end_state: set()
+                for end_state in self.states
+            }
+            for symbol in self.input_symbols
+        }
+
+        for start_state, path in self.transitions.items():
+            for symbol, end_state in path.items():
+                transition_back_map[symbol][end_state].add(start_state)
+
+        processing = {final_states_id}
 
         while processing:
-            active_state = processing.pop()
+            active_state_id = processing.pop()
             for active_letter in self.input_symbols:
-                states_that_move_into_active_state = frozenset(
-                    state
-                    for state in self.states
-                    if self.transitions[state][active_letter] in active_state
-                )
 
-                copy_eq_classes = tuple(eq_classes)
+                origin_dict = transition_back_map[active_letter]
+                states_that_move_into_active_state = frozenset().union(*(
+                    origin_dict[end_state]
+                    for end_state in eq_classes.get_set_by_id(active_state_id)
+                ))
 
-                for checking_set in copy_eq_classes:
-                    XintY = checking_set.intersection(
-                        states_that_move_into_active_state
-                    )
-                    if not XintY:
-                        continue
-                    XdiffY = checking_set.difference(
-                        states_that_move_into_active_state
-                    )
-                    if not XdiffY:
-                        continue
-                    eq_classes.remove(checking_set)
-                    eq_classes.add(XintY)
-                    eq_classes.add(XdiffY)
-                    if checking_set in processing:
-                        processing.remove(checking_set)
-                        processing.add(XintY)
-                        processing.add(XdiffY)
+                # Using a tuple because we don't need to make a deep copy
+                new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state)
+
+                for (XintY_id, XdiffY_id) in new_eq_class_pairs:
+                    if XdiffY_id in processing:
+                        processing.add(XintY_id)
                     else:
-                        if len(XintY) < len(XdiffY):
-                            processing.add(XintY)
+                        if len(eq_classes.get_set_by_id(XintY_id)) < len(eq_classes.get_set_by_id(XdiffY_id)):
+                            processing.add(XintY_id)
                         else:
-                            processing.add(XdiffY)
+                            processing.add(XdiffY_id)
 
         # now eq_classes are good to go, make them a list for ordering
         eq_class_name_pairs = (
-            [(frozenset(eq), eq) for eq in eq_classes] if retain_names else
-            list(enumerate(eq_classes))
+            [(frozenset(eq), eq) for eq in eq_classes.get_sets()] if retain_names else
+            list(enumerate(eq_classes.get_sets()))
         )
 
         # need a backmap to prevent constant calls to index
@@ -603,3 +598,56 @@ class DFA(fa.FA):
         if path:
             graph.write_png(path)
         return graph
+
+
+
+class PartitionRefinement:
+    """Maintain and refine a partition of a set of items into subsets.
+    Space usage for a partition of n items is O(n), and each refine
+    operation takes time proportional to the size of its argument.
+
+    Adapted from code by D. Eppstein: https://www.ics.uci.edu/~eppstein/PADS/PartitionRefinement.py
+    """
+
+    def __init__(self, items):
+        """Create a new partition refinement data structure for the given
+        items. Initially, all items belong to the same subset.
+        """
+        S = set(items)
+        self._sets = {id(S): S}
+        self._partition = {x: id(S) for x in S}
+
+    def get_set_by_id(self, id):
+        """Return the set in the partition corresponding to id."""
+        return self._sets[id]
+
+    def get_sets(self):
+        """Return list of sets corresponding to the internal partition."""
+        return list(self._sets.values())
+
+    def refine(self, S):
+        """Refine each set A in the partition to the two sets
+        A & S, A - S.  Return a list of pairs ids (id(A & S), id(A - S))
+        for each changed set.  Within each pair, A & S will be
+        a newly created set, while A - S will be a modified
+        version of an existing set in the partition (retaining its old id).
+        Not a generator because we need to perform the partition
+        even if the caller doesn't iterate through the results.
+        """
+        hit = {}
+        output = []
+
+        for x in S:
+            Aid = self._partition[x]
+            hit.setdefault(Aid, set()).add(x)
+
+        for Aid, AS in hit.items():
+            A = self._sets[Aid]
+            if AS != A:
+                self._sets[id(AS)] = AS
+                for x in AS:
+                    self._partition[x] = id(AS)
+                A -= AS
+                output.append((id(AS), Aid))
+
+        return output
