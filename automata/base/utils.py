@@ -10,6 +10,8 @@ class PartitionRefinement:
     Adapted from code by D. Eppstein: https://www.ics.uci.edu/~eppstein/PADS/PartitionRefinement.py
     """
 
+    __slots__ = ["_sets", "_partition"]
+
     def __init__(self, items):
         """Create a new partition refinement data structure for the given
         items. Initially, all items belong to the same subset.

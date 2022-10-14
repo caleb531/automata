@@ -294,26 +294,26 @@ class DFA(fa.FA):
         processing = {final_states_id}
 
         while processing:
-            active_state_id = processing.pop()
+            # Save a copy of the set, since it could get modified while executing
+            active_state = frozenset(eq_classes.get_set_by_id(processing.pop()))
             for active_letter in self.input_symbols:
-
                 origin_dict = transition_back_map[active_letter]
                 states_that_move_into_active_state_chain = chain.from_iterable(
-                    origin_dict[end_state]
-                    for end_state in eq_classes.get_set_by_id(active_state_id)
+                    origin_dict[end_state] for end_state in active_state
                 )
 
                 # Using a tuple because we don't need to make a deep copy
                 new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state_chain)
 
-                for (XintY_id, XdiffY_id) in new_eq_class_pairs:
-                    if XdiffY_id in processing:
-                        processing.add(XintY_id)
+                for (YintX_id, YdiffX_id) in new_eq_class_pairs:
+                    # Only adding one id to processing, since the other is already there
+                    if YdiffX_id in processing:
+                        processing.add(YintX_id)
                     else:
-                        if len(eq_classes.get_set_by_id(XintY_id)) < len(eq_classes.get_set_by_id(XdiffY_id)):
-                            processing.add(XintY_id)
+                        if len(eq_classes.get_set_by_id(YintX_id)) <= len(eq_classes.get_set_by_id(YdiffX_id)):
+                            processing.add(YintX_id)
                         else:
-                            processing.add(XdiffY_id)
+                            processing.add(YdiffX_id)
 
         # now eq_classes are good to go, make them a list for ordering
         eq_class_name_pairs = (
