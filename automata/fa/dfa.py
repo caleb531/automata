@@ -4,13 +4,14 @@
 import copy
 from collections import deque
 from enum import IntEnum
-from itertools import count, product
+from itertools import chain, count, product
 
 import networkx as nx
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
+from automata.base.utils import PartitionRefinement
 
 
 class OriginEnum(IntEnum):
@@ -272,55 +273,52 @@ class DFA(fa.FA):
                 self.final_states.remove(state)
 
     def _merge_states(self, retain_names=False):
-        eq_classes = set()
-        if len(self.final_states) != 0:
-            eq_classes.add(frozenset(self.final_states))
-        if len(self.final_states) != len(self.states):
-            eq_classes.add(
-                frozenset(set(self.states).difference(self.final_states))
-            )
+        # First, assemble backmap and equivalence class data structure
+        eq_classes = PartitionRefinement(self.states)
+        refinement = eq_classes.refine(self.final_states)
 
-        processing = {frozenset(self.final_states)}
+        final_states_id = refinement[0][0] if refinement else eq_classes.get_set_ids()[0]
+
+        transition_back_map = {
+            symbol: {
+                end_state: list()
+                for end_state in self.states
+            }
+            for symbol in self.input_symbols
+        }
+
+        for start_state, path in self.transitions.items():
+            for symbol, end_state in path.items():
+                transition_back_map[symbol][end_state].append(start_state)
+
+        processing = {final_states_id}
 
         while processing:
-            active_state = processing.pop()
+            active_state_id = processing.pop()
             for active_letter in self.input_symbols:
-                states_that_move_into_active_state = frozenset(
-                    state
-                    for state in self.states
-                    if self.transitions[state][active_letter] in active_state
+
+                origin_dict = transition_back_map[active_letter]
+                states_that_move_into_active_state_chain = chain.from_iterable(
+                    origin_dict[end_state]
+                    for end_state in eq_classes.get_set_by_id(active_state_id)
                 )
 
-                copy_eq_classes = tuple(eq_classes)
+                # Using a tuple because we don't need to make a deep copy
+                new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state_chain)
 
-                for checking_set in copy_eq_classes:
-                    XintY = checking_set.intersection(
-                        states_that_move_into_active_state
-                    )
-                    if not XintY:
-                        continue
-                    XdiffY = checking_set.difference(
-                        states_that_move_into_active_state
-                    )
-                    if not XdiffY:
-                        continue
-                    eq_classes.remove(checking_set)
-                    eq_classes.add(XintY)
-                    eq_classes.add(XdiffY)
-                    if checking_set in processing:
-                        processing.remove(checking_set)
-                        processing.add(XintY)
-                        processing.add(XdiffY)
+                for (XintY_id, XdiffY_id) in new_eq_class_pairs:
+                    if XdiffY_id in processing:
+                        processing.add(XintY_id)
                     else:
-                        if len(XintY) < len(XdiffY):
-                            processing.add(XintY)
+                        if len(eq_classes.get_set_by_id(XintY_id)) < len(eq_classes.get_set_by_id(XdiffY_id)):
+                            processing.add(XintY_id)
                         else:
-                            processing.add(XdiffY)
+                            processing.add(XdiffY_id)
 
         # now eq_classes are good to go, make them a list for ordering
         eq_class_name_pairs = (
-            [(frozenset(eq), eq) for eq in eq_classes] if retain_names else
-            list(enumerate(eq_classes))
+            [(frozenset(eq), eq) for eq in eq_classes.get_sets()] if retain_names else
+            list(enumerate(eq_classes.get_sets()))
         )
 
         # need a backmap to prevent constant calls to index
