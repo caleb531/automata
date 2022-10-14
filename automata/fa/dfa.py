@@ -4,14 +4,14 @@
 import copy
 from collections import deque
 from enum import IntEnum
-from itertools import count, product, chain
+from itertools import chain, count, product
 
 import networkx as nx
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
-from automata.base.utils import PartitionRefinement
 import automata.fa.fa as fa
+from automata.base.utils import PartitionRefinement
 
 
 class OriginEnum(IntEnum):
