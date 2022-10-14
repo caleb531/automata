@@ -294,7 +294,7 @@ class DFA(fa.FA):
         processing = {final_states_id}
 
         while processing:
-            # Save a copy of the set, since it could get modifief while executing
+            # Save a copy of the set, since it could get modified while executing
             active_state = frozenset(eq_classes.get_set_by_id(processing.pop()))
             for active_letter in self.input_symbols:
                 origin_dict = transition_back_map[active_letter]
