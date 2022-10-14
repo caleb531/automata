@@ -13,6 +13,7 @@ import automata.base.exceptions as exceptions
 from automata.base.utils import PartitionRefinement
 import automata.fa.fa as fa
 
+
 class OriginEnum(IntEnum):
     SELF = 0
     OTHER = 1
