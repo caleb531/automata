@@ -1,9 +1,10 @@
 """Tests for lexer-related code."""
 
 import unittest
+
 import automata.base.exceptions as exceptions
-from automata.regex.postfix import Token, LeftParen, RightParen
-from automata.regex.lexer import TokenRegistry, Lexer
+from automata.regex.lexer import Lexer, TokenRegistry
+from automata.regex.postfix import LeftParen, RightParen, Token
 
 
 def register_parens(lexer):

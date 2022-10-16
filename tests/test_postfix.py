@@ -1,6 +1,7 @@
 """Tests of the postfix conversion and parsing utility functions."""
 
 import unittest
+
 import automata.base.exceptions as exceptions
 import automata.regex.postfix as postfix
 from automata.regex.lexer import Lexer
