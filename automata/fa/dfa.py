@@ -291,19 +291,19 @@ class DFA(fa.FA):
             for symbol, end_state in path.items():
                 transition_back_map[symbol][end_state].append(start_state)
 
+        origin_dicts = tuple(transition_back_map.values())
         processing = {final_states_id}
 
         while processing:
             # Save a copy of the set, since it could get modified while executing
-            active_state = frozenset(eq_classes.get_set_by_id(processing.pop()))
-            for active_letter in self.input_symbols:
-                origin_dict = transition_back_map[active_letter]
-                states_that_move_into_active_state_chain = chain.from_iterable(
+            active_state = tuple(eq_classes.get_set_by_id(processing.pop()))
+            for origin_dict in origin_dicts:
+                states_that_move_into_active_state = chain.from_iterable(
                     origin_dict[end_state] for end_state in active_state
                 )
 
-                # Using a tuple because we don't need to make a deep copy
-                new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state_chain)
+                # Refine set partition by states moving into current active one
+                new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state)
 
                 for (YintX_id, YdiffX_id) in new_eq_class_pairs:
                     # Only adding one id to processing, since the other is already there
