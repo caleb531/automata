@@ -22,9 +22,11 @@ class NFA(fa.FA):
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = final_states.copy()
+        self._precompute_lambda_closures()
         self.validate()
 
-        # Precompute lambda closures
+    def _precompute_lambda_closures(self):
+        """Compute and cache the lambda closures for this NFA"""
         lambda_graph = nx.DiGraph()
         lambda_graph.add_nodes_from(self.states)
         lambda_graph.add_edges_from([
