@@ -16,44 +16,24 @@ class NFARegexBuilder:
     __slots__ = ['_transitions', '_initial_state', '_final_states']
     _state_name_counter = count(0)
 
-    def __init__(self, *, transitions, initial_state, final_states):
+    def __init__(self, literal):
         """
-        Initialize new builder class and remap state names
+        Initialize new builder class according to given literal
         """
-        state_map = {
-            original_state: self.__get_next_state_name()
-            for original_state in transitions
-        }
-
-        self._initial_state = state_map[initial_state]
-        self._final_states = {state_map[state] for state in final_states}
-
         self._transitions = {
-            state_map[start_state]: {
-                chr: {state_map[dest_state] for dest_state in dest_set}
-                for chr, dest_set in transition.items()
-            }
-            for start_state, transition in transitions.items()
+            self.__get_next_state_name(): {chr: set()}
+            for chr in literal
         }
 
-    @classmethod
-    def from_string_literal(cls, literal):
-        """
-        Initialize this builder accepting only the given string literal
-        """
-        transitions = {
-            i: {chr: {i+1}}
-            for i, chr in enumerate(literal)
-        }
+        for start_state, path in self._transitions.items():
+            for end_states in path.values():
+                end_states.add(start_state+1)
 
-        final_state = len(literal)
-        transitions[final_state] = dict()
+        final_state = self.__get_next_state_name()
+        self._transitions[final_state] = dict()
 
-        return cls(
-            transitions=transitions,
-            initial_state=0,
-            final_states={final_state}
-        )
+        self._initial_state = min(self._transitions.keys())
+        self._final_states = {final_state}
 
     def union(self, other):
         """
@@ -165,7 +145,7 @@ class StringToken(Literal):
     """Subclass of literal token defining a string literal."""
 
     def val(self):
-        return NFARegexBuilder.from_string_literal(self.text)
+        return NFARegexBuilder(self.text)
 
 
 def add_concat_tokens(token_list):
@@ -212,7 +192,7 @@ def parse_regex(regexstr):
     """Return an NFARegexBuilder corresponding to regexstr."""
 
     if len(regexstr) == 0:
-        return NFARegexBuilder.from_string_literal(regexstr)
+        return NFARegexBuilder(regexstr)
 
     lexer = get_regex_lexer()
     lexed_tokens = lexer.lex(regexstr)
