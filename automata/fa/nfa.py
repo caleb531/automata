@@ -182,19 +182,6 @@ class NFA(fa.FA):
 
         return next_current_states
 
-    def _get_next_current_states2(self, current_states, input_symbol):
-        """Return the next set of current states given the current set."""
-        next_current_states = set()
-
-        for current_state in current_states:
-            if current_state in self.transitions:
-                symbol_end_states = self.transitions[current_state].get(
-                    input_symbol)
-                if symbol_end_states:
-                    next_current_states.update(symbol_end_states)
-
-        return next_current_states
-
     def _remove_unreachable_states(self):
         """Remove states which are not reachable from the initial state."""
         reachable_states = self._compute_reachable_states()
@@ -241,7 +228,7 @@ class NFA(fa.FA):
         for state in self.states:
             lambda_enclosure = self.get_lambda_closure(state) - {state}
             for input_symbol in self.input_symbols:
-                next_current_states = self._get_next_current_states2(lambda_enclosure, input_symbol)
+                next_current_states = self._get_next_current_states(lambda_enclosure, input_symbol)
                 if state not in self.transitions:
                     self.transitions[state] = dict()
                 if input_symbol in self.transitions[state]:
@@ -255,6 +242,8 @@ class NFA(fa.FA):
 
         self._remove_unreachable_states()
         self._remove_empty_transitions()
+        # clear lambda closure cache
+        del self.lambda_closures
 
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
