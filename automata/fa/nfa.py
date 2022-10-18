@@ -2,6 +2,7 @@
 """Classes and methods for working with nondeterministic finite automata."""
 
 import copy
+import functools
 
 import networkx as nx
 from pydot import Dot, Edge, Node
@@ -22,11 +23,17 @@ class NFA(fa.FA):
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = final_states.copy()
-        self._precompute_lambda_closures()
         self.validate()
 
-    def _precompute_lambda_closures(self):
-        """Compute and cache the lambda closures for this NFA"""
+    @functools.cached_property
+    def lambda_closures(self):
+        """
+        A dictionary of the lambda closures for this NFA, where each key is the
+        state name and the value is the lambda closure for that corresponding
+        state. This dictionary is cached for the lifetime of the instance when
+        it is first retrieved, and can be recomputed by simply deleting the
+        property from the instance.
+        """
         lambda_graph = nx.DiGraph()
         lambda_graph.add_nodes_from(self.states)
         lambda_graph.add_edges_from([
@@ -37,13 +44,17 @@ class NFA(fa.FA):
             if char == ''
         ])
 
-        self._lambda_closure_dict = {
+        return {
             state: nx.descendants(lambda_graph, state) | {state}
             for state in self.states
         }
 
     def copy(self):
-        """Create a deep copy of the NFA. Overrides copy in base class due to extra parameter."""
+        """
+        Create a deep copy of the NFA. Overrides copy in base class due to
+        extra lambda_closures parameter (which is cached on the instance
+        but should not be passed to the initializer).
+        """
         return self.__class__(
             states=self.states,
             input_symbols=self.input_symbols,
@@ -145,7 +156,7 @@ class NFA(fa.FA):
         self._validate_final_states()
         return True
 
-    def _get_lambda_closure(self, start_state):
+    def get_lambda_closure(self, start_state):
         """
         Return the lambda closure for the given state.
 
@@ -154,7 +165,7 @@ class NFA(fa.FA):
         transitions.
         """
 
-        return self._lambda_closure_dict[start_state]
+        return self.lambda_closures[start_state]
 
     def _get_next_current_states(self, current_states, input_symbol):
         """Return the next set of current states given the current set."""
@@ -167,7 +178,7 @@ class NFA(fa.FA):
                 if symbol_end_states:
                     for end_state in symbol_end_states:
                         next_current_states.update(
-                            self._lambda_closure_dict[end_state])
+                            self.get_lambda_closure(end_state))
 
         return next_current_states
 
@@ -228,7 +239,7 @@ class NFA(fa.FA):
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
         for state in self.states:
-            lambda_enclosure = self._lambda_closure_dict[state] - {state}
+            lambda_enclosure = self.get_lambda_closure(state) - {state}
             for input_symbol in self.input_symbols:
                 next_current_states = self._get_next_current_states2(lambda_enclosure, input_symbol)
                 if state not in self.transitions:
@@ -258,7 +269,7 @@ class NFA(fa.FA):
 
         Yield the current configuration of the NFA at each step.
         """
-        current_states = self._lambda_closure_dict[self.initial_state]
+        current_states = self.get_lambda_closure(self.initial_state)
 
         yield current_states
         for input_symbol in input_str:

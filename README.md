@@ -414,6 +414,16 @@ nfa.validate()  # returns True or raises an exception
 nfa.copy()  # returns deep copy of nfa
 ```
 
+#### NFA.get_lambda_closure(self)
+
+Returns the lambda closure of the given state. The lambda closure of a state q
+is the set containing q, along with every state that can be reached from q by
+following only lambda transitions.
+
+```python
+nfa.get_lambda_closure('q1')
+```
+
 #### NFA.reverse(self)
 
 ```python

@@ -530,7 +530,7 @@ class DFA(fa.FA):
         get_name = get_name_original if retain_names else get_name_renamed
 
         # equivalent DFA states states
-        nfa_initial_states = frozenset(target_nfa._get_lambda_closure(target_nfa.initial_state))
+        nfa_initial_states = frozenset(target_nfa.get_lambda_closure(target_nfa.initial_state))
         dfa_initial_state = get_name(nfa_initial_states)
         dfa_final_states = set()
 
