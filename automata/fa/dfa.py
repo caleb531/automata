@@ -522,15 +522,15 @@ class DFA(fa.FA):
 
         def get_name_renamed(states):
             nonlocal state_name_counter, new_state_name_dict
-            return new_state_name_dict.setdefault(frozenset(states), next(state_name_counter))
+            return new_state_name_dict.setdefault(states, next(state_name_counter))
 
         def get_name_original(states):
-            return frozenset(states)
+            return states
 
         get_name = get_name_original if retain_names else get_name_renamed
 
         # equivalent DFA states states
-        nfa_initial_states = target_nfa._get_lambda_closure(target_nfa.initial_state)
+        nfa_initial_states = frozenset(target_nfa._get_lambda_closure(target_nfa.initial_state))
         dfa_initial_state = get_name(nfa_initial_states)
         dfa_final_states = set()
 
@@ -551,8 +551,8 @@ class DFA(fa.FA):
 
             # Enqueue the next set of current states for the generated DFA.
             for input_symbol in target_nfa.input_symbols:
-                next_current_states = target_nfa._get_next_current_states(
-                    current_states, input_symbol)
+                next_current_states = frozenset(target_nfa._get_next_current_states(
+                    current_states, input_symbol))
                 dfa_transitions[current_state_name][input_symbol] = get_name(next_current_states)
                 state_queue.append(next_current_states)
 
