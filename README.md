@@ -424,6 +424,24 @@ following only lambda transitions.
 nfa.get_lambda_closure('q1')
 ```
 
+#### NFA.lambda_closures
+
+You can also access the dictionary containing lambda closures for every state
+with the `lambda_closures` attribute:
+
+```
+nfa.lambda_closures
+```
+
+For performance, this dictionary is cached after being built, and is only
+invalidated when calling `NFA.eliminate_lambda()`; therefore, any mutations you
+make to the NFA after its construction will require invalidating the cache like
+so:
+
+```python
+del nfa.lambda_closures
+```
+
 #### NFA.reverse(self)
 
 ```python
