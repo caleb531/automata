@@ -424,13 +424,13 @@ reached from _q_ by following only lambda transitions.
 nfa.lambda_closures
 ```
 
-For performance, this dictionary is cached after being built, and is only
-invalidated when calling `NFA.eliminate_lambda()`; therefore, any mutations you
-make to an NFA after its construction will require invalidating the cache like
-so:
+For performance, this dictionary is cached when the NFA is initialized, and is
+only recomputed when calling `NFA.eliminate_lambda()`; therefore, any mutations
+you otherwise make to an NFA after its construction will require rebuilding the
+closures dictionary via the `recompute_lambda_closures()` method:
 
 ```python
-del nfa.lambda_closures
+nfa.recompute_lambda_closures()
 ```
 
 #### NFA.reverse(self)

@@ -2,7 +2,6 @@
 """Classes and methods for working with nondeterministic finite automata."""
 
 import copy
-import functools
 
 import networkx as nx
 from pydot import Dot, Edge, Node
@@ -23,16 +22,16 @@ class NFA(fa.FA):
         self.transitions = copy.deepcopy(transitions)
         self.initial_state = initial_state
         self.final_states = final_states.copy()
+        self.recompute_lambda_closures()
         self.validate()
 
-    @functools.cached_property
-    def lambda_closures(self):
+    def recompute_lambda_closures(self):
         """
-        A dictionary of the lambda closures for this NFA, where each key is the
-        state name and the value is the lambda closure for that corresponding
-        state. This dictionary is cached for the lifetime of the instance when
-        it is first retrieved, and can be recomputed by simply deleting the
-        property from the instance.
+        Computes a dictionary of the lambda closures for this NFA, where each
+        key is the state name and the value is the lambda closure for that
+        corresponding state. This dictionary is cached for the lifetime of the
+        instance when the NFA is initialized, and can be recomputed by simply
+        calling this method again.
 
         The lambda closure of a state q is the set containing q, along with
         every state that can be reached from q by following only lambda
@@ -48,7 +47,7 @@ class NFA(fa.FA):
             if char == ''
         ])
 
-        return {
+        self.lambda_closures = {
             state: nx.descendants(lambda_graph, state) | {state}
             for state in self.states
         }
@@ -237,8 +236,7 @@ class NFA(fa.FA):
 
         self._remove_unreachable_states()
         self._remove_empty_transitions()
-        # clear lambda closure cache
-        del self.lambda_closures
+        self.recompute_lambda_closures()
 
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
