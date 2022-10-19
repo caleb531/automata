@@ -172,13 +172,12 @@ class NFA(fa.FA):
         next_current_states = set()
 
         for current_state in current_states:
-            if current_state in self.transitions:
-                symbol_end_states = self.transitions[current_state].get(
-                    input_symbol)
-                if symbol_end_states:
-                    for end_state in symbol_end_states:
-                        next_current_states.update(
-                            self.get_lambda_closure(end_state))
+            if current_state not in self.transitions:
+                continue
+            current_transition = self.transitions[current_state]
+            for end_state in current_transition.get(input_symbol, {}):
+                next_current_states.update(
+                    self.get_lambda_closure(end_state))
 
         return next_current_states
 
