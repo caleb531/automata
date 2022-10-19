@@ -33,6 +33,10 @@ class NFA(fa.FA):
         state. This dictionary is cached for the lifetime of the instance when
         it is first retrieved, and can be recomputed by simply deleting the
         property from the instance.
+
+        The lambda closure of a state q is the set containing q, along with
+        every state that can be reached from q by following only lambda
+        transitions.
         """
         lambda_graph = nx.DiGraph()
         lambda_graph.add_nodes_from(self.states)
@@ -156,17 +160,6 @@ class NFA(fa.FA):
         self._validate_final_states()
         return True
 
-    def get_lambda_closure(self, start_state):
-        """
-        Return the lambda closure for the given state.
-
-        The lambda closure of a state q is the set containing q, along with
-        every state that can be reached from q by following only lambda
-        transitions.
-        """
-
-        return self.lambda_closures[start_state]
-
     def _get_next_current_states(self, current_states, input_symbol):
         """Return the next set of current states given the current set."""
         next_current_states = set()
@@ -177,7 +170,7 @@ class NFA(fa.FA):
             current_transition = self.transitions[current_state]
             for end_state in current_transition.get(input_symbol, {}):
                 next_current_states.update(
-                    self.get_lambda_closure(end_state))
+                    self.lambda_closures[end_state])
 
         return next_current_states
 
@@ -225,7 +218,7 @@ class NFA(fa.FA):
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
         for state in self.states:
-            lambda_enclosure = self.get_lambda_closure(state) - {state}
+            lambda_enclosure = self.lambda_closures[state] - {state}
             for input_symbol in self.input_symbols:
                 self.transitions[state] = {
                     **self.transitions.get(state, {}),
@@ -260,7 +253,7 @@ class NFA(fa.FA):
 
         Yield the current configuration of the NFA at each step.
         """
-        current_states = self.get_lambda_closure(self.initial_state)
+        current_states = self.lambda_closures[self.initial_state]
 
         yield current_states
         for input_symbol in input_str:

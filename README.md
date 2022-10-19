@@ -414,20 +414,11 @@ nfa.validate()  # returns True or raises an exception
 nfa.copy()  # returns deep copy of nfa
 ```
 
-#### NFA.get_lambda_closure(self)
-
-Returns the lambda closure of the given state. The lambda closure of a state q
-is the set containing q, along with every state that can be reached from q by
-following only lambda transitions.
-
-```python
-nfa.get_lambda_closure('q1')
-```
-
 #### NFA.lambda_closures
 
-You can also access the dictionary containing lambda closures for every state
-with the `lambda_closures` attribute:
+A dictionary containing the lambda closure for every state. The lambda closure
+of a state _q_ is the set containing _q_, along with every state that can be
+reached from _q_ by following only lambda transitions.
 
 ```
 nfa.lambda_closures
@@ -435,7 +426,7 @@ nfa.lambda_closures
 
 For performance, this dictionary is cached after being built, and is only
 invalidated when calling `NFA.eliminate_lambda()`; therefore, any mutations you
-make to the NFA after its construction will require invalidating the cache like
+make to an NFA after its construction will require invalidating the cache like
 so:
 
 ```python
