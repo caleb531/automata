@@ -31,6 +31,29 @@ class TestNFA(test_fa.TestFA):
                 final_states={'q1'}
             )
 
+    def test_clear_lambda_closure_cache(self):
+        """
+        Should clear the cached lambda closures for this NFA so it can be
+        recomputed when next needed
+        """
+        nfa = NFA(
+            states={0, 1, 2, 3, 4, 5, 6},
+            initial_state=0,
+            input_symbols={'a', 'b', 'c'},
+            transitions={
+                0: {'a': {1}},
+                1: {'': {2, 6}, 'b': {2}},
+                2: {'': {4}, 'c': {3}},
+                4: {'a': {5}},
+            },
+            final_states={3, 6}
+        )
+        self.assertNotIn('lambda_closures', nfa.__dict__)
+        nfa.read_input('ac')
+        self.assertIn('lambda_closures', nfa.__dict__)
+        del nfa.lambda_closures
+        self.assertNotIn('lambda_closures', nfa.__dict__)
+
     def test_copy_nfa(self):
         """Should create exact copy of NFA if copy() method is called."""
         new_nfa = self.nfa.copy()
