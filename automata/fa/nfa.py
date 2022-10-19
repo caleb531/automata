@@ -227,15 +227,18 @@ class NFA(fa.FA):
         for state in self.states:
             lambda_enclosure = self.get_lambda_closure(state) - {state}
             for input_symbol in self.input_symbols:
-                next_current_states = self._get_next_current_states(lambda_enclosure, input_symbol)
-                if state not in self.transitions:
-                    self.transitions[state] = dict()
-                if input_symbol in self.transitions[state]:
-                    self.transitions[state][input_symbol].update(next_current_states)
-                else:
-                    self.transitions[state][input_symbol] = next_current_states
+                self.transitions[state] = {
+                    **self.transitions.get(state, {}),
+                    input_symbol: {
+                        *(self.transitions
+                            .get(state, {})
+                            .get(input_symbol, set())),
+                        *self._get_next_current_states(
+                            lambda_enclosure, input_symbol)
+                    }
+                }
 
-            if state not in self.final_states and self.final_states & lambda_enclosure:
+            if (self.final_states & lambda_enclosure):
                 self.final_states.add(state)
             self.transitions[state].pop('', None)
 
