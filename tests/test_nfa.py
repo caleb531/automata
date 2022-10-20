@@ -320,7 +320,6 @@ class TestNFA(test_fa.TestFA):
             },
             final_states={3, 6}
         )
-        original_lambda_closures = nfa1.lambda_closures
         nfa1 = original_nfa.eliminate_lambda()
         nfa2 = NFA(
             states={0, 1, 2, 3, 5},
@@ -339,7 +338,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.transitions, nfa2.transitions)
         self.assertEqual(nfa1.final_states, nfa2.final_states)
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
-        self.assertNotEqual(nfa1.lambda_closures, original_lambda_closures)
+        self.assertNotEqual(nfa1.lambda_closures, original_nfa.lambda_closures)
 
     def test_option(self):
         """
