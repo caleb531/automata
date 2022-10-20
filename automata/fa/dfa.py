@@ -331,7 +331,7 @@ class DFA(fa.FA):
             for name, eq in eq_class_name_pairs
         }
 
-        return DFA(
+        return self.__class__(
             states=new_states,
             input_symbols=new_input_symbols,
             transitions=new_transitions,
@@ -339,7 +339,7 @@ class DFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def _cross_product(self, other):
+    def _cross_product(self, other, final_states):
         """
         Creates a new DFA which is the cross product of DFAs self and other
         with an empty set of final states.
@@ -365,7 +365,7 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=set()
+            final_states=final_states
         )
 
     def union(self, other, *, retain_names=False, minify=True):
@@ -374,16 +374,18 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the union of L1 and L2.
         """
-        new_dfa = self._cross_product(other)
 
-        new_dfa.final_states = {
+        new_final_states = {
             (state_a, state_b)
             for state_a, state_b in product(self.states, other.states)
             if (state_a in self.final_states or state_b in other.final_states)
         }
 
+        new_dfa = self._cross_product(other, new_final_states)
+
         if minify:
             return new_dfa.minify(retain_names=retain_names)
+
         return new_dfa
 
     def intersection(self, other, *, retain_names=False, minify=True):
@@ -392,9 +394,9 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the intersection of L1 and L2.
         """
-        new_dfa = self._cross_product(other)
 
-        new_dfa.final_states = set(product(self.final_states, other.final_states))
+        new_final_states = set(product(self.final_states, other.final_states))
+        new_dfa = self._cross_product(other, new_final_states)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -406,9 +408,9 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
         """
-        new_dfa = self._cross_product(other)
 
-        new_dfa.final_states = set(product(self.final_states, other.states - other.final_states))
+        new_final_states = set(product(self.final_states, other.states - other.final_states))
+        new_dfa = self._cross_product(other, new_final_states)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -420,12 +422,14 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
-        new_dfa = self._cross_product(other)
-        new_dfa.final_states = {
+
+        new_final_states = {
             (state_a, state_b)
             for state_a, state_b in product(self.states, other.states)
             if (state_a in self.final_states) ^ (state_b in other.final_states)
         }
+
+        new_dfa = self._cross_product(other, new_final_states)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -433,9 +437,15 @@ class DFA(fa.FA):
 
     def complement(self):
         """Return the complement of this DFA."""
-        new_dfa = self.copy()
-        new_dfa.final_states ^= self.states
-        return new_dfa
+
+        return self.__class__(
+            states = self.states,
+            input_symbols = self.input_symbols,
+            transitions = self.transitions,
+            initial_state = self.initial_state,
+            final_states = self.states - self.final_states,
+            allow_partial = self.allow_partial
+        )
 
     def _get_reachable_states_product_graph(self, other):
         """Get reachable states corresponding to product graph between self and other"""
