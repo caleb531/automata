@@ -200,13 +200,18 @@ class NFA(fa.FA):
                 else:
                     res.transitions[state][input_symbol] = next_current_states
 
-            if state not in res.final_states and res.final_states & lambda_enclosure:
+            if (res.final_states & lambda_enclosure):
                 res.final_states.add(state)
+
             res.transitions[state].pop('', None)
 
+        print()
+        print(res.transitions)
         res._remove_unreachable_states()
         res._remove_empty_transitions()
         res.recompute_lambda_closures()
+        print()
+        print(res.transitions)
         return res
         '''
         return self.__class__(
