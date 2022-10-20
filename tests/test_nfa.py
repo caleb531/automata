@@ -348,7 +348,7 @@ class TestNFA(test_fa.TestFA):
             input_symbols={'a', 'b'},
             transitions={
                 0: {'a': {1}},
-                1: {'': {2}},
+                1: {'': {2}, 'b': {1}},
                 2: {'b': {2}}
             },
             final_states={2}
@@ -362,7 +362,7 @@ class TestNFA(test_fa.TestFA):
             input_symbols={'a', 'b'},
             transitions={
                 0: {'a': {1}},
-                1: {'b': {2}},
+                1: {'b': {1, 2}},
                 2: {'b': {2}}
             },
             final_states={1, 2}
