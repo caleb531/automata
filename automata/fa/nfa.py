@@ -336,9 +336,7 @@ class NFA(fa.FA):
 
         # Transitions from self to other
         for state in self.final_states:
-            if '' not in new_transitions[state_map_a[state]]:
-                new_transitions[state_map_a[state]][''] = set()
-            new_transitions[state_map_a[state]][''].add(
+            new_transitions[state_map_a[state]].setdefault('', set()).add(
                 state_map_b[other.initial_state]
             )
 
