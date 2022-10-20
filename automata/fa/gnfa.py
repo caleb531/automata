@@ -36,86 +36,85 @@ class GNFA(nfa.NFA):
     @classmethod
     def from_dfa(cls, dfa):
         """Initialize this GNFA as one equivalent to the given DFA."""
-        gnfa = dfa.copy()
+        new_gnfa_transitions = dict()
+        gnfa_states = copy.copy(dfa.states)
 
-        for state in gnfa.states:
+        for state in dfa.states:
             gnfa_transitions = dict()
-            if state in gnfa.transitions:
-                for input_symbol, to_state in gnfa.transitions[state].items():
+            if state in dfa.transitions:
+                for input_symbol, to_state in dfa.transitions[state].items():
                     if to_state in gnfa_transitions.keys():
-                        gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
+                        gnfa_transitions[to_state] = f"{gnfa_transitions[to_state]}|{input_symbol}"
                     else:
                         gnfa_transitions[to_state] = input_symbol
-                gnfa.transitions[state] = gnfa_transitions
+                new_gnfa_transitions[state] = gnfa_transitions
             else:
-                gnfa.transitions[state] = dict()
+                new_gnfa_transitions[state] = dict()
 
-        new_initial_state = GNFA._add_new_state(gnfa.states)
-        new_final_state = GNFA._add_new_state(gnfa.states, new_initial_state)
+        new_initial_state = GNFA._add_new_state(gnfa_states)
+        new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)
 
-        gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
-        gnfa.initial_state = new_initial_state
+        new_gnfa_transitions[new_initial_state] = {dfa.initial_state: ''}
 
-        for state in gnfa.final_states:
-            gnfa.transitions[state][new_final_state] = ''
-        gnfa.final_state = new_final_state
+        for state in dfa.final_states:
+            new_gnfa_transitions[state][new_final_state] = ''
 
-        for state in gnfa.states - {new_final_state}:  # pragma: no branch
-            if gnfa.states - gnfa.transitions[state].keys():  # pragma: no branch
-                for leftover_state in gnfa.states - gnfa.transitions[state].keys():
-                    if leftover_state is not gnfa.initial_state:
-                        gnfa.transitions[state][leftover_state] = None
+        for state in gnfa_states - {new_final_state}:  # pragma: no branch
+            if gnfa_states - new_gnfa_transitions[state].keys():  # pragma: no branch
+                for leftover_state in gnfa_states - new_gnfa_transitions[state].keys():
+                    if leftover_state is not new_initial_state:
+                        new_gnfa_transitions[state][leftover_state] = None
 
         return cls(
-            states=gnfa.states, input_symbols=gnfa.input_symbols,
-            transitions=gnfa.transitions, initial_state=gnfa.initial_state,
-            final_state=gnfa.final_state)
+            states=gnfa_states, input_symbols=dfa.input_symbols,
+            transitions=new_gnfa_transitions, initial_state=new_initial_state,
+            final_state=new_final_state)
 
     @classmethod
     def from_nfa(cls, nfa):
         """Initialize this GNFA as one equivalent to the given NFA."""
-        gnfa = nfa.copy()
-        for state in gnfa.states:
+        new_gnfa_transitions = dict()
+        gnfa_states = copy.copy(nfa.states)
+
+        for state in nfa.states:
             gnfa_transitions = dict()
-            if state in gnfa.transitions:
-                for input_symbol, to_states in gnfa.transitions[state].items():
+            if state in nfa.transitions:
+                for input_symbol, to_states in nfa.transitions[state].items():
                     for to_state in to_states:
                         if to_state in gnfa_transitions.keys():
                             if gnfa_transitions[to_state] == '' and input_symbol != '':
-                                gnfa_transitions[to_state] = '{}?'.format(input_symbol)
+                                gnfa_transitions[to_state] = f'{input_symbol}?'
                             elif gnfa_transitions[to_state] != '' and input_symbol == '':
                                 if cls._isbracket_req(gnfa_transitions[to_state]):
-                                    gnfa_transitions[to_state] = '({})?'.format(gnfa_transitions[to_state])
+                                    gnfa_transitions[to_state] = f'({gnfa_transitions[to_state]})?'
                                 else:
-                                    gnfa_transitions[to_state] = '{}?'.format(gnfa_transitions[to_state])
+                                    gnfa_transitions[to_state] = f'{gnfa_transitions[to_state]}?'
                             else:
-                                gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
+                                gnfa_transitions[to_state] = f"{gnfa_transitions[to_state]}|{input_symbol}"
                         else:
                             gnfa_transitions[to_state] = input_symbol
-                gnfa.transitions[state] = gnfa_transitions
+                new_gnfa_transitions[state] = gnfa_transitions
             else:
-                gnfa.transitions[state] = dict()
+                new_gnfa_transitions[state] = dict()
 
-        new_initial_state = GNFA._add_new_state(gnfa.states)
-        new_final_state = GNFA._add_new_state(gnfa.states, new_initial_state)
+        new_initial_state = GNFA._add_new_state(gnfa_states)
+        new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)
 
-        gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
-        gnfa.initial_state = new_initial_state
+        new_gnfa_transitions[new_initial_state] = {nfa.initial_state: ''}
 
-        for state in gnfa.final_states:
-            gnfa.transitions[state][new_final_state] = ''
-        gnfa.final_state = new_final_state
+        for state in nfa.final_states:
+            new_gnfa_transitions[state][new_final_state] = ''
 
-        for state in gnfa.states - {new_final_state}:  # pragma: no branch
-            if gnfa.states - gnfa.transitions[state].keys():  # pragma: no branch
-                for leftover_state in gnfa.states - gnfa.transitions[state].keys():
-                    if leftover_state is not gnfa.initial_state:
-                        gnfa.transitions[state][leftover_state] = None
+        for state in gnfa_states - {new_final_state}:  # pragma: no branch
+            if gnfa_states - new_gnfa_transitions[state].keys():  # pragma: no branch
+                for leftover_state in gnfa_states - new_gnfa_transitions[state].keys():
+                    if leftover_state is not new_initial_state:
+                        new_gnfa_transitions[state][leftover_state] = None
 
         return cls(
-            states=gnfa.states, input_symbols=gnfa.input_symbols,
-            transitions=gnfa.transitions, initial_state=gnfa.initial_state,
-            final_state=gnfa.final_state)
+            states=gnfa_states, input_symbols=nfa.input_symbols,
+            transitions=new_gnfa_transitions, initial_state=new_initial_state,
+            final_state=new_final_state)
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
