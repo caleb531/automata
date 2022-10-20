@@ -177,15 +177,15 @@ class GNFA(nfa.NFA):
         return False
 
     @staticmethod
-    def _find_min_connected_node(gnfa):
-        state_set = gnfa.states-{gnfa.initial_state, gnfa.final_state}
+    def _find_min_connected_node(states, transitions, initial_state, final_state):
+        state_set = states-{initial_state, final_state}
         state_degree = dict.fromkeys(state_set, 0)
-        for state in gnfa.states - {gnfa.final_state}:
-            for to_state, label in gnfa.transitions[state].items():
+        for state in states - {final_state}:
+            for to_state, label in transitions[state].items():
                 if label is not None:
-                    if state != gnfa.initial_state:
+                    if state != initial_state:
                         state_degree[state] = state_degree[state] + 1
-                    if to_state != gnfa.final_state:
+                    if to_state != final_state:
                         state_degree[to_state] = state_degree[to_state] + 1
 
         return min(state_degree, key=state_degree.get)
@@ -195,21 +195,21 @@ class GNFA(nfa.NFA):
         Convert GNFA to regular expression.
         Helper function for 'to_regex' function.
         """
-        k = len(gnfa.states)
-        if k == 2:
-            return gnfa.transitions[gnfa.initial_state][gnfa.final_state]
-        else:
-            q_rip = self._find_min_connected_node(gnfa)
-            new_states = gnfa.states - {q_rip}
+        new_states = copy.copy(gnfa.states)
+        new_transitions = copy.deepcopy(gnfa.transitions)
+
+        while len(new_states) > 2:
+            q_rip = self._find_min_connected_node(new_states, new_transitions, gnfa.initial_state, gnfa.final_state)
+            new_states.remove(q_rip)
             for q_i in new_states - {gnfa.final_state}:
                 for q_j in new_states - {gnfa.initial_state}:
-                    r1 = gnfa.transitions[q_i][q_rip]
-                    r2 = gnfa.transitions[q_rip][q_rip]
-                    r3 = gnfa.transitions[q_rip][q_j]
-                    r4 = gnfa.transitions[q_i][q_j]
+                    r1 = new_transitions[q_i][q_rip]
+                    r2 = new_transitions[q_rip][q_rip]
+                    r3 = new_transitions[q_rip][q_j]
+                    r4 = new_transitions[q_i][q_j]
 
                     if r1 is None or r3 is None:
-                        gnfa.transitions[q_i][q_j] = r4
+                        new_transitions[q_i][q_j] = r4
                     else:
                         # check if putting brackets around r1 is necessary
                         if self._isbracket_req(r1):
@@ -235,16 +235,18 @@ class GNFA(nfa.NFA):
                             r4 = '|{}'.format(r4)
 
                         if r4 == '?' and len(r1+r2+r3) > 1:
-                            gnfa.transitions[q_i][q_j] = '(' + r1 + r2 + r3 + ')' + r4
+                            new_transitions[q_i][q_j] = '(' + r1 + r2 + r3 + ')' + r4
                         else:
-                            gnfa.transitions[q_i][q_j] = r1 + r2 + r3 + r4
+                            new_transitions[q_i][q_j] = r1 + r2 + r3 + r4
 
-            gnfa.states = new_states
-            del gnfa.transitions[q_rip]
-            for state in gnfa.states-{gnfa.final_state}:
-                del gnfa.transitions[state][q_rip]
+            #gnfa.states = new_states
+            del new_transitions[q_rip]
+            for state in new_states-{gnfa.final_state}:
+                del new_transitions[state][q_rip]
 
-            return self._to_regex(gnfa)
+            #return self._to_regex(gnfa)
+
+        return new_transitions[gnfa.initial_state][gnfa.final_state]
 
     def to_regex(self):
         """
