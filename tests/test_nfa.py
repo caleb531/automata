@@ -316,7 +316,7 @@ class TestNFA(test_fa.TestFA):
                 0: {'a': {1}},
                 1: {'': {2, 6}, 'b': {2}},
                 2: {'': {4}, 'c': {3}},
-                4: {'a': {5}},
+                4: {'a': {5}}
             },
             final_states={3, 6}
         )
@@ -333,7 +333,7 @@ class TestNFA(test_fa.TestFA):
             final_states={1, 3}
         )
 
-        #self.assertEqual(nfa1.states, nfa2.states)
+        self.assertEqual(nfa1.states, nfa2.states)
         self.assertEqual(nfa1.initial_state, nfa2.initial_state)
         self.assertEqual(nfa1.transitions, nfa2.transitions)
         self.assertEqual(nfa1.final_states, nfa2.final_states)
