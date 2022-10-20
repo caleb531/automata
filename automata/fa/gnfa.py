@@ -36,18 +36,15 @@ class GNFA(nfa.NFA):
     @classmethod
     def from_dfa(cls, dfa):
         """Initialize this GNFA as one equivalent to the given DFA."""
-        gnfa = dfa.copy()
-
         new_gnfa_transitions = dict()
         gnfa_states = copy.copy(dfa.states)
-
 
         for state in dfa.states:
             gnfa_transitions = dict()
             if state in dfa.transitions:
                 for input_symbol, to_state in dfa.transitions[state].items():
                     if to_state in gnfa_transitions.keys():
-                        gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
+                        gnfa_transitions[to_state] = f"{gnfa_transitions[to_state]}|{input_symbol}"
                     else:
                         gnfa_transitions[to_state] = input_symbol
                 new_gnfa_transitions[state] = gnfa_transitions
@@ -57,11 +54,10 @@ class GNFA(nfa.NFA):
         new_initial_state = GNFA._add_new_state(gnfa_states)
         new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)
 
-        new_gnfa_transitions[new_initial_state] = {gnfa.initial_state: ''}
+        new_gnfa_transitions[new_initial_state] = {dfa.initial_state: ''}
 
-        for state in gnfa.final_states:
+        for state in dfa.final_states:
             new_gnfa_transitions[state][new_final_state] = ''
-        gnfa.final_state = new_final_state
 
         for state in gnfa_states - {new_final_state}:  # pragma: no branch
             if gnfa_states - new_gnfa_transitions[state].keys():  # pragma: no branch
@@ -72,7 +68,7 @@ class GNFA(nfa.NFA):
         return cls(
             states=gnfa_states, input_symbols=dfa.input_symbols,
             transitions=new_gnfa_transitions, initial_state=new_initial_state,
-            final_state=gnfa.final_state)
+            final_state=new_final_state)
 
     @classmethod
     def from_nfa(cls, nfa):
