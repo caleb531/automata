@@ -423,12 +423,9 @@ class NFA(fa.FA):
                 for state_b in states:
                     new_transitions[state_b].setdefault(symbol, set()).add(state_a)
 
-        new_transitions[new_initial_state][''] = set()
         # And we additionally have epsilon transitions from
         # new initial state to each old final state.
-        for state in self.final_states:
-            new_transitions[new_initial_state][''].add(state)
-
+        new_transitions[new_initial_state][''] = set(self.final_states)
         new_final_states = {self.initial_state}
 
         return self.__class__(
