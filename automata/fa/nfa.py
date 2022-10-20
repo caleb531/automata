@@ -173,17 +173,18 @@ class NFA(fa.FA):
 
         return next_current_states
 
-    def _compute_reachable_states(self):
+    @staticmethod
+    def compute_reachable_states(initial_state, states, transitions):
         """Compute the states which are reachable from the initial state."""
         graph = nx.DiGraph([
             (start_state, end_state)
-            for start_state, transition in self.transitions.items()
+            for start_state, transition in transitions.items()
             for end_states in transition.values()
             for end_state in end_states
         ])
-        graph.add_nodes_from(self.states)
+        graph.add_nodes_from(states)
 
-        return nx.descendants(graph, self.initial_state) | {self.initial_state}
+        return nx.descendants(graph, initial_state) | {initial_state}
 
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
@@ -212,7 +213,14 @@ class NFA(fa.FA):
 
         print()
         print(res.transitions)
-        res._remove_unreachable_states()
+        unreachable_states = res.states - NFA.compute_reachable_states(res.initial_state, res.states, new_transitions)
+
+        for state in unreachable_states:
+            new_transitions.pop(state, None)
+            if state in res.final_states:
+                res.final_states.remove(state)
+
+        #res._remove_unreachable_states()
         res._remove_empty_transitions()
         res.recompute_lambda_closures()
         print()
