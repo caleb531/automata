@@ -375,6 +375,15 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
         self.assertNotEqual(nfa1.lambda_closures, original_nfa.lambda_closures)
 
+    def test_eliminate_lambda_regex(self):
+        nfa = NFA.from_regex('a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?')
+        nfa_without_lambdas = nfa.eliminate_lambda()
+        self.assertEqual(DFA.from_nfa(nfa), DFA.from_nfa(nfa_without_lambdas))
+
+        for transition in nfa_without_lambdas.transitions.values():
+            for char in transition.keys():
+                self.assertNotEqual(char, '')
+
     def test_option(self):
         """
         Given a NFA recognizing language L, should return NFA
