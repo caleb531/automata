@@ -321,6 +321,7 @@ class TestNFA(test_fa.TestFA):
             final_states={3, 6}
         )
         nfa1 = original_nfa.eliminate_lambda()
+        self.assertEqual(DFA.from_nfa(nfa1), DFA.from_nfa(original_nfa))
         nfa2 = NFA(
             states={0, 1, 2, 3, 5},
             initial_state=0,
@@ -331,6 +332,40 @@ class TestNFA(test_fa.TestFA):
                 2: {'a': {5}, 'c': {3}}
             },
             final_states={1, 3}
+        )
+
+        self.assertEqual(nfa1.states, nfa2.states)
+        self.assertEqual(nfa1.initial_state, nfa2.initial_state)
+        self.assertEqual(nfa1.transitions, nfa2.transitions)
+        self.assertEqual(nfa1.final_states, nfa2.final_states)
+        self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
+        self.assertNotEqual(nfa1.lambda_closures, original_nfa.lambda_closures)
+
+    def test_eliminate_lambda_other(self):
+        original_nfa = NFA(
+            states={0, 1, 2},
+            initial_state=0,
+            input_symbols={'a', 'b'},
+            transitions={
+                0: {'a': {1}},
+                1: {'': {2}},
+                2: {'b': {2}}
+            },
+            final_states={2}
+        )
+        nfa1 = original_nfa.eliminate_lambda()
+        self.assertEqual(DFA.from_nfa(nfa1), DFA.from_nfa(original_nfa))
+
+        nfa2 = NFA(
+            states={0, 1, 2},
+            initial_state=0,
+            input_symbols={'a', 'b'},
+            transitions={
+                0: {'a': {1}},
+                1: {'b': {2}},
+                2: {'b': {2}}
+            },
+            final_states={1, 2}
         )
 
         self.assertEqual(nfa1.states, nfa2.states)
