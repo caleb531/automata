@@ -189,21 +189,26 @@ class NFA(fa.FA):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
         res = self.copy()
 
+        new_transitions = copy.deepcopy(self.transitions)
+
         for state in res.states:
             lambda_enclosure = res.lambda_closures[state] - {state}
             for input_symbol in res.input_symbols:
                 next_current_states = res._get_next_current_states(lambda_enclosure, input_symbol)
-                if state not in res.transitions:
-                    res.transitions[state] = dict()
-                if input_symbol in res.transitions[state]:
-                    res.transitions[state][input_symbol].update(next_current_states)
-                else:
-                    res.transitions[state][input_symbol] = next_current_states
+
+                if next_current_states:
+                    if state not in new_transitions:
+                        new_transitions[state] = dict()
+                    if input_symbol in new_transitions[state]:
+                        new_transitions[state][input_symbol].update(next_current_states)
+                    else:
+                        new_transitions[state][input_symbol] = next_current_states
 
             if (res.final_states & lambda_enclosure):
                 res.final_states.add(state)
 
-            res.transitions[state].pop('', None)
+            if state in new_transitions:
+                new_transitions[state].pop('', None)
 
         print()
         print(res.transitions)
@@ -211,17 +216,17 @@ class NFA(fa.FA):
         res._remove_empty_transitions()
         res.recompute_lambda_closures()
         print()
-        print(res.transitions)
-        return res
-        '''
+        print(new_transitions)
+        #return res
+
         return self.__class__(
-            states=self.states,
-            input_symbols=self.input_symbols,
-            transitions=self.transitions,
-            initial_state=self.initial_state,
-            final_states=self.final_states
+            states=res.states,
+            input_symbols=res.input_symbols,
+            transitions=new_transitions,
+            initial_state=res.initial_state,
+            final_states=res.final_states
         )
-        '''
+
 
     def _remove_unreachable_states(self):
         """Remove states which are not reachable from the initial state."""
@@ -229,7 +234,7 @@ class NFA(fa.FA):
         unreachable_states = self.states - reachable_states
         for state in unreachable_states:
             self.states.remove(state)
-            del self.transitions[state]
+            self.transitions.pop(state, None)
             if state in self.final_states:
                 self.final_states.remove(state)
 
