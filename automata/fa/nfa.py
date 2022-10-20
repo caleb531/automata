@@ -419,15 +419,15 @@ class NFA(fa.FA):
         new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same except reversed
-        new_transitions = dict()
-        for state in new_states:
-            new_transitions[state] = dict()
+        new_transitions = {
+            state: dict() for state in new_states
+        }
+
         for state_a, transitions in self.transitions.items():
             for symbol, states in transitions.items():
                 for state_b in states:
-                    if symbol not in new_transitions[state_b]:
-                        new_transitions[state_b][symbol] = set()
-                    new_transitions[state_b][symbol].add(state_a)
+                    new_transitions[state_b].setdefault(symbol, set()).add(state_a)
+
         new_transitions[new_initial_state][''] = set()
         # And we additionally have epsilon transitions from
         # new initial state to each old final state.
