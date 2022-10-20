@@ -235,20 +235,6 @@ class DFA(fa.FA):
 
         self._check_for_input_rejection(current_state)
 
-    def minify(self, retain_names=False):
-        """
-        Create a minimal DFA which accepts the same inputs as this DFA.
-
-        First, non-reachable states are removed.
-        Then, similiar states are merged using Hopcroft's Algorithm.
-            retain_names: If True, merged states retain names.
-                          If False, new states will be named 0, ..., n-1.
-        """
-        new_dfa = self.copy()
-        new_dfa._remove_unreachable_states()
-        new_dfa._merge_states(retain_names=retain_names)
-        return new_dfa
-
     def _get_digraph(self):
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
         return nx.DiGraph([
@@ -262,34 +248,39 @@ class DFA(fa.FA):
         G = self._get_digraph()
         return nx.descendants(G, self.initial_state) | {self.initial_state}
 
-    def _remove_unreachable_states(self):
-        """Remove states which are not reachable from the initial state."""
-        reachable_states = self._compute_reachable_states()
-        unreachable_states = self.states - reachable_states
-        for state in unreachable_states:
-            self.states.remove(state)
-            del self.transitions[state]
-            if state in self.final_states:
-                self.final_states.remove(state)
+    def minify(self, retain_names=False):
+        """
+        Create a minimal DFA which accepts the same inputs as this DFA.
 
-    def _merge_states(self, retain_names=False):
+        First, non-reachable states are removed.
+        Then, similiar states are merged using Hopcroft's Algorithm.
+            retain_names: If True, merged states retain names.
+                          If False, new states will be named 0, ..., n-1.
+        """
+
+        # Compute reachable states and final states
+        reachable_states = self._compute_reachable_states()
+        reachable_final_states = self.final_states & reachable_states
+
         # First, assemble backmap and equivalence class data structure
-        eq_classes = PartitionRefinement(self.states)
-        refinement = eq_classes.refine(self.final_states)
+        eq_classes = PartitionRefinement(reachable_states)
+        refinement = eq_classes.refine(reachable_final_states)
 
         final_states_id = refinement[0][0] if refinement else eq_classes.get_set_ids()[0]
 
         transition_back_map = {
             symbol: {
                 end_state: list()
-                for end_state in self.states
+                for end_state in reachable_states
             }
             for symbol in self.input_symbols
         }
 
         for start_state, path in self.transitions.items():
-            for symbol, end_state in path.items():
-                transition_back_map[symbol][end_state].append(start_state)
+            if start_state in reachable_states:
+                for symbol, end_state in path.items():
+                    if end_state in reachable_states:
+                        transition_back_map[symbol][end_state].append(start_state)
 
         origin_dicts = tuple(transition_back_map.values())
         processing = {final_states_id}
@@ -331,7 +322,7 @@ class DFA(fa.FA):
         new_input_symbols = self.input_symbols
         new_states = set(back_map.values())
         new_initial_state = back_map[self.initial_state]
-        new_final_states = {back_map[acc] for acc in self.final_states}
+        new_final_states = {back_map[acc] for acc in reachable_final_states}
         new_transitions = {
             name: {
                 letter: back_map[self.transitions[next(iter(eq))][letter]]
@@ -340,13 +331,15 @@ class DFA(fa.FA):
             for name, eq in eq_class_name_pairs
         }
 
-        self.states = new_states
-        self.input_symbols = new_input_symbols
-        self.transitions = new_transitions
-        self.initial_state = new_initial_state
-        self.final_states = new_final_states
+        return self.__class__(
+            states=new_states,
+            input_symbols=new_input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=new_final_states,
+        )
 
-    def _cross_product(self, other):
+    def _cross_product(self, other, final_states):
         """
         Creates a new DFA which is the cross product of DFAs self and other
         with an empty set of final states.
@@ -372,7 +365,7 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=set()
+            final_states=final_states
         )
 
     def union(self, other, *, retain_names=False, minify=True):
@@ -381,16 +374,18 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the union of L1 and L2.
         """
-        new_dfa = self._cross_product(other)
 
-        new_dfa.final_states = {
+        new_final_states = {
             (state_a, state_b)
             for state_a, state_b in product(self.states, other.states)
             if (state_a in self.final_states or state_b in other.final_states)
         }
 
+        new_dfa = self._cross_product(other, new_final_states)
+
         if minify:
             return new_dfa.minify(retain_names=retain_names)
+
         return new_dfa
 
     def intersection(self, other, *, retain_names=False, minify=True):
@@ -399,9 +394,9 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the intersection of L1 and L2.
         """
-        new_dfa = self._cross_product(other)
 
-        new_dfa.final_states = set(product(self.final_states, other.final_states))
+        new_final_states = set(product(self.final_states, other.final_states))
+        new_dfa = self._cross_product(other, new_final_states)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -413,9 +408,9 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
         """
-        new_dfa = self._cross_product(other)
 
-        new_dfa.final_states = set(product(self.final_states, other.states - other.final_states))
+        new_final_states = set(product(self.final_states, other.states - other.final_states))
+        new_dfa = self._cross_product(other, new_final_states)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -427,12 +422,14 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
-        new_dfa = self._cross_product(other)
-        new_dfa.final_states = {
+
+        new_final_states = {
             (state_a, state_b)
             for state_a, state_b in product(self.states, other.states)
             if (state_a in self.final_states) ^ (state_b in other.final_states)
         }
+
+        new_dfa = self._cross_product(other, new_final_states)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -440,9 +437,15 @@ class DFA(fa.FA):
 
     def complement(self):
         """Return the complement of this DFA."""
-        new_dfa = self.copy()
-        new_dfa.final_states ^= self.states
-        return new_dfa
+
+        return self.__class__(
+            states=self.states,
+            input_symbols=self.input_symbols,
+            transitions=self.transitions,
+            initial_state=self.initial_state,
+            final_states=self.states - self.final_states,
+            allow_partial=self.allow_partial
+        )
 
     def _get_reachable_states_product_graph(self, other):
         """Get reachable states corresponding to product graph between self and other"""

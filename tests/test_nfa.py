@@ -308,7 +308,7 @@ class TestNFA(test_fa.TestFA):
         NFA.from_regex('')
 
     def test_eliminate_lambda(self):
-        nfa1 = NFA(
+        original_nfa = NFA(
             states={0, 1, 2, 3, 4, 5, 6},
             initial_state=0,
             input_symbols={'a', 'b', 'c'},
@@ -316,12 +316,12 @@ class TestNFA(test_fa.TestFA):
                 0: {'a': {1}},
                 1: {'': {2, 6}, 'b': {2}},
                 2: {'': {4}, 'c': {3}},
-                4: {'a': {5}},
+                4: {'a': {5}}
             },
             final_states={3, 6}
         )
-        original_lambda_closures = nfa1.lambda_closures
-        nfa1.eliminate_lambda()
+        nfa1 = original_nfa.eliminate_lambda()
+        self.assertEqual(DFA.from_nfa(nfa1), DFA.from_nfa(original_nfa))
         nfa2 = NFA(
             states={0, 1, 2, 3, 5},
             initial_state=0,
@@ -339,7 +339,50 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.transitions, nfa2.transitions)
         self.assertEqual(nfa1.final_states, nfa2.final_states)
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
-        self.assertNotEqual(nfa1.lambda_closures, original_lambda_closures)
+        self.assertNotEqual(nfa1.lambda_closures, original_nfa.lambda_closures)
+
+    def test_eliminate_lambda_other(self):
+        original_nfa = NFA(
+            states={0, 1, 2},
+            initial_state=0,
+            input_symbols={'a', 'b'},
+            transitions={
+                0: {'a': {1}},
+                1: {'': {2}, 'b': {1}},
+                2: {'b': {2}}
+            },
+            final_states={2}
+        )
+        nfa1 = original_nfa.eliminate_lambda()
+        self.assertEqual(DFA.from_nfa(nfa1), DFA.from_nfa(original_nfa))
+
+        nfa2 = NFA(
+            states={0, 1, 2},
+            initial_state=0,
+            input_symbols={'a', 'b'},
+            transitions={
+                0: {'a': {1}},
+                1: {'b': {1, 2}},
+                2: {'b': {2}}
+            },
+            final_states={1, 2}
+        )
+
+        self.assertEqual(nfa1.states, nfa2.states)
+        self.assertEqual(nfa1.initial_state, nfa2.initial_state)
+        self.assertEqual(nfa1.transitions, nfa2.transitions)
+        self.assertEqual(nfa1.final_states, nfa2.final_states)
+        self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
+        self.assertNotEqual(nfa1.lambda_closures, original_nfa.lambda_closures)
+
+    def test_eliminate_lambda_regex(self):
+        nfa = NFA.from_regex('a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?')
+        nfa_without_lambdas = nfa.eliminate_lambda()
+        self.assertEqual(DFA.from_nfa(nfa), DFA.from_nfa(nfa_without_lambdas))
+
+        for transition in nfa_without_lambdas.transitions.values():
+            for char in transition.keys():
+                self.assertNotEqual(char, '')
 
     def test_option(self):
         """

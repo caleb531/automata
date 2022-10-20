@@ -173,70 +173,60 @@ class NFA(fa.FA):
 
         return next_current_states
 
-    def _remove_unreachable_states(self):
-        """Remove states which are not reachable from the initial state."""
-        reachable_states = self._compute_reachable_states()
-        unreachable_states = self.states - reachable_states
-        for state in unreachable_states:
-            self.states.remove(state)
-            del self.transitions[state]
-            if state in self.final_states:
-                self.final_states.remove(state)
-
-    def _compute_reachable_states(self):
+    @staticmethod
+    def compute_reachable_states(initial_state, states, transitions):
         """Compute the states which are reachable from the initial state."""
         graph = nx.DiGraph([
             (start_state, end_state)
-            for start_state, transition in self.transitions.items()
+            for start_state, transition in transitions.items()
             for end_states in transition.values()
             for end_state in end_states
         ])
-        graph.add_nodes_from(self.states)
+        graph.add_nodes_from(states)
 
-        return nx.descendants(graph, self.initial_state) | {self.initial_state}
-
-    def _remove_empty_transitions(self):
-        """Deletes transitions to empty set of states"""
-        to_delete_sym = {}
-        for state in self.transitions.keys():
-            for input_symbol, to_states in self.transitions[state].items():
-                if to_states == set():
-                    if state in to_delete_sym:
-                        to_delete_sym[state].add(input_symbol)
-                    else:
-                        to_delete_sym[state] = {input_symbol}
-
-        for state, input_symbols in to_delete_sym.items():
-            for input_symbol in input_symbols:
-                del self.transitions[state][input_symbol]
-
-        for state in list(self.transitions.keys()):
-            if self.transitions[state] == dict():
-                del self.transitions[state]
+        return nx.descendants(graph, initial_state) | {initial_state}
 
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
+
+        # Create new transitions and final states for running this algorithm
+        new_transitions = copy.deepcopy(self.transitions)
+        new_final_states = copy.copy(self.final_states)
+
         for state in self.states:
             lambda_enclosure = self.lambda_closures[state] - {state}
             for input_symbol in self.input_symbols:
-                self.transitions[state] = {
-                    **self.transitions.get(state, {}),
-                    input_symbol: {
-                        *(self.transitions
-                            .get(state, {})
-                            .get(input_symbol, set())),
-                        *self._get_next_current_states(
-                            lambda_enclosure, input_symbol)
-                    }
-                }
+                next_current_states = self._get_next_current_states(lambda_enclosure, input_symbol)
 
-            if (self.final_states & lambda_enclosure):
-                self.final_states.add(state)
-            self.transitions[state].pop('', None)
+                # Don't do anything if no new current states
+                if next_current_states:
+                    state_transition_dict = new_transitions.setdefault(state, dict())
 
-        self._remove_unreachable_states()
-        self._remove_empty_transitions()
-        self.recompute_lambda_closures()
+                    if input_symbol in state_transition_dict:
+                        state_transition_dict[input_symbol].update(next_current_states)
+                    else:
+                        state_transition_dict[input_symbol] = next_current_states
+
+            if (new_final_states & lambda_enclosure):
+                new_final_states.add(state)
+
+            if state in new_transitions:
+                new_transitions[state].pop('', None)
+
+        # Remove unreachable states
+        reachable_states = NFA.compute_reachable_states(self.initial_state, self.states, new_transitions)
+        reachable_final_states = reachable_states & new_final_states
+
+        for state in self.states - reachable_states:
+            new_transitions.pop(state, None)
+
+        return self.__class__(
+            states=reachable_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=self.initial_state,
+            final_states=reachable_final_states
+        )
 
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
@@ -292,7 +282,7 @@ class NFA(fa.FA):
         # Starting at 1 because 0 is for the initial state
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
 
-        new_states = set(state_map_a.values()) | set(state_map_b.values()) | {0}
+        new_states = {*state_map_a.values(), *state_map_b.values(), 0}
         new_transitions = {state: dict() for state in new_states}
 
         # Connect new initial state to both branch
@@ -304,10 +294,10 @@ class NFA(fa.FA):
         NFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
 
         # Final states
-        new_final_states = (
-            {state_map_a[state] for state in self.final_states}
-            | {state_map_b[state] for state in other.final_states}
-        )
+        new_final_states = {
+            *(state_map_a[state] for state in self.final_states),
+            *(state_map_b[state] for state in other.final_states)
+        }
 
         return self.__class__(
             states=new_states,
@@ -326,7 +316,7 @@ class NFA(fa.FA):
 
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states)
 
-        new_states = set(state_map_a.values()) | set(state_map_b.values())
+        new_states = {*state_map_a.values(), *state_map_b.values()}
         new_transitions = {state: dict() for state in new_states}
 
         # Transitions of self
@@ -336,9 +326,7 @@ class NFA(fa.FA):
 
         # Transitions from self to other
         for state in self.final_states:
-            if '' not in new_transitions[state_map_a[state]]:
-                new_transitions[state_map_a[state]][''] = set()
-            new_transitions[state_map_a[state]][''].add(
+            new_transitions[state_map_a[state]].setdefault('', set()).add(
                 state_map_b[other.initial_state]
             )
 
@@ -371,11 +359,8 @@ class NFA(fa.FA):
         # For each final state in original NFA we add epsilon
         # transition to the old initial state
         for state in self.final_states:
-            if state not in new_transitions:
-                new_transitions[state] = dict()
-            if '' not in new_transitions[state]:
-                new_transitions[state][''] = set()
-            new_transitions[state][''].add(self.initial_state)
+            transition = new_transitions.setdefault(state, dict())
+            transition.setdefault('', set()).add(self.initial_state)
 
         return self.__class__(
             states=new_states,
@@ -419,21 +404,18 @@ class NFA(fa.FA):
         new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same except reversed
-        new_transitions = dict()
-        for state in new_states:
-            new_transitions[state] = dict()
+        new_transitions = {
+            state: dict() for state in new_states
+        }
+
         for state_a, transitions in self.transitions.items():
             for symbol, states in transitions.items():
                 for state_b in states:
-                    if symbol not in new_transitions[state_b]:
-                        new_transitions[state_b][symbol] = set()
-                    new_transitions[state_b][symbol].add(state_a)
-        new_transitions[new_initial_state][''] = set()
+                    new_transitions[state_b].setdefault(symbol, set()).add(state_a)
+
         # And we additionally have epsilon transitions from
         # new initial state to each old final state.
-        for state in self.final_states:
-            new_transitions[new_initial_state][''].add(state)
-
+        new_transitions[new_initial_state][''] = set(self.final_states)
         new_final_states = {self.initial_state}
 
         return self.__class__(
