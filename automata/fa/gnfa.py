@@ -38,37 +38,39 @@ class GNFA(nfa.NFA):
         """Initialize this GNFA as one equivalent to the given DFA."""
         gnfa = dfa.copy()
 
-        for state in gnfa.states:
+        new_gnfa_transitions = dict()
+
+        for state in dfa.states:
             gnfa_transitions = dict()
-            if state in gnfa.transitions:
-                for input_symbol, to_state in gnfa.transitions[state].items():
+            if state in dfa.transitions:
+                for input_symbol, to_state in dfa.transitions[state].items():
                     if to_state in gnfa_transitions.keys():
                         gnfa_transitions[to_state] = "{}|{}".format(gnfa_transitions[to_state], input_symbol)
                     else:
                         gnfa_transitions[to_state] = input_symbol
-                gnfa.transitions[state] = gnfa_transitions
+                new_gnfa_transitions[state] = gnfa_transitions
             else:
-                gnfa.transitions[state] = dict()
+                new_gnfa_transitions[state] = dict()
 
         new_initial_state = GNFA._add_new_state(gnfa.states)
         new_final_state = GNFA._add_new_state(gnfa.states, new_initial_state)
 
-        gnfa.transitions[new_initial_state] = {gnfa.initial_state: ''}
+        new_gnfa_transitions[new_initial_state] = {gnfa.initial_state: ''}
         gnfa.initial_state = new_initial_state
 
         for state in gnfa.final_states:
-            gnfa.transitions[state][new_final_state] = ''
+            new_gnfa_transitions[state][new_final_state] = ''
         gnfa.final_state = new_final_state
 
         for state in gnfa.states - {new_final_state}:  # pragma: no branch
-            if gnfa.states - gnfa.transitions[state].keys():  # pragma: no branch
-                for leftover_state in gnfa.states - gnfa.transitions[state].keys():
+            if gnfa.states - new_gnfa_transitions[state].keys():  # pragma: no branch
+                for leftover_state in gnfa.states - new_gnfa_transitions[state].keys():
                     if leftover_state is not gnfa.initial_state:
-                        gnfa.transitions[state][leftover_state] = None
+                        new_gnfa_transitions[state][leftover_state] = None
 
         return cls(
             states=gnfa.states, input_symbols=gnfa.input_symbols,
-            transitions=gnfa.transitions, initial_state=gnfa.initial_state,
+            transitions=new_gnfa_transitions, initial_state=gnfa.initial_state,
             final_state=gnfa.final_state)
 
     @classmethod
