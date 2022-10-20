@@ -292,7 +292,7 @@ class NFA(fa.FA):
         # Starting at 1 because 0 is for the initial state
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
 
-        new_states = set(state_map_a.values()) | set(state_map_b.values()) | {0}
+        new_states = {*state_map_a.values(), *state_map_b.values(), 0}
         new_transitions = {state: dict() for state in new_states}
 
         # Connect new initial state to both branch
@@ -304,10 +304,10 @@ class NFA(fa.FA):
         NFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
 
         # Final states
-        new_final_states = (
-            {state_map_a[state] for state in self.final_states}
-            | {state_map_b[state] for state in other.final_states}
-        )
+        new_final_states = {
+            *(state_map_a[state] for state in self.final_states),
+            *(state_map_b[state] for state in other.final_states)
+        }
 
         return self.__class__(
             states=new_states,
@@ -326,7 +326,7 @@ class NFA(fa.FA):
 
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states)
 
-        new_states = set(state_map_a.values()) | set(state_map_b.values())
+        new_states = {*state_map_a.values(), *state_map_b.values()}
         new_transitions = {state: dict() for state in new_states}
 
         # Transitions of self
@@ -369,11 +369,8 @@ class NFA(fa.FA):
         # For each final state in original NFA we add epsilon
         # transition to the old initial state
         for state in self.final_states:
-            if state not in new_transitions:
-                new_transitions[state] = dict()
-            if '' not in new_transitions[state]:
-                new_transitions[state][''] = set()
-            new_transitions[state][''].add(self.initial_state)
+            transition = new_transitions.setdefault(state, dict())
+            transition.setdefault('', set()).add(self.initial_state)
 
         return self.__class__(
             states=new_states,
