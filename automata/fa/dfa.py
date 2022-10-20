@@ -439,12 +439,12 @@ class DFA(fa.FA):
         """Return the complement of this DFA."""
 
         return self.__class__(
-            states = self.states,
-            input_symbols = self.input_symbols,
-            transitions = self.transitions,
-            initial_state = self.initial_state,
-            final_states = self.states - self.final_states,
-            allow_partial = self.allow_partial
+            states=self.states,
+            input_symbols=self.input_symbols,
+            transitions=self.transitions,
+            initial_state=self.initial_state,
+            final_states=self.states - self.final_states,
+            allow_partial=self.allow_partial
         )
 
     def _get_reachable_states_product_graph(self, other):
