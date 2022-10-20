@@ -308,7 +308,7 @@ class TestNFA(test_fa.TestFA):
         NFA.from_regex('')
 
     def test_eliminate_lambda(self):
-        nfa1 = NFA(
+        original_nfa = NFA(
             states={0, 1, 2, 3, 4, 5, 6},
             initial_state=0,
             input_symbols={'a', 'b', 'c'},
@@ -321,7 +321,7 @@ class TestNFA(test_fa.TestFA):
             final_states={3, 6}
         )
         original_lambda_closures = nfa1.lambda_closures
-        nfa1.eliminate_lambda()
+        nfa1 = original_nfa.eliminate_lambda()
         nfa2 = NFA(
             states={0, 1, 2, 3, 5},
             initial_state=0,

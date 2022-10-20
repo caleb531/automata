@@ -173,16 +173,6 @@ class NFA(fa.FA):
 
         return next_current_states
 
-    def _remove_unreachable_states(self):
-        """Remove states which are not reachable from the initial state."""
-        reachable_states = self._compute_reachable_states()
-        unreachable_states = self.states - reachable_states
-        for state in unreachable_states:
-            self.states.remove(state)
-            del self.transitions[state]
-            if state in self.final_states:
-                self.final_states.remove(state)
-
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
         graph = nx.DiGraph([
@@ -195,31 +185,17 @@ class NFA(fa.FA):
 
         return nx.descendants(graph, self.initial_state) | {self.initial_state}
 
-    def _remove_empty_transitions(self):
-        """Deletes transitions to empty set of states"""
-        to_delete_sym = {}
-        for state in self.transitions.keys():
-            for input_symbol, to_states in self.transitions[state].items():
-                if to_states == set():
-                    if state in to_delete_sym:
-                        to_delete_sym[state].add(input_symbol)
-                    else:
-                        to_delete_sym[state] = {input_symbol}
-
-        for state, input_symbols in to_delete_sym.items():
-            for input_symbol in input_symbols:
-                del self.transitions[state][input_symbol]
-
-        for state in list(self.transitions.keys()):
-            if self.transitions[state] == dict():
-                del self.transitions[state]
-
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
-        for state in self.states:
+        reachable_states = self._compute_reachable_states()
+        reachable_final_states = self.final_states & reachable_states
+
+        new_transitions = dict()
+
+        for state in reachable_states:
             lambda_enclosure = self.lambda_closures[state] - {state}
             for input_symbol in self.input_symbols:
-                self.transitions[state] = {
+                new_transitions[state] = {
                     **self.transitions.get(state, {}),
                     input_symbol: {
                         *(self.transitions
@@ -230,13 +206,16 @@ class NFA(fa.FA):
                     }
                 }
 
-            if (self.final_states & lambda_enclosure):
-                self.final_states.add(state)
-            self.transitions[state].pop('', None)
+            if (reachable_final_states & lambda_enclosure):
+                reachable_final_states.add(state)
 
-        self._remove_unreachable_states()
-        self._remove_empty_transitions()
-        self.recompute_lambda_closures()
+        return self.__class__(
+            states=reachable_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=self.initial_state,
+            final_states=reachable_final_states
+        )
 
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
