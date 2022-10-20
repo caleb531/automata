@@ -2,6 +2,7 @@
 """Classes and methods for working with generalized non-deterministic finite automata."""
 
 import copy
+from itertools import product
 
 from pydot import Dot, Edge, Node
 
@@ -177,81 +178,72 @@ class GNFA(nfa.NFA):
         return False
 
     @staticmethod
-    def _find_min_connected_node(gnfa):
-        state_set = gnfa.states-{gnfa.initial_state, gnfa.final_state}
+    def _find_min_connected_node(states, transitions, initial_state, final_state):
+        state_set = states-{initial_state, final_state}
         state_degree = dict.fromkeys(state_set, 0)
-        for state in gnfa.states - {gnfa.final_state}:
-            for to_state, label in gnfa.transitions[state].items():
+        for state in states - {final_state}:
+            for to_state, label in transitions[state].items():
                 if label is not None:
-                    if state != gnfa.initial_state:
+                    if state != initial_state:
                         state_degree[state] = state_degree[state] + 1
-                    if to_state != gnfa.final_state:
+                    if to_state != final_state:
                         state_degree[to_state] = state_degree[to_state] + 1
 
         return min(state_degree, key=state_degree.get)
-
-    def _to_regex(self, gnfa):
-        """
-        Convert GNFA to regular expression.
-        Helper function for 'to_regex' function.
-        """
-        k = len(gnfa.states)
-        if k == 2:
-            return gnfa.transitions[gnfa.initial_state][gnfa.final_state]
-        else:
-            q_rip = self._find_min_connected_node(gnfa)
-            new_states = gnfa.states - {q_rip}
-            for q_i in new_states - {gnfa.final_state}:
-                for q_j in new_states - {gnfa.initial_state}:
-                    r1 = gnfa.transitions[q_i][q_rip]
-                    r2 = gnfa.transitions[q_rip][q_rip]
-                    r3 = gnfa.transitions[q_rip][q_j]
-                    r4 = gnfa.transitions[q_i][q_j]
-
-                    if r1 is None or r3 is None:
-                        gnfa.transitions[q_i][q_j] = r4
-                    else:
-                        # check if putting brackets around r1 is necessary
-                        if self._isbracket_req(r1):
-                            r1 = '({})'.format(r1)
-
-                        if r2 is None:
-                            r2 = ''
-                        elif len(r2) == 1:
-                            r2 = '{}*'.format(r2)
-                        else:
-                            r2 = '({})*'.format(r2)
-
-                        if self._isbracket_req(r3):
-                            r3 = '({})'.format(r3)
-
-                        if r4 is None:
-                            r4 = ''
-                        elif self._isbracket_req(r4):
-                            r4 = '|({})'.format(r4)
-                        elif r4 == '':
-                            r4 = '?'
-                        else:
-                            r4 = '|{}'.format(r4)
-
-                        if r4 == '?' and len(r1+r2+r3) > 1:
-                            gnfa.transitions[q_i][q_j] = '(' + r1 + r2 + r3 + ')' + r4
-                        else:
-                            gnfa.transitions[q_i][q_j] = r1 + r2 + r3 + r4
-
-            gnfa.states = new_states
-            del gnfa.transitions[q_rip]
-            for state in gnfa.states-{gnfa.final_state}:
-                del gnfa.transitions[state][q_rip]
-
-            return self._to_regex(gnfa)
 
     def to_regex(self):
         """
         Convert GNFA to regular expression.
         """
-        gnfa = self.copy()
-        return self._to_regex(gnfa)
+        new_states = copy.copy(self.states)
+        new_transitions = copy.deepcopy(self.transitions)
+
+        while len(new_states) > 2:
+            q_rip = self._find_min_connected_node(new_states, new_transitions, self.initial_state, self.final_state)
+            new_states.remove(q_rip)
+            for q_i, q_j in product(new_states - {self.final_state}, new_states - {self.initial_state}):
+                r1 = new_transitions[q_i][q_rip]
+                r2 = new_transitions[q_rip][q_rip]
+                r3 = new_transitions[q_rip][q_j]
+                r4 = new_transitions[q_i][q_j]
+
+                if r1 is None or r3 is None:
+                    new_transitions[q_i][q_j] = r4
+                else:
+                    # check if putting brackets around r1 is necessary
+                    if self._isbracket_req(r1):
+                        r1 = f'({r1})'
+
+                    if r2 is None:
+                        r2 = ''
+                    elif len(r2) == 1:
+                        r2 = f'{r1}*'
+                    else:
+                        r2 = f'({r2})*'
+
+                    if self._isbracket_req(r3):
+                        r3 = f'({r3})'
+
+                    if r4 is None:
+                        r4 = ''
+                    elif self._isbracket_req(r4):
+                        r4 = f'|({r4})'
+                    elif r4 == '':
+                        r4 = '?'
+                    else:
+                        r4 = f'|{r4}'
+
+                    if r4 == '?' and len(r1+r2+r3) > 1:
+                        new_transitions[q_i][q_j] = f'({r1}{r2}{r3}){r4}'
+                    else:
+                        new_transitions[q_i][q_j] = f'{r1}{r2}{r3}{r4}'
+
+            del new_transitions[q_rip]
+            for state in new_states-{self.final_state}:
+                del new_transitions[state][q_rip]
+
+        return new_transitions[self.initial_state][self.final_state]
+
 
     # The following NFA methods are not supported on GNFA instances because
     # they are out of scope for the purpose of the GNFA class (which is focused
