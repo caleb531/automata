@@ -259,7 +259,7 @@ class DFA(fa.FA):
         """
 
         # Compute reachable states and final states
-        reachable_states = self.get_reachable_states()
+        reachable_states = self._compute_reachable_states()
         reachable_final_states = self.final_states & reachable_states
 
         # First, assemble backmap and equivalence class data structure
