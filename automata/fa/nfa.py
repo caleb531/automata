@@ -187,35 +187,65 @@ class NFA(fa.FA):
 
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
-        reachable_states = self._compute_reachable_states()
-        reachable_final_states = self.final_states & reachable_states
+        res = self.copy()
 
-        new_transitions = dict()
+        for state in res.states:
+            lambda_enclosure = res.lambda_closures[state] - {state}
+            for input_symbol in res.input_symbols:
+                next_current_states = res._get_next_current_states(lambda_enclosure, input_symbol)
+                if state not in res.transitions:
+                    res.transitions[state] = dict()
+                if input_symbol in res.transitions[state]:
+                    res.transitions[state][input_symbol].update(next_current_states)
+                else:
+                    res.transitions[state][input_symbol] = next_current_states
 
-        for state in reachable_states:
-            lambda_enclosure = self.lambda_closures[state] - {state}
-            for input_symbol in self.input_symbols:
-                new_transitions[state] = {
-                    **self.transitions.get(state, {}),
-                    input_symbol: {
-                        *(self.transitions
-                            .get(state, {})
-                            .get(input_symbol, set())),
-                        *self._get_next_current_states(
-                            lambda_enclosure, input_symbol)
-                    }
-                }
+            if state not in res.final_states and res.final_states & lambda_enclosure:
+                res.final_states.add(state)
+            res.transitions[state].pop('', None)
 
-            if (reachable_final_states & lambda_enclosure):
-                reachable_final_states.add(state)
-
+        res._remove_unreachable_states()
+        res._remove_empty_transitions()
+        res.recompute_lambda_closures()
+        return res
+        '''
         return self.__class__(
-            states=reachable_states,
+            states=self.states,
             input_symbols=self.input_symbols,
-            transitions=new_transitions,
+            transitions=self.transitions,
             initial_state=self.initial_state,
-            final_states=reachable_final_states
+            final_states=self.final_states
         )
+        '''
+
+    def _remove_unreachable_states(self):
+        """Remove states which are not reachable from the initial state."""
+        reachable_states = self._compute_reachable_states()
+        unreachable_states = self.states - reachable_states
+        for state in unreachable_states:
+            self.states.remove(state)
+            del self.transitions[state]
+            if state in self.final_states:
+                self.final_states.remove(state)
+
+    def _remove_empty_transitions(self):
+        """Deletes transitions to empty set of states"""
+        to_delete_sym = {}
+        for state in self.transitions.keys():
+            for input_symbol, to_states in self.transitions[state].items():
+                if to_states == set():
+                    if state in to_delete_sym:
+                        to_delete_sym[state].add(input_symbol)
+                    else:
+                        to_delete_sym[state] = {input_symbol}
+
+        for state, input_symbols in to_delete_sym.items():
+            for input_symbol in input_symbols:
+                del self.transitions[state][input_symbol]
+
+        for state in list(self.transitions.keys()):
+            if self.transitions[state] == dict():
+                del self.transitions[state]
 
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
