@@ -322,7 +322,7 @@ class DFA(fa.FA):
         new_input_symbols = self.input_symbols
         new_states = set(back_map.values())
         new_initial_state = back_map[self.initial_state]
-        new_final_states = {back_map[acc] for acc in self.final_states}
+        new_final_states = {back_map[acc] for acc in reachable_final_states}
         new_transitions = {
             name: {
                 letter: back_map[self.transitions[next(iter(eq))][letter]]
