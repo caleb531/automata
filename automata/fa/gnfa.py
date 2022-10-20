@@ -39,6 +39,8 @@ class GNFA(nfa.NFA):
         gnfa = dfa.copy()
 
         new_gnfa_transitions = dict()
+        gnfa_states = copy.copy(dfa.states)
+
 
         for state in dfa.states:
             gnfa_transitions = dict()
@@ -52,25 +54,24 @@ class GNFA(nfa.NFA):
             else:
                 new_gnfa_transitions[state] = dict()
 
-        new_initial_state = GNFA._add_new_state(gnfa.states)
-        new_final_state = GNFA._add_new_state(gnfa.states, new_initial_state)
+        new_initial_state = GNFA._add_new_state(gnfa_states)
+        new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)
 
         new_gnfa_transitions[new_initial_state] = {gnfa.initial_state: ''}
-        gnfa.initial_state = new_initial_state
 
         for state in gnfa.final_states:
             new_gnfa_transitions[state][new_final_state] = ''
         gnfa.final_state = new_final_state
 
-        for state in gnfa.states - {new_final_state}:  # pragma: no branch
-            if gnfa.states - new_gnfa_transitions[state].keys():  # pragma: no branch
-                for leftover_state in gnfa.states - new_gnfa_transitions[state].keys():
-                    if leftover_state is not gnfa.initial_state:
+        for state in gnfa_states - {new_final_state}:  # pragma: no branch
+            if gnfa_states - new_gnfa_transitions[state].keys():  # pragma: no branch
+                for leftover_state in gnfa_states - new_gnfa_transitions[state].keys():
+                    if leftover_state is not new_initial_state:
                         new_gnfa_transitions[state][leftover_state] = None
 
         return cls(
-            states=gnfa.states, input_symbols=gnfa.input_symbols,
-            transitions=new_gnfa_transitions, initial_state=gnfa.initial_state,
+            states=gnfa_states, input_symbols=dfa.input_symbols,
+            transitions=new_gnfa_transitions, initial_state=new_initial_state,
             final_state=gnfa.final_state)
 
     @classmethod
