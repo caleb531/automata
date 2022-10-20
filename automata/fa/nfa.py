@@ -188,82 +188,45 @@ class NFA(fa.FA):
 
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
-        res = self.copy()
 
+        # Create new transitions and final states for running this algorithm
         new_transitions = copy.deepcopy(self.transitions)
+        new_final_states = copy.copy(self.final_states)
 
-        for state in res.states:
-            lambda_enclosure = res.lambda_closures[state] - {state}
-            for input_symbol in res.input_symbols:
-                next_current_states = res._get_next_current_states(lambda_enclosure, input_symbol)
+        for state in self.states:
+            lambda_enclosure = self.lambda_closures[state] - {state}
+            for input_symbol in self.input_symbols:
+                next_current_states = self._get_next_current_states(lambda_enclosure, input_symbol)
 
+                # Don't do anything if no new current states
                 if next_current_states:
-                    if state not in new_transitions:
-                        new_transitions[state] = dict()
-                    if input_symbol in new_transitions[state]:
-                        new_transitions[state][input_symbol].update(next_current_states)
-                    else:
-                        new_transitions[state][input_symbol] = next_current_states
+                    state_transition_dict = new_transitions.setdefault(state, dict())
 
-            if (res.final_states & lambda_enclosure):
-                res.final_states.add(state)
+                    if input_symbol in state_transition_dict:
+                        state_transition_dict[input_symbol].update(next_current_states)
+                    else:
+                        state_transition_dict[input_symbol] = next_current_states
+
+            if (new_final_states & lambda_enclosure):
+                new_final_states.add(state)
 
             if state in new_transitions:
                 new_transitions[state].pop('', None)
 
-        print()
-        print(res.transitions)
-        unreachable_states = res.states - NFA.compute_reachable_states(res.initial_state, res.states, new_transitions)
+        # Remove unreachable states
+        reachable_states = NFA.compute_reachable_states(self.initial_state, self.states, new_transitions)
+        reachable_final_states = reachable_states & new_final_states
 
-        for state in unreachable_states:
+        for state in self.states - reachable_states:
             new_transitions.pop(state, None)
-            if state in res.final_states:
-                res.final_states.remove(state)
-
-        #res._remove_unreachable_states()
-        res._remove_empty_transitions()
-        res.recompute_lambda_closures()
-        print()
-        print(new_transitions)
-        #return res
 
         return self.__class__(
-            states=res.states,
-            input_symbols=res.input_symbols,
+            states=reachable_states,
+            input_symbols=self.input_symbols,
             transitions=new_transitions,
-            initial_state=res.initial_state,
-            final_states=res.final_states
+            initial_state=self.initial_state,
+            final_states=reachable_final_states
         )
-
-
-    def _remove_unreachable_states(self):
-        """Remove states which are not reachable from the initial state."""
-        reachable_states = self._compute_reachable_states()
-        unreachable_states = self.states - reachable_states
-        for state in unreachable_states:
-            self.states.remove(state)
-            self.transitions.pop(state, None)
-            if state in self.final_states:
-                self.final_states.remove(state)
-
-    def _remove_empty_transitions(self):
-        """Deletes transitions to empty set of states"""
-        to_delete_sym = {}
-        for state in self.transitions.keys():
-            for input_symbol, to_states in self.transitions[state].items():
-                if to_states == set():
-                    if state in to_delete_sym:
-                        to_delete_sym[state].add(input_symbol)
-                    else:
-                        to_delete_sym[state] = {input_symbol}
-
-        for state, input_symbols in to_delete_sym.items():
-            for input_symbol in input_symbols:
-                del self.transitions[state][input_symbol]
-
-        for state in list(self.transitions.keys()):
-            if self.transitions[state] == dict():
-                del self.transitions[state]
 
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
