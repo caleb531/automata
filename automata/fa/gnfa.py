@@ -205,10 +205,10 @@ class GNFA(nfa.NFA):
         Convert GNFA to regular expression.
         """
         new_states = set(self.states)
-        new_transitions = dict({
+        new_transitions = {
             state: dict(paths)
             for state, paths in self.transitions.items()
-        })
+        }
 
         while len(new_states) > 2:
             q_rip = self._find_min_connected_node(new_states, new_transitions, self.initial_state, self.final_state)
