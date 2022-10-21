@@ -44,9 +44,6 @@ class TestGNFA(test_fa.TestFA):
         with self.assertRaises(AttributeError):
             del self.gnfa.states
 
-    def test_gnfa_hashable(self):
-        self.assertIsInstance(hash(self.gnfa), int)
-
     def test_init_dfa(self):
         """Should convert DFA to GNFA if passed into GNFA constructor."""
         gnfa = GNFA.from_dfa(self.dfa)

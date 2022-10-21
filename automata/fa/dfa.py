@@ -37,9 +37,6 @@ class DFA(fa.FA):
             allow_partial=allow_partial
         )
 
-    def __hash__(self):
-        return super().__hash__()
-
     def __eq__(self, other):
         """
         Return True if two DFAs are equivalent. Uses an optimized version of

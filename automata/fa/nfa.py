@@ -61,9 +61,6 @@ class NFA(fa.FA):
             for state in self.states
         }))
 
-    def __hash__(self):
-        return super().__hash__()
-
     def __eq__(self, other):
         # Must be another NFA and have equal alphabets
         if not isinstance(other, NFA):

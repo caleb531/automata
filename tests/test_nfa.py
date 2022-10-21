@@ -44,9 +44,6 @@ class TestNFA(test_fa.TestFA):
         with self.assertRaises(AttributeError):
             del self.nfa.states
 
-    def test_nfa_hashable(self):
-        self.assertIsInstance(hash(self.nfa), int)
-
     def test_init_dfa(self):
         """Should convert DFA to NFA if passed into NFA constructor."""
         nfa = NFA.from_dfa(self.dfa)

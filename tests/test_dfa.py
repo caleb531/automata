@@ -46,9 +46,6 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(AttributeError):
             del self.dfa.states
 
-    def test_dfa_hashable(self):
-        self.assertIsInstance(hash(self.dfa), int)
-
     @patch('automata.fa.dfa.DFA.validate')
     def test_init_validation(self, validate):
         """Should validate DFA when initialized."""
