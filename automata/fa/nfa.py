@@ -201,7 +201,13 @@ class NFA(fa.FA):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
 
         # Create new transitions and final states for running this algorithm
-        new_transitions = copy.deepcopy(self.transitions)
+        new_transitions = {
+            state: {
+                symbol: set(dest)
+                for symbol, dest in paths.items()
+            }
+            for state, paths in self.transitions.items()
+        }
         new_final_states = set(self.final_states)
 
         for state in self.states:
