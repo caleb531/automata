@@ -43,6 +43,7 @@ jobs:
 
     - name: Coveralls
       uses: coverallsapp/github-action@master
+      continue-on-error: true
       with:
         path-to-lcov: cover/coverage.lcov
         github-token: ${{ secrets.GITHUB_TOKEN }}
