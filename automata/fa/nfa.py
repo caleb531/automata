@@ -43,8 +43,8 @@ class NFA(fa.FA):
             (start_state, end_state)
             for start_state, transition in self.transitions.items()
             for char, end_states in transition.items()
-            for end_state in end_states
             if char == ''
+            for end_state in end_states
         ])
 
         self.lambda_closures = {
