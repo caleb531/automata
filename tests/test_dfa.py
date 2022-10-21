@@ -21,7 +21,7 @@ class TestDFA(test_fa.TestFA):
     def test_init_dfa(self):
         """Should copy DFA if passed into DFA constructor."""
         new_dfa = DFA.copy(self.dfa)
-        self.assert_is_copy(new_dfa, self.dfa)
+        self.assertIsNot(new_dfa, self.dfa)
 
     def test_init_dfa_missing_formal_params(self):
         """Should raise an error if formal DFA parameters are missing."""
@@ -36,7 +36,7 @@ class TestDFA(test_fa.TestFA):
     def test_copy_dfa(self):
         """Should create exact copy of DFA if copy() method is called."""
         new_dfa = self.dfa.copy()
-        self.assert_is_copy(new_dfa, self.dfa)
+        self.assertIsNot(new_dfa, self.dfa)
 
     @patch('automata.fa.dfa.DFA.validate')
     def test_init_validation(self, validate):
@@ -51,51 +51,107 @@ class TestDFA(test_fa.TestFA):
 
     def test_dfa_not_equal(self):
         """Should correctly determine if two DFAs are not equal."""
-        new_dfa = self.dfa.copy()
-        new_dfa.final_states.add('q2')
+        new_dfa = DFA(
+            states={'q0'},
+            input_symbols={'a'},
+            transitions={
+                'q0': {'a': 'q0'}
+            },
+            initial_state='q0',
+            final_states={'q0'}
+        )
         self.assertTrue(self.dfa != new_dfa, 'DFAs are equal')
 
     def test_validate_missing_state(self):
         """Should raise error if a state has no transitions defined."""
         with self.assertRaises(exceptions.MissingStateError):
-            del self.dfa.transitions['q1']
-            self.dfa.validate()
+            DFA(
+                states={'q0', 'q1'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': 'q0'}
+                },
+                initial_state='q0',
+                final_states={'q0'}
+            )
 
     def test_validate_missing_symbol(self):
         """Should raise error if a symbol transition is missing."""
         with self.assertRaises(exceptions.MissingSymbolError):
-            del self.dfa.transitions['q1']['1']
-            self.dfa.validate()
+            DFA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                transitions={
+                    'q0': {'a': 'q0'}
+                },
+                initial_state='q0',
+                final_states={'q0'}
+            )
 
     def test_validate_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
-            self.dfa.transitions['q1']['2'] = 'q2'
-            self.dfa.validate()
+            DFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': 'q0', 'b': 'q0'}
+                },
+                initial_state='q0',
+                final_states={'q0'}
+            )
 
     def test_validate_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.dfa.transitions['q1']['1'] = 'q3'
-            self.dfa.validate()
+            DFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': 'q1'}
+                },
+                initial_state='q0',
+                final_states={'q0'}
+            )
 
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.dfa.initial_state = 'q3'
-            self.dfa.validate()
+            DFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': 'q1'}
+                },
+                initial_state='q1',
+                final_states={'q0'}
+            )
 
     def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.dfa.final_states = {'q3'}
-            self.dfa.validate()
+            DFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': 'q1'}
+                },
+                initial_state='q0',
+                final_states={'q1'}
+            )
 
     def test_validate_invalid_final_state_non_str(self):
         """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.dfa.final_states = {3}
-            self.dfa.validate()
+            DFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': 'q1'}
+                },
+                initial_state='q0',
+                final_states={3}
+            )
 
     def test_read_input_accepted(self):
         """Should return correct state if acceptable DFA input is given."""

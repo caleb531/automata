@@ -16,7 +16,7 @@ class TestNTM(test_tm.TestTM):
     def test_init_ntm(self):
         """Should copy NTM if passed into NTM constructor."""
         new_dtm = NTM.copy(self.ntm1)
-        self.assert_is_copy(new_dtm, self.ntm1)
+        self.assertIsNot(new_dtm, self.ntm1)
 
     def test_init_ntm_missing_formal_params(self):
         """Should raise an error if formal NTM parameters are missing."""
@@ -39,7 +39,7 @@ class TestNTM(test_tm.TestTM):
     def test_copy_ntm(self):
         """Should create exact copy of NTM if copy() method is called."""
         new_ntm = self.ntm1.copy()
-        self.assert_is_copy(new_ntm, self.ntm1)
+        self.assertIsNot(new_ntm, self.ntm1)
 
     def test_ntm_equal(self):
         """Should correctly determine if two NTMs are equal."""

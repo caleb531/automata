@@ -15,7 +15,7 @@ class TestNPDA(test_pda.TestPDA):
     def test_init_npda(self):
         """Should copy NPDA if passed into NPDA constructor."""
         new_npda = NPDA.copy(self.npda)
-        self.assert_is_copy(new_npda, self.npda)
+        self.assertIsNot(new_npda, self.npda)
 
     def test_init_npda_missing_formal_params(self):
         """Should raise an error if formal NPDA parameters are missing."""

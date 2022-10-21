@@ -19,7 +19,7 @@ class TestNFA(test_fa.TestFA):
     def test_init_nfa(self):
         """Should copy NFA if passed into NFA constructor."""
         new_nfa = NFA.copy(self.nfa)
-        self.assert_is_copy(new_nfa, self.nfa)
+        self.assertIsNot(new_nfa, self.nfa)
 
     def test_init_nfa_missing_formal_params(self):
         """Should raise an error if formal NFA parameters are missing."""
@@ -34,7 +34,7 @@ class TestNFA(test_fa.TestFA):
     def test_copy_nfa(self):
         """Should create exact copy of NFA if copy() method is called."""
         new_nfa = self.nfa.copy()
-        self.assert_is_copy(new_nfa, self.nfa)
+        self.assertIsNot(new_nfa, self.nfa)
 
     def test_init_dfa(self):
         """Should convert DFA to NFA if passed into NFA constructor."""
@@ -61,44 +61,92 @@ class TestNFA(test_fa.TestFA):
 
     def test_nfa_not_equal(self):
         """Should correctly determine if two NFAs are not equal."""
-        new_nfa = self.nfa.copy()
-        new_nfa.final_states.add('q2')
+        new_nfa = NFA(
+            states={'q0'},
+            input_symbols={'a'},
+            transitions={
+                'q0': {'a': {'q0'}}
+            },
+            initial_state='q0',
+            final_states={'q0'}
+        )
         self.assertTrue(self.nfa != new_nfa, 'NFAs are equal')
 
     def test_validate_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
-            self.nfa.transitions['q1']['c'] = {'q2'}
-            self.nfa.validate()
+            NFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'b': {'q0'}}
+                },
+                initial_state='q0',
+                final_states={'q0'}
+            )
 
     def test_validate_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.nfa.transitions['q1']['a'] = {'q3'}
-            self.nfa.validate()
+            NFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': {'q1'}}
+                },
+                initial_state='q0',
+                final_states={'q0'}
+            )
 
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.nfa.initial_state = 'q3'
-            self.nfa.validate()
+            NFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': {'q0'}}
+                },
+                initial_state='q1',
+                final_states={'q0'}
+            )
 
     def test_validate_initial_state_transitions(self):
         """Should raise error if the initial state has no transitions."""
         with self.assertRaises(exceptions.MissingStateError):
-            del self.nfa.transitions[self.nfa.initial_state]
-            self.nfa.validate()
+            NFA(
+                states={'q0', 'q1'},
+                input_symbols={'a'},
+                transitions={},
+                initial_state='q0',
+                final_states={'q1'}
+            )
 
     def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.nfa.final_states = {'q3'}
-            self.nfa.validate()
+            NFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': {'q0'}}
+                },
+                initial_state='q0',
+                final_states={'q1'}
+            )
 
     def test_validate_invalid_final_state_non_str(self):
         """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.nfa.final_states = {3}
+            NFA(
+                states={'q0'},
+                input_symbols={'a'},
+                transitions={
+                    'q0': {'a': {'q0'}}
+                },
+                initial_state='q0',
+                final_states={3}
+            )
             self.nfa.validate()
 
     def test_read_input_accepted(self):
@@ -107,9 +155,16 @@ class TestNFA(test_fa.TestFA):
 
     def test_validate_missing_state(self):
         """Should silently ignore states without transitions defined."""
-        self.nfa.states.add('q3')
-        self.nfa.transitions['q0']['a'].add('q3')
-        self.assertEqual(self.nfa.validate(), True)
+        NFA(
+            states={'q0'},
+            input_symbols={'a', 'b'},
+            transitions={
+                'q0': {'a': {'q0'}}
+            },
+            initial_state='q0',
+            final_states={'q0'}
+        )
+        self.assertIsNotNone(self.nfa.transitions)
 
     def test_read_input_rejection(self):
         """Should raise error if the stop state is not a final state."""
@@ -497,9 +552,17 @@ class TestNFA(test_fa.TestFA):
         is also a final state.
         """
 
-        nfa = self.nfa
-
-        nfa.final_states.add('q0')
+        nfa = NFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            transitions={
+                'q0': {'a': {'q1'}},
+                'q1': {'a': {'q1'}, '': {'q2'}},
+                'q2': {'b': {'q0'}}
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
         graph = nfa.show_diagram()
         self.assertEqual(
             {node.get_name() for node in graph.get_nodes()},

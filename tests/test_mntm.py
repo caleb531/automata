@@ -18,7 +18,7 @@ class TestMNTM(test_tm.TestTM):
     def test_init_mntm(self):
         """Should copy MNTM if passed into MNTM constructor."""
         new_mntm = MNTM.copy(self.mntm1)
-        self.assert_is_copy(new_mntm, self.mntm1)
+        self.assertIsNot(new_mntm, self.mntm1)
 
     def test_init_mntm_missing_formal_params(self):
         """Should raise an error if formal MNTM parameters are missing."""
@@ -41,7 +41,7 @@ class TestMNTM(test_tm.TestTM):
     def test_copy_ntm(self):
         """Should create exact copy of MNTM if copy() method is called."""
         new_mntm = self.mntm1.copy()
-        self.assert_is_copy(new_mntm, self.mntm1)
+        self.assertIsNot(new_mntm, self.mntm1)
 
     def test_ntm_equal(self):
         """Should correctly determine if two MNTMs are equal."""

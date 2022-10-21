@@ -16,7 +16,7 @@ class TestDTM(test_tm.TestTM):
     def test_init_dtm(self):
         """Should copy DTM if passed into DTM constructor."""
         new_dtm = DTM.copy(self.dtm1)
-        self.assert_is_copy(new_dtm, self.dtm1)
+        self.assertIsNot(new_dtm, self.dtm1)
 
     def test_init_dtm_missing_formal_params(self):
         """Should raise an error if formal DTM parameters are missing."""
@@ -39,7 +39,7 @@ class TestDTM(test_tm.TestTM):
     def test_copy_dtm(self):
         """Should create exact copy of DTM if copy() method is called."""
         new_dtm = self.dtm1.copy()
-        self.assert_is_copy(new_dtm, self.dtm1)
+        self.assertIsNot(new_dtm, self.dtm1)
 
     def test_dtm_equal(self):
         """Should correctly determine if two DTMs are equal."""

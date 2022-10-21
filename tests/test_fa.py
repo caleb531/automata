@@ -52,26 +52,3 @@ class TestFA(unittest.TestCase):
             initial_state='q_in',
             final_state='q_f'
         )
-
-    def assert_is_copy(self, first, second):
-        """Assert that the first FA is a deep copy of the second."""
-        self.assertIsNot(first.states, second.states)
-        self.assertEqual(first.states, second.states)
-        self.assertIsNot(first.input_symbols, second.input_symbols)
-        self.assertEqual(first.input_symbols, second.input_symbols)
-        self.assertIsNot(first.transitions, second.transitions)
-        self.assertEqual(first.transitions, second.transitions)
-        self.assertEqual(first.initial_state, second.initial_state)
-        self.assertIsNot(first.final_states, second.final_states)
-        self.assertEqual(first.final_states, second.final_states)
-
-    def assert_is_copy_for_gnfa(self, first, second):
-        """Assert that the first GNFA is a deep copy of the second."""
-        self.assertIsNot(first.states, second.states)
-        self.assertEqual(first.states, second.states)
-        self.assertIsNot(first.input_symbols, second.input_symbols)
-        self.assertEqual(first.input_symbols, second.input_symbols)
-        self.assertIsNot(first.transitions, second.transitions)
-        self.assertEqual(first.transitions, second.transitions)
-        self.assertEqual(first.initial_state, second.initial_state)
-        self.assertEqual(first.final_state, second.final_state)

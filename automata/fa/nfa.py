@@ -202,7 +202,7 @@ class NFA(fa.FA):
 
         # Create new transitions and final states for running this algorithm
         new_transitions = copy.deepcopy(self.transitions)
-        new_final_states = copy.copy(self.final_states)
+        new_final_states = set(self.final_states)
 
         for state in self.states:
             lambda_enclosure = self.lambda_closures[state] - {state}
@@ -361,7 +361,7 @@ class NFA(fa.FA):
         new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same with a few additions.
-        new_transitions = copy.deepcopy(self.transitions)
+        new_transitions = dict(self.transitions)
         # We add epsilon transition from new initial state
         # to old initial state
         new_transitions[new_initial_state] = {
@@ -370,8 +370,10 @@ class NFA(fa.FA):
         # For each final state in original NFA we add epsilon
         # transition to the old initial state
         for state in self.final_states:
-            transition = new_transitions.setdefault(state, dict())
-            transition.setdefault('', set()).add(self.initial_state)
+            new_transitions[state] = dict(new_transitions.get(state, dict()))
+            transition = new_transitions[state]
+            transition[''] = set(transition.get('', set()))
+            transition[''].add(self.initial_state)
 
         return self.__class__(
             states=new_states,
@@ -391,7 +393,7 @@ class NFA(fa.FA):
         new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same with a few additions.
-        new_transitions = copy.deepcopy(self.transitions)
+        new_transitions = dict(self.transitions)
         # We add epsilon transition from new initial state
         # to old initial state
         new_transitions[new_initial_state] = {

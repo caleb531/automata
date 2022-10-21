@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with generalized non-deterministic finite automata."""
 
-import copy
 from itertools import product
 
 from frozendict import frozendict
@@ -48,7 +47,7 @@ class GNFA(nfa.NFA):
     def from_dfa(cls, dfa):
         """Initialize this GNFA as one equivalent to the given DFA."""
         new_gnfa_transitions = dict()
-        gnfa_states = copy.copy(dfa.states)
+        gnfa_states = set(dfa.states)
 
         for state in dfa.states:
             gnfa_transitions = dict()
@@ -85,7 +84,7 @@ class GNFA(nfa.NFA):
     def from_nfa(cls, nfa):
         """Initialize this GNFA as one equivalent to the given NFA."""
         new_gnfa_transitions = dict()
-        gnfa_states = copy.copy(nfa.states)
+        gnfa_states = set(nfa.states)
 
         for state in nfa.states:
             gnfa_transitions = dict()
@@ -205,8 +204,11 @@ class GNFA(nfa.NFA):
         """
         Convert GNFA to regular expression.
         """
-        new_states = copy.copy(self.states)
-        new_transitions = copy.deepcopy(self.transitions)
+        new_states = set(self.states)
+        new_transitions = dict({
+            state: dict(paths)
+            for state, paths in self.transitions.items()
+        })
 
         while len(new_states) > 2:
             q_rip = self._find_min_connected_node(new_states, new_transitions, self.initial_state, self.final_state)

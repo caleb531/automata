@@ -78,20 +78,3 @@ class TestPDA(unittest.TestCase):
             final_states={'q2'},
             acceptance_mode='final_state'
         )
-
-    def assert_is_copy(self, first, second):
-        """Assert that the first PDA is a deep copy of the second."""
-        self.assertIsNot(first.states, second.states)
-        self.assertEqual(first.states, second.states)
-        self.assertIsNot(first.input_symbols, second.input_symbols)
-        self.assertEqual(first.input_symbols, second.input_symbols)
-        self.assertIsNot(first.stack_symbols, second.stack_symbols)
-        self.assertEqual(first.stack_symbols, second.stack_symbols)
-        self.assertIsNot(first.transitions, second.transitions)
-        self.assertEqual(first.transitions, second.transitions)
-        self.assertEqual(first.initial_state, second.initial_state)
-        self.assertEqual(
-            first.initial_stack_symbol, second.initial_stack_symbol)
-        self.assertIsNot(first.final_states, second.final_states)
-        self.assertEqual(first.final_states, second.final_states)
-        self.assertEqual(first.acceptance_mode, second.acceptance_mode)

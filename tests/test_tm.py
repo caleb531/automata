@@ -353,21 +353,6 @@ class TestTM(unittest.TestCase):
             final_states={'q4'},
         )
 
-    def assert_is_copy(self, first, second):
-        """Assert that the first FA is a deep copy of the second."""
-        self.assertIsNot(first.states, second.states)
-        self.assertEqual(first.states, second.states)
-        self.assertIsNot(first.input_symbols, second.input_symbols)
-        self.assertEqual(first.input_symbols, second.input_symbols)
-        self.assertIsNot(first.tape_symbols, second.tape_symbols)
-        self.assertEqual(first.tape_symbols, second.tape_symbols)
-        self.assertIsNot(first.transitions, second.transitions)
-        self.assertEqual(first.transitions, second.transitions)
-        self.assertEqual(first.initial_state, second.initial_state)
-        self.assertEqual(first.blank_symbol, second.blank_symbol)
-        self.assertIsNot(first.final_states, second.final_states)
-        self.assertEqual(first.final_states, second.final_states)
-
     def test_validate_blank_symbol(self):
         """Should raise an error if the blank symbol is not valid"""
         self.dtm1.blank_symbol = '-'
