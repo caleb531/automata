@@ -3,6 +3,8 @@
 
 import abc
 
+from frozendict import frozendict
+
 from automata.base.automaton import Automaton
 
 
@@ -16,3 +18,6 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     def __delattr__(self, name):
         """Set custom delattr to make class immutable."""
         raise AttributeError(f'This {type(self).__name__} is immutable')
+
+    def __hash__(self):
+        return hash(frozendict(self.__dict__))

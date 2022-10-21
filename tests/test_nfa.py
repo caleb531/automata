@@ -36,6 +36,17 @@ class TestNFA(test_fa.TestFA):
         new_nfa = self.nfa.copy()
         self.assertIsNot(new_nfa, self.nfa)
 
+    def test_nfa_immutable_attr_set(self):
+        with self.assertRaises(AttributeError):
+            self.nfa.states = {}
+
+    def test_nfa_immutable_attr_del(self):
+        with self.assertRaises(AttributeError):
+            del self.nfa.states
+
+    def test_nfa_hashable(self):
+        self.assertIsInstance(hash(self.nfa), int)
+
     def test_init_dfa(self):
         """Should convert DFA to NFA if passed into NFA constructor."""
         nfa = NFA.from_dfa(self.dfa)

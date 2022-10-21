@@ -33,9 +33,12 @@ class DFA(fa.FA):
                 for state, paths in transitions.items()
             }),
             initial_state=initial_state,
-            final_states=final_states.copy(),
+            final_states=frozenset(final_states),
             allow_partial=allow_partial
         )
+
+    def __hash__(self):
+        return super().__hash__()
 
     def __eq__(self, other):
         """

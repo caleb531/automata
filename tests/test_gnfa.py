@@ -36,6 +36,17 @@ class TestGNFA(test_fa.TestFA):
         new_gnfa = self.gnfa.copy()
         self.assertIsNot(new_gnfa, self.gnfa)
 
+    def test_gnfa_immutable_attr_set(self):
+        with self.assertRaises(AttributeError):
+            self.gnfa.states = {}
+
+    def test_gnfa_immutable_attr_del(self):
+        with self.assertRaises(AttributeError):
+            del self.gnfa.states
+
+    def test_gnfa_hashable(self):
+        self.assertIsInstance(hash(self.gnfa), int)
+
     def test_init_dfa(self):
         """Should convert DFA to GNFA if passed into GNFA constructor."""
         gnfa = GNFA.from_dfa(self.dfa)

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 
-import copy
-
 import networkx as nx
 from frozendict import frozendict
 from pydot import Dot, Edge, Node
@@ -58,10 +56,19 @@ class NFA(fa.FA):
             for end_state in end_states
         ])
 
-        object.__setattr__(self, 'lambda_closures', {
-            state: nx.descendants(lambda_graph, state) | {state}
+        object.__setattr__(self, 'lambda_closures', frozendict({
+            state: frozenset(nx.descendants(lambda_graph, state) | {state})
             for state in self.states
-        })
+        }))
+
+    def __hash__(self):
+        return super().__hash__()
+
+    def __eq__(self, other):
+        # Must be another NFA and have equal alphabets
+        if not isinstance(other, NFA):
+            return NotImplemented
+        return frozendict(self.__dict__) == frozendict(other.__dict__)
 
     def copy(self):
         """

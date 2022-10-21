@@ -38,6 +38,17 @@ class TestDFA(test_fa.TestFA):
         new_dfa = self.dfa.copy()
         self.assertIsNot(new_dfa, self.dfa)
 
+    def test_dfa_immutable_attr_set(self):
+        with self.assertRaises(AttributeError):
+            self.dfa.states = {}
+
+    def test_dfa_immutable_attr_del(self):
+        with self.assertRaises(AttributeError):
+            del self.dfa.states
+
+    def test_dfa_hashable(self):
+        self.assertIsInstance(hash(self.dfa), int)
+
     @patch('automata.fa.dfa.DFA.validate')
     def test_init_validation(self, validate):
         """Should validate DFA when initialized."""
