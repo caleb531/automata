@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic finite automata."""
 
-import copy
 from collections import deque
 from enum import IntEnum
 from itertools import chain, count, product
 
 import networkx as nx
+from frozendict import frozendict
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
@@ -25,13 +25,17 @@ class DFA(fa.FA):
     def __init__(self, *, states, input_symbols, transitions,
                  initial_state, final_states, allow_partial=False):
         """Initialize a complete DFA."""
-        self.states = states.copy()
-        self.input_symbols = input_symbols.copy()
-        self.transitions = copy.deepcopy(transitions)
-        self.initial_state = initial_state
-        self.final_states = final_states.copy()
-        self.allow_partial = allow_partial
-        self.validate()
+        super().__init__(
+            states=frozenset(states),
+            input_symbols=frozenset(input_symbols),
+            transitions=frozendict({
+                state: frozendict(paths)
+                for state, paths in transitions.items()
+            }),
+            initial_state=initial_state,
+            final_states=final_states.copy(),
+            allow_partial=allow_partial
+        )
 
     def __eq__(self, other):
         """

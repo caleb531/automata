@@ -9,10 +9,13 @@ import automata.base.exceptions as exceptions
 class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
 
-    @abc.abstractmethod
-    def __init__(self):
-        """Initialize a complete automaton."""
-        raise NotImplementedError
+    def __init__(self, **kwargs):
+        for attr_name, attr_value in kwargs.items():
+            object.__setattr__(self, attr_name, attr_value)
+        self.__post_init__()
+
+    def __post_init__(self):
+        self.validate()
 
     @abc.abstractmethod
     def validate(self):

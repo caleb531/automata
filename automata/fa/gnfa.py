@@ -4,9 +4,11 @@
 import copy
 from itertools import product
 
+from frozendict import frozendict
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
+import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 import automata.regex.regex as re
 
@@ -17,11 +19,19 @@ class GNFA(nfa.NFA):
     def __init__(self, *, states, input_symbols, transitions,
                  initial_state, final_state):
         """Initialize a complete NFA."""
-        self.states = states.copy()
-        self.input_symbols = input_symbols.copy()
-        self.transitions = copy.deepcopy(transitions)
-        self.initial_state = initial_state
-        self.final_state = final_state
+        super(fa.FA, self).__init__(
+            states=frozenset(states),
+            input_symbols=frozenset(input_symbols),
+            transitions=frozendict({
+                state: frozendict(paths)
+                for state, paths in transitions.items()
+            }),
+            initial_state=initial_state,
+            final_state=final_state
+        )
+
+    # GNFA should NOT create the lambda closures via NFA.__post_init__()
+    def __post_init__(self):
         self.validate()
 
     def copy(self):
@@ -243,7 +253,6 @@ class GNFA(nfa.NFA):
                 del new_transitions[state][q_rip]
 
         return new_transitions[self.initial_state][self.final_state]
-
 
     # The following NFA methods are not supported on GNFA instances because
     # they are out of scope for the purpose of the GNFA class (which is focused

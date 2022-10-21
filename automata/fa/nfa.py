@@ -4,6 +4,7 @@
 import copy
 
 import networkx as nx
+from frozendict import frozendict
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
@@ -17,13 +18,23 @@ class NFA(fa.FA):
     def __init__(self, *, states, input_symbols, transitions,
                  initial_state, final_states):
         """Initialize a complete NFA."""
-        self.states = states.copy()
-        self.input_symbols = input_symbols.copy()
-        self.transitions = copy.deepcopy(transitions)
-        self.initial_state = initial_state
-        self.final_states = final_states.copy()
+        super().__init__(
+            states=frozenset(states),
+            input_symbols=frozenset(input_symbols),
+            transitions=frozendict({
+                state: frozendict({
+                    symbol: frozenset(dest)
+                    for symbol, dest in paths.items()
+                })
+                for state, paths in transitions.items()
+            }),
+            initial_state=initial_state,
+            final_states=frozenset(final_states)
+        )
+
+    def __post_init__(self):
         self.recompute_lambda_closures()
-        self.validate()
+        super().__post_init__()
 
     def recompute_lambda_closures(self):
         """
@@ -47,10 +58,10 @@ class NFA(fa.FA):
             for end_state in end_states
         ])
 
-        self.lambda_closures = {
+        object.__setattr__(self, 'lambda_closures', {
             state: nx.descendants(lambda_graph, state) | {state}
             for state in self.states
-        }
+        })
 
     def copy(self):
         """
