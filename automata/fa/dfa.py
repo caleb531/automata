@@ -59,11 +59,7 @@ class DFA(fa.FA):
         def is_final_state(state_pair):
             state, origin_enum = state_pair
 
-            if origin_enum is OriginEnum.SELF:
-                return state in self.final_states
-
-            # origin_enum is OriginEnum.OTHER:
-            return state in other.final_states
+            return state in origin_automata[origin_enum].final_states
 
         def transition(state_pair, symbol):
             state, origin_enum = state_pair
