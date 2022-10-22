@@ -65,28 +65,31 @@ class TestNFA(test_fa.TestFA):
     def test_nfa_equal(self):
         """Should correctly determine if two NFAs are equal."""
         nfa1 = NFA(
-            states={'q0', 'q1', 'q2'},
+            states={'q0', 'q1', 'q2', 'q3'},
             input_symbols={'a', 'b'},
             transitions={
-                'q0': {'a': {'q1'}},
-                'q1': {'a': {'q1'}, '': {'q2'}},
-                'q2': {'b': {'q0'}}
+                'q0': {'': {'q1'}},
+                'q1': {'a': {'q2'}},
+                'q2': {'a': {'q2'}, '': {'q3'}},
+                'q3': {'b': {'q1'}}
             },
             initial_state='q0',
-            final_states={'q1'}
+            final_states={'q3'}
         )
         nfa2 = NFA(
-            states={0, 1, 2},
+            states={0, 1, 2, 3},
             input_symbols={'a', 'b'},
             transitions={
-                0: {'a': {1}},
-                1: {'a': {1}, '': {2}},
-                2: {'b': {0}}
+                0: {'': {1}},
+                1: {'a': {2}},
+                2: {'a': {2}, '': {3}},
+                3: {'b': {1}}
             },
             initial_state=0,
-            final_states={1}
+            final_states={3}
         )
         self.assertEqual(nfa1, nfa2)
+        self.assertEqual(nfa1.eliminate_lambda(), nfa2.eliminate_lambda())
 
     def test_nfa_not_equal(self):
         """Should correctly determine if two NFAs are not equal."""

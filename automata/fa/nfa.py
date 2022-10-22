@@ -536,14 +536,18 @@ class NFA(fa.FA):
             return NotImplemented
 
         # Get new initial states
-        initial_state_a = (frozenset({self.initial_state}), OriginEnum.SELF)
-        initial_state_b = (frozenset({other.initial_state}), OriginEnum.OTHER)
+        initial_state_a = (self.lambda_closures[self.initial_state], OriginEnum.SELF)
+        initial_state_b = (other.lambda_closures[other.initial_state], OriginEnum.OTHER)
 
         def is_final_state(states_pair):
             states, origin_enum = states_pair
             # If at least one of the current states is a final state, the
             # condition should satisfy
-            return bool(origin_automata[origin_enum].final_states - states)
+            for state in states:
+                automaton = origin_automata[origin_enum]
+                if len(automaton.final_states - automaton.lambda_closures[state]) > 0:
+                    return True
+            return False
 
         def transition(states_pair, symbol):
             states, origin_enum = states_pair
