@@ -41,17 +41,6 @@ class TestDTM(test_tm.TestTM):
         new_dtm = self.dtm1.copy()
         self.assertIsNot(new_dtm, self.dtm1)
 
-    def test_dtm_equal(self):
-        """Should correctly determine if two DTMs are equal."""
-        new_dtm = self.dtm1.copy()
-        self.assertTrue(self.dtm1 == new_dtm, 'DTMs are not equal')
-
-    def test_dtm_not_equal(self):
-        """Should correctly determine if two DTMs are not equal."""
-        new_dtm = self.dtm1.copy()
-        new_dtm.final_states.add('q2')
-        self.assertTrue(self.dtm1 != new_dtm, 'DTMs are equal')
-
     def test_validate_input_symbol_subset(self):
         """Should raise error if any input symbols are not tape symbols."""
         with self.assertRaises(exceptions.MissingSymbolError):

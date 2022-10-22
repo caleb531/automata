@@ -43,17 +43,6 @@ class TestMNTM(test_tm.TestTM):
         new_mntm = self.mntm1.copy()
         self.assertIsNot(new_mntm, self.mntm1)
 
-    def test_ntm_equal(self):
-        """Should correctly determine if two MNTMs are equal."""
-        new_mntm = self.mntm1.copy()
-        self.assertTrue(self.mntm1 == new_mntm, 'MNTMs are not equal')
-
-    def test_ntm_not_equal(self):
-        """Should correctly determine if two MNTMs are not equal."""
-        new_mntm = self.mntm1.copy()
-        new_mntm.final_states.add('q2')
-        self.assertTrue(self.mntm1 != new_mntm, 'MNTMs are equal')
-
     def test_validate_input_symbol_subset(self):
         """Should raise error if any input symbols are not tape symbols."""
         with self.assertRaises(exceptions.MissingSymbolError):

@@ -41,17 +41,6 @@ class TestNTM(test_tm.TestTM):
         new_ntm = self.ntm1.copy()
         self.assertIsNot(new_ntm, self.ntm1)
 
-    def test_ntm_equal(self):
-        """Should correctly determine if two NTMs are equal."""
-        new_ntm = self.ntm1.copy()
-        self.assertTrue(self.ntm1 == new_ntm, 'NTMs are not equal')
-
-    def test_ntm_not_equal(self):
-        """Should correctly determine if two NTMs are not equal."""
-        new_ntm = self.ntm1.copy()
-        new_ntm.final_states.add('q2')
-        self.assertTrue(self.ntm1 != new_ntm, 'NTMs are equal')
-
     def test_validate_input_symbol_subset(self):
         """Should raise error if any input symbols are not tape symbols."""
         with self.assertRaises(exceptions.MissingSymbolError):
