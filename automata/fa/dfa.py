@@ -258,7 +258,7 @@ class DFA(fa.FA):
         while queue:
             state = queue.popleft()
 
-            for next_state in self.transitions[state]:
+            for next_state in self.transitions[state].values():
                 if next_state not in visited_set:
                     visited_set.add(next_state)
                     queue.append(next_state)
