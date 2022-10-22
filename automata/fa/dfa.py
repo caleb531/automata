@@ -6,12 +6,12 @@ from enum import IntEnum
 from itertools import chain, count, product
 
 import networkx as nx
-from frozendict import frozendict
-from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.base.utils import PartitionRefinement
+from frozendict import frozendict
+from pydot import Dot, Edge, Node
 
 
 class OriginEnum(IntEnum):
