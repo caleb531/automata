@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Miscellaneous utility functions and classes."""
 
+from enum import IntEnum
+
 
 class PartitionRefinement:
     """Maintain and refine a partition of a set of items into subsets.
@@ -58,3 +60,9 @@ class PartitionRefinement:
                 output.append((id(AS), Aid))
 
         return output
+
+
+class OriginEnum(IntEnum):
+    """A helper enum useful for binary operations between two automata"""
+    SELF = 0
+    OTHER = 1

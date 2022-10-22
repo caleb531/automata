@@ -75,26 +75,6 @@ class TestGNFA(test_fa.TestFA):
         GNFA.copy(self.gnfa)
         validate.assert_called_once_with()
 
-    def test_gnfa_equal(self):
-        """Should correctly determine if two GNFAs are equal."""
-        new_gnfa = self.gnfa.copy()
-        self.assertTrue(self.gnfa == new_gnfa, 'NFAs are not equal')
-
-    def test_gnfa_not_equal(self):
-        """Should correctly determine if two GNFAs are not equal."""
-        new_gnfa = GNFA(
-            states={'q_in', 'q_f', 'q0', 'q1'},
-            input_symbols={'a', 'b'},
-            transitions={
-                'q0': {'q1': 'a', 'q_f': None, 'q0': None},
-                'q1': {'q1': 'a', 'q_f': '', 'q0': None},
-                'q_in': {'q0': '', 'q_f': None, 'q1': None}
-            },
-            initial_state='q_in',
-            final_state='q_f'
-        )
-        self.assertTrue(self.nfa != new_gnfa, 'NFAs are equal')
-
     def test_validate_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""
         with self.assertRaises(exceptions.InvalidRegexError):
@@ -289,7 +269,7 @@ class TestGNFA(test_fa.TestFA):
                 4: {5: '', 0: None, 1: None, 2: None, 4: None}}
         )
 
-        self.assertEqual(gnfa, gnfa2)
+        self.assertEqual(gnfa.__dict__, gnfa2.__dict__)
 
     def test_from_dfa_single_state(self):
         nfa = NFA.from_regex('')
@@ -357,7 +337,7 @@ class TestGNFA(test_fa.TestFA):
             }
         )
 
-        self.assertEqual(gnfa, gnfa2)
+        self.assertEqual(gnfa.__dict__, gnfa2.__dict__)
 
     def test_to_regex(self):
         """

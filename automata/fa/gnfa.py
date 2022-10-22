@@ -255,6 +255,9 @@ class GNFA(nfa.NFA):
 
         return new_transitions[self.initial_state][self.final_state]
 
+    def __eq__(self, other):
+        return NotImplemented
+
     # The following NFA methods are not supported on GNFA instances because
     # they are out of scope for the purpose of the GNFA class (which is focused
     # on regular expression conversion)

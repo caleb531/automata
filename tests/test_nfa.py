@@ -64,12 +64,44 @@ class TestNFA(test_fa.TestFA):
 
     def test_nfa_equal(self):
         """Should correctly determine if two NFAs are equal."""
-        new_nfa = self.nfa.copy()
-        self.assertTrue(self.nfa == new_nfa, 'NFAs are not equal')
+        nfa1 = NFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            transitions={
+                'q0': {'a': {'q1'}},
+                'q1': {'a': {'q1'}, '': {'q2'}},
+                'q2': {'b': {'q0'}}
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        nfa2 = NFA(
+            states={0, 1, 2},
+            input_symbols={'a', 'b'},
+            transitions={
+                0: {'a': {1}},
+                1: {'a': {1}, '': {2}},
+                2: {'b': {0}}
+            },
+            initial_state=0,
+            final_states={1}
+        )
+        self.assertEqual(nfa1, nfa2)
 
     def test_nfa_not_equal(self):
         """Should correctly determine if two NFAs are not equal."""
-        new_nfa = NFA(
+        nfa1 = NFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            transitions={
+                'q0': {'a': {'q1'}},
+                'q1': {'a': {'q1'}, '': {'q2'}},
+                'q2': {'b': {'q0'}}
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        nfa2 = NFA(
             states={'q0'},
             input_symbols={'a'},
             transitions={
@@ -78,7 +110,7 @@ class TestNFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0'}
         )
-        self.assertTrue(self.nfa != new_nfa, 'NFAs are equal')
+        self.assertNotEqual(nfa1, nfa2)
 
     def test_validate_invalid_symbol(self):
         """Should raise error if a transition references an invalid symbol."""

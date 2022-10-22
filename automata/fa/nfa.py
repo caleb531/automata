@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
-
 from collections import deque
 from itertools import chain
 
 import networkx as nx
+from frozendict import frozendict
+from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
+from automata.base.utils import OriginEnum
 from automata.regex.parser import parse_regex
-from frozendict import frozendict
-from pydot import Dot, Edge, Node
 
 
 class NFA(fa.FA):
@@ -59,12 +59,6 @@ class NFA(fa.FA):
             state: frozenset(nx.descendants(lambda_graph, state) | {state})
             for state in states
         })
-
-    def __eq__(self, other):
-        # Must be another NFA and have equal alphabets
-        if not isinstance(other, NFA):
-            return NotImplemented
-        return frozendict(self.__dict__) == frozendict(other.__dict__)
 
     def copy(self):
         """
@@ -524,3 +518,61 @@ class NFA(fa.FA):
         state_set.add(new_state)
 
         return new_state
+
+    def __eq__(self, other):
+        """
+        Return True if two NFAs are equivalent. Uses an optimized version of
+        the extended Hopcroft-Karp algorithm (HKe). See
+        https://arxiv.org/abs/0907.5058
+        """
+
+        origin_automata = {
+            OriginEnum.SELF: self,
+            OriginEnum.OTHER: other
+        }
+
+        # Must be another NFA and have equal alphabets
+        if not isinstance(other, NFA) or self.input_symbols != other.input_symbols:
+            return NotImplemented
+
+        # Get new initial states
+        initial_state_a = (frozenset({self.initial_state}), OriginEnum.SELF)
+        initial_state_b = (frozenset({other.initial_state}), OriginEnum.OTHER)
+
+        def is_final_state(states_pair):
+            states, origin_enum = states_pair
+            # If at least one of the current states is a final state, the
+            # condition should satisfy
+            return bool(origin_automata[origin_enum].final_states - states)
+
+        def transition(states_pair, symbol):
+            states, origin_enum = states_pair
+            return (
+                frozenset(origin_automata[origin_enum]._get_next_current_states(
+                    states, symbol)),
+                origin_enum
+            )
+
+        # Get data structures
+        state_sets = nx.utils.union_find.UnionFind([initial_state_a, initial_state_b])
+        pair_stack = deque()
+
+        # Do union find
+        state_sets.union(initial_state_a, initial_state_b)
+        pair_stack.append((initial_state_a, initial_state_b))
+
+        while pair_stack:
+            q_a, q_b = pair_stack.pop()
+
+            if is_final_state(q_a) ^ is_final_state(q_b):
+                return False
+
+            for symbol in self.input_symbols:
+                r_1 = state_sets[transition(q_a, symbol)]
+                r_2 = state_sets[transition(q_b, symbol)]
+
+                if r_1 != r_2:
+                    state_sets.union(r_1, r_2)
+                    pair_stack.append((r_1, r_2))
+
+        return True

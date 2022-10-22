@@ -2,21 +2,15 @@
 """Classes and methods for working with deterministic finite automata."""
 
 from collections import deque
-from enum import IntEnum
 from itertools import chain, count, product
 
 import networkx as nx
-
-import automata.base.exceptions as exceptions
-import automata.fa.fa as fa
-from automata.base.utils import PartitionRefinement
 from frozendict import frozendict
 from pydot import Dot, Edge, Node
 
-
-class OriginEnum(IntEnum):
-    SELF = 0
-    OTHER = 1
+import automata.base.exceptions as exceptions
+import automata.fa.fa as fa
+from automata.base.utils import OriginEnum, PartitionRefinement
 
 
 class DFA(fa.FA):
@@ -58,12 +52,10 @@ class DFA(fa.FA):
 
         def is_final_state(state_pair):
             state, origin_enum = state_pair
-
             return state in origin_automata[origin_enum].final_states
 
         def transition(state_pair, symbol):
             state, origin_enum = state_pair
-
             return (
                 origin_automata[origin_enum]._get_next_current_state(
                     state, symbol),
