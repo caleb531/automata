@@ -249,8 +249,23 @@ class DFA(fa.FA):
 
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
-        G = self._get_digraph()
-        return nx.descendants(G, self.initial_state) | {self.initial_state}
+        visited_set = set()
+        queue = deque()
+
+        queue.append(self.initial_state)
+        visited_set.add(self.initial_state)
+
+        while queue:
+            state = queue.popleft()
+
+            for chr in self.input_symbols:
+                next_state = self.transitions[state][chr]
+
+                if next_state not in visited_set:
+                    visited_set.add(next_state)
+                    queue.append(next_state)
+
+        return visited_set
 
     def minify(self, retain_names=False):
         """
