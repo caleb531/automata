@@ -4,6 +4,7 @@
 import networkx as nx
 from frozendict import frozendict
 from pydot import Dot, Edge, Node
+from collections import deque
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
@@ -189,8 +190,28 @@ class NFA(fa.FA):
         return next_current_states
 
     @staticmethod
-    def compute_reachable_states(initial_state, states, transitions):
+    def compute_reachable_states(initial_state, input_symbols, transitions):
         """Compute the states which are reachable from the initial state."""
+
+        visited_set = set()
+        queue = deque()
+
+        queue.append(initial_state)
+        visited_set.add(initial_state)
+
+        while queue:
+            state = queue.popleft()
+
+            for chr in input_symbols:
+                for next_state in transitions[state][chr]:
+
+                    if next_state not in visited_set:
+                        visited_set.add(next_state)
+                        queue.append(next_state)
+
+        return visited_set
+
+
         graph = nx.DiGraph([
             (start_state, end_state)
             for start_state, transition in transitions.items()
@@ -235,7 +256,7 @@ class NFA(fa.FA):
                 new_transitions[state].pop('', None)
 
         # Remove unreachable states
-        reachable_states = NFA.compute_reachable_states(self.initial_state, self.states, new_transitions)
+        reachable_states = NFA.compute_reachable_states(self.initial_state, self.input_symbols, new_transitions)
         reachable_final_states = reachable_states & new_final_states
 
         for state in self.states - reachable_states:
