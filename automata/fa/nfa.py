@@ -526,14 +526,14 @@ class NFA(fa.FA):
         https://arxiv.org/abs/0907.5058
         """
 
-        origin_automata = {
-            OriginEnum.SELF: self,
-            OriginEnum.OTHER: other
-        }
-
         # Must be another NFA and have equal alphabets
         if not isinstance(other, NFA) or self.input_symbols != other.input_symbols:
             return NotImplemented
+
+        nfas_by_origin = {
+            OriginEnum.SELF: self,
+            OriginEnum.OTHER: other
+        }
 
         # Get new initial states
         initial_state_a = (self.lambda_closures[self.initial_state], OriginEnum.SELF)
@@ -541,18 +541,18 @@ class NFA(fa.FA):
 
         def is_final_state(states_pair):
             states, origin_enum = states_pair
+            nfa = nfas_by_origin[origin_enum]
             # If at least one of the current states is a final state, the
             # condition should satisfy
-            for state in states:
-                automaton = origin_automata[origin_enum]
-                if len(automaton.final_states - automaton.lambda_closures[state]) > 0:
-                    return True
-            return False
+            return any(
+                nfa.final_states - nfa.lambda_closures[state]
+                for state in states
+            )
 
         def transition(states_pair, symbol):
             states, origin_enum = states_pair
             return (
-                frozenset(origin_automata[origin_enum]._get_next_current_states(
+                frozenset(nfas_by_origin[origin_enum]._get_next_current_states(
                     states, symbol)),
                 origin_enum
             )
