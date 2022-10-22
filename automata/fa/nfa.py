@@ -9,7 +9,6 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-from automata.base.utils import OriginEnum
 from automata.regex.parser import parse_regex
 
 
@@ -530,18 +529,13 @@ class NFA(fa.FA):
         if not isinstance(other, NFA) or self.input_symbols != other.input_symbols:
             return NotImplemented
 
-        nfas_by_origin = {
-            OriginEnum.SELF: self,
-            OriginEnum.OTHER: other
-        }
-
-        # Get new initial states
-        initial_state_a = (self.lambda_closures[self.initial_state], OriginEnum.SELF)
-        initial_state_b = (other.lambda_closures[other.initial_state], OriginEnum.OTHER)
+        operand_nfas = (self, other)
+        initial_state_a = (self.lambda_closures[self.initial_state], 0)
+        initial_state_b = (other.lambda_closures[other.initial_state], 1)
 
         def is_final_state(states_pair):
-            states, origin_enum = states_pair
-            nfa = nfas_by_origin[origin_enum]
+            states, operand_index = states_pair
+            nfa = operand_nfas[operand_index]
             # If at least one of the current states is a final state, the
             # condition should satisfy
             return any(
@@ -550,11 +544,11 @@ class NFA(fa.FA):
             )
 
         def transition(states_pair, symbol):
-            states, origin_enum = states_pair
+            states, operand_index = states_pair
             return (
-                frozenset(nfas_by_origin[origin_enum]._get_next_current_states(
+                frozenset(operand_nfas[operand_index]._get_next_current_states(
                     states, symbol)),
-                origin_enum
+                operand_index
             )
 
         # Get data structures

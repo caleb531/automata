@@ -10,7 +10,7 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-from automata.base.utils import OriginEnum, PartitionRefinement
+from automata.base.utils import PartitionRefinement
 
 
 class DFA(fa.FA):
@@ -41,29 +41,24 @@ class DFA(fa.FA):
         if not isinstance(other, DFA) or self.input_symbols != other.input_symbols:
             return NotImplemented
 
-        dfas_by_origin = {
-            OriginEnum.SELF: self,
-            OriginEnum.OTHER: other
-        }
-
-        # Get new initial states
-        initial_state_a = (self.initial_state, OriginEnum.SELF)
-        initial_state_b = (other.initial_state, OriginEnum.OTHER)
+        operand_dfas = (self, other)
+        initial_state_a = (self.initial_state, 0)
+        initial_state_b = (other.initial_state, 1)
 
         def is_final_state(state_pair):
-            state, origin_enum = state_pair
-            return state in dfas_by_origin[origin_enum].final_states
+            state, operand_index = state_pair
+            return state in operand_dfas[operand_index].final_states
 
         def transition(state_pair, symbol):
-            state, origin_enum = state_pair
+            state, operand_index = state_pair
             return (
-                dfas_by_origin[origin_enum]._get_next_current_state(
+                operand_dfas[operand_index]._get_next_current_state(
                     state, symbol),
-                origin_enum
+                operand_index
             )
 
         # Get data structures
-        state_sets = nx.utils.union_find.UnionFind([initial_state_a, initial_state_b])
+        state_sets = nx.utils.union_find.UnionFind((initial_state_a, initial_state_b))
         pair_stack = deque()
 
         # Do union find
