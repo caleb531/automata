@@ -253,7 +253,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1'}
         )
-        self.assertTrue(no_consecutive_11_dfa != zero_or_one_1_dfa)
+        self.assertNotEqual(no_consecutive_11_dfa, zero_or_one_1_dfa)
 
     def test_equivalence_minify(self):
         """Should be equivalent after minify."""
