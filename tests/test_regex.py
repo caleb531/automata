@@ -42,6 +42,9 @@ class TestRegex(unittest.TestCase):
                                    '((aaaa*bbcd|aabbcd)d|abbcdd)d*|((aaaa*bb|aabb)dccc*|'
                                    '((aaaa*bbcd|aabbcd)|((aaaa*bb|aabb)(dc|(c|d))|(abbdccc*|(abb(dc|(c|d))|abbcd)))))'))
 
+    def test_not_isequal(self):
+        """Should correctly check non-equivalence of two regular expressions"""
+
         self.assertFalse(re.isequal('baaa*b(b|a)|(bab(b|a)|(bb|ba))',
                                     'baaaa*b(a|b)|(baab(a|b)|bab(bb|(a|(b|ba))))'))
 
