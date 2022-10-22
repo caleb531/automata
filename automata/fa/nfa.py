@@ -31,10 +31,10 @@ class NFA(fa.FA):
             }),
             initial_state=initial_state,
             final_states=frozenset(final_states),
-            lambda_closures=self.get_lambda_closures(states, transitions)
+            lambda_closures=self._compute_lambda_closures(states, transitions)
         )
 
-    def get_lambda_closures(self, states, transitions):
+    def _compute_lambda_closures(self, states, transitions):
         """
         Computes a dictionary of the lambda closures for this NFA, where each
         key is the state name and the value is the lambda closure for that
