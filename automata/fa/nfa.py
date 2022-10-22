@@ -30,39 +30,35 @@ class NFA(fa.FA):
                 for state, paths in transitions.items()
             }),
             initial_state=initial_state,
-            final_states=frozenset(final_states)
+            final_states=frozenset(final_states),
+            lambda_closures=self.get_lambda_closures(states, transitions)
         )
 
-    def __post_init__(self):
-        self.recompute_lambda_closures()
-        super().__post_init__()
-
-    def recompute_lambda_closures(self):
+    def get_lambda_closures(self, states, transitions):
         """
         Computes a dictionary of the lambda closures for this NFA, where each
         key is the state name and the value is the lambda closure for that
         corresponding state. This dictionary is cached for the lifetime of the
-        instance when the NFA is initialized, and can be recomputed by simply
-        calling this method again.
+        instance, and is available via the 'lambda_closures' attribute.
 
         The lambda closure of a state q is the set containing q, along with
         every state that can be reached from q by following only lambda
         transitions.
         """
         lambda_graph = nx.DiGraph()
-        lambda_graph.add_nodes_from(self.states)
+        lambda_graph.add_nodes_from(states)
         lambda_graph.add_edges_from([
             (start_state, end_state)
-            for start_state, transition in self.transitions.items()
+            for start_state, transition in transitions.items()
             for char, end_states in transition.items()
             if char == ''
             for end_state in end_states
         ])
 
-        object.__setattr__(self, 'lambda_closures', frozendict({
+        return frozendict({
             state: frozenset(nx.descendants(lambda_graph, state) | {state})
-            for state in self.states
-        }))
+            for state in states
+        })
 
     def __eq__(self, other):
         # Must be another NFA and have equal alphabets
