@@ -2,6 +2,7 @@
 """Classes and methods for working with nondeterministic finite automata."""
 
 from collections import deque
+from itertools import chain
 
 import networkx as nx
 
@@ -202,26 +203,15 @@ class NFA(fa.FA):
 
         while queue:
             state = queue.popleft()
+            state_dict = transitions.get(state)
 
-            for chr in input_symbols:
-                for next_state in transitions[state][chr]:
-
+            if state_dict:
+                for next_state in chain.from_iterable(dest for dest in state_dict.values()):
                     if next_state not in visited_set:
                         visited_set.add(next_state)
                         queue.append(next_state)
 
         return visited_set
-
-
-        graph = nx.DiGraph([
-            (start_state, end_state)
-            for start_state, transition in transitions.items()
-            for end_states in transition.values()
-            for end_state in end_states
-        ])
-        graph.add_nodes_from(states)
-
-        return nx.descendants(graph, initial_state) | {initial_state}
 
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
