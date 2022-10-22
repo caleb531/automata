@@ -43,6 +43,11 @@ class DFA(fa.FA):
         the Hopcroft-Karp algorithm. See https://arxiv.org/abs/0907.5058
         """
 
+        origin_automata = {
+            OriginEnum.SELF: self,
+            OriginEnum.OTHER: other
+        }
+
         # Must be another DFA and have equal alphabets
         if not isinstance(other, DFA) or self.input_symbols != other.input_symbols:
             return NotImplemented
@@ -63,14 +68,9 @@ class DFA(fa.FA):
         def transition(state_pair, symbol):
             state, origin_enum = state_pair
 
-            if origin_enum is OriginEnum.SELF:
-                automaton = self
-            else:
-                automaton = other
-
-            # origin_enum is OriginEnum.OTHER:
             return (
-                automaton._get_next_current_state(state, symbol),
+                origin_automata[origin_enum]._get_next_current_state(
+                    state, symbol),
                 origin_enum
             )
 
@@ -89,6 +89,7 @@ class DFA(fa.FA):
                 return False
 
             for symbol in self.input_symbols:
+
                 r_1 = state_sets[transition(q_a, symbol)]
                 r_2 = state_sets[transition(q_b, symbol)]
 
