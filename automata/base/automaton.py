@@ -3,6 +3,8 @@
 
 import abc
 
+from frozendict import frozendict
+
 import automata.base.exceptions as exceptions
 
 
@@ -71,3 +73,21 @@ class Automaton(metaclass=abc.ABCMeta):
     def copy(self):
         """Create a deep copy of the automaton."""
         return self.__class__(**vars(self))
+
+    # Format the given value for string output via repr() or str(); this exists for the purpose of displaying
+    def _get_value_repr(self, value):
+        if isinstance(value, frozenset):
+            return set(value)
+        elif isinstance(value, frozendict):
+            return {
+                dict_key: self._get_value_repr(dict_value)
+                for dict_key, dict_value in value.items()
+            }
+        else:
+            return value
+
+    def __repr__(self):
+        values = ', '.join([
+            f'{attr_name}={self._get_value_repr(attr_value)}'
+            for attr_name, attr_value in self.__dict__.items()])
+        return f'{self.__class__.__name__}({values})'
