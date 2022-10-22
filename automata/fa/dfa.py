@@ -64,10 +64,15 @@ class DFA(fa.FA):
             state, origin_enum = state_pair
 
             if origin_enum is OriginEnum.SELF:
-                return (self.transitions[state][symbol], origin_enum)
+                automaton = self
+            else:
+                automaton = other
 
             # origin_enum is OriginEnum.OTHER:
-            return (other.transitions[state][symbol], origin_enum)
+            return (
+                automaton._get_next_current_state(state, symbol),
+                origin_enum
+            )
 
         # Get data structures
         state_sets = nx.utils.union_find.UnionFind([initial_state_a, initial_state_b])
