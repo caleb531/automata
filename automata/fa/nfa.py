@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 
+from collections import deque
+from itertools import chain
+
 import networkx as nx
-from frozendict import frozendict
-from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.regex.parser import parse_regex
+from frozendict import frozendict
+from pydot import Dot, Edge, Node
 
 
 class NFA(fa.FA):
@@ -189,17 +192,26 @@ class NFA(fa.FA):
         return next_current_states
 
     @staticmethod
-    def compute_reachable_states(initial_state, states, transitions):
+    def compute_reachable_states(initial_state, input_symbols, transitions):
         """Compute the states which are reachable from the initial state."""
-        graph = nx.DiGraph([
-            (start_state, end_state)
-            for start_state, transition in transitions.items()
-            for end_states in transition.values()
-            for end_state in end_states
-        ])
-        graph.add_nodes_from(states)
 
-        return nx.descendants(graph, initial_state) | {initial_state}
+        visited_set = set()
+        queue = deque()
+
+        queue.append(initial_state)
+        visited_set.add(initial_state)
+
+        while queue:
+            state = queue.popleft()
+            state_dict = transitions.get(state)
+
+            if state_dict:
+                for next_state in chain.from_iterable(dest for dest in state_dict.values()):
+                    if next_state not in visited_set:
+                        visited_set.add(next_state)
+                        queue.append(next_state)
+
+        return visited_set
 
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
@@ -235,7 +247,7 @@ class NFA(fa.FA):
                 new_transitions[state].pop('', None)
 
         # Remove unreachable states
-        reachable_states = NFA.compute_reachable_states(self.initial_state, self.states, new_transitions)
+        reachable_states = NFA.compute_reachable_states(self.initial_state, self.input_symbols, new_transitions)
         reachable_final_states = reachable_states & new_final_states
 
         for state in self.states - reachable_states:

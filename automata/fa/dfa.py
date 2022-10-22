@@ -6,12 +6,12 @@ from enum import IntEnum
 from itertools import chain, count, product
 
 import networkx as nx
-from frozendict import frozendict
-from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.base.utils import PartitionRefinement
+from frozendict import frozendict
+from pydot import Dot, Edge, Node
 
 
 class OriginEnum(IntEnum):
@@ -249,8 +249,21 @@ class DFA(fa.FA):
 
     def _compute_reachable_states(self):
         """Compute the states which are reachable from the initial state."""
-        G = self._get_digraph()
-        return nx.descendants(G, self.initial_state) | {self.initial_state}
+        visited_set = set()
+        queue = deque()
+
+        queue.append(self.initial_state)
+        visited_set.add(self.initial_state)
+
+        while queue:
+            state = queue.popleft()
+
+            for next_state in self.transitions[state].values():
+                if next_state not in visited_set:
+                    visited_set.add(next_state)
+                    queue.append(next_state)
+
+        return visited_set
 
     def minify(self, retain_names=False):
         """
@@ -456,18 +469,24 @@ class DFA(fa.FA):
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        # Generate product graph corresponding to component DFAs
-        product_graph = nx.DiGraph([
-            ((start_state_a, start_state_b), (transitions_a[symbol], transitions_b[symbol]))
-            for (start_state_a, transitions_a), (start_state_b, transitions_b), symbol in
-            product(self.transitions.items(), other.transitions.items(), self.input_symbols)
-        ])
+        visited_set = set()
+        queue = deque()
 
         product_initial_state = (self.initial_state, other.initial_state)
-        reachable_states = nx.descendants(product_graph, product_initial_state)
-        reachable_states.add(product_initial_state)
+        queue.append(product_initial_state)
+        visited_set.add(product_initial_state)
 
-        return reachable_states
+        while queue:
+            q_a, q_b = queue.popleft()
+
+            for chr in self.input_symbols:
+                product_state = (self.transitions[q_a][chr], other.transitions[q_b][chr])
+
+                if product_state not in visited_set:
+                    visited_set.add(product_state)
+                    queue.append(product_state)
+
+        return visited_set
 
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
