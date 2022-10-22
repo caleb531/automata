@@ -178,7 +178,7 @@ class NFA(fa.FA):
                 next_current_states.update(
                     self.lambda_closures[end_state])
 
-        return next_current_states
+        return frozenset(next_current_states)
 
     @staticmethod
     def compute_reachable_states(initial_state, input_symbols, transitions):
@@ -546,8 +546,8 @@ class NFA(fa.FA):
         def transition(states_pair, symbol):
             states, operand_index = states_pair
             return (
-                frozenset(operand_nfas[operand_index]._get_next_current_states(
-                    states, symbol)),
+                operand_nfas[operand_index]._get_next_current_states(
+                    states, symbol),
                 operand_index
             )
 
