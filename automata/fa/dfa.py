@@ -258,9 +258,7 @@ class DFA(fa.FA):
         while queue:
             state = queue.popleft()
 
-            for chr in self.input_symbols:
-                next_state = self.transitions[state][chr]
-
+            for next_state in self.transitions[state]:
                 if next_state not in visited_set:
                     visited_set.add(next_state)
                     queue.append(next_state)
