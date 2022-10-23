@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic Turing machines."""
 
-import copy
-
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import automata.tm.tm as tm
@@ -17,14 +15,23 @@ class DTM(tm.TM):
                  transitions, initial_state, blank_symbol,
                  final_states):
         """Initialize a complete Turing machine."""
-        self.states = states.copy()
-        self.input_symbols = input_symbols.copy()
-        self.tape_symbols = tape_symbols.copy()
-        self.transitions = copy.deepcopy(transitions)
-        self.initial_state = initial_state
-        self.blank_symbol = blank_symbol
-        self.final_states = final_states.copy()
-        self.validate()
+        super().__init__(
+            states=states,
+            input_symbols=input_symbols,
+            tape_symbols=tape_symbols,
+            transitions=transitions,
+            initial_state=initial_state,
+            blank_symbol=blank_symbol,
+            final_states=final_states
+        )
+
+    def __setattr__(self, name, value):
+        """Set custom setattr to make class immutable."""
+        raise AttributeError(f'This {type(self).__name__} is immutable')
+
+    def __delattr__(self, name):
+        """Set custom delattr to make class immutable."""
+        raise AttributeError(f'This {type(self).__name__} is immutable')
 
     def _validate_transition_state(self, transition_state):
         if transition_state not in self.states:

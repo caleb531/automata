@@ -352,9 +352,3 @@ class TestTM(unittest.TestCase):
             blank_symbol='#',
             final_states={'q4'},
         )
-
-    def test_validate_blank_symbol(self):
-        """Should raise an error if the blank symbol is not valid"""
-        self.dtm1.blank_symbol = '-'
-        with self.assertRaises(exceptions.InvalidSymbolError):
-            self.dtm1.validate()
