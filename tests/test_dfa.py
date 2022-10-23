@@ -1433,7 +1433,8 @@ class TestDFA(test_fa.TestFA):
         """Should compute the minimal DFA accepting the given finite language on large test case"""
         m = 50
         n = 50
-        language = ['a' * i + 'b' * j for i, j in product(range(n), range(m))]
+        language = {('a' * i + 'b' * j)
+                    for i, j in product(range(n), range(m))}
 
         equiv_dfa = DFA.from_finite_language(language, {'a', 'b'})
         minimal_dfa = equiv_dfa.minify()
