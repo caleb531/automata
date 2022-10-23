@@ -26,14 +26,6 @@ class DPDA(pda.PDA):
             acceptance_mode=acceptance_mode,
         )
 
-    def __setattr__(self, name, value):
-        """Set custom setattr to make class immutable."""
-        raise AttributeError(f'This {type(self).__name__} is immutable')
-
-    def __delattr__(self, name):
-        """Set custom delattr to make class immutable."""
-        raise AttributeError(f'This {type(self).__name__} is immutable')
-
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
         for input_symbol, symbol_paths in paths.items():

@@ -47,44 +47,100 @@ class TestNPDA(test_pda.TestPDA):
     def test_init_npda_invalid_acceptance_mode(self):
         """Should raise an error if the NPDA has an invalid acceptance mode."""
         with self.assertRaises(pda_exceptions.InvalidAcceptanceModeError):
-            self.npda.acceptance_mode = 'foo'
-            self.npda.validate()
+            NPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={'q0': {'a': {'#': {('q0', '')}}}},
+                initial_state='q0',
+                initial_stack_symbol='#',
+                final_states={'q0'},
+                acceptance_mode='foo'
+            )
 
     def test_validate_invalid_input_symbol(self):
         """Should raise error if a transition has an invalid input symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
-            self.npda.transitions['q1']['c'] = 'q2'
-            self.npda.validate()
+            NPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={'q0': {'c': {'#': {('q0', '')}}}},
+                initial_state='q0',
+                initial_stack_symbol='#',
+                final_states={'q0'},
+                acceptance_mode='foo'
+            )
 
     def test_validate_invalid_stack_symbol(self):
         """Should raise error if a transition has an invalid stack symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
-            self.npda.transitions['q1']['a']['2'] = {('q1', ('1', '1'))}
-            self.npda.validate()
+            NPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={'q0': {'a': {'@': {('q0', '')}}}},
+                initial_state='q0',
+                initial_stack_symbol='#',
+                final_states={'q0'},
+                acceptance_mode='foo'
+            )
 
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.npda.initial_state = 'q4'
-            self.npda.validate()
+            NPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={'q0': {'a': {'#': {('q0', '')}}}},
+                initial_state='q0',
+                initial_stack_symbol='#',
+                final_states={'q1'},
+                acceptance_mode='foo'
+            )
 
     def test_validate_invalid_initial_stack_symbol(self):
         """Should raise error if the initial stack symbol is invalid."""
         with self.assertRaises(exceptions.InvalidSymbolError):
-            self.npda.initial_stack_symbol = '2'
-            self.npda.validate()
+            NPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={'q0': {'a': {'#': {('q0', '')}}}},
+                initial_state='q0',
+                initial_stack_symbol='@',
+                final_states={'q0'},
+                acceptance_mode='foo'
+            )
 
     def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.npda.final_states = {'q4'}
-            self.npda.validate()
+            NPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={'q0': {'a': {'#': {('q0', '')}}}},
+                initial_state='q0',
+                initial_stack_symbol='#',
+                final_states={'q1'},
+                acceptance_mode='foo'
+            )
 
     def test_validate_invalid_final_state_non_str(self):
         """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.npda.final_states = {4}
-            self.npda.validate()
+            NPDA(
+                states={'q0'},
+                input_symbols={'a', 'b'},
+                stack_symbols={'#'},
+                transitions={'q0': {'a': {'#': {('q0', '')}}}},
+                initial_state='q0',
+                initial_stack_symbol='#',
+                final_states={1},
+                acceptance_mode='foo'
+            )
 
     def test_read_input_valid_accept_by_final_state(self):
         """Should return correct config if NPDA accepts by final state."""
@@ -95,36 +151,182 @@ class TestNPDA(test_pda.TestPDA):
 
     def test_read_input_invalid_accept_by_final_state(self):
         """Should not accept by final state if NPDA accepts by empty stack."""
-        self.npda.acceptance_mode = 'empty_stack'
+        npda = NPDA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            stack_symbols={'A', 'B', '#'},
+            transitions={
+                'q0': {
+                    '': {
+                        '#': {('q2', '#')},
+                    },
+                    'a': {
+                        '#': {('q0', ('A', '#'))},
+                        'A': {
+                            ('q0', ('A', 'A')),
+                            ('q1', ''),
+                        },
+                        'B': {('q0', ('A', 'B'))},
+                    },
+                    'b': {
+                        '#': {('q0', ('B', '#'))},
+                        'A': {('q0', ('B', 'A'))},
+                        'B': {
+                            ('q0', ('B', 'B')),
+                            ('q1', ''),
+                        },
+                    },
+                },
+                'q1': {
+                    '': {'#': {('q2', '#')}},
+                    'a': {'A': {('q1', '')}},
+                    'b': {'B': {('q1', '')}},
+                }
+            },
+            initial_state='q0',
+            initial_stack_symbol='#',
+            final_states={'q2'},
+            acceptance_mode='empty_stack'
+        )
         with self.assertRaises(exceptions.RejectionException):
-            self.npda.read_input('abaaba'),
+            npda.read_input('abaaba'),
 
     def test_read_input_valid_accept_by_empty_stack(self):
         """Should return correct config if NPDA accepts by empty stack."""
-        self.npda.transitions['q2'] = {'': {'#': {('q2', '')}}}
-        self.npda.final_states = set()
-        self.npda.acceptance_mode = 'empty_stack'
+        npda = NPDA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            stack_symbols={'A', 'B', '#'},
+            transitions={
+                'q0': {
+                    '': {
+                        '#': {('q2', '#')},
+                    },
+                    'a': {
+                        '#': {('q0', ('A', '#'))},
+                        'A': {
+                            ('q0', ('A', 'A')),
+                            ('q1', ''),
+                        },
+                        'B': {('q0', ('A', 'B'))},
+                    },
+                    'b': {
+                        '#': {('q0', ('B', '#'))},
+                        'A': {('q0', ('B', 'A'))},
+                        'B': {
+                            ('q0', ('B', 'B')),
+                            ('q1', ''),
+                        },
+                    },
+                },
+                'q1': {
+                    '': {'#': {('q2', '#')}},
+                    'a': {'A': {('q1', '')}},
+                    'b': {'B': {('q1', '')}},
+                },
+                'q2': {
+                    '': {'#': {('q2', '')}}
+                }
+            },
+            initial_state='q0',
+            initial_stack_symbol='#',
+            final_states=set(),
+            acceptance_mode='empty_stack'
+        )
         self.assertEqual(
-            self.npda.read_input('abaaba'),
+            npda.read_input('abaaba'),
             {PDAConfiguration('q2', '', PDAStack([]))}
         )
 
     def test_read_input_invalid_accept_by_empty_stack(self):
         """Should not accept by empty stack if NPDA accepts by final state."""
-        self.npda.acceptance_mode = 'final_state'
-        self.npda.states.add('q3')
-        self.npda.transitions['q1'][''] = {'#': {('q3', '')}}
+        npda = NPDA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'a', 'b'},
+            stack_symbols={'A', 'B', '#'},
+            transitions={
+                'q0': {
+                    '': {
+                        '#': {('q2', '#')},
+                    },
+                    'a': {
+                        '#': {('q0', ('A', '#'))},
+                        'A': {
+                            ('q0', ('A', 'A')),
+                            ('q1', ''),
+                        },
+                        'B': {('q0', ('A', 'B'))},
+                    },
+                    'b': {
+                        '#': {('q0', ('B', '#'))},
+                        'A': {('q0', ('B', 'A'))},
+                        'B': {
+                            ('q0', ('B', 'B')),
+                            ('q1', ''),
+                        },
+                    },
+                },
+                'q1': {
+                    '': {'#': {('q3', '')}},
+                    'a': {'A': {('q1', '')}},
+                    'b': {'B': {('q1', '')}},
+                }
+            },
+            initial_state='q0',
+            initial_stack_symbol='#',
+            final_states={'q2'},
+            acceptance_mode='final_state'
+        )
         with self.assertRaises(exceptions.RejectionException):
-            self.npda.read_input('abaaba')
+            npda.read_input('abaaba')
 
     def test_read_input_valid_consecutive_lambda_transitions(self):
         """Should follow consecutive lambda transitions when validating."""
-        self.npda.states.update({'q3', 'q4'})
-        self.npda.final_states = {'q4'}
-        self.npda.transitions['q2'] = {'': {'#': {('q3', '#')}}}
-        self.npda.transitions['q3'] = {'': {'#': {('q4', '#')}}}
+        npda = NPDA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'a', 'b'},
+            stack_symbols={'A', 'B', '#'},
+            transitions={
+                'q0': {
+                    '': {
+                        '#': {('q2', '#')},
+                    },
+                    'a': {
+                        '#': {('q0', ('A', '#'))},
+                        'A': {
+                            ('q0', ('A', 'A')),
+                            ('q1', ''),
+                        },
+                        'B': {('q0', ('A', 'B'))},
+                    },
+                    'b': {
+                        '#': {('q0', ('B', '#'))},
+                        'A': {('q0', ('B', 'A'))},
+                        'B': {
+                            ('q0', ('B', 'B')),
+                            ('q1', ''),
+                        },
+                    },
+                },
+                'q1': {
+                    '': {'#': {('q2', '#')}},
+                    'a': {'A': {('q1', '')}},
+                    'b': {'B': {('q1', '')}},
+                },
+                'q2': {
+                    '': {'#': {('q3', '#')}}
+                },
+                'q3': {
+                    '': {'#': {('q4', '#')}}
+                }
+            },
+            initial_state='q0',
+            initial_stack_symbol='#',
+            final_states={'q4'},
+            acceptance_mode='final_state'
+        )
         self.assertEqual(
-            self.npda.read_input('abaaba'),
+            npda.read_input('abaaba'),
             {PDAConfiguration('q4', '', PDAStack(['#']))}
         )
 
@@ -135,10 +337,48 @@ class TestNPDA(test_pda.TestPDA):
 
     def test_read_input_rejected_accept_by_empty_stack(self):
         """Should reject strings if NPDA accepts by empty stack."""
-        self.npda.transitions['q2'] = {'': {'#': {('q2', '')}}}
-        self.npda.final_states = set()
+        npda = NPDA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            stack_symbols={'A', 'B', '#'},
+            transitions={
+                'q0': {
+                    '': {
+                        '#': {('q2', '#')},
+                    },
+                    'a': {
+                        '#': {('q0', ('A', '#'))},
+                        'A': {
+                            ('q0', ('A', 'A')),
+                            ('q1', ''),
+                        },
+                        'B': {('q0', ('A', 'B'))},
+                    },
+                    'b': {
+                        '#': {('q0', ('B', '#'))},
+                        'A': {('q0', ('B', 'A'))},
+                        'B': {
+                            ('q0', ('B', 'B')),
+                            ('q1', ''),
+                        },
+                    },
+                },
+                'q1': {
+                    '': {'#': {('q2', '#')}},
+                    'a': {'A': {('q1', '')}},
+                    'b': {'B': {('q1', '')}},
+                },
+                'q2': {
+                    '': {'#': {('q2', '')}}
+                }
+            },
+            initial_state='q0',
+            initial_stack_symbol='#',
+            final_states=set(),
+            acceptance_mode='final_state'
+        )
         with self.assertRaises(exceptions.RejectionException):
-            self.npda.read_input('aaba')
+            npda.read_input('aaba')
 
     def test_read_input_rejected_undefined_transition(self):
         """Should reject strings which lead to an undefined transition."""

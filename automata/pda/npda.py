@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic pushdown automata."""
 
-import copy
-
 import automata.base.exceptions as exceptions
 import automata.pda.pda as pda
 from automata.pda.configuration import PDAConfiguration
@@ -16,15 +14,16 @@ class NPDA(pda.PDA):
                  transitions, initial_state,
                  initial_stack_symbol, final_states, acceptance_mode='both'):
         """Initialize a complete NPDA."""
-        self.states = states.copy()
-        self.input_symbols = input_symbols.copy()
-        self.stack_symbols = stack_symbols.copy()
-        self.transitions = copy.deepcopy(transitions)
-        self.initial_state = initial_state
-        self.initial_stack_symbol = initial_stack_symbol
-        self.final_states = final_states.copy()
-        self.acceptance_mode = acceptance_mode
-        self.validate()
+        super().__init__(
+            states=states,
+            input_symbols=input_symbols,
+            stack_symbols=stack_symbols,
+            transitions=transitions,
+            initial_state=initial_state,
+            initial_stack_symbol=initial_stack_symbol,
+            final_states=final_states,
+            acceptance_mode=acceptance_mode
+        )
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
