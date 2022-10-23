@@ -723,8 +723,8 @@ class DFA(fa.FA):
 
             # Enqueue the next set of current states for the generated DFA.
             for input_symbol in target_nfa.input_symbols:
-                next_current_states = frozenset(target_nfa._get_next_current_states(
-                    current_states, input_symbol))
+                next_current_states = target_nfa._get_next_current_states(
+                    current_states, input_symbol)
                 dfa_transitions[current_state_name][input_symbol] = get_name(next_current_states)
                 state_queue.append(next_current_states)
 
