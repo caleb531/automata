@@ -388,6 +388,15 @@ class DFA(fa.FA):
 
         new_states, new_transitions, new_initial_state = self._cross_product(other)
 
+        if minify:
+            return self._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=new_transitions,
+                initial_state=new_initial_state,
+                reachable_final_states=set(filter(union_fn, new_states)),
+                retain_names=retain_names)
+
         return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
@@ -396,10 +405,6 @@ class DFA(fa.FA):
             final_states=set(filter(union_fn, new_states))
         )
 
-        if minify:
-            return new_dfa.minify(retain_names=retain_names)
-
-        return new_dfa
 
     def intersection(self, other, *, retain_names=False, minify=True):
         """
@@ -413,6 +418,15 @@ class DFA(fa.FA):
 
         new_states, new_transitions, new_initial_state = self._cross_product(other)
 
+        if minify:
+            return self._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=new_transitions,
+                initial_state=new_initial_state,
+                reachable_final_states=set(filter(intersection_fn, new_states)),
+                retain_names=retain_names)
+
         return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
@@ -420,10 +434,6 @@ class DFA(fa.FA):
             initial_state=new_initial_state,
             final_states=set(filter(intersection_fn, new_states))
         )
-
-        if minify:
-            return new_dfa.minify(retain_names=retain_names)
-        return new_dfa
 
     def difference(self, other, *, retain_names=False, minify=True):
         """
@@ -437,6 +447,15 @@ class DFA(fa.FA):
 
         new_states, new_transitions, new_initial_state = self._cross_product(other)
 
+        if minify:
+            return self._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=new_transitions,
+                initial_state=new_initial_state,
+                reachable_final_states=set(filter(difference_fn, new_states)),
+                retain_names=retain_names)
+
         return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
@@ -444,10 +463,6 @@ class DFA(fa.FA):
             initial_state=new_initial_state,
             final_states=set(filter(difference_fn, new_states))
         )
-
-        if minify:
-            return new_dfa.minify(retain_names=retain_names)
-        return new_dfa
 
     def symmetric_difference(self, other, *, retain_names=False, minify=True):
         """
@@ -461,6 +476,15 @@ class DFA(fa.FA):
 
         new_states, new_transitions, new_initial_state = self._cross_product(other)
 
+        if minify:
+            return self._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=new_transitions,
+                initial_state=new_initial_state,
+                reachable_final_states=set(filter(symmetric_difference_fn, new_states)),
+                retain_names=retain_names)
+
         return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
@@ -468,10 +492,6 @@ class DFA(fa.FA):
             initial_state=new_initial_state,
             final_states=set(filter(symmetric_difference_fn, new_states))
         )
-
-        if minify:
-            return new_dfa.minify(retain_names=retain_names)
-        return new_dfa
 
     def complement(self):
         """Return the complement of this DFA."""
