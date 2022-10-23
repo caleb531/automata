@@ -15,7 +15,7 @@ class TestNTM(test_tm.TestTM):
 
     def test_init_ntm(self):
         """Should copy NTM if passed into NTM constructor."""
-        new_dtm = NTM.copy(self.ntm1)
+        new_dtm = self.ntm1.copy()
         self.assertIsNot(new_dtm, self.ntm1)
 
     def test_init_ntm_missing_formal_params(self):
