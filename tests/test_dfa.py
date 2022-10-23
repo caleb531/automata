@@ -1402,8 +1402,8 @@ class TestDFA(test_fa.TestFA):
         """Should compute the minimal DFA accepting the given finite language"""
 
         # Same language described in the book this algorithm comes from
-        language = ['aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
-                    'baa', 'babb', 'bbaa', 'bbabb', 'bbbab']
+        language = {'aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
+                    'baa', 'babb', 'bbaa', 'bbabb', 'bbbab'}
 
         equiv_dfa = DFA(
             states=set(range(10)),
