@@ -1398,12 +1398,12 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
 
-
     def test_minimal_finite_language(self):
         """Should compute the minimal DFA accepting the given finite language"""
 
         # Same language described in the book this algorithm comes from
-        language = ['aa','aaa','aaba','aabbb','abaa','ababb','abbab','baa','babb','bbaa','bbabb','bbbab']
+        language = ['aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
+                    'baa', 'babb', 'bbaa', 'bbabb', 'bbbab']
 
         equiv_dfa = DFA(
             states=set(range(10)),
@@ -1426,10 +1426,10 @@ class TestDFA(test_fa.TestFA):
 
         minimal_dfa = DFA.from_finite_language(language, {'a', 'b'})
 
-        assert len(minimal_dfa.states) == len(equiv_dfa.states)
-        assert minimal_dfa == equiv_dfa
+        self.assertEqual(len(minimal_dfa.states), len(equiv_dfa.states))
+        self.assertEqual(minimal_dfa, equiv_dfa)
 
-    def test_minimal_finite_language(self):
+    def test_minimal_finite_language_large(self):
         """Should compute the minimal DFA accepting the given finite language on large test case"""
         m = 50
         n = 50
