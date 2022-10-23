@@ -264,6 +264,18 @@ class DFA(fa.FA):
         reachable_states = self._compute_reachable_states()
         reachable_final_states = self.final_states & reachable_states
 
+        return self._minify(
+            reachable_states=reachable_states,
+            input_symbols=self.input_symbols,
+            transitions=self.transitions,
+            initial_state=self.initial_state,
+            reachable_final_states=reachable_final_states,
+            retain_names=retain_names)
+
+    @classmethod
+    def _minify(cls, *, reachable_states, input_symbols, transitions, initial_state, reachable_final_states, retain_names):
+        """Minify helper function. DFA data passed in must have no unreachable states."""
+
         # First, assemble backmap and equivalence class data structure
         eq_classes = PartitionRefinement(reachable_states)
         refinement = eq_classes.refine(reachable_final_states)
@@ -275,10 +287,10 @@ class DFA(fa.FA):
                 end_state: list()
                 for end_state in reachable_states
             }
-            for symbol in self.input_symbols
+            for symbol in input_symbols
         }
 
-        for start_state, path in self.transitions.items():
+        for start_state, path in transitions.items():
             if start_state in reachable_states:
                 for symbol, end_state in path.items():
                     if end_state in reachable_states:
@@ -321,19 +333,19 @@ class DFA(fa.FA):
             for state in eq
         }
 
-        new_input_symbols = self.input_symbols
+        new_input_symbols = input_symbols
         new_states = set(back_map.values())
-        new_initial_state = back_map[self.initial_state]
+        new_initial_state = back_map[initial_state]
         new_final_states = {back_map[acc] for acc in reachable_final_states}
         new_transitions = {
             name: {
-                letter: back_map[self.transitions[next(iter(eq))][letter]]
-                for letter in self.input_symbols
+                letter: back_map[transitions[next(iter(eq))][letter]]
+                for letter in input_symbols
             }
             for name, eq in eq_class_name_pairs
         }
 
-        return self.__class__(
+        return cls(
             states=new_states,
             input_symbols=new_input_symbols,
             transitions=new_transitions,
