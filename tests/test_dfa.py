@@ -5,6 +5,7 @@ import os
 import os.path
 import tempfile
 import types
+from itertools import product
 from unittest.mock import patch
 
 import automata.base.exceptions as exceptions
@@ -1396,3 +1397,47 @@ class TestDFA(test_fa.TestFA):
         self.dfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
+
+    def test_minimal_finite_language(self):
+        """Should compute the minimal DFA accepting the given finite language"""
+
+        # Same language described in the book this algorithm comes from
+        language = {'aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
+                    'baa', 'babb', 'bbaa', 'bbabb', 'bbbab'}
+
+        equiv_dfa = DFA(
+            states=set(range(10)),
+            input_symbols={'a', 'b'},
+            transitions={
+                0: {'a': 0, 'b': 0},
+                1: {'a': 2, 'b': 3},
+                2: {'a': 4, 'b': 5},
+                3: {'a': 7, 'b': 5},
+                4: {'a': 9, 'b': 7},
+                5: {'a': 7, 'b': 6},
+                6: {'a': 8, 'b': 0},
+                7: {'a': 9, 'b': 8},
+                8: {'a': 0, 'b': 9},
+                9: {'a': 0, 'b': 0},
+            },
+            initial_state=1,
+            final_states={4, 9}
+        )
+
+        minimal_dfa = DFA.from_finite_language(language, {'a', 'b'})
+
+        self.assertEqual(len(minimal_dfa.states), len(equiv_dfa.states))
+        self.assertEqual(minimal_dfa, equiv_dfa)
+
+    def test_minimal_finite_language_large(self):
+        """Should compute the minimal DFA accepting the given finite language on large test case"""
+        m = 50
+        n = 50
+        language = {('a' * i + 'b' * j)
+                    for i, j in product(range(n), range(m))}
+
+        equiv_dfa = DFA.from_finite_language(language, {'a', 'b'})
+        minimal_dfa = equiv_dfa.minify()
+
+        self.assertEqual(equiv_dfa, minimal_dfa)
+        self.assertEqual(len(equiv_dfa.states), len(minimal_dfa.states))

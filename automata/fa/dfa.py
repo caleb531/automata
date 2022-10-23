@@ -521,6 +521,111 @@ class DFA(fa.FA):
             return True
 
     @classmethod
+    def from_finite_language(cls, language, input_symbols):
+        """
+        Directly computes the minimal DFA corresponding to a finite language.
+        Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
+        Chapter 10
+        """
+
+        transitions = dict()
+        back_map = {'': set()}
+        final_states = set()
+        signatures_dict = dict()
+
+        def compute_signature(state):
+            """Computes signature for input state"""
+            state_transition = transitions[state]
+            return (state in final_states, frozenset(
+                (chr, state_transition[chr]) for chr in state_transition
+            ))
+
+        def longest_common_prefix_length(string_1, string_2):
+            """Returns length of longest common prefix."""
+            for i, (chr_1, chr_2) in enumerate(zip(string_1, string_2)):
+                if chr_1 != chr_2:
+                    return i
+
+            return min(len(string_1), len(string_2))
+
+        def add_to_trie(word):
+            """Add word to the trie represented by transitions"""
+            prefix = ''
+            for chr in word:
+                next_prefix = prefix + chr
+
+                # Extend the trie only if necessary
+                prefix_dict = transitions.setdefault(prefix, dict())
+                prefix_dict.setdefault(chr, next_prefix)
+                back_map.setdefault(next_prefix, set()).add(prefix)
+
+                prefix = next_prefix
+
+            # Mark the finished prefix as a final state
+            transitions[prefix] = dict()
+            final_states.add(prefix)
+
+        def compress(word, next_word):
+            """Compress prefixes of word, newly added to the DFA"""
+
+            # Compress along all prefixes that are _not_ prefixes of the next word
+            lcp_len = longest_common_prefix_length(word, next_word)
+
+            # Compression in order of reverse length
+            for i in range(len(word), lcp_len, -1):
+                prefix = word[:i]
+
+                # Compute signature for comparison
+                prefix_signature = compute_signature(prefix)
+                identical_state = signatures_dict.get(prefix_signature)
+
+                if identical_state is not None:
+                    # If identical state exists, remove prefix since it's redundant
+                    final_states.discard(prefix)
+                    transitions.pop(prefix)
+
+                    # Change transition for prefix
+                    for parent_state in back_map[prefix]:
+                        path = transitions[parent_state]
+                        for chr in path:
+                            if path[chr] == prefix:
+                                path[chr] = identical_state
+                        back_map[identical_state].add(parent_state)
+
+                        # No need to recompute signatures here, since we will
+                        # recompute when handling parents in later iterations
+                else:
+                    signatures_dict[prefix_signature] = prefix
+
+        # Construct initial trie
+        prev_word, *rest_words = sorted(language)
+        add_to_trie(prev_word)
+
+        for curr_word in rest_words:
+            # For each word, compress from the previous iteration and continue
+            compress(prev_word, curr_word)
+            add_to_trie(curr_word)
+            prev_word = curr_word
+
+        compress(prev_word, '')
+
+        # Add dump state. Always needed since dict is finite
+        dump_state = 0
+        transitions[dump_state] = {chr: dump_state for chr in input_symbols}
+
+        for path in transitions.values():
+            for chr in input_symbols:
+                path.setdefault(chr, dump_state)
+
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state='',
+            final_states=final_states,
+        )
+
+    @classmethod
     def from_nfa(cls, target_nfa, retain_names=False):
         """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states = set()
