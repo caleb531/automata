@@ -1438,5 +1438,5 @@ class TestDFA(test_fa.TestFA):
         equiv_dfa = DFA.from_finite_language(language, {'a', 'b'})
         minimal_dfa = equiv_dfa.minify()
 
-        assert equiv_dfa == minimal_dfa
-        assert len(equiv_dfa.states) == len(minimal_dfa.states)
+        self.assertEqual(equiv_dfa, minimal_dfa)
+        self.assertEqual(len(equiv_dfa.states), len(minimal_dfa.states))
