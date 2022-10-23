@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic pushdown automata."""
 
-import copy
+from frozendict import frozendict
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -17,15 +17,33 @@ class DPDA(pda.PDA):
                  transitions, initial_state,
                  initial_stack_symbol, final_states, acceptance_mode='both'):
         """Initialize a complete DPDA."""
-        self.states = states.copy()
-        self.input_symbols = input_symbols.copy()
-        self.stack_symbols = stack_symbols.copy()
-        self.transitions = copy.deepcopy(transitions)
-        self.initial_state = initial_state
-        self.initial_stack_symbol = initial_stack_symbol
-        self.final_states = final_states.copy()
-        self.acceptance_mode = acceptance_mode
-        self.validate()
+        super().__init__(
+            states=frozenset(states),
+            input_symbols=frozenset(input_symbols),
+            stack_symbols=frozenset(stack_symbols),
+            transitions=frozendict({
+                state: frozendict({
+                    input_symbol: frozendict({
+                        stack_symbol: dest
+                        for stack_symbol, dest in stack_paths.items()
+                    })
+                    for input_symbol, stack_paths in input_paths.items()
+                })
+                for state, input_paths in transitions.items()
+            }),
+            initial_state=initial_state,
+            initial_stack_symbol=initial_stack_symbol,
+            final_states=frozenset(final_states),
+            acceptance_mode=acceptance_mode,
+        )
+
+    def __setattr__(self, name, value):
+        """Set custom setattr to make class immutable."""
+        raise AttributeError(f'This {type(self).__name__} is immutable')
+
+    def __delattr__(self, name):
+        """Set custom delattr to make class immutable."""
+        raise AttributeError(f'This {type(self).__name__} is immutable')
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
