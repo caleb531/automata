@@ -597,7 +597,6 @@ class DFA(fa.FA):
                 else:
                     signatures_dict[prefix_signature] = prefix
 
-
         # Construct initial trie
         prev_word, *rest_words = sorted(language)
         add_to_trie(prev_word)
@@ -625,9 +624,6 @@ class DFA(fa.FA):
             initial_state='',
             final_states=final_states,
         )
-
-
-
 
     @classmethod
     def from_nfa(cls, target_nfa, retain_names=False):
