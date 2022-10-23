@@ -42,70 +42,180 @@ class TestNTM(test_tm.TestTM):
         self.assertIsNot(new_ntm, self.ntm1)
 
     def test_validate_input_symbol_subset(self):
-        """Should raise error if any input symbols are not tape symbols."""
+        """Should raise error if input symbols are not a strict superset of tape symbols."""
         with self.assertRaises(exceptions.MissingSymbolError):
-            self.ntm1.input_symbols.add('3')
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q2'}
+            )
 
     def test_validate_invalid_transition_state(self):
         """Should raise error if a transition state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.ntm1.transitions['q4'] = self.ntm1.transitions['q0']
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}},
+                    'q4': {'0': {('q1', '0', 'R')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q2'}
+            )
 
     def test_validate_invalid_transition_symbol(self):
         """Should raise error if a transition symbol is invalid."""
         with self.assertRaises(exceptions.InvalidSymbolError):
-            self.ntm1.transitions['q0']['3'] = {('q0', '0' 'R')}
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}, '3': {('q0', '0' 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q2'}
+            )
 
     def test_validate_invalid_transition_result_state(self):
         """Should raise error if a transition result state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.ntm1.transitions['q0']['.'] = {('q4', '.', 'R')}
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}, '.': {('q4', '.', 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q2'}
+            )
 
     def test_validate_invalid_transition_result_symbol(self):
         """Should raise error if a transition result symbol is invalid."""
         with self.assertRaises(exceptions.InvalidSymbolError):
-            self.ntm1.transitions['q0']['.'] = {('q3', '3', 'R')}
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}, '.': {('q2', '5', 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q2'}
+            )
 
     def test_validate_invalid_transition_result_direction(self):
         """Should raise error if a transition result direction is invalid."""
         with self.assertRaises(tm_exceptions.InvalidDirectionError):
-            self.ntm1.transitions['q0']['.'] = {('q3', '.', 'U')}
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'U')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q2'}
+            )
 
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.ntm1.initial_state = 'q4'
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q5',
+                blank_symbol='.',
+                final_states={'q2'}
+            )
 
     def test_validate_initial_state_transitions(self):
         """Should raise error if the initial state has no transitions."""
         with self.assertRaises(exceptions.MissingStateError):
-            del self.ntm1.transitions[self.ntm1.initial_state]
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q2'}
+            )
 
     def test_validate_nonfinal_initial_state(self):
         """Should raise error if the initial state is a final state."""
         with self.assertRaises(exceptions.InitialStateError):
-            self.ntm1.final_states.add('q0')
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q0'}
+            )
 
     def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.ntm1.final_states = {'q4'}
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={'q5'}
+            )
 
     def test_validate_invalid_final_state_non_str(self):
         """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
-            self.ntm1.final_states = {4}
-            self.ntm1.validate()
+            NTM(
+                states={'q0', 'q1', 'q2'},
+                input_symbols={'0'},
+                tape_symbols={'0', '.'},
+                transitions={
+                    'q0': {'0': {('q1', '0', 'R')}},
+                    'q1': {'0': {('q2', '0', 'L')}}
+                },
+                initial_state='q0',
+                blank_symbol='.',
+                final_states={5}
+            )
 
     def test_validate_final_state_transitions(self):
         """Should raise error if a final state has any transitions."""

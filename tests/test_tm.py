@@ -3,7 +3,6 @@
 
 import unittest
 
-import automata.base.exceptions as exceptions
 from automata.tm.dtm import DTM
 from automata.tm.mntm import MNTM
 from automata.tm.ntm import NTM
