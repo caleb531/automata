@@ -6,6 +6,7 @@ import abc
 from frozendict import frozendict
 
 import automata.base.exceptions as exceptions
+from automata.base.utils import freezeValue
 
 
 class Automaton(metaclass=abc.ABCMeta):
@@ -13,7 +14,7 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def __init__(self, **kwargs):
         for attr_name, attr_value in kwargs.items():
-            object.__setattr__(self, attr_name, attr_value)
+            object.__setattr__(self, attr_name, freezeValue(attr_value))
         self.__post_init__()
 
     def __post_init__(self):

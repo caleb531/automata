@@ -19,17 +19,11 @@ class NFA(fa.FA):
                  initial_state, final_states):
         """Initialize a complete NFA."""
         super().__init__(
-            states=frozenset(states),
-            input_symbols=frozenset(input_symbols),
-            transitions=frozendict({
-                state: frozendict({
-                    symbol: frozenset(dest)
-                    for symbol, dest in paths.items()
-                })
-                for state, paths in transitions.items()
-            }),
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
             initial_state=initial_state,
-            final_states=frozenset(final_states),
+            final_states=final_states,
             lambda_closures=self._compute_lambda_closures(states, transitions)
         )
 

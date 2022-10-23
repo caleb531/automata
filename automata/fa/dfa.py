@@ -5,7 +5,6 @@ from collections import deque
 from itertools import chain, count, product
 
 import networkx as nx
-from frozendict import frozendict
 from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
@@ -20,14 +19,11 @@ class DFA(fa.FA):
                  initial_state, final_states, allow_partial=False):
         """Initialize a complete DFA."""
         super().__init__(
-            states=frozenset(states),
-            input_symbols=frozenset(input_symbols),
-            transitions=frozendict({
-                state: frozendict(paths)
-                for state, paths in transitions.items()
-            }),
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
             initial_state=initial_state,
-            final_states=frozenset(final_states),
+            final_states=final_states,
             allow_partial=allow_partial
         )
 

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic pushdown automata."""
 
-from frozendict import frozendict
-
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import automata.pda.pda as pda
@@ -18,22 +16,13 @@ class DPDA(pda.PDA):
                  initial_stack_symbol, final_states, acceptance_mode='both'):
         """Initialize a complete DPDA."""
         super().__init__(
-            states=frozenset(states),
-            input_symbols=frozenset(input_symbols),
-            stack_symbols=frozenset(stack_symbols),
-            transitions=frozendict({
-                state: frozendict({
-                    input_symbol: frozendict({
-                        stack_symbol: dest
-                        for stack_symbol, dest in stack_paths.items()
-                    })
-                    for input_symbol, stack_paths in input_paths.items()
-                })
-                for state, input_paths in transitions.items()
-            }),
+            states=states,
+            input_symbols=input_symbols,
+            stack_symbols=stack_symbols,
+            transitions=transitions,
             initial_state=initial_state,
             initial_stack_symbol=initial_stack_symbol,
-            final_states=frozenset(final_states),
+            final_states=final_states,
             acceptance_mode=acceptance_mode,
         )
 
