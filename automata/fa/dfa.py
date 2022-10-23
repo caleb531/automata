@@ -2,7 +2,7 @@
 """Classes and methods for working with deterministic finite automata."""
 
 from collections import deque
-from itertools import chain, count, product
+from itertools import chain, count
 
 import networkx as nx
 from pydot import Dot, Edge, Node
@@ -273,7 +273,8 @@ class DFA(fa.FA):
             retain_names=retain_names)
 
     @classmethod
-    def _minify(cls, *, reachable_states, input_symbols, transitions, initial_state, reachable_final_states, retain_names):
+    def _minify(cls, *, reachable_states, input_symbols, transitions, initial_state,
+                reachable_final_states, retain_names):
         """Minify helper function. DFA data passed in must have no unreachable states."""
 
         # First, assemble backmap and equivalence class data structure
@@ -404,7 +405,6 @@ class DFA(fa.FA):
             initial_state=new_initial_state,
             final_states=set(filter(union_fn, new_states))
         )
-
 
     def intersection(self, other, *, retain_names=False, minify=True):
         """
