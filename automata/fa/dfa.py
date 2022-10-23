@@ -341,7 +341,7 @@ class DFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def _cross_product(self, other, final_states):
+    def _cross_product(self, other, final_state_fn):
         """
         Creates a new DFA which is the cross product of DFAs self and other
         with an empty set of final states.
@@ -366,7 +366,7 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=final_states & new_states
+            final_states=set(filter(final_state_fn, new_states))
         )
 
     def union(self, other, *, retain_names=False, minify=True):
@@ -376,13 +376,11 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
 
-        new_final_states = {
-            (state_a, state_b)
-            for state_a, state_b in product(self.states, other.states)
-            if (state_a in self.final_states or state_b in other.final_states)
-        }
+        def union_fn(state):
+            state_a, state_b = state
+            return state_a in self.final_states or state_b in other.final_states
 
-        new_dfa = self._cross_product(other, new_final_states)
+        new_dfa = self._cross_product(other, union_fn)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -395,9 +393,11 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the intersection of L1 and L2.
         """
+        def intersection_fn(state):
+            state_a, state_b = state
+            return state_a in self.final_states and state_b in other.final_states
 
-        new_final_states = set(product(self.final_states, other.final_states))
-        new_dfa = self._cross_product(other, new_final_states)
+        new_dfa = self._cross_product(other, intersection_fn)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -409,9 +409,11 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
         """
+        def difference_fn(state):
+            state_a, state_b = state
+            return state_a in self.final_states and state_b not in other.final_states
 
-        new_final_states = set(product(self.final_states, other.states - other.final_states))
-        new_dfa = self._cross_product(other, new_final_states)
+        new_dfa = self._cross_product(other, difference_fn)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -423,14 +425,11 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
+        def symmetric_difference_fn(state):
+            state_a, state_b = state
+            return (state_a in self.final_states) ^ (state_b in other.final_states)
 
-        new_final_states = {
-            (state_a, state_b)
-            for state_a, state_b in product(self.states, other.states)
-            if (state_a in self.final_states) ^ (state_b in other.final_states)
-        }
-
-        new_dfa = self._cross_product(other, new_final_states)
+        new_dfa = self._cross_product(other, symmetric_difference_fn)
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
