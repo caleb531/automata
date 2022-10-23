@@ -341,7 +341,7 @@ class DFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def _cross_product(self, other, final_state_fn):
+    def _cross_product(self, other):
         """
         Creates a new DFA which is the cross product of DFAs self and other
         with an empty set of final states.
@@ -361,13 +361,7 @@ class DFA(fa.FA):
 
         new_initial_state = (self.initial_state, other.initial_state)
 
-        return self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=set(filter(final_state_fn, new_states))
-        )
+        return new_states, new_transitions, new_initial_state
 
     def union(self, other, *, retain_names=False, minify=True):
         """
@@ -380,7 +374,15 @@ class DFA(fa.FA):
             state_a, state_b = state
             return state_a in self.final_states or state_b in other.final_states
 
-        new_dfa = self._cross_product(other, union_fn)
+        new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=set(filter(union_fn, new_states))
+        )
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -397,7 +399,15 @@ class DFA(fa.FA):
             state_a, state_b = state
             return state_a in self.final_states and state_b in other.final_states
 
-        new_dfa = self._cross_product(other, intersection_fn)
+        new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=set(filter(intersection_fn, new_states))
+        )
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -413,7 +423,15 @@ class DFA(fa.FA):
             state_a, state_b = state
             return state_a in self.final_states and state_b not in other.final_states
 
-        new_dfa = self._cross_product(other, difference_fn)
+        new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=set(filter(difference_fn, new_states))
+        )
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
@@ -429,7 +447,15 @@ class DFA(fa.FA):
             state_a, state_b = state
             return (state_a in self.final_states) ^ (state_b in other.final_states)
 
-        new_dfa = self._cross_product(other, symmetric_difference_fn)
+        new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=set(filter(symmetric_difference_fn, new_states))
+        )
 
         if minify:
             return new_dfa.minify(retain_names=retain_names)
