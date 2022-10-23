@@ -383,11 +383,13 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
 
-        def union_fn(state):
-            state_a, state_b = state
-            return state_a in self.final_states or state_b in other.final_states
-
         new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        new_final_states = {
+            (state_a, state_b)
+            for state_a, state_b in new_states
+            if state_a in self.final_states or state_b in other.final_states
+        }
 
         if minify:
             return self._minify(
@@ -395,7 +397,7 @@ class DFA(fa.FA):
                 input_symbols=self.input_symbols,
                 transitions=new_transitions,
                 initial_state=new_initial_state,
-                reachable_final_states=set(filter(union_fn, new_states)),
+                reachable_final_states=new_final_states,
                 retain_names=retain_names)
 
         return self.__class__(
@@ -403,7 +405,7 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=set(filter(union_fn, new_states))
+            final_states=new_final_states
         )
 
     def intersection(self, other, *, retain_names=False, minify=True):
@@ -412,11 +414,14 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the intersection of L1 and L2.
         """
-        def intersection_fn(state):
-            state_a, state_b = state
-            return state_a in self.final_states and state_b in other.final_states
 
         new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        new_final_states = {
+            (state_a, state_b)
+            for state_a, state_b in new_states
+            if state_a in self.final_states and state_b in other.final_states
+        }
 
         if minify:
             return self._minify(
@@ -424,7 +429,7 @@ class DFA(fa.FA):
                 input_symbols=self.input_symbols,
                 transitions=new_transitions,
                 initial_state=new_initial_state,
-                reachable_final_states=set(filter(intersection_fn, new_states)),
+                reachable_final_states=new_final_states,
                 retain_names=retain_names)
 
         return self.__class__(
@@ -432,7 +437,7 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=set(filter(intersection_fn, new_states))
+            final_states=new_final_states
         )
 
     def difference(self, other, *, retain_names=False, minify=True):
@@ -441,11 +446,13 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
         """
-        def difference_fn(state):
-            state_a, state_b = state
-            return state_a in self.final_states and state_b not in other.final_states
-
         new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        new_final_states = {
+            (state_a, state_b)
+            for state_a, state_b in new_states
+            if state_a in self.final_states and state_b not in other.final_states
+        }
 
         if minify:
             return self._minify(
@@ -453,7 +460,7 @@ class DFA(fa.FA):
                 input_symbols=self.input_symbols,
                 transitions=new_transitions,
                 initial_state=new_initial_state,
-                reachable_final_states=set(filter(difference_fn, new_states)),
+                reachable_final_states=new_final_states,
                 retain_names=retain_names)
 
         return self.__class__(
@@ -461,7 +468,7 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=set(filter(difference_fn, new_states))
+            final_states=new_final_states
         )
 
     def symmetric_difference(self, other, *, retain_names=False, minify=True):
@@ -470,11 +477,14 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
-        def symmetric_difference_fn(state):
-            state_a, state_b = state
-            return (state_a in self.final_states) ^ (state_b in other.final_states)
 
         new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        new_final_states = {
+            (state_a, state_b)
+            for state_a, state_b in new_states
+            if (state_a in self.final_states) ^ (state_b in other.final_states)
+        }
 
         if minify:
             return self._minify(
@@ -482,7 +492,7 @@ class DFA(fa.FA):
                 input_symbols=self.input_symbols,
                 transitions=new_transitions,
                 initial_state=new_initial_state,
-                reachable_final_states=set(filter(symmetric_difference_fn, new_states)),
+                reachable_final_states=new_final_states,
                 retain_names=retain_names)
 
         return self.__class__(
@@ -490,11 +500,24 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=set(filter(symmetric_difference_fn, new_states))
+            final_states=new_final_states
         )
 
-    def complement(self):
+    def complement(self, *, retain_names=False, minify=True):
         """Return the complement of this DFA."""
+
+        if minify:
+            reachable_states = self._compute_reachable_states()
+            reachable_final_states = self.final_states & reachable_states
+
+            return self._minify(
+                reachable_states=reachable_states,
+                input_symbols=self.input_symbols,
+                transitions=self.transitions,
+                initial_state=self.initial_state,
+                reachable_final_states=reachable_states - reachable_final_states,
+                retain_names=retain_names)
+
 
         return self.__class__(
             states=self.states,

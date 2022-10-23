@@ -322,7 +322,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1'}
         )
-        complement_dfa = ~no_consecutive_11_dfa
+        complement_dfa = no_consecutive_11_dfa.complement(retain_names=True, minify=False)
         self.assertEqual(complement_dfa.states, no_consecutive_11_dfa.states)
         self.assertEqual(
             complement_dfa.input_symbols, no_consecutive_11_dfa.input_symbols
