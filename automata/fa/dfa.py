@@ -518,7 +518,6 @@ class DFA(fa.FA):
                 reachable_final_states=reachable_states - reachable_final_states,
                 retain_names=retain_names)
 
-
         return self.__class__(
             states=self.states,
             input_symbols=self.input_symbols,
