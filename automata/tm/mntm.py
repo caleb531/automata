@@ -2,46 +2,55 @@
 """Classes and methods for working with multitape nondeterministic Turing
 machines."""
 
-import copy
 from collections import deque
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
-import automata.tm.ntm as tm
+import automata.tm.ntm as ntm
+import automata.tm.tm as tm
 from automata.tm.configuration import MTMConfiguration, TMConfiguration
 from automata.tm.tape import TMTape
 
 
-class MNTM(tm.NTM):
+class MNTM(ntm.NTM):
     """A multitape nondeterministic Turing machine."""
 
     def __init__(self, *, states, input_symbols, tape_symbols, n_tapes,
                  transitions, initial_state, blank_symbol, final_states,
                  tapes=None, current_state=None):
         """Initialize a complete Turing machine."""
-        self.states = states.copy()
-        self.input_symbols = input_symbols.copy()
-        self.tape_symbols = tape_symbols.copy()
-        self.transitions = copy.deepcopy(transitions)
-        self.initial_state = initial_state
-        self.blank_symbol = blank_symbol
-        self.final_states = final_states.copy()
-        self.n_tapes = n_tapes
+        super(tm.TM, self).__init__(
+            states=states,
+            input_symbols=input_symbols,
+            tape_symbols=tape_symbols,
+            transitions=transitions,
+            initial_state=initial_state,
+            blank_symbol=blank_symbol,
+            final_states=final_states,
+            n_tapes=n_tapes,
+            tapes=self._get_tapes(
+                tapes=tapes,
+                n_tapes=n_tapes,
+                blank_symbol=blank_symbol),
+            current_state=self._get_current_state(
+                current_state=current_state,
+                initial_state=initial_state)
+        )
 
+    def _get_tapes(self, tapes, n_tapes, blank_symbol):
         if tapes is not None:
-            self.tapes = [tape.copy() for tape in tapes]
+            return tuple(tape.copy() for tape in tapes)
         else:
-            self.tapes = [
-                TMTape(
-                    self.blank_symbol, blank_symbol=self.blank_symbol)
-                for _ in range(n_tapes)]
+            return tuple(
+                TMTape(blank_symbol, blank_symbol=blank_symbol)
+                for _ in range(n_tapes)
+            )
 
+    def _get_current_state(self, current_state, initial_state):
         if current_state is not None:
-            self.current_state = current_state
+            return current_state
         else:
-            self.current_state = self.initial_state
-
-        self.validate()
+            return initial_state
 
     def _validate_transition_symbols(self, state, paths):
         for tape_symbol in [tape_symbol
