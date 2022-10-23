@@ -349,15 +349,14 @@ class DFA(fa.FA):
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        new_states = set(product(self.states, other.states))
+        new_states = self._get_reachable_states_product_graph(other)
 
         new_transitions = {
             (state_a, state_b): {
-                symbol: (transitions_a[symbol], transitions_b[symbol])
+                symbol: (self.transitions[state_a][symbol], other.transitions[state_b][symbol])
                 for symbol in self.input_symbols
             }
-            for (state_a, transitions_a), (state_b, transitions_b) in
-            product(self.transitions.items(), other.transitions.items())
+            for (state_a, state_b) in new_states
         }
 
         new_initial_state = (self.initial_state, other.initial_state)
@@ -367,7 +366,7 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=final_states
+            final_states=final_states & new_states
         )
 
     def union(self, other, *, retain_names=False, minify=True):
