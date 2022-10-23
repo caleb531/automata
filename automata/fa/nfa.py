@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 from collections import deque
-from itertools import chain
+from itertools import chain, product
 
 import networkx as nx
 from frozendict import frozendict
@@ -195,6 +195,66 @@ class NFA(fa.FA):
                         queue.append(next_state)
 
         return visited_set
+
+    def _get_reachable_states_product_graph(self, other):
+        """Get reachable states corresponding to product graph between self and other"""
+        if self.input_symbols != other.input_symbols:
+            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
+
+        visited_set = set()
+        queue = deque()
+
+        product_initial_state = (self.initial_state, other.initial_state)
+        queue.append(product_initial_state)
+        visited_set.add(product_initial_state)
+
+        while queue:
+            q_a, q_b = queue.popleft()
+
+            # States we will consider adding to the queue
+            state_iterables = list()
+
+            # Get transition dict for states in self
+            transitions_a = self.transitions.get(q_a)
+            if transitions_a is not None:
+                # Add epsilon transitions for first set of transitions
+                epsilon_transitions_a = transitions_a.get('')
+                if epsilon_transitions_a is not None:
+                    state_iterables.append(product(epsilon_transitions_a, [q_b]))
+
+            # Get transition dict for states in other
+            transitions_b = other.transitions.get(q_b)
+            if transitions_b is not None:
+                # Add epsilon transitions for second set of transitions
+                epsilon_transitions_b = transitions_b.get('')
+                if epsilon_transitions_b is not None:
+                    state_iterables.append(product([q_a], epsilon_transitions_b))
+
+            if transitions_a is not None and transitions_b is not None:
+                # Add all transitions moving over same input symbols
+                for chr in self.input_symbols:
+                    end_states_a = transitions_a.get(chr)
+                    end_states_b = transitions_b.get(chr)
+
+                    if end_states_a is not None and end_states_b is not None:
+                        state_iterables.append(product(end_states_a, end_states_b))
+
+            # Finally, try visiting every state we found.
+            for product_state in chain.from_iterable(state_iterables):
+                if product_state not in visited_set:
+                    visited_set.add(product_state)
+                    queue.append(product_state)
+
+        return visited_set
+
+    def issubset(self, other):
+        """Return True if this NFA is a subset of another NFA."""
+        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+            # Check for reachable state that is counterexample to subset
+            if state_a in self.final_states and state_b not in other.final_states:
+                return False
+
+        return True
 
     def eliminate_lambda(self):
         """Removes epsilon transitions from the NFA which recognizes the same language."""
