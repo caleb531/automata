@@ -1229,7 +1229,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q2'}
         )
-        dfa = DFA.from_nfa(nfa, retain_names=True)
+        dfa = DFA.from_nfa(nfa, retain_names=True, minify=False)
         self.assertEqual(dfa.states, {frozenset(), frozenset(('q0',)), frozenset(('q0', 'q1')), frozenset(('q2',))})
         self.assertEqual(dfa.input_symbols, {'0', '1'})
         self.assertEqual(dfa.transitions, {
@@ -1254,7 +1254,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q2'}
         )
-        dfa = DFA.from_nfa(nfa, retain_names=True)
+        dfa = DFA.from_nfa(nfa, retain_names=True, minify=False)
         self.assertEqual(dfa.states, {
             frozenset(('q0',)), frozenset(('q0', 'q1')), frozenset(('q0', 'q2')), frozenset(('q0', 'q1', 'q2'))
         })
@@ -1270,7 +1270,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
-        dfa = DFA.from_nfa(self.nfa, retain_names=True)
+        dfa = DFA.from_nfa(self.nfa, retain_names=True, minify=False)
         self.assertEqual(dfa.states, {frozenset(), frozenset(('q0',)), frozenset(('q1', 'q2'))})
         self.assertEqual(dfa.input_symbols, {'a', 'b'})
         self.assertEqual(dfa.transitions, {
@@ -1294,7 +1294,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q1'}
         )
-        dfa = DFA.from_nfa(nfa, retain_names=True)  # returns an equivalent DFA
+        dfa = DFA.from_nfa(nfa, retain_names=True, minify=False)  # returns an equivalent DFA
         self.assertEqual(dfa.read_input('a'), frozenset(('q1',)))
 
     def test_partial_dfa(self):

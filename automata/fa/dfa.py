@@ -682,7 +682,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def from_nfa(cls, target_nfa, retain_names=False):
+    def from_nfa(cls, target_nfa, *, retain_names=False, minify=True):
         """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states = set()
         dfa_symbols = target_nfa.input_symbols
@@ -728,9 +728,20 @@ class DFA(fa.FA):
                 dfa_transitions[current_state_name][input_symbol] = get_name(next_current_states)
                 state_queue.append(next_current_states)
 
+        if minify:
+            return cls._minify(
+                reachable_states=dfa_states,
+                input_symbols=dfa_symbols,
+                transitions=dfa_transitions,
+                initial_state=dfa_initial_state,
+                reachable_final_states=dfa_final_states,
+                retain_names=retain_names)
+
         return cls(
-            states=dfa_states, input_symbols=dfa_symbols,
-            transitions=dfa_transitions, initial_state=dfa_initial_state,
+            states=dfa_states,
+            input_symbols=dfa_symbols,
+            transitions=dfa_transitions,
+            initial_state=dfa_initial_state,
             final_states=dfa_final_states)
 
     def show_diagram(self, path=None):
