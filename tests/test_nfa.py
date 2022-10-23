@@ -5,6 +5,8 @@ import tempfile
 import types
 from unittest.mock import patch
 
+from frozendict import frozendict
+
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
@@ -43,6 +45,10 @@ class TestNFA(test_fa.TestFA):
     def test_nfa_immutable_attr_del(self):
         with self.assertRaises(AttributeError):
             del self.nfa.states
+
+    def test_nfa_immutable_dict(self):
+        """Should create an NFA whose contents are fully immutable/hashable"""
+        self.assertIsInstance(hash(frozendict(self.nfa.__dict__)), int)
 
     def test_init_dfa(self):
         """Should convert DFA to NFA if passed into NFA constructor."""

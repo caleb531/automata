@@ -4,6 +4,8 @@
 import types
 from unittest.mock import patch
 
+from frozendict import frozendict
+
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import tests.test_tm as test_tm
@@ -40,6 +42,18 @@ class TestDTM(test_tm.TestTM):
         """Should create exact copy of DTM if copy() method is called."""
         new_dtm = self.dtm1.copy()
         self.assertIsNot(new_dtm, self.dtm1)
+
+    def test_dtm_immutable_attr_set(self):
+        with self.assertRaises(AttributeError):
+            self.dtm1.states = {}
+
+    def test_dtm_immutable_attr_del(self):
+        with self.assertRaises(AttributeError):
+            del self.dtm1.states
+
+    def test_dtm_immutable_dict(self):
+        """Should create a DTM whose contents are fully immutable/hashable"""
+        self.assertIsInstance(hash(frozendict(self.dtm1.__dict__)), int)
 
     def test_validate_input_symbol_subset(self):
         """Should raise error if input symbols are not a strict superset of tape symbols."""

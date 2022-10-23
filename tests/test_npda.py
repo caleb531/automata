@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of NPDAs."""
 
+from frozendict import frozendict
+
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import tests.test_pda as test_pda
@@ -57,6 +59,18 @@ class TestNPDA(test_pda.TestPDA):
                 final_states={'q0'},
                 acceptance_mode='foo'
             )
+
+    def test_npda_immutable_attr_set(self):
+        with self.assertRaises(AttributeError):
+            self.npda.states = {}
+
+    def test_npda_immutable_attr_del(self):
+        with self.assertRaises(AttributeError):
+            del self.npda.states
+
+    def test_npda_immutable_dict(self):
+        """Should create an NPDA whose contents are fully immutable/hashable"""
+        self.assertIsInstance(hash(frozendict(self.npda.__dict__)), int)
 
     def test_validate_invalid_input_symbol(self):
         """Should raise error if a transition has an invalid input symbol."""

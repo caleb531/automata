@@ -8,6 +8,8 @@ import types
 from itertools import product
 from unittest.mock import patch
 
+from frozendict import frozendict
+
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
@@ -40,12 +42,18 @@ class TestDFA(test_fa.TestFA):
         self.assertIsNot(new_dfa, self.dfa)
 
     def test_dfa_immutable_attr_set(self):
+        """Should disallow reassigning DFA attributes"""
         with self.assertRaises(AttributeError):
             self.dfa.states = {}
 
     def test_dfa_immutable_attr_del(self):
+        """Should disallow deleting DFA attributes"""
         with self.assertRaises(AttributeError):
             del self.dfa.states
+
+    def test_dfa_immutable_dict(self):
+        """Should create a DFA whose contents are fully immutable/hashable"""
+        self.assertIsInstance(hash(frozendict(self.dfa.__dict__)), int)
 
     @patch('automata.fa.dfa.DFA.validate')
     def test_init_validation(self, validate):
