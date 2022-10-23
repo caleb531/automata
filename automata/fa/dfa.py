@@ -5,11 +5,11 @@ from collections import deque
 from itertools import chain, count
 
 import networkx as nx
-from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.base.utils import PartitionRefinement
+from pydot import Dot, Edge, Node
 
 
 class DFA(fa.FA):
