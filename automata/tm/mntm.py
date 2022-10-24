@@ -17,7 +17,7 @@ class MNTM(tm.NTM):
 
     def __init__(self, *, states, input_symbols, tape_symbols, n_tapes,
                  transitions, initial_state, blank_symbol, final_states,
-                 tapes=None, current_state=None):
+                 tapes=None):
         """Initialize a complete Turing machine."""
         self.states = states.copy()
         self.input_symbols = input_symbols.copy()
@@ -27,7 +27,6 @@ class MNTM(tm.NTM):
         self.blank_symbol = blank_symbol
         self.final_states = final_states.copy()
         self.n_tapes = n_tapes
-        self.current_state = self._get_current_state(current_state)
 
         if tapes is not None:
             self.tapes = [tape.copy() for tape in tapes]
@@ -38,12 +37,6 @@ class MNTM(tm.NTM):
                 for _ in range(n_tapes)]
 
         self.validate()
-
-    def _get_current_state(self, current_state):
-        if current_state is not None:
-            return current_state
-        else:
-            return self.initial_state
 
     # Temporarily retain mutability for the MNTM type until the surrounding
     # code can be refactored to eliminate the current_state and self.tapes
@@ -152,32 +145,37 @@ class MNTM(tm.NTM):
 
         return self
 
+    def _has_accepted(self, current_state):
+        return current_state in self.final_states
+
     def read_input_stepwise(self, input_str):
         """Checks if the given string is accepted by this Turing machine,
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
         """
         self._restart_configuration(input_str)
-        current_state = self.initial_state
-        queue = deque([self])
+        queue = deque([(self, self.initial_state)])
         while len(queue) > 0:
-            current_tm = queue.popleft()
+            current_tm, current_state = queue.popleft()
             yield {MTMConfiguration(current_state, tuple(self.tapes))}
 
             possible_transitions = current_tm._get_transition(current_state)
             if possible_transitions is None:
-                if current_state in current_tm.final_states:
+                if current_tm._has_accepted(current_state):
                     return {MTMConfiguration(current_state,
                                              tuple(self.tapes))}
             else:
                 for transition in possible_transitions[1:]:
-                    queue.append(current_tm.copy()._get_next_configuration(
-                        transition)
-                    )
+                    end_state, _ = transition
+                    queue.append((
+                        current_tm.copy()._get_next_configuration(transition), end_state
+                    ))
 
-                current_state = possible_transitions[0][0]
-                queue.append(current_tm._get_next_configuration(
-                    possible_transitions[0]))
+                end_state, _ = possible_transitions[0]
+                queue.append((
+                    current_tm._get_next_configuration(possible_transitions[0]),
+                    end_state
+                ))
 
         raise exceptions.RejectionException(
             'the multitape MNTM did not reach an accepting configuration'
