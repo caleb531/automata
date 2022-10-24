@@ -133,13 +133,13 @@ class MNTM(tm.NTM):
     def _get_next_configuration(self, transition, current_tapes):
         """Advances to the next configuration."""
         current_state, moves = transition
-        tapes = [tape.copy() for tape in current_tapes]
+        tapes = current_tapes.copy()
         for i, move in enumerate(moves):
             symbol, direction = move
             tapes[i] = tapes[i].write_symbol(symbol)
             tapes[i] = tapes[i].move(direction)
 
-        return self, MTMConfiguration(state=current_state, tapes=tapes)
+        return MTMConfiguration(state=current_state, tapes=tapes)
 
     def _has_accepted(self, current_config):
         return current_config.state in self.final_states
@@ -151,25 +151,24 @@ class MNTM(tm.NTM):
         """
         tapes = self._get_tapes_for_input_str(input_str)
         queue = deque([(
-            self,
             MTMConfiguration(state=self.initial_state, tapes=tapes[:])
         )])
         while len(queue) > 0:
-            current_tm, current_config = queue.popleft()
+            current_config = queue.popleft()
             yield {MTMConfiguration(current_config.state, tuple(current_config.tapes))}
 
-            possible_transitions = current_tm._get_transition(current_config.state, current_config.tapes)
+            possible_transitions = self._get_transition(current_config.state, current_config.tapes)
             if possible_transitions is None:
-                if current_tm._has_accepted(current_config):
+                if self._has_accepted(current_config):
                     return {MTMConfiguration(current_config.state,
                                              tuple(current_config.tapes))}
             else:
                 for transition in possible_transitions[1:]:
-                    queue.append(current_tm.copy()._get_next_configuration(
+                    queue.append(self._get_next_configuration(
                         transition,
                         current_tapes=current_config.tapes))
 
-                queue.append(current_tm._get_next_configuration(
+                queue.append(self._get_next_configuration(
                     possible_transitions[0],
                     current_tapes=current_config.tapes))
 
