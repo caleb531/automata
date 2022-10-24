@@ -669,13 +669,27 @@ class DFA(fa.FA):
         """
         Returns the length of the shortest word in the language represented by the DFA
         """
-        return 0
+        if self.isempty():
+            raise ValueError('The language represented by the DFA is empty')
+        queue = deque()
+        distances = defaultdict(lambda: float('inf'))
+        distances[self.initial_state] = 0
+        queue.append(self.initial_state)
+        while len(queue):
+            state = queue.popleft()
+            if state in self.final_states:
+                return distances[state]
+            for _, next_state in self.transitions[state].items():
+                if distances[next_state] == float('inf'):
+                    distances[next_state] = distances[state] + 1
+                    queue.append(next_state)
+        assert False
 
     def maximum_word_length(self):
         """
         Returns the length of the longest word in the language represented by the DFA
         """
-        if self.isfinite():
+        if not self.isfinite():
             return float('inf')
         return 100
 

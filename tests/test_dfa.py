@@ -1497,3 +1497,59 @@ class TestDFA(test_fa.TestFA):
                 count += 1
                 self.assertIn(word, A)
             self.assertEqual(count, fib)
+
+    def test_minimum_word_length(self):
+        # This DFA accepts all words which contain at least four
+        # occurrences of 1
+        A = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q4'},
+                'q4': {'0': 'q4', '1': 'q4'}
+            },
+            initial_state='q0',
+            final_states={'q4'}
+        )
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        B = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        # This DFA accepts all binary strings
+        U = DFA(
+            states={'q0'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q0'}
+            },
+            initial_state='q0',
+            final_states={'q0'}
+        )
+        # This DFA represents the empty language
+        empty = DFA(
+            states={'q0'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q0'}
+            },
+            initial_state='q0',
+            final_states=set()
+        )
+
+        self.assertEqual(A.minimum_word_length(), 4)
+        self.assertEqual(B.minimum_word_length(), 0)
+        self.assertEqual(U.minimum_word_length(), 0)
+        with self.assertRaises(ValueError):
+            empty.minimum_word_length()
