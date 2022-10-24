@@ -689,9 +689,22 @@ class DFA(fa.FA):
         """
         Returns the length of the longest word in the language represented by the DFA
         """
+        if self.isempty():
+            raise ValueError('The language represented by the DFA is empty')
         if not self.isfinite():
             return float('inf')
-        return 100
+        G = self._get_digraph()
+
+        accessible_nodes = nx.descendants(G, self.initial_state) | {self.initial_state}
+
+        coaccessible_nodes = self.final_states.union(*(
+            nx.ancestors(G, state)
+            for state in self.final_states
+        ))
+
+        important_nodes = accessible_nodes.intersection(coaccessible_nodes)
+
+        return nx.dag_longest_path_length(G.subgraph(important_nodes))
 
     @staticmethod
     def _stringify_states_unsorted(states):
