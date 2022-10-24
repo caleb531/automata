@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic finite automata."""
 
-from collections import deque
+from collections import defaultdict, deque
 from itertools import chain, count
 
 import networkx as nx
@@ -26,6 +26,8 @@ class DFA(fa.FA):
             final_states=final_states,
             allow_partial=allow_partial
         )
+        object.__setattr__(self, '_word_cache', [])
+        object.__setattr__(self, '_count_cache', [])
 
     def __eq__(self, other):
         """
@@ -137,6 +139,23 @@ class DFA(fa.FA):
     def __invert__(self):
         """Return the complement of this DFA and another DFA."""
         return self.complement()
+
+    def __contains__(self, other):
+        return self.accepts_input(other)
+
+    def __iter__(self):
+        i = self.minimum_word_length()
+        limit = self.maximum_word_length()
+        while i <= limit:
+            yield from self.words_of_length(i)
+            i += 1
+
+    def __len__(self):
+        if self.isfinite():
+            raise ValueError("The language represented by the DFA is infinite")
+        i = self.minimum_word_length()
+        limit = self.maximum_word_length()
+        return sum(self.count_words_of_length(j) for j in range(i, limit+1))
 
     def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition input_symbols are missing."""
@@ -597,6 +616,73 @@ class DFA(fa.FA):
             return False
         except nx.exception.NetworkXNoCycle:
             return True
+
+    def count_words_of_length(self, k):
+        """
+        Counts words of length k assuming state is the initial state
+        """
+        self._ensure_count_for_length(k)
+        return self._count_cache[k][self.initial_state]
+
+    def _ensure_count_for_length(self, k):
+        """
+        Populate count cache up to length k
+        """
+        while len(self._count_cache) <= k:
+            i = len(self._count_cache)
+            self._count_cache.append(defaultdict(int))
+            if i == 0:
+                for state in self.final_states:
+                    self._count_cache[i][state] = 1
+            else:
+                for state in self.states:
+                    for symbol in self.input_symbols:
+                        suffix_state = self.transitions[state][symbol]
+                        self._count_cache[i][state] += self._count_cache[i-1][suffix_state]
+
+    def words_of_length(self, k):
+        """
+        Generates all words of size k in the language represented by the DFA
+        """
+        self._ensure_words_of_length(k)
+        for word in self._word_cache[k][self.initial_state]:
+            yield word
+
+    def _ensure_words_of_length(self, k):
+        """
+        Populate word cache up to length k
+        """
+        while len(self._word_cache) <= k:
+            i = len(self._word_cache)
+            self._word_cache.append(defaultdict(set))
+            if i == 0:
+                for state in self.final_states:
+                    self._word_cache[i][state].add('')
+            else:
+                for state in self.states:
+                    for symbol in self.input_symbols:
+                        suffix_state = self.transitions[state][symbol]
+                        for word in self._word_cache[i-1][suffix_state]:
+                            self._word_cache[i][state].add(symbol + word)
+
+    def minimum_word_length(self):
+        """
+        Returns the length of the shortest word in the language represented by the DFA
+        """
+        return 0
+
+    def maximum_word_length(self):
+        """
+        Returns the length of the longest word in the language represented by the DFA
+        """
+        if self.isfinite():
+            return float('inf')
+        return 100
+
+    @staticmethod
+    def _stringify_states_unsorted(states):
+        """Stringify the given set of states as a single state name."""
+        return '{{{}}}'.format(','.join(states))
 
     @classmethod
     def from_finite_language(cls, language, input_symbols):

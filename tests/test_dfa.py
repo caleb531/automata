@@ -53,7 +53,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_dfa_immutable_dict(self):
         """Should create a DFA whose contents are fully immutable/hashable"""
-        self.assertIsInstance(hash(frozendict(self.dfa.__dict__)), int)
+        self.assertIsInstance(hash(frozendict(self.dfa.attributes())), int)
 
     @patch('automata.fa.dfa.DFA.validate')
     def test_init_validation(self, validate):
@@ -1453,3 +1453,47 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(
             repr(dfa),
             "DFA(states={'q0'}, input_symbols={'a'}, transitions={'q0': {'a': 'q0'}}, initial_state='q0', final_states={'q0'}, allow_partial=False)")  # noqa: E501
+            
+    def test_count_words_of_length(self):
+        """
+        Test that language that avoids the pattern '11' is counted by fibonacci numbers
+        """
+        A = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+
+        fibonacci = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+        for i, fib in enumerate(fibonacci):
+            self.assertEqual(A.count_words_of_length(i), fib)
+
+    def test_words_of_length(self):
+        """
+        Test that all words generated are accepted and that count matches
+        """
+        A = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+
+        fibonacci = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+        for i, fib in enumerate(fibonacci):
+            count = 0
+            for word in A.words_of_length(i):
+                count += 1
+                self.assertIn(word, A)
+            self.assertEqual(count, fib)

@@ -79,11 +79,15 @@ class Automaton(metaclass=abc.ABCMeta):
                 'final states are not valid ({})'.format(
                     ', '.join(str(state) for state in invalid_states)))
 
+    def attributes(self):
+        """Return the public attributes for this automaton."""
+        return {key: value
+                for key, value in vars(self).items()
+                if not key.startswith('_')}
+
     def copy(self):
         """Create a deep copy of the automaton."""
-        return self.__class__(**{key: value
-                                 for key, value in vars(self).items()
-                                 if not key.startswith('_')})
+        return self.__class__(**self.attributes())
 
     # Format the given value for string output via repr() or str(); this exists for the purpose of displaying
 
