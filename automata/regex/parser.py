@@ -176,7 +176,7 @@ def add_concat_tokens(token_list):
 
 def get_regex_lexer():
     """Get lexer for parsing regular expressions."""
-    lexer: Lexer = Lexer()
+    lexer = Lexer()
 
     lexer.register_token(LeftParen, r'\(')
     lexer.register_token(RightParen, r'\)')
