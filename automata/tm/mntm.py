@@ -135,7 +135,7 @@ class MNTM(tm.NTM):
 
     def _get_next_configuration(self, old_config):
         """Advances to the next configuration."""
-        _, moves = old_config
+        current_state, moves = old_config
         i = 0
         for tape, move in zip(self.tapes, moves):
             symbol, direction = move
@@ -143,7 +143,7 @@ class MNTM(tm.NTM):
             self.tapes[i] = self.tapes[i].move(direction)
             i += 1
 
-        return self
+        return self, current_state
 
     def _has_accepted(self, current_state):
         return current_state in self.final_states
@@ -166,16 +166,9 @@ class MNTM(tm.NTM):
                                              tuple(self.tapes))}
             else:
                 for transition in possible_transitions[1:]:
-                    end_state, _ = transition
-                    queue.append((
-                        current_tm.copy()._get_next_configuration(transition), end_state
-                    ))
+                    queue.append(current_tm.copy()._get_next_configuration(transition))
 
-                end_state, _ = possible_transitions[0]
-                queue.append((
-                    current_tm._get_next_configuration(possible_transitions[0]),
-                    end_state
-                ))
+                queue.append(current_tm._get_next_configuration(possible_transitions[0]))
 
         raise exceptions.RejectionException(
             'the multitape MNTM did not reach an accepting configuration'
