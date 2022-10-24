@@ -40,8 +40,8 @@ def issubset(re1, re2):
 
     nfa1 = NFA.from_regex(re1)
     nfa2 = NFA.from_regex(re2)
-    dfa1 = DFA.from_nfa(nfa1).minify(retain_names=False)
-    dfa2 = DFA.from_nfa(nfa2).minify(retain_names=False)
+    dfa1 = DFA.from_nfa(nfa1)
+    dfa2 = DFA.from_nfa(nfa2)
 
     return dfa1.issubset(dfa2)
 
@@ -51,7 +51,7 @@ def issuperset(re1, re2):
 
     nfa1 = NFA.from_regex(re1)
     nfa2 = NFA.from_regex(re2)
-    dfa1 = DFA.from_nfa(nfa1).minify(retain_names=False)
-    dfa2 = DFA.from_nfa(nfa2).minify(retain_names=False)
+    dfa1 = DFA.from_nfa(nfa1)
+    dfa2 = DFA.from_nfa(nfa2)
 
     return dfa2.issubset(dfa1)
