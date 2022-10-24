@@ -25,14 +25,6 @@ class NTM(tm.TM):
             final_states=final_states
         )
 
-    def __setattr__(self, name, value):
-        """Set custom setattr to make class immutable."""
-        raise AttributeError(f'This {type(self).__name__} is immutable')
-
-    def __delattr__(self, name):
-        """Set custom delattr to make class immutable."""
-        raise AttributeError(f'This {type(self).__name__} is immutable')
-
     def _validate_transition_state(self, transition_state):
         if transition_state not in self.states:
             raise exceptions.InvalidStateError(

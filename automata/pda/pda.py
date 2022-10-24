@@ -11,14 +11,6 @@ from automata.base.automaton import Automaton
 class PDA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for pushdown automata."""
 
-    def __setattr__(self, name, value):
-        """Set custom setattr to make class immutable."""
-        raise AttributeError(f'This {type(self).__name__} is immutable')
-
-    def __delattr__(self, name):
-        """Set custom delattr to make class immutable."""
-        raise AttributeError(f'This {type(self).__name__} is immutable')
-
     def _validate_transition_invalid_input_symbols(self, start_state,
                                                    input_symbol):
         """Raise an error if transition input symbols are invalid."""

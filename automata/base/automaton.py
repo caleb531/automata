@@ -25,6 +25,14 @@ class Automaton(metaclass=abc.ABCMeta):
         """Return True if this automaton is internally consistent."""
         raise NotImplementedError
 
+    def __setattr__(self, name, value):
+        """Set custom setattr to make class immutable."""
+        raise AttributeError(f'This {type(self).__name__} is immutable')
+
+    def __delattr__(self, name):
+        """Set custom delattr to make class immutable."""
+        raise AttributeError(f'This {type(self).__name__} is immutable')
+
     @abc.abstractmethod
     def read_input_stepwise(self, input_str):
         """Return a generator that yields each step while reading input."""
