@@ -27,6 +27,7 @@ class MNTM(tm.NTM):
         self.blank_symbol = blank_symbol
         self.final_states = final_states.copy()
         self.n_tapes = n_tapes
+        self.current_state = self._get_current_state(current_state)
 
         if tapes is not None:
             self.tapes = [tape.copy() for tape in tapes]
@@ -36,15 +37,16 @@ class MNTM(tm.NTM):
                     self.blank_symbol, blank_symbol=self.blank_symbol)
                 for _ in range(n_tapes)]
 
-        if current_state is not None:
-            self.current_state = current_state
-        else:
-            self.current_state = self.initial_state
-
         self.validate()
 
+    def _get_current_state(self, current_state):
+        if current_state is not None:
+            return current_state
+        else:
+            return self.initial_state
+
     # Temporarily retain mutability for the MNTM type until the surrounding
-    # code can be refactored to eliminate the self.current_state and self.tapes
+    # code can be refactored to eliminate the current_state and self.tapes
     # attrs (a required refactor to make MNTM properly immutable)
     __setattr__ = object.__setattr__
     __delattr__ = object.__delattr__
@@ -115,7 +117,6 @@ class MNTM(tm.NTM):
     def _restart_configuration(self, input_str):
         """Restarts all variables so that the Turing machine can be used
         again with a new input string."""
-        self.current_state = self.initial_state
         # Input is saved on first tape
         self.tapes[0] = self.tapes[0].load_symbols(input_str, 0)
         # The rest of the tapes have blanks
@@ -127,13 +128,13 @@ class MNTM(tm.NTM):
         corresponding heads."""
         return tuple(tape.read_symbol() for tape in self.tapes)
 
-    def _get_transition(self):
+    def _get_transition(self, current_state):
         """Get the transition tuple for the given state and tape symbols in
         each tape."""
         current_tape_symbols = self._read_current_tape_symbols()
-        if self.current_state in self.transitions and current_tape_symbols in \
-                self.transitions[self.current_state]:
-            return self.transitions[self.current_state][
+        if current_state in self.transitions and current_tape_symbols in \
+                self.transitions[current_state]:
+            return self.transitions[current_state][
                 self._read_current_tape_symbols()
             ]
         else:
@@ -141,7 +142,7 @@ class MNTM(tm.NTM):
 
     def _get_next_configuration(self, old_config):
         """Advances to the next configuration."""
-        self.current_state, moves = old_config
+        _, moves = old_config
         i = 0
         for tape, move in zip(self.tapes, moves):
             symbol, direction = move
@@ -151,24 +152,22 @@ class MNTM(tm.NTM):
 
         return self
 
-    def _has_accepted(self):
-        return self.current_state in self.final_states
-
     def read_input_stepwise(self, input_str):
         """Checks if the given string is accepted by this Turing machine,
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
         """
         self._restart_configuration(input_str)
+        current_state = self.initial_state
         queue = deque([self])
         while len(queue) > 0:
             current_tm = queue.popleft()
-            yield {MTMConfiguration(self.current_state, tuple(self.tapes))}
+            yield {MTMConfiguration(current_state, tuple(self.tapes))}
 
-            possible_transitions = current_tm._get_transition()
+            possible_transitions = current_tm._get_transition(current_state)
             if possible_transitions is None:
-                if current_tm._has_accepted():
-                    return {MTMConfiguration(self.current_state,
+                if current_state in current_tm.final_states:
+                    return {MTMConfiguration(current_state,
                                              tuple(self.tapes))}
             else:
                 for transition in possible_transitions[1:]:
@@ -176,6 +175,7 @@ class MNTM(tm.NTM):
                         transition)
                     )
 
+                current_state = possible_transitions[0][0]
                 queue.append(current_tm._get_next_configuration(
                     possible_transitions[0]))
 
