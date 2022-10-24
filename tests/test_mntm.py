@@ -325,14 +325,6 @@ class TestMNTM(test_tm.TestTM):
                 final_states={'q1'},
             )
 
-    def test_get_next_configuration(self):
-        subtm, current_state, tapes = self.mntm1._get_next_configuration(("q0", (
-            ("0", "R"), ("#", "N"))),
-            self.mntm1.tapes)
-        self.assertEqual(str(tapes[0]), 'TMTape(\'0#\', 1)',
-                         'TMTape(\'#\', 0)')
-        self.assertEqual(str(current_state), 'q0')
-
     def test_read_extended_tape(self):
         self.assertEqual(self.mntm1._read_extended_tape(
             '10^10_1^00_00#^_', '^'), ('0', '1', '#'))

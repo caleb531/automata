@@ -28,19 +28,11 @@ class MNTM(tm.NTM):
         self.final_states = final_states.copy()
         self.n_tapes = n_tapes
 
-        if tapes is not None:
-            self.tapes = [tape.copy() for tape in tapes]
-        else:
-            self.tapes = [
-                TMTape(
-                    self.blank_symbol, blank_symbol=self.blank_symbol)
-                for _ in range(n_tapes)]
-
         self.validate()
 
     # Temporarily retain mutability for the MNTM type until the surrounding
-    # code can be refactored to eliminate the current_state and self.tapes
-    # attrs (a required refactor to make MNTM properly immutable)
+    # code can be refactored to eliminate the current_state and tapes attrs (a
+    # required refactor to make MNTM properly immutable)
     __setattr__ = object.__setattr__
     __delattr__ = object.__delattr__
 
@@ -110,11 +102,17 @@ class MNTM(tm.NTM):
     def _restart_configuration(self, input_str):
         """Restarts all variables so that the Turing machine can be used
         again with a new input string."""
-        # Input is saved on first tape
-        self.tapes[0] = self.tapes[0].load_symbols(input_str, 0)
-        # The rest of the tapes have blanks
-        for i, tape in enumerate(self.tapes[1:]):
-            self.tapes[i + 1] = tape.load_symbols(self.blank_symbol, 0)
+        return [
+            # Input is saved on first tape
+            TMTape(input_str, blank_symbol=self.blank_symbol),
+            # The rest of the tapes have blanks
+            *(
+                TMTape(self.blank_symbol,
+                       blank_symbol=self.blank_symbol,
+                       current_position=0)
+                for _ in range(self.n_tapes - 1)
+            )
+        ]
 
     def _read_current_tape_symbols(self, tapes):
         """Reads the current tape symbols in each of the tapes and their
@@ -152,8 +150,8 @@ class MNTM(tm.NTM):
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
         """
-        self._restart_configuration(input_str)
-        queue = deque([(self, self.initial_state, self.tapes[:])])
+        tapes = self._restart_configuration(input_str)
+        queue = deque([(self, self.initial_state, tapes[:])])
         while len(queue) > 0:
             current_tm, current_state, tapes = queue.popleft()
             yield {MTMConfiguration(current_state, tuple(tapes))}
@@ -221,11 +219,11 @@ class MNTM(tm.NTM):
     def read_input_as_ntm(self, input_str):
         """Simulates the machine as a single-tape Turing machine.
         Yields the configuration at each step."""
-        self._restart_configuration(input_str)
+        tapes = self._restart_configuration(input_str)
         head_symbol = '^'
         tape_separator_symbol = '_'
         extended_tape = ''
-        tapes_copy = self.tapes.copy()
+        tapes_copy = tapes.copy()
         for tape_copy in tapes_copy:
             tape_str = tape_copy.get_symbols_as_str()
             extended_tape += tape_str[0] + head_symbol + \
