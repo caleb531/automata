@@ -143,7 +143,7 @@ class MNTM(tm.NTM):
             self.tapes[i] = self.tapes[i].move(direction)
             i += 1
 
-        return self, current_state
+        return self, current_state, self.tapes
 
     def _has_accepted(self, current_state):
         return current_state in self.final_states
@@ -154,16 +154,16 @@ class MNTM(tm.NTM):
         Yields the current configuration of the machine at each step.
         """
         self._restart_configuration(input_str)
-        queue = deque([(self, self.initial_state)])
+        queue = deque([(self, self.initial_state, self.tapes)])
         while len(queue) > 0:
-            current_tm, current_state = queue.popleft()
-            yield {MTMConfiguration(current_state, tuple(self.tapes))}
+            current_tm, current_state, tapes = queue.popleft()
+            yield {MTMConfiguration(current_state, tuple(tapes))}
 
             possible_transitions = current_tm._get_transition(current_state)
             if possible_transitions is None:
                 if current_tm._has_accepted(current_state):
                     return {MTMConfiguration(current_state,
-                                             tuple(self.tapes))}
+                                             tuple(tapes))}
             else:
                 for transition in possible_transitions[1:]:
                     queue.append(current_tm.copy()._get_next_configuration(transition))
