@@ -99,9 +99,8 @@ class MNTM(tm.NTM):
         self._validate_tapes_consistency()
         return True
 
-    def _restart_configuration(self, input_str):
-        """Restarts all variables so that the Turing machine can be used
-        again with a new input string."""
+    def _get_tapes_for_input_str(self, input_str):
+        """Produce a new list of tapes based on an input string to be read."""
         return [
             # Input is saved on first tape
             TMTape(input_str, blank_symbol=self.blank_symbol),
@@ -150,7 +149,7 @@ class MNTM(tm.NTM):
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
         """
-        tapes = self._restart_configuration(input_str)
+        tapes = self._get_tapes_for_input_str(input_str)
         queue = deque([(self, self.initial_state, tapes[:])])
         while len(queue) > 0:
             current_tm, current_state, tapes = queue.popleft()
@@ -219,7 +218,7 @@ class MNTM(tm.NTM):
     def read_input_as_ntm(self, input_str):
         """Simulates the machine as a single-tape Turing machine.
         Yields the configuration at each step."""
-        tapes = self._restart_configuration(input_str)
+        tapes = self._get_tapes_for_input_str(input_str)
         head_symbol = '^'
         tape_separator_symbol = '_'
         extended_tape = ''
