@@ -1,6 +1,6 @@
 # Automata
 
-*Copyright 2016-2022 Caleb Evans*  
+*Copyright 2016-2022 Caleb Evans*
 *Released under the MIT license*
 
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
@@ -460,6 +460,18 @@ new_nfa = nfa1.union(nfa2)
 
 ```python
 new_nfa = nfa1 | nfa2
+```
+
+#### NFA.intersection(self, other)
+
+Returns intersection of two NFAs
+
+```python
+new_nfa = nfa1.intersection(nfa2)
+```
+
+```python
+new_nfa = nfa1 & nfa2
 ```
 
 #### NFA.eliminate_lambda(self)
