@@ -101,14 +101,6 @@ class DPDA(pda.PDA):
                     old_config.stack.top()
                 )
             )
-        if len(transitions) > 1:
-            raise pda_exceptions.NondeterminismError(
-                'The automaton entered a configuration for which more'
-                'than one transition is defined ({}, {}'.format(
-                    old_config.state,
-                    old_config.stack.top()
-                )
-            )
         input_symbol, new_state, new_stack_top = transitions.pop()
         remaining_input = old_config.remaining_input
         if input_symbol:

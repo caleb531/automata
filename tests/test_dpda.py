@@ -147,32 +147,6 @@ class TestDPDA(test_pda.TestPDA):
                 acceptance_mode='final_state'
             )
 
-    def test_read_input_rejected_nondeterministic_transition(self):
-        """Should raise error if DPDA exhibits nondeterminism."""
-        with self.assertRaises(pda_exceptions.NondeterminismError):
-            DPDA(
-                states={'q0', 'q1', 'q2', 'q3'},
-                input_symbols={'a', 'b'},
-                stack_symbols={'0', '1'},
-                transitions={
-                    'q0': {
-                        'a': {'0': ('q1', ('1', '0'))}
-                    },
-                    'q1': {
-                        'a': {'1': ('q1', ('1', '1'))},
-                        'b': {'1': ('q2', '')}
-                    },
-                    'q2': {
-                        'b': {'0': ('q2', '0'), '1': ('q2', '')},
-                        '': {'0': ('q3', ('0',))}
-                    }
-                },
-                initial_state='q0',
-                initial_stack_symbol='0',
-                final_states={'q3'},
-                acceptance_mode='final_state'
-            )
-
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
