@@ -668,7 +668,7 @@ class DFA(fa.FA):
             state = queue.popleft()
             if state in self.final_states:
                 return distances[state]
-            for _, next_state in self.transitions[state].items():
+            for next_state in self.transitions[state].values():
                 if distances[next_state] == float('inf'):
                     distances[next_state] = distances[state] + 1
                     queue.append(next_state)
