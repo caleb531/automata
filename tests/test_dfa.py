@@ -322,7 +322,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1'}
         )
-        complement_dfa = ~no_consecutive_11_dfa
+        complement_dfa = no_consecutive_11_dfa.complement(retain_names=True, minify=False)
         self.assertEqual(complement_dfa.states, no_consecutive_11_dfa.states)
         self.assertEqual(
             complement_dfa.input_symbols, no_consecutive_11_dfa.input_symbols
@@ -369,8 +369,8 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.union(B, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
-            ('q0', 'p0'), ('q0', 'p1'), ('q0', 'p2'),
-            ('q1', 'p0'), ('q1', 'p1'), ('q1', 'p2'),
+            ('q0', 'p0'),
+            ('q1', 'p0'), ('q1', 'p1'),
             ('q2', 'p0'), ('q2', 'p1'), ('q2', 'p2'),
             ('q3', 'p0'), ('q3', 'p1'), ('q3', 'p2'),
             ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
@@ -378,11 +378,8 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(new_dfa.input_symbols, {'0', '1'})
         self.assertEqual(new_dfa.transitions, {
             ('q0', 'p0'): {'0': ('q0', 'p0'), '1': ('q1', 'p1')},
-            ('q0', 'p1'): {'0': ('q0', 'p0'), '1': ('q1', 'p2')},
-            ('q0', 'p2'): {'0': ('q0', 'p2'), '1': ('q1', 'p2')},
             ('q1', 'p0'): {'0': ('q1', 'p0'), '1': ('q2', 'p1')},
             ('q1', 'p1'): {'0': ('q1', 'p0'), '1': ('q2', 'p2')},
-            ('q1', 'p2'): {'0': ('q1', 'p2'), '1': ('q2', 'p2')},
             ('q2', 'p0'): {'0': ('q2', 'p0'), '1': ('q3', 'p1')},
             ('q2', 'p1'): {'0': ('q2', 'p0'), '1': ('q3', 'p2')},
             ('q2', 'p2'): {'0': ('q2', 'p2'), '1': ('q3', 'p2')},
@@ -395,7 +392,7 @@ class TestDFA(test_fa.TestFA):
         })
         self.assertEqual(new_dfa.initial_state, ('q0', 'p0'))
         self.assertEqual(new_dfa.final_states, {
-            ('q0', 'p0'), ('q0', 'p1'),
+            ('q0', 'p0'),
             ('q1', 'p0'), ('q1', 'p1'),
             ('q2', 'p0'), ('q2', 'p1'),
             ('q3', 'p0'), ('q3', 'p1'),
@@ -434,8 +431,8 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.intersection(B, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
-            ('q0', 'p0'), ('q0', 'p1'), ('q0', 'p2'),
-            ('q1', 'p0'), ('q1', 'p1'), ('q1', 'p2'),
+            ('q0', 'p0'),
+            ('q1', 'p0'), ('q1', 'p1'),
             ('q2', 'p0'), ('q2', 'p1'), ('q2', 'p2'),
             ('q3', 'p0'), ('q3', 'p1'), ('q3', 'p2'),
             ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
@@ -443,11 +440,8 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(new_dfa.input_symbols, {'0', '1'})
         self.assertEqual(new_dfa.transitions, {
             ('q0', 'p0'): {'0': ('q0', 'p0'), '1': ('q1', 'p1')},
-            ('q0', 'p1'): {'0': ('q0', 'p0'), '1': ('q1', 'p2')},
-            ('q0', 'p2'): {'0': ('q0', 'p2'), '1': ('q1', 'p2')},
             ('q1', 'p0'): {'0': ('q1', 'p0'), '1': ('q2', 'p1')},
             ('q1', 'p1'): {'0': ('q1', 'p0'), '1': ('q2', 'p2')},
-            ('q1', 'p2'): {'0': ('q1', 'p2'), '1': ('q2', 'p2')},
             ('q2', 'p0'): {'0': ('q2', 'p0'), '1': ('q3', 'p1')},
             ('q2', 'p1'): {'0': ('q2', 'p0'), '1': ('q3', 'p2')},
             ('q2', 'p2'): {'0': ('q2', 'p2'), '1': ('q3', 'p2')},
@@ -495,8 +489,8 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.difference(B, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
-            ('q0', 'p0'), ('q0', 'p1'), ('q0', 'p2'),
-            ('q1', 'p0'), ('q1', 'p1'), ('q1', 'p2'),
+            ('q0', 'p0'),
+            ('q1', 'p0'), ('q1', 'p1'),
             ('q2', 'p0'), ('q2', 'p1'), ('q2', 'p2'),
             ('q3', 'p0'), ('q3', 'p1'), ('q3', 'p2'),
             ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
@@ -504,11 +498,8 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(new_dfa.input_symbols, {'0', '1'})
         self.assertEqual(new_dfa.transitions, {
             ('q0', 'p0'): {'0': ('q0', 'p0'), '1': ('q1', 'p1')},
-            ('q0', 'p1'): {'0': ('q0', 'p0'), '1': ('q1', 'p2')},
-            ('q0', 'p2'): {'0': ('q0', 'p2'), '1': ('q1', 'p2')},
             ('q1', 'p0'): {'0': ('q1', 'p0'), '1': ('q2', 'p1')},
             ('q1', 'p1'): {'0': ('q1', 'p0'), '1': ('q2', 'p2')},
-            ('q1', 'p2'): {'0': ('q1', 'p2'), '1': ('q2', 'p2')},
             ('q2', 'p0'): {'0': ('q2', 'p0'), '1': ('q3', 'p1')},
             ('q2', 'p1'): {'0': ('q2', 'p0'), '1': ('q3', 'p2')},
             ('q2', 'p2'): {'0': ('q2', 'p2'), '1': ('q3', 'p2')},
@@ -556,8 +547,8 @@ class TestDFA(test_fa.TestFA):
         )
         new_dfa = A.symmetric_difference(B, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
-            ('q0', 'p0'), ('q0', 'p1'), ('q0', 'p2'),
-            ('q1', 'p0'), ('q1', 'p1'), ('q1', 'p2'),
+            ('q0', 'p0'),
+            ('q1', 'p0'), ('q1', 'p1'),
             ('q2', 'p0'), ('q2', 'p1'), ('q2', 'p2'),
             ('q3', 'p0'), ('q3', 'p1'), ('q3', 'p2'),
             ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
@@ -565,11 +556,8 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(new_dfa.input_symbols, {'0', '1'})
         self.assertEqual(new_dfa.transitions, {
             ('q0', 'p0'): {'0': ('q0', 'p0'), '1': ('q1', 'p1')},
-            ('q0', 'p1'): {'0': ('q0', 'p0'), '1': ('q1', 'p2')},
-            ('q0', 'p2'): {'0': ('q0', 'p2'), '1': ('q1', 'p2')},
             ('q1', 'p0'): {'0': ('q1', 'p0'), '1': ('q2', 'p1')},
             ('q1', 'p1'): {'0': ('q1', 'p0'), '1': ('q2', 'p2')},
-            ('q1', 'p2'): {'0': ('q1', 'p2'), '1': ('q2', 'p2')},
             ('q2', 'p0'): {'0': ('q2', 'p0'), '1': ('q3', 'p1')},
             ('q2', 'p1'): {'0': ('q2', 'p0'), '1': ('q3', 'p2')},
             ('q2', 'p2'): {'0': ('q2', 'p2'), '1': ('q3', 'p2')},
@@ -582,7 +570,7 @@ class TestDFA(test_fa.TestFA):
         })
         self.assertEqual(new_dfa.initial_state, ('q0', 'p0'))
         self.assertEqual(new_dfa.final_states, {
-            ('q0', 'p0'), ('q0', 'p1'),
+            ('q0', 'p0'),
             ('q1', 'p0'), ('q1', 'p1'),
             ('q2', 'p0'), ('q2', 'p1'),
             ('q3', 'p0'), ('q3', 'p1'),
@@ -1241,7 +1229,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q2'}
         )
-        dfa = DFA.from_nfa(nfa, retain_names=True)
+        dfa = DFA.from_nfa(nfa, retain_names=True, minify=False)
         self.assertEqual(dfa.states, {frozenset(), frozenset(('q0',)), frozenset(('q0', 'q1')), frozenset(('q2',))})
         self.assertEqual(dfa.input_symbols, {'0', '1'})
         self.assertEqual(dfa.transitions, {
@@ -1266,7 +1254,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q2'}
         )
-        dfa = DFA.from_nfa(nfa, retain_names=True)
+        dfa = DFA.from_nfa(nfa, retain_names=True, minify=False)
         self.assertEqual(dfa.states, {
             frozenset(('q0',)), frozenset(('q0', 'q1')), frozenset(('q0', 'q2')), frozenset(('q0', 'q1', 'q2'))
         })
@@ -1282,7 +1270,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_nfa_lambda_transition(self):
         """Should convert to a DFA an NFA with a lambda transition."""
-        dfa = DFA.from_nfa(self.nfa, retain_names=True)
+        dfa = DFA.from_nfa(self.nfa, retain_names=True, minify=False)
         self.assertEqual(dfa.states, {frozenset(), frozenset(('q0',)), frozenset(('q1', 'q2'))})
         self.assertEqual(dfa.input_symbols, {'a', 'b'})
         self.assertEqual(dfa.transitions, {
@@ -1306,7 +1294,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q1'}
         )
-        dfa = DFA.from_nfa(nfa, retain_names=True)  # returns an equivalent DFA
+        dfa = DFA.from_nfa(nfa, retain_names=True, minify=False)  # returns an equivalent DFA
         self.assertEqual(dfa.read_input('a'), frozenset(('q1',)))
 
     def test_partial_dfa(self):

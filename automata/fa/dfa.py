@@ -2,14 +2,14 @@
 """Classes and methods for working with deterministic finite automata."""
 
 from collections import deque
-from itertools import chain, count, product
+from itertools import chain, count
 
 import networkx as nx
-from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.base.utils import PartitionRefinement
+from pydot import Dot, Edge, Node
 
 
 class DFA(fa.FA):
@@ -264,6 +264,19 @@ class DFA(fa.FA):
         reachable_states = self._compute_reachable_states()
         reachable_final_states = self.final_states & reachable_states
 
+        return self._minify(
+            reachable_states=reachable_states,
+            input_symbols=self.input_symbols,
+            transitions=self.transitions,
+            initial_state=self.initial_state,
+            reachable_final_states=reachable_final_states,
+            retain_names=retain_names)
+
+    @classmethod
+    def _minify(cls, *, reachable_states, input_symbols, transitions, initial_state,
+                reachable_final_states, retain_names):
+        """Minify helper function. DFA data passed in must have no unreachable states."""
+
         # First, assemble backmap and equivalence class data structure
         eq_classes = PartitionRefinement(reachable_states)
         refinement = eq_classes.refine(reachable_final_states)
@@ -275,10 +288,10 @@ class DFA(fa.FA):
                 end_state: list()
                 for end_state in reachable_states
             }
-            for symbol in self.input_symbols
+            for symbol in input_symbols
         }
 
-        for start_state, path in self.transitions.items():
+        for start_state, path in transitions.items():
             if start_state in reachable_states:
                 for symbol, end_state in path.items():
                     if end_state in reachable_states:
@@ -321,19 +334,19 @@ class DFA(fa.FA):
             for state in eq
         }
 
-        new_input_symbols = self.input_symbols
+        new_input_symbols = input_symbols
         new_states = set(back_map.values())
-        new_initial_state = back_map[self.initial_state]
+        new_initial_state = back_map[initial_state]
         new_final_states = {back_map[acc] for acc in reachable_final_states}
         new_transitions = {
             name: {
-                letter: back_map[self.transitions[next(iter(eq))][letter]]
-                for letter in self.input_symbols
+                letter: back_map[transitions[next(iter(eq))][letter]]
+                for letter in input_symbols
             }
             for name, eq in eq_class_name_pairs
         }
 
-        return self.__class__(
+        return cls(
             states=new_states,
             input_symbols=new_input_symbols,
             transitions=new_transitions,
@@ -341,7 +354,7 @@ class DFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def _cross_product(self, other, final_states):
+    def _cross_product(self, other):
         """
         Creates a new DFA which is the cross product of DFAs self and other
         with an empty set of final states.
@@ -349,26 +362,19 @@ class DFA(fa.FA):
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        new_states = set(product(self.states, other.states))
+        new_states = self._get_reachable_states_product_graph(other)
 
         new_transitions = {
             (state_a, state_b): {
-                symbol: (transitions_a[symbol], transitions_b[symbol])
+                symbol: (self.transitions[state_a][symbol], other.transitions[state_b][symbol])
                 for symbol in self.input_symbols
             }
-            for (state_a, transitions_a), (state_b, transitions_b) in
-            product(self.transitions.items(), other.transitions.items())
+            for (state_a, state_b) in new_states
         }
 
         new_initial_state = (self.initial_state, other.initial_state)
 
-        return self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=final_states
-        )
+        return new_states, new_transitions, new_initial_state
 
     def union(self, other, *, retain_names=False, minify=True):
         """
@@ -377,18 +383,30 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
 
+        new_states, new_transitions, new_initial_state = self._cross_product(other)
+
         new_final_states = {
             (state_a, state_b)
-            for state_a, state_b in product(self.states, other.states)
-            if (state_a in self.final_states or state_b in other.final_states)
+            for state_a, state_b in new_states
+            if state_a in self.final_states or state_b in other.final_states
         }
 
-        new_dfa = self._cross_product(other, new_final_states)
-
         if minify:
-            return new_dfa.minify(retain_names=retain_names)
+            return self._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=new_transitions,
+                initial_state=new_initial_state,
+                reachable_final_states=new_final_states,
+                retain_names=retain_names)
 
-        return new_dfa
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=new_final_states
+        )
 
     def intersection(self, other, *, retain_names=False, minify=True):
         """
@@ -397,12 +415,30 @@ class DFA(fa.FA):
         Returns a DFA which accepts the intersection of L1 and L2.
         """
 
-        new_final_states = set(product(self.final_states, other.final_states))
-        new_dfa = self._cross_product(other, new_final_states)
+        new_states, new_transitions, new_initial_state = self._cross_product(other)
+
+        new_final_states = {
+            (state_a, state_b)
+            for state_a, state_b in new_states
+            if state_a in self.final_states and state_b in other.final_states
+        }
 
         if minify:
-            return new_dfa.minify(retain_names=retain_names)
-        return new_dfa
+            return self._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=new_transitions,
+                initial_state=new_initial_state,
+                reachable_final_states=new_final_states,
+                retain_names=retain_names)
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=new_final_states
+        )
 
     def difference(self, other, *, retain_names=False, minify=True):
         """
@@ -410,13 +446,30 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
         """
+        new_states, new_transitions, new_initial_state = self._cross_product(other)
 
-        new_final_states = set(product(self.final_states, other.states - other.final_states))
-        new_dfa = self._cross_product(other, new_final_states)
+        new_final_states = {
+            (state_a, state_b)
+            for state_a, state_b in new_states
+            if state_a in self.final_states and state_b not in other.final_states
+        }
 
         if minify:
-            return new_dfa.minify(retain_names=retain_names)
-        return new_dfa
+            return self._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=new_transitions,
+                initial_state=new_initial_state,
+                reachable_final_states=new_final_states,
+                retain_names=retain_names)
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=new_final_states
+        )
 
     def symmetric_difference(self, other, *, retain_names=False, minify=True):
         """
@@ -425,20 +478,45 @@ class DFA(fa.FA):
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
 
+        new_states, new_transitions, new_initial_state = self._cross_product(other)
+
         new_final_states = {
             (state_a, state_b)
-            for state_a, state_b in product(self.states, other.states)
+            for state_a, state_b in new_states
             if (state_a in self.final_states) ^ (state_b in other.final_states)
         }
 
-        new_dfa = self._cross_product(other, new_final_states)
+        if minify:
+            return self._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=new_transitions,
+                initial_state=new_initial_state,
+                reachable_final_states=new_final_states,
+                retain_names=retain_names)
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=new_final_states
+        )
+
+    def complement(self, *, retain_names=False, minify=True):
+        """Return the complement of this DFA."""
 
         if minify:
-            return new_dfa.minify(retain_names=retain_names)
-        return new_dfa
+            reachable_states = self._compute_reachable_states()
+            reachable_final_states = self.final_states & reachable_states
 
-    def complement(self):
-        """Return the complement of this DFA."""
+            return self._minify(
+                reachable_states=reachable_states,
+                input_symbols=self.input_symbols,
+                transitions=self.transitions,
+                initial_state=self.initial_state,
+                reachable_final_states=reachable_states - reachable_final_states,
+                retain_names=retain_names)
 
         return self.__class__(
             states=self.states,
@@ -626,7 +704,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def from_nfa(cls, target_nfa, retain_names=False):
+    def from_nfa(cls, target_nfa, *, retain_names=False, minify=True):
         """Initialize this DFA as one equivalent to the given NFA."""
         dfa_states = set()
         dfa_symbols = target_nfa.input_symbols
@@ -667,14 +745,25 @@ class DFA(fa.FA):
 
             # Enqueue the next set of current states for the generated DFA.
             for input_symbol in target_nfa.input_symbols:
-                next_current_states = frozenset(target_nfa._get_next_current_states(
-                    current_states, input_symbol))
+                next_current_states = target_nfa._get_next_current_states(
+                    current_states, input_symbol)
                 dfa_transitions[current_state_name][input_symbol] = get_name(next_current_states)
                 state_queue.append(next_current_states)
 
+        if minify:
+            return cls._minify(
+                reachable_states=dfa_states,
+                input_symbols=dfa_symbols,
+                transitions=dfa_transitions,
+                initial_state=dfa_initial_state,
+                reachable_final_states=dfa_final_states,
+                retain_names=retain_names)
+
         return cls(
-            states=dfa_states, input_symbols=dfa_symbols,
-            transitions=dfa_transitions, initial_state=dfa_initial_state,
+            states=dfa_states,
+            input_symbols=dfa_symbols,
+            transitions=dfa_transitions,
+            initial_state=dfa_initial_state,
             final_states=dfa_final_states)
 
     def show_diagram(self, path=None):
