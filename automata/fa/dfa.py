@@ -149,10 +149,11 @@ class DFA(fa.FA):
         Iterates through all words in the language represented by the DFA.
         The words are ordered first by length and then by the order of the input symbol set.
         """
-        min_len = self.minimum_word_length()
-        max_len = self.maximum_word_length()
-        for i in range(min_len, max_len + 1):
+        i = self.minimum_word_length()
+        limit = self.maximum_word_length()
+        while i <= limit:
             yield from self.words_of_length(i)
+            i += 1
 
     def __len__(self):
         """Returns the cardinality of the language represented by the DFA."""
