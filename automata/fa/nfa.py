@@ -81,6 +81,13 @@ class NFA(fa.FA):
         else:
             raise NotImplementedError
 
+    def __and__(self, other):
+        """Return the union of this NFA and another NFA."""
+        if isinstance(other, NFA):
+            return self.intersection(other)
+        else:
+            raise NotImplementedError
+
     def __reversed__(self):
         """Return the reversal of this DFA."""
         return self.reverse()
@@ -292,8 +299,6 @@ class NFA(fa.FA):
         L1 and L2 respectively, returns an NFA which accepts
         the union of L1 and L2.
         """
-        if not isinstance(other, NFA):
-            raise NotImplementedError
 
         # Starting at 1 because 0 is for the initial state
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
@@ -448,7 +453,7 @@ class NFA(fa.FA):
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
-        the union of L1 and L2.
+        the intersection of L1 and L2.
         """
 
         if not isinstance(other, NFA):
@@ -477,10 +482,9 @@ class NFA(fa.FA):
                 # Add epsilon transitions for first set of transitions
                 epsilon_transitions_a = transitions_a.get('')
                 if epsilon_transitions_a is not None:
-                    next_states_iterable = product(epsilon_transitions_a, [q_b])
-
-                    new_transitions[curr_state].setdefault('', set()).update(next_states_iterable)
-                    next_states_iterables.append(next_states_iterable)
+                    state_dict = new_transitions.setdefault(curr_state, dict())
+                    state_dict.setdefault('', set()).update(product(epsilon_transitions_a, [q_b]))
+                    next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
 
             # Get transition dict for states in other
             transitions_b = other.transitions.get(q_b)
@@ -488,10 +492,9 @@ class NFA(fa.FA):
                 # Add epsilon transitions for second set of transitions
                 epsilon_transitions_b = transitions_b.get('')
                 if epsilon_transitions_b is not None:
-                    next_states_iterable = product([q_a], epsilon_transitions_b)
-
-                    new_transitions[curr_state].setdefault('', set()).update(next_states_iterable)
-                    next_states_iterables.append(next_states_iterable)
+                    state_dict = new_transitions.setdefault(curr_state, dict())
+                    state_dict.setdefault('', set()).update(product([q_a], epsilon_transitions_b))
+                    next_states_iterables.append(product([q_a], epsilon_transitions_b))
 
             if transitions_a is not None and transitions_b is not None:
                 # Add all transitions moving over same input symbols
@@ -500,10 +503,9 @@ class NFA(fa.FA):
                     end_states_b = transitions_b.get(chr)
 
                     if end_states_a is not None and end_states_b is not None:
-                        next_states_iterable = product(end_states_a, end_states_b)
-
-                        new_transitions[curr_state].setdefault(chr, set()).update(next_states_iterable)
-                        next_states_iterables.append(next_states_iterable)
+                        state_dict = new_transitions.setdefault(curr_state, dict())
+                        state_dict.setdefault(chr, set()).update(product(end_states_a, end_states_b))
+                        next_states_iterables.append(product(end_states_a, end_states_b))
 
             # Finally, try visiting every state we found.
             for product_state in chain.from_iterable(next_states_iterables):
@@ -511,13 +513,18 @@ class NFA(fa.FA):
                     new_states.add(product_state)
                     queue.append(product_state)
 
+        new_final_states = {
+            (state_a, state_b)
+            for (state_a, state_b) in new_states
+            if state_a in self.final_states and state_b in other.final_states
+        }
 
         return self.__class__(
             states=new_states,
             input_symbols=new_input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=product(self.final_states, other.final_states)
+            final_states=new_final_states
         )
 
 
