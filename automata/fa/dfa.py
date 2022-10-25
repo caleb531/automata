@@ -636,10 +636,9 @@ class DFA(fa.FA):
                     self._count_cache[i][state] = 1
             else:
                 for state in self.states:
-                    for symbol in self.input_symbols:
-                        suffix_state = self.transitions[state][symbol]
+                    for _, suffix_state in self.transitions[state].items():
                         self._count_cache[i][state] += self._count_cache[i-1][suffix_state]
-
+ 
     def words_of_length(self, k):
         """
         Generates all words of size k in the language represented by the DFA
@@ -660,8 +659,7 @@ class DFA(fa.FA):
                     self._word_cache[i][state].add('')
             else:
                 for state in self.states:
-                    for symbol in self.input_symbols:
-                        suffix_state = self.transitions[state][symbol]
+                    for symbol, suffix_state in self.transitions[state].items():
                         for word in self._word_cache[i-1][suffix_state]:
                             self._word_cache[i][state].add(symbol + word)
 
