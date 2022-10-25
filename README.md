@@ -783,7 +783,7 @@ Each of these is basically a tuple containing the final state the NPDA stopped o
 the remaining input (an empty string) as well as a `PDAStack` object representing the NPDA's stack (if the input is accepted).
 
 ```python
-npda.read_input("aaaa") # returns {PDAConfiguration('q2', '', PDAStack('#',))}
+npda.read_input("aaaa") # returns {PDAConfiguration('q2', '', PDAStack(('#',)))}
 ```
 
 ```python
@@ -799,10 +799,10 @@ the remaining input and the current stack as a `PDAStack` object, if the input i
 ```python
 npda.read_input_stepwise('aa')
 # yields:
-# {PDAConfiguration('q0', 'aa', PDAStack('#',))}
-# {PDAConfiguration('q0', 'a', PDAStack('#', 'A')), PDAConfiguration('q2', 'aa', PDAStack('#',))}
-# {PDAConfiguration('q0', '', PDAStack('#', 'A', 'A')), PDAConfiguration('q1', '', PDAStack('#',))}
-# {PDAConfiguration('q2', '', PDAStack('#',))}
+# {PDAConfiguration('q0', 'aa', PDAStack(('#',)))}
+# {PDAConfiguration('q0', 'a', PDAStack(('#', 'A'))), PDAConfiguration('q2', 'aa', PDAStack(('#',)))}
+# {PDAConfiguration('q0', '', PDAStack(('#', 'A', 'A'))), PDAConfiguration('q1', '', PDAStack(('#',)))}
+# {PDAConfiguration('q2', '', PDAStack(('#',)))}
 ```
 
 #### NPDA.accepts_input(self, input_str)
