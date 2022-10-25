@@ -81,9 +81,9 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def copy(self):
         """Create a deep copy of the automaton."""
-        return self.__class__(**{k: v
-                                 for k, v in vars(self).items()
-                                 if not k.startswith('_')})
+        return self.__class__(**{key: value
+                                 for key, value in vars(self).items()
+                                 if not key.startswith('_')})
 
     # Format the given value for string output via repr() or str(); this exists for the purpose of displaying
     def _get_value_repr(self, value):
