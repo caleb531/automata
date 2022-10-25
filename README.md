@@ -1,6 +1,6 @@
 # Automata
 
-*Copyright 2016-2022 Caleb Evans*  
+*Copyright 2016-2022 Caleb Evans*
 *Released under the MIT license*
 
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
@@ -223,49 +223,55 @@ minimal_dfa = dfa.minify()
 minimal_dfa_with_old_names = dfa.minify(retain_names=True)
 ```
 
-#### DFA.complement(self)
+#### DFA.complement(self, retain_names=False, minify=True)
+
 Creates a DFA which accepts an input if and only if the old one does not.
+Minifies by default. Unreachable states are always removed.
 
 ```python
-complement_dfa = ~dfa
+minimal_complement_dfa = ~dfa
+complement_dfa = dfa.complement(minify=False)
 ```
 
-#### DFA.union(self, other, minify=True)
+#### DFA.union(self, other, retain_names=False, minify=True)
 
 Given two DFAs which accept the languages A and B respectively,
 creates a DFA which accepts the union of A and B. Minifies by default.
+Unreachable states are always removed.
 
 ```python
 minimal_union_dfa = dfa | other_dfa
 union_dfa = dfa.union(other_dfa, minify=False)
 ```
 
-#### DFA.intersection(self, other, minify=True)
+#### DFA.intersection(self, other, retain_names=False, minify=True)
 
 Given two DFAs which accept the languages A and B respectively,
 creates a DFA which accepts the intersection of A and B. Minifies by default.
+Unreachable states are always removed.
 
 ```python
 minimal_intersection_dfa = dfa & other_dfa
 intersection_dfa = dfa.intersection(other_dfa, minify=False)
 ```
 
-#### DFA.difference(self, other, minify=True)
+#### DFA.difference(self, other, retain_names=False, minify=True)
 
 Given two DFAs which accept the languages A and B respectively,
 creates a DFA which accepts the set difference of A and B, often
 denoted A \ B or A - B. Minifies by default.
+Unreachable states are always removed.
 
 ```python
 minimal_difference_dfa = dfa - other_dfa
 difference_dfa = dfa.difference(other_dfa, minify=False)
 ```
 
-#### DFA.symmetric_difference(self, other, minify=True)
+#### DFA.symmetric_difference(self, other, retain_names=False, minify=True)
 
 Given two DFAs which accept the languages A and B respectively,
 creates a DFA which accepts the symmetric difference of A and B.
-Minifies by default.
+Minifies by default. Unreachable states are always removed.
 
 ```python
 minimal_symmetric_difference_dfa = dfa ^ other_dfa
@@ -317,10 +323,10 @@ Returns `True` if the DFA accepts a finite language, False otherwise.
 dfa.isfinite()
 ```
 
-#### DFA.from_nfa(cls, nfa, retain_names=False)
+#### DFA.from_nfa(cls, nfa, retain_names=False, minify=True)
 
 Creates a DFA that is equivalent to the given NFA. States are renamed by
-default unless `retain_names` is set to `True`.
+default unless `retain_names` is set to `True`. Minifies by default.
 
 ```python
 from automata.fa.dfa import DFA
