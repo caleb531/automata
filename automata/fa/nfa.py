@@ -527,7 +527,6 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
-
     def show_diagram(self, path=None):
         """
             Creates the graph associated with this DFA
