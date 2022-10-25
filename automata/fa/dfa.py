@@ -631,13 +631,17 @@ class DFA(fa.FA):
         while len(self._count_cache) <= k:
             i = len(self._count_cache)
             self._count_cache.append(defaultdict(int))
+            level = self._count_cache[i]
             if i == 0:
                 for state in self.final_states:
-                    self._count_cache[i][state] = 1
+                    level[state] = 1
             else:
+                prev_level = self._count_cache[i-1]
                 for state in self.states:
+                    state_count = 0
                     for _, suffix_state in self.transitions[state].items():
-                        self._count_cache[i][state] += self._count_cache[i-1][suffix_state]
+                        state_count += prev_level[suffix_state]
+                    level[state] = state_count
  
     def words_of_length(self, k):
         """
@@ -654,14 +658,17 @@ class DFA(fa.FA):
         while len(self._word_cache) <= k:
             i = len(self._word_cache)
             self._word_cache.append(defaultdict(set))
+            level = self._word_cache[i]
             if i == 0:
                 for state in self.final_states:
-                    self._word_cache[i][state].add('')
+                    level[state].add('')
             else:
+                prev_level = self._word_cache[i-1]
                 for state in self.states:
+                    state_set = level[state]
                     for symbol, suffix_state in self.transitions[state].items():
-                        for word in self._word_cache[i-1][suffix_state]:
-                            self._word_cache[i][state].add(symbol + word)
+                        for word in prev_level[suffix_state]:
+                            state_set.add(symbol + word)
 
     def minimum_word_length(self):
         """
