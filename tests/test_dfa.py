@@ -201,7 +201,7 @@ class TestDFA(test_fa.TestFA):
         ])
 
     def test_operations_other_types(self):
-        """Should raise NotImplementedError for all but equals."""
+        """Should raise TypeError for all but equals."""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         dfa = DFA(
