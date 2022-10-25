@@ -600,21 +600,9 @@ class DFA(fa.FA):
         """
         Returns True if the DFA accepts a finite language, False otherwise.
         """
-        G = self._get_digraph()
-
-        accessible_nodes = nx.descendants(G, self.initial_state) | {self.initial_state}
-
-        coaccessible_nodes = self.final_states.union(*(
-            nx.ancestors(G, state)
-            for state in self.final_states
-        ))
-
-        important_nodes = accessible_nodes.intersection(coaccessible_nodes)
-
         try:
-            nx.find_cycle(G.subgraph(important_nodes))
-            return False
-        except nx.exception.NetworkXNoCycle:
+            return self.maximum_word_length() != float('inf')
+        except ValueError:
             return True
 
     def count_words_of_length(self, k):
@@ -674,8 +662,6 @@ class DFA(fa.FA):
         """
         Returns the length of the shortest word in the language represented by the DFA
         """
-        if self.isempty():
-            raise ValueError('The language represented by the DFA is empty')
         queue = deque()
         distances = defaultdict(lambda: float('inf'))
         distances[self.initial_state] = 0
@@ -688,7 +674,7 @@ class DFA(fa.FA):
                 if distances[next_state] == float('inf'):
                     distances[next_state] = distances[state] + 1
                     queue.append(next_state)
-        assert False
+        raise ValueError('The language represented by the DFA is empty')
 
     def maximum_word_length(self):
         """
@@ -696,8 +682,6 @@ class DFA(fa.FA):
         """
         if self.isempty():
             raise ValueError('The language represented by the DFA is empty')
-        if not self.isfinite():
-            return float('inf')
         G = self._get_digraph()
 
         accessible_nodes = nx.descendants(G, self.initial_state) | {self.initial_state}
@@ -708,8 +692,11 @@ class DFA(fa.FA):
         ))
 
         important_nodes = accessible_nodes.intersection(coaccessible_nodes)
-
-        return nx.dag_longest_path_length(G.subgraph(important_nodes))
+        subgraph = G.subgraph(important_nodes)
+        try:
+            return nx.dag_longest_path_length(subgraph)
+        except nx.exception.NetworkXUnfeasible:
+            return float('inf')
 
     @staticmethod
     def _stringify_states_unsorted(states):
