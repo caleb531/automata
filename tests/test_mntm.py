@@ -6,6 +6,8 @@ import random
 import types
 from unittest.mock import patch
 
+from frozendict import frozendict
+
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
 import tests.test_tm as test_tm
@@ -42,6 +44,18 @@ class TestMNTM(test_tm.TestTM):
         """Should create exact copy of MNTM if copy() method is called."""
         new_mntm = self.mntm1.copy()
         self.assertIsNot(new_mntm, self.mntm1)
+
+    def test_mntm_immutable_attr_set(self):
+        with self.assertRaises(AttributeError):
+            self.mntm1.states = {}
+
+    def test_mntm_immutable_attr_del(self):
+        with self.assertRaises(AttributeError):
+            del self.mntm1.states
+
+    def test_mntm_immutable_dict(self):
+        """Should create a DPDA whose contents are fully immutable/hashable"""
+        self.assertIsInstance(hash(frozendict(self.mntm1.__dict__)), int)
 
     def test_validate_input_symbol_subset(self):
         """Should raise error if input symbols are not a strict superset of tape symbols."""
