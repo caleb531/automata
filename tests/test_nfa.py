@@ -272,7 +272,7 @@ class TestNFA(test_fa.TestFA):
         self.assertNotEqual(nfa.accepts_input(''), None)
 
     def test_operations_other_type(self):
-        """Should raise NotImplementedError for concatenate."""
+        """Should raise TypeError for concatenate."""
         nfa = NFA(
             states={'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
@@ -283,7 +283,7 @@ class TestNFA(test_fa.TestFA):
             initial_state='q1',
             final_states={'q2', 'q4'})
         other = 42
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             nfa + other
 
     def test_concatenate(self):
@@ -539,7 +539,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(DFA.from_nfa(nfa9), DFA.from_nfa(nfa7))
 
         # raise error if other is not NFA
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             self.nfa | self.dfa
 
     def test_intersection(self):
@@ -568,7 +568,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa9, nfa6)
 
         # raise error if other is not NFA
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             self.nfa & self.dfa
 
     def test_validate_regex(self):

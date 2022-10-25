@@ -72,21 +72,21 @@ class NFA(fa.FA):
         if isinstance(other, NFA):
             return self.concatenate(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __or__(self, other):
         """Return the union of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.union(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __and__(self, other):
         """Return the union of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.intersection(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __reversed__(self):
         """Return the reversal of this DFA."""
