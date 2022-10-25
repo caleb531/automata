@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 from collections import deque
-from itertools import chain
+from itertools import chain, product
 
 import networkx as nx
 from frozendict import frozendict
@@ -443,6 +443,83 @@ class NFA(fa.FA):
             initial_state=new_initial_state,
             final_states=new_final_states
         )
+
+    def intersection(self, other):
+        """
+        Given two NFAs, M1 and M2, which accept the languages
+        L1 and L2 respectively, returns an NFA which accepts
+        the union of L1 and L2.
+        """
+
+        if not isinstance(other, NFA):
+            raise NotImplementedError
+
+        new_states = set()
+        new_input_symbols = self.input_symbols | other.input_symbols
+        new_transitions = dict()
+        new_initial_state = (self.initial_state, other.initial_state)
+
+        queue = deque()
+
+        queue.append(new_initial_state)
+        new_states.add(new_initial_state)
+
+        while queue:
+            curr_state = queue.popleft()
+            q_a, q_b = curr_state
+
+            # States we will consider adding to the queue
+            next_states_iterables = list()
+
+            # Get transition dict for states in self
+            transitions_a = self.transitions.get(q_a)
+            if transitions_a is not None:
+                # Add epsilon transitions for first set of transitions
+                epsilon_transitions_a = transitions_a.get('')
+                if epsilon_transitions_a is not None:
+                    next_states_iterable = product(epsilon_transitions_a, [q_b])
+
+                    new_transitions[curr_state].setdefault('', set()).update(next_states_iterable)
+                    next_states_iterables.append(next_states_iterable)
+
+            # Get transition dict for states in other
+            transitions_b = other.transitions.get(q_b)
+            if transitions_b is not None:
+                # Add epsilon transitions for second set of transitions
+                epsilon_transitions_b = transitions_b.get('')
+                if epsilon_transitions_b is not None:
+                    next_states_iterable = product([q_a], epsilon_transitions_b)
+
+                    new_transitions[curr_state].setdefault('', set()).update(next_states_iterable)
+                    next_states_iterables.append(next_states_iterable)
+
+            if transitions_a is not None and transitions_b is not None:
+                # Add all transitions moving over same input symbols
+                for chr in new_input_symbols:
+                    end_states_a = transitions_a.get(chr)
+                    end_states_b = transitions_b.get(chr)
+
+                    if end_states_a is not None and end_states_b is not None:
+                        next_states_iterable = product(end_states_a, end_states_b)
+
+                        new_transitions[curr_state].setdefault(chr, set()).update(next_states_iterable)
+                        next_states_iterables.append(next_states_iterable)
+
+            # Finally, try visiting every state we found.
+            for product_state in chain.from_iterable(next_states_iterables):
+                if product_state not in new_states:
+                    new_states.add(product_state)
+                    queue.append(product_state)
+
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=new_input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=product(self.final_states, other.final_states)
+        )
+
 
     def show_diagram(self, path=None):
         """
