@@ -621,16 +621,14 @@ class DFA(fa.FA):
             self._count_cache.append(defaultdict(int))
             level = self._count_cache[i]
             if i == 0:
-                for state in self.final_states:
-                    level[state] = 1
+                level.update({state: 1 for state in self.final_states})
             else:
                 prev_level = self._count_cache[i-1]
-                for state in self.states:
-                    state_count = 0
-                    for _, suffix_state in self.transitions[state].items():
-                        state_count += prev_level[suffix_state]
-                    level[state] = state_count
- 
+                level.update({
+                    state: sum(prev_level[suffix_state] for suffix_state in self.transitions[state].values())
+                    for state in self.states
+                })
+
     def words_of_length(self, k):
         """
         Generates all words of size k in the language represented by the DFA
@@ -648,15 +646,15 @@ class DFA(fa.FA):
             self._word_cache.append(defaultdict(set))
             level = self._word_cache[i]
             if i == 0:
-                for state in self.final_states:
-                    level[state].add('')
+                level.update({state: {''} for state in self.final_states})
             else:
                 prev_level = self._word_cache[i-1]
-                for state in self.states:
-                    state_set = level[state]
-                    for symbol, suffix_state in self.transitions[state].items():
-                        for word in prev_level[suffix_state]:
-                            state_set.add(symbol + word)
+                level.update({
+                    state: {symbol+word
+                            for symbol, suffix_state in self.transitions[state].items()
+                            for word in prev_level[suffix_state]}
+                    for state in self.states
+                })
 
     def minimum_word_length(self):
         """
