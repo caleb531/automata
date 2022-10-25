@@ -29,12 +29,6 @@ class MNTM(ntm.NTM):
             n_tapes=n_tapes
         )
 
-    # Temporarily retain mutability for the MNTM type until the surrounding
-    # code can be refactored to eliminate the current_state and tapes attrs (a
-    # required refactor to make MNTM properly immutable)
-    __setattr__ = object.__setattr__
-    __delattr__ = object.__delattr__
-
     def _validate_transition_symbols(self, state, paths):
         for tape_symbol in [tape_symbol
                             for symbol in paths.keys() for tape_symbol in
