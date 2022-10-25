@@ -16,8 +16,7 @@ class MNTM(ntm.NTM):
     """A multitape nondeterministic Turing machine."""
 
     def __init__(self, *, states, input_symbols, tape_symbols, n_tapes,
-                 transitions, initial_state, blank_symbol, final_states,
-                 tapes=None):
+                 transitions, initial_state, blank_symbol, final_states):
         """Initialize a complete Turing machine."""
         super(tm.TM, self).__init__(
             states=states,
