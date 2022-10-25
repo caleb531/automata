@@ -386,6 +386,10 @@ class TestGNFA(test_fa.TestFA):
         with self.assertRaises(NotImplementedError):
             self.gnfa.reverse()
 
+    def test_eq_not_implemented(self):
+        """Should not implement equality for GNFA."""
+        self.assertNotEqual(self.gnfa, GNFA.from_nfa(self.nfa))
+
     def test_show_diagram_showNone(self):
         """
         Should construct the diagram for a GNFA when show_None = False
