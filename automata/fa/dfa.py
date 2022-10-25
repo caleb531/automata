@@ -83,56 +83,56 @@ class DFA(fa.FA):
         if isinstance(other, DFA):
             return self.issubset(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __ge__(self, other):
         """Return True if this DFA is a superset of another DFA."""
         if isinstance(other, DFA):
             return self.issuperset(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __lt__(self, other):
         """Return True if this DFA is a strict subset of another DFA."""
         if isinstance(other, DFA):
             return self <= other and self != other
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __gt__(self, other):
         """Return True if this DFA is a strict superset of another DFA."""
         if isinstance(other, DFA):
             return self >= other and self != other
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __sub__(self, other):
         """Return a DFA that is the difference of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.difference(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __or__(self, other):
         """Return the union of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.union(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __and__(self, other):
         """Return the intersection of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.intersection(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __xor__(self, other):
         """Return the symmetric difference of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.symmetric_difference(other)
         else:
-            raise NotImplementedError
+            return NotImplemented
 
     def __invert__(self):
         """Return the complement of this DFA and another DFA."""

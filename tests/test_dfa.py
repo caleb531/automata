@@ -217,21 +217,21 @@ class TestDFA(test_fa.TestFA):
         )
         other = 42
         self.assertNotEqual(dfa, other)
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             dfa | other
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             dfa & other
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             dfa - other
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             dfa ^ other
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             dfa < other
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             dfa <= other
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             dfa > other
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             dfa >= other
 
     def test_equivalence_not_equal(self):
