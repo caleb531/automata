@@ -32,16 +32,6 @@ class GNFA(nfa.NFA):
     def __post_init__(self):
         self.validate()
 
-    def copy(self):
-        """Create a deep copy of the GNFA. Overrides copy in base class due to extra parameter."""
-        return self.__class__(
-            states=self.states,
-            input_symbols=self.input_symbols,
-            transitions=self.transitions,
-            initial_state=self.initial_state,
-            final_state=self.final_state
-        )
-
     @classmethod
     def from_dfa(cls, dfa):
         """Initialize this GNFA as one equivalent to the given DFA."""

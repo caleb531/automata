@@ -443,7 +443,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.transitions, nfa2.transitions)
         self.assertEqual(nfa1.final_states, nfa2.final_states)
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
-        self.assertNotEqual(nfa1.lambda_closures, original_nfa.lambda_closures)
+        self.assertNotEqual(nfa1._lambda_closures, original_nfa._lambda_closures)
 
     def test_eliminate_lambda_other(self):
         original_nfa = NFA(
@@ -477,7 +477,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.transitions, nfa2.transitions)
         self.assertEqual(nfa1.final_states, nfa2.final_states)
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
-        self.assertNotEqual(nfa1.lambda_closures, original_nfa.lambda_closures)
+        self.assertNotEqual(nfa1._lambda_closures, original_nfa._lambda_closures)
 
     def test_eliminate_lambda_regex(self):
         nfa = NFA.from_regex('a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?')

@@ -415,16 +415,6 @@ nfa.validate()  # returns True or raises an exception
 nfa.copy()  # returns deep copy of nfa
 ```
 
-#### NFA.lambda_closures
-
-A dictionary containing the lambda closure for every state. The lambda closure
-of a state _q_ is the set containing _q_, along with every state that can be
-reached from _q_ by following only lambda transitions.
-
-```python
-nfa.lambda_closures
-```
-
 #### NFA.reverse(self)
 
 ```python

@@ -24,7 +24,7 @@ class NFA(fa.FA):
             transitions=transitions,
             initial_state=initial_state,
             final_states=final_states,
-            lambda_closures=self._compute_lambda_closures(states, transitions)
+            _lambda_closures=self._compute_lambda_closures(states, transitions)
         )
 
     def _compute_lambda_closures(self, states, transitions):
@@ -52,20 +52,6 @@ class NFA(fa.FA):
             state: frozenset(nx.descendants(lambda_graph, state) | {state})
             for state in states
         })
-
-    def copy(self):
-        """
-        Create a deep copy of the NFA. Overrides copy in base class due to
-        extra lambda_closures parameter (which is cached on the instance
-        but should not be passed to the initializer).
-        """
-        return self.__class__(
-            states=self.states,
-            input_symbols=self.input_symbols,
-            transitions=self.transitions,
-            initial_state=self.initial_state,
-            final_states=self.final_states
-        )
 
     def __add__(self, other):
         """Return the concatenation of this NFA and another NFA."""
@@ -170,7 +156,7 @@ class NFA(fa.FA):
             current_transition = self.transitions[current_state]
             for end_state in current_transition.get(input_symbol, {}):
                 next_current_states.update(
-                    self.lambda_closures[end_state])
+                    self._lambda_closures[end_state])
 
         return frozenset(next_current_states)
 
@@ -210,7 +196,7 @@ class NFA(fa.FA):
         new_final_states = set(self.final_states)
 
         for state in self.states:
-            lambda_enclosure = self.lambda_closures[state] - {state}
+            lambda_enclosure = self._lambda_closures[state] - {state}
             for input_symbol in self.input_symbols:
                 next_current_states = self._get_next_current_states(lambda_enclosure, input_symbol)
 
@@ -257,7 +243,7 @@ class NFA(fa.FA):
 
         Yield the current configuration of the NFA at each step.
         """
-        current_states = self.lambda_closures[self.initial_state]
+        current_states = self._lambda_closures[self.initial_state]
 
         yield current_states
         for input_symbol in input_str:
@@ -524,8 +510,8 @@ class NFA(fa.FA):
             return NotImplemented
 
         operand_nfas = (self, other)
-        initial_state_a = (self.lambda_closures[self.initial_state], 0)
-        initial_state_b = (other.lambda_closures[other.initial_state], 1)
+        initial_state_a = (self._lambda_closures[self.initial_state], 0)
+        initial_state_b = (other._lambda_closures[other.initial_state], 1)
 
         def is_final_state(states_pair):
             states, operand_index = states_pair
@@ -533,7 +519,7 @@ class NFA(fa.FA):
             # If at least one of the current states is a final state, the
             # condition should satisfy
             return any(
-                nfa.final_states - nfa.lambda_closures[state]
+                nfa.final_states - nfa._lambda_closures[state]
                 for state in states
             )
 
