@@ -456,9 +456,6 @@ class NFA(fa.FA):
         the intersection of L1 and L2.
         """
 
-        if not isinstance(other, NFA):
-            raise NotImplementedError
-
         new_states = set()
         new_input_symbols = self.input_symbols | other.input_symbols
         new_transitions = dict()
