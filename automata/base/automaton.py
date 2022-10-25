@@ -86,19 +86,27 @@ class Automaton(metaclass=abc.ABCMeta):
                                  if not key.startswith('_')})
 
     # Format the given value for string output via repr() or str(); this exists for the purpose of displaying
-    def _get_value_repr(self, value):
+
+    def _get_repr_friendly_value(self, value):
+        """
+        A helper function to convert the given value / structure into a fully
+        mutable one by recursively processing said structure and any of its
+        members, unfreezing them along the way
+        """
         if isinstance(value, frozenset):
-            return set(value)
+            return {self._get_repr_friendly_value(element)
+                    for element in value}
         elif isinstance(value, frozendict):
             return {
-                dict_key: self._get_value_repr(dict_value)
+                dict_key: self._get_repr_friendly_value(dict_value)
                 for dict_key, dict_value in value.items()
             }
         else:
             return value
 
     def __repr__(self):
-        values = ', '.join([
-            f'{attr_name}={self._get_value_repr(attr_value)}'
-            for attr_name, attr_value in self.__dict__.items()])
-        return f'{self.__class__.__name__}({values})'
+        """Return a string representation of the automaton."""
+        values = ', '.join(
+            f'{attr_name}={self._get_repr_friendly_value(attr_value)!r}'
+            for attr_name, attr_value in self.__dict__.items())
+        return f'{self.__class__.__qualname__}({values})'

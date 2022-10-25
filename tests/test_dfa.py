@@ -1449,3 +1449,19 @@ class TestDFA(test_fa.TestFA):
 
         self.assertEqual(equiv_dfa, minimal_dfa)
         self.assertEqual(len(equiv_dfa.states), len(minimal_dfa.states))
+
+    def test_dfa_repr(self):
+        """Should display proper string representation of DFA"""
+        dfa = DFA(
+            states={'q0'},
+            input_symbols={'a'},
+            transitions={
+                'q0': {'a': 'q0'}
+            },
+            initial_state='q0',
+            final_states={'q0'},
+            allow_partial=False
+        )
+        self.assertEqual(
+            repr(dfa),
+            "DFA(states={'q0'}, input_symbols={'a'}, transitions={'q0': {'a': 'q0'}}, initial_state='q0', final_states={'q0'}, allow_partial=False)")  # noqa: E501
