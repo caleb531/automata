@@ -14,7 +14,8 @@ maintainers = [
 ]
 dependencies = [
     "pydot>=1.4.2",
-    "networkx>=2.6.2"
+    "networkx>=2.6.2",
+    "frozendict>=2.3.4"
 ]
 
 [project.urls]
