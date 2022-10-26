@@ -157,14 +157,10 @@ class DFA(fa.FA):
 
     def __len__(self):
         """Returns the cardinality of the language represented by the DFA."""
-        try:
-            i = self.minimum_word_length()
-        except ValueError:
-            return 0
-        limit = self.maximum_word_length()
-        if limit == float('inf'):
+        val = self.cardinality()
+        if val == float('inf'):
             raise ValueError("The language represented by the DFA is infinite")
-        return sum(self.count_words_of_length(j) for j in range(i, limit+1))
+        return val
 
     def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition input_symbols are missing."""
@@ -616,7 +612,7 @@ class DFA(fa.FA):
 
     def count_words_of_length(self, k):
         """
-        Counts words of length k assuming state is the initial state
+        Counts words of length `k` accepted by the DFA
         """
         self._ensure_count_for_length(k)
         return self._count_cache[k][self.initial_state]
@@ -665,6 +661,17 @@ class DFA(fa.FA):
                     for state in self.states
                 })
 
+    def cardinality(self):
+        """Returns the cardinality of the language represented by the DFA."""
+        try:
+            i = self.minimum_word_length()
+        except ValueError:
+            return 0
+        limit = self.maximum_word_length()
+        if limit == float('inf'):
+            return float('inf')
+        return sum(self.count_words_of_length(j) for j in range(i, limit+1))
+
     def minimum_word_length(self):
         """
         Returns the length of the shortest word in the language represented by the DFA
@@ -686,6 +693,7 @@ class DFA(fa.FA):
     def maximum_word_length(self):
         """
         Returns the length of the longest word in the language represented by the DFA
+        In the case of infinite languages, `float('inf')` is returned
         """
         if self.isempty():
             raise ValueError('The language represented by the DFA is empty')

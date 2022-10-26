@@ -198,6 +198,14 @@ else:
     print('rejected')
 ```
 
+You can also use the `in` keyword.
+```python
+if my_input_str in dfa:
+    print('accepted')
+else:
+    print('rejected')
+```
+
 #### DFA.validate(self)
 
 Returns `True` if the DFA is valid, otherwise the appropriate exception is
@@ -322,6 +330,50 @@ Returns `True` if the DFA accepts a finite language, False otherwise.
 
 ```python
 dfa.isfinite()
+```
+
+### DFA.minimum_word_lengt(self)
+
+Returns the length of the shortest word in the language represented by the DFA.
+
+```python
+dfa.minimum_word_length()
+```
+
+### DFA.maximum_word_length(self)
+
+Returns the length of the longest word in the language represented by the DFA.
+In the case of infinite languages, `float('inf')` is returned.
+
+```python
+dfa.maximum_word_length()
+```
+
+### DFA.count_words_of_length(self, k)
+
+Counts words of length `k` accepted by the DFA.
+
+```python
+dfa.count_words_of_length(3)
+```
+
+### DFA.count_words_of_length(self, k)
+
+Generates words of length `k` accepted by the DFA.
+
+```python
+for word in dfa.words_of_length(3):
+    print(word)
+```
+
+### DFA.cardinality(self)
+
+Returns the cardinality of the language represented by the DFA.
+Note that `len(dfa)` raises a `ValueError` for infinite languages, whereas `DFA.cardinality` will return `float('inf')`.
+
+```python
+dfa.cardinality()
+len(dfa)
 ```
 
 #### DFA.from_nfa(cls, nfa, retain_names=False, minify=True)
