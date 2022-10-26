@@ -2,7 +2,6 @@
 """Methods for working with regular expressions"""
 
 import automata.base.exceptions as exceptions
-from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 from automata.regex.parser import get_regex_lexer, validate_tokens
 
@@ -40,10 +39,8 @@ def issubset(re1, re2):
 
     nfa1 = NFA.from_regex(re1)
     nfa2 = NFA.from_regex(re2)
-    dfa1 = DFA.from_nfa(nfa1)
-    dfa2 = DFA.from_nfa(nfa2)
 
-    return dfa1.issubset(dfa2)
+    return nfa1.union(nfa2) == nfa2
 
 
 def issuperset(re1, re2):
@@ -51,7 +48,5 @@ def issuperset(re1, re2):
 
     nfa1 = NFA.from_regex(re1)
     nfa2 = NFA.from_regex(re2)
-    dfa1 = DFA.from_nfa(nfa1)
-    dfa2 = DFA.from_nfa(nfa2)
 
-    return dfa2.issubset(dfa1)
+    return nfa1.union(nfa2) == nfa1
