@@ -710,6 +710,40 @@ class DFA(fa.FA):
             return float('inf')
 
     @classmethod
+    def contains_substring(cls, substring, input_symbols):
+        """
+        Directly computes the minimal DFA recognizing strings containing the
+        given substring.
+        """
+        prefixes = [substring[:i] for i in range(len(substring))]
+
+        transitions = {prefix: dict() for prefix in prefixes}
+        transitions[substring] = {
+            symbol: substring for symbol in input_symbols
+        }
+
+        for prefix in prefixes:
+            prefix_dict = transitions.setdefault(prefix, dict())
+
+            for symbol in input_symbols:
+                # Look for next state after reading in the given input symbol
+                possible_suffix = prefix + symbol
+
+                # This while loop will always terminate, since the empty string is in the dict
+                while possible_suffix not in transitions:
+                    possible_suffix = possible_suffix[1:]
+
+                prefix_dict[symbol] = possible_suffix
+
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state='',
+            final_states={substring},
+        )
+
+    @classmethod
     def contains_subsequence(cls, subsequence, input_symbols):
         """
         Creates a DFA which accepts all words which contain a specific subsequence of symbols
@@ -753,11 +787,23 @@ class DFA(fa.FA):
 
     @classmethod
     def universal_language(cls, input_symbols):
-        return cls.contains_subsequence('', input_symbols)
+        return cls(
+            states={0},
+            input_symbols=input_symbols,
+            transitions={0: {symbol: 0 for symbol in input_symbols}},
+            initial_state=0,
+            final_states={0}
+        )
 
     @classmethod
     def empty_language(cls, input_symbols):
-        return ~cls.universal_language(input_symbols)
+        return cls(
+            states={0},
+            input_symbols=input_symbols,
+            transitions={0: {symbol: 0 for symbol in input_symbols}},
+            initial_state=0,
+            final_states=set()
+        )
 
     @classmethod
     def nth_from_end(cls, symbol, n, input_symbols):

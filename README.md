@@ -368,6 +368,15 @@ dfa.cardinality()
 len(dfa)
 ```
 
+#### DFA.contains_substring(cls, substring, input_symbols)
+
+Directly computes the minimal DFA recognizing strings containing the
+given substring.
+
+```python
+dfa = DFA.contains_substring('nano', {'a', 'n', 'o', 'b'})
+```
+
 #### DFA.contains_subsequence(cls, subsequence, input_symbols)
 
 Creates a DFA which accepts all words which contain a specific subsequence of symbols
