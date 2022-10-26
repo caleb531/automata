@@ -1710,7 +1710,13 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(dfa.isfinite())
 
     def test_nth_from_end(self):
-        dfa = DFA.nth_from_end('0', 0, {'0', '1'})
+        with self.assertRaises(ValueError):
+            dfa = DFA.nth_from_end('0', 0, {'0', '1'})
+            
+        with self.assertRaises(ValueError):
+            dfa = DFA.nth_from_end('2', 1, {'0', '1'})
+
+        dfa = DFA.nth_from_end('0', 1, {'0'})
         self.assertFalse(dfa.isfinite())
 
         dfa = DFA.nth_from_end('0', 1, {'0', '1'})

@@ -368,6 +368,31 @@ dfa.cardinality()
 len(dfa)
 ```
 
+#### DFA.contains_subsequence(cls, subsequence, input_symbols)
+
+Creates a DFA which accepts all words which contain a specific subsequence of symbols
+
+```python
+dfa = DFA.contains_subsequence('dcba', {'a', 'b', 'c', 'd'})
+```
+
+#### DFA.of_length(cls, subsequence, input_symbols)
+
+Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
+To allow infinitely long words the value `float('inf')` can be passed in for `max_length`.
+
+```python
+dfa = DFA.of_length(4, float('inf'), {'0', '1'})
+```
+
+#### DFA.nth_from_end(cls, symbol, n, input_symbols)
+
+Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`, where `n` is a positive integer.
+
+```python
+dfa = DFA.nth_from_end('1', 4, {'0', '1'})
+```
+
 #### DFA.from_nfa(cls, nfa, retain_names=False, minify=True)
 
 Creates a DFA that is equivalent to the given NFA. States are renamed by

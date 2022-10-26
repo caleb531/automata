@@ -732,7 +732,8 @@ class DFA(fa.FA):
     @classmethod
     def of_length(cls, min_length, max_length, input_symbols):
         """
-        Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inlusive.
+        Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
+        To allow infinitely long words the value `float('inf')` can be passed in for `max_length`.
         """
         transitions = {}
         length_range = range(min_length) if max_length == float('inf') else range(max_length+1)
@@ -753,10 +754,14 @@ class DFA(fa.FA):
     @classmethod
     def nth_from_end(cls, symbol, n, input_symbols):
         """
-        Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`.
+        Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`,
+        where `n` is a positive integer.
         """
         # TODO: special case for len(input_symbols) == 1?
-        # TODO: special case for n == 0?
+        if n < 1:
+            raise ValueError("Integer must be positive")
+        if symbol not in input_symbols:
+            raise ValueError("Desired symbol is not in the set of input symbols")
         state_count = 2**n
         return cls(
             states=set(range(state_count)),
