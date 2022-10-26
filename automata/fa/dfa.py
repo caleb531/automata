@@ -752,6 +752,14 @@ class DFA(fa.FA):
         )
 
     @classmethod
+    def universal_language(cls, input_symbols):
+        return cls.contains_subsequence('', input_symbols)
+
+    @classmethod
+    def empty_language(cls, input_symbols):
+        return ~cls.universal_language(input_symbols)
+
+    @classmethod
     def nth_from_end(cls, symbol, n, input_symbols):
         """
         Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`,
