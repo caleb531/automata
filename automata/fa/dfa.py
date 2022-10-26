@@ -294,8 +294,7 @@ class DFA(fa.FA):
         for start_state, path in transitions.items():
             if start_state in reachable_states:
                 for symbol, end_state in path.items():
-                    if end_state in reachable_states:
-                        transition_back_map[symbol][end_state].append(start_state)
+                    transition_back_map[symbol][end_state].append(start_state)
 
         origin_dicts = tuple(transition_back_map.values())
         processing = {final_states_id}
