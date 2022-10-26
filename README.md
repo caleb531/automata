@@ -459,6 +459,18 @@ new_nfa = nfa1.union(nfa2)
 new_nfa = nfa1 | nfa2
 ```
 
+#### NFA.intersection(self, other)
+
+Returns intersection of two NFAs
+
+```python
+new_nfa = nfa1.intersection(nfa2)
+```
+
+```python
+new_nfa = nfa1 & nfa2
+```
+
 #### NFA.eliminate_lambda(self)
 
 Removes epsilon transitions from the NFA which recognizes the same language.

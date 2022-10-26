@@ -272,7 +272,7 @@ class TestNFA(test_fa.TestFA):
         self.assertNotEqual(nfa.accepts_input(''), None)
 
     def test_operations_other_type(self):
-        """Should raise NotImplementedError for concatenate."""
+        """Should raise TypeError for concatenate."""
         nfa = NFA(
             states={'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
@@ -283,7 +283,7 @@ class TestNFA(test_fa.TestFA):
             initial_state='q1',
             final_states={'q2', 'q4'})
         other = 42
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             nfa + other
 
     def test_concatenate(self):
@@ -539,9 +539,37 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(DFA.from_nfa(nfa9), DFA.from_nfa(nfa7))
 
         # raise error if other is not NFA
-        self.assertRaises(NotImplementedError, self.nfa.union, self.dfa)
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(TypeError):
             self.nfa | self.dfa
+
+    def test_intersection(self):
+        nfa1 = NFA.from_regex('aaaa*')
+        nfa2 = NFA.from_regex('(a)|(aa)|(aaa)')
+
+        nfa3 = nfa1.intersection(nfa2)
+
+        nfa4 = NFA.from_regex('aaa')
+        dfa1 = DFA.from_nfa(nfa3)
+        dfa2 = DFA.from_nfa(nfa4)
+
+        self.assertEqual(dfa1, dfa2)
+        # second check
+        nfa5 = nfa1 & nfa2
+        dfa3 = DFA.from_nfa(nfa5)
+
+        self.assertEqual(dfa3, dfa2)
+
+        # third check: intersection of NFA which is subset of other
+        nfa6 = NFA.from_regex('aa*')
+        nfa7 = NFA.from_regex('a*')
+        nfa8 = nfa6.intersection(nfa7)
+        nfa9 = nfa7.intersection(nfa6)
+        self.assertEqual(nfa8, nfa6)
+        self.assertEqual(nfa9, nfa6)
+
+        # raise error if other is not NFA
+        with self.assertRaises(TypeError):
+            self.nfa & self.dfa
 
     def test_validate_regex(self):
         """Should raise an error if invalid regex is passed into NFA.from_regex()"""
