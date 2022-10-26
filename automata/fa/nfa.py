@@ -478,13 +478,13 @@ class NFA(fa.FA):
                 next_states_iterables.append(product([q_a], epsilon_transitions_b))
 
             # Add all transitions moving over same input symbols
-            for chr in new_input_symbols:
-                end_states_a = transitions_a.get(chr)
-                end_states_b = transitions_b.get(chr)
+            for symbol in new_input_symbols:
+                end_states_a = transitions_a.get(symbol)
+                end_states_b = transitions_b.get(symbol)
 
                 if end_states_a is not None and end_states_b is not None:
                     state_dict = new_transitions.setdefault(curr_state, dict())
-                    state_dict.setdefault(chr, set()).update(product(end_states_a, end_states_b))
+                    state_dict.setdefault(symbol, set()).update(product(end_states_a, end_states_b))
                     next_states_iterables.append(product(end_states_a, end_states_b))
 
             # Finally, try visiting every state we found.
