@@ -335,6 +335,17 @@ from automata.fa.nfa import NFA
 dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
 ```
 
+#### DFA.from_finite_language(self, language, input_symbols)
+
+Constructs the minimal DFA corresponding to the given finite language and input symbols.
+
+```python
+DFA.from_finite_language(
+    language={'aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
+              'baa', 'babb', 'bbaa', 'bbabb', 'bbbab'},
+    input_symbols={'a', 'b'})
+```
+
 #### DFA.show_diagram(self, path=None)
 
 ```python
