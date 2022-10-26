@@ -460,35 +460,32 @@ class NFA(fa.FA):
             next_states_iterables = list()
 
             # Get transition dict for states in self
-            transitions_a = self.transitions.get(q_a)
-            if transitions_a is not None:
-                # Add epsilon transitions for first set of transitions
-                epsilon_transitions_a = transitions_a.get('')
-                if epsilon_transitions_a is not None:
-                    state_dict = new_transitions.setdefault(curr_state, dict())
-                    state_dict.setdefault('', set()).update(product(epsilon_transitions_a, [q_b]))
-                    next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
+            transitions_a = self.transitions.get(q_a, {})
+            # Add epsilon transitions for first set of transitions
+            epsilon_transitions_a = transitions_a.get('')
+            if epsilon_transitions_a is not None:
+                state_dict = new_transitions.setdefault(curr_state, dict())
+                state_dict.setdefault('', set()).update(product(epsilon_transitions_a, [q_b]))
+                next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
 
             # Get transition dict for states in other
-            transitions_b = other.transitions.get(q_b)
-            if transitions_b is not None:
-                # Add epsilon transitions for second set of transitions
-                epsilon_transitions_b = transitions_b.get('')
-                if epsilon_transitions_b is not None:
+            transitions_b = other.transitions.get(q_b, {})
+            # Add epsilon transitions for second set of transitions
+            epsilon_transitions_b = transitions_b.get('')
+            if epsilon_transitions_b is not None:
+                state_dict = new_transitions.setdefault(curr_state, dict())
+                state_dict.setdefault('', set()).update(product([q_a], epsilon_transitions_b))
+                next_states_iterables.append(product([q_a], epsilon_transitions_b))
+
+            # Add all transitions moving over same input symbols
+            for chr in new_input_symbols:
+                end_states_a = transitions_a.get(chr)
+                end_states_b = transitions_b.get(chr)
+
+                if end_states_a is not None and end_states_b is not None:
                     state_dict = new_transitions.setdefault(curr_state, dict())
-                    state_dict.setdefault('', set()).update(product([q_a], epsilon_transitions_b))
-                    next_states_iterables.append(product([q_a], epsilon_transitions_b))
-
-            if transitions_a is not None and transitions_b is not None:
-                # Add all transitions moving over same input symbols
-                for chr in new_input_symbols:
-                    end_states_a = transitions_a.get(chr)
-                    end_states_b = transitions_b.get(chr)
-
-                    if end_states_a is not None and end_states_b is not None:
-                        state_dict = new_transitions.setdefault(curr_state, dict())
-                        state_dict.setdefault(chr, set()).update(product(end_states_a, end_states_b))
-                        next_states_iterables.append(product(end_states_a, end_states_b))
+                    state_dict.setdefault(chr, set()).update(product(end_states_a, end_states_b))
+                    next_states_iterables.append(product(end_states_a, end_states_b))
 
             # Finally, try visiting every state we found.
             for product_state in chain.from_iterable(next_states_iterables):
