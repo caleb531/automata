@@ -1453,7 +1453,73 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(
             repr(dfa),
             "DFA(states={'q0'}, input_symbols={'a'}, transitions={'q0': {'a': 'q0'}}, initial_state='q0', final_states={'q0'}, allow_partial=False)")  # noqa: E501
-            
+
+    def test_iter_finite(self):
+        """
+        Test that DFA for finite language generates all words
+        """
+        language = {'aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
+                    'baa', 'babb', 'bbaa', 'bbabb', 'bbbab'}
+        dfa = DFA.from_finite_language(language, {'a', 'b'})
+        generated_set = {word for word in dfa}
+        self.assertEqual(generated_set, language)
+
+    def test_iter_infinite(self):
+        """
+        Test that language that avoids the pattern '11' generates the correct values in correct order
+        """
+        A = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+
+        generator = iter(A)
+        expected = {'',
+                    '0', '1',
+                    '00', '01', '10',
+                    '000', '001', '010', '100', '101',
+                    '0000', '0001', '0010', '0100', '0101', '1000', '1001', '1010'}
+        generated_set = {next(generator) for _ in expected}
+        self.assertEqual(generated_set, expected)
+
+    def test_len_finite(self):
+        dfa = DFA.from_finite_language(set(), {'a', 'b'})
+        self.assertEqual(len(dfa), 0)
+        dfa = DFA.from_finite_language({''}, {'a', 'b'})
+        self.assertEqual(len(dfa), 1)
+        dfa = DFA.from_finite_language({'a'}, {'a', 'b'})
+        self.assertEqual(len(dfa), 1)
+        dfa = DFA.from_finite_language({'ababababab'}, {'a', 'b'})
+        self.assertEqual(len(dfa), 1)
+        dfa = DFA.from_finite_language({'a' * i for i in range(5)}, {'a', 'b'})
+        self.assertEqual(len(dfa), 5)
+        dfa = DFA.from_finite_language({'a' * i + 'b' * j for i in range(5) for j in range(5)}, {'a', 'b'})
+        self.assertEqual(len(dfa), 25)
+
+    def test_len_infinite(self):
+        A = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        with self.assertRaises(ValueError):
+            len(A)
+        with self.assertRaises(ValueError):
+            len(~A)
+
     def test_count_words_of_length(self):
         """
         Test that language that avoids the pattern '11' is counted by fibonacci numbers
@@ -1611,4 +1677,4 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(no_11_occurrence.maximum_word_length(), float('inf'))
         self.assertEqual(at_most_one_symbol.maximum_word_length(), 1)
         with self.assertRaises(ValueError):
-            empty.minimum_word_length()
+            empty.maximum_word_length()

@@ -157,10 +157,13 @@ class DFA(fa.FA):
 
     def __len__(self):
         """Returns the cardinality of the language represented by the DFA."""
-        if self.isfinite():
-            raise ValueError("The language represented by the DFA is infinite")
-        i = self.minimum_word_length()
+        try:
+            i = self.minimum_word_length()
+        except ValueError:
+            return 0
         limit = self.maximum_word_length()
+        if limit == float('inf'):
+            raise ValueError("The language represented by the DFA is infinite")
         return sum(self.count_words_of_length(j) for j in range(i, limit+1))
 
     def _validate_transition_missing_symbols(self, start_state, paths):
@@ -714,6 +717,11 @@ class DFA(fa.FA):
         Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
         Chapter 10
         """
+
+        if len(language) == 0:
+            return DFA(states={0}, input_symbols=input_symbols,
+                       transitions={0: {symbol: 0 for symbol in input_symbols}},
+                       initial_state=0, final_states=set())
 
         transitions = dict()
         back_map = {'': set()}
