@@ -1452,7 +1452,8 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertEqual(
             repr(dfa),
-            "DFA(states={'q0'}, input_symbols={'a'}, transitions={'q0': {'a': 'q0'}}, initial_state='q0', final_states={'q0'}, allow_partial=False)")  # noqa: E501
+            "DFA(states={'q0'}, input_symbols={'a'}, transitions={'q0': {'a': 'q0'}}, "
+            "initial_state='q0', final_states={'q0'}, allow_partial=False)")
 
     def test_iter_finite(self):
         """
