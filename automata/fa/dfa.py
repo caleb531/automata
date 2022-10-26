@@ -680,7 +680,7 @@ class DFA(fa.FA):
         distances = defaultdict(lambda: float('inf'))
         distances[self.initial_state] = 0
         queue.append(self.initial_state)
-        while len(queue):
+        while queue:
             state = queue.popleft()
             if state in self.final_states:
                 return distances[state]
@@ -712,11 +712,6 @@ class DFA(fa.FA):
             return nx.dag_longest_path_length(subgraph)
         except nx.exception.NetworkXUnfeasible:
             return float('inf')
-
-    @staticmethod
-    def _stringify_states_unsorted(states):
-        """Stringify the given set of states as a single state name."""
-        return '{{{}}}'.format(','.join(states))
 
     @classmethod
     def from_finite_language(cls, language, input_symbols):
