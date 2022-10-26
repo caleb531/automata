@@ -114,3 +114,7 @@ class Automaton(metaclass=abc.ABCMeta):
             f'{attr_name}={self._get_repr_friendly_value(attr_value)!r}'
             for attr_name, attr_value in self.attributes().items())
         return f'{self.__class__.__qualname__}({values})'
+
+    def __contains__(self, other):
+        """Returns whether the word is accepted by the automaton."""
+        return self.accepts_input(other)

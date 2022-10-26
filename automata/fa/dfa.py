@@ -140,10 +140,6 @@ class DFA(fa.FA):
         """Return the complement of this DFA and another DFA."""
         return self.complement()
 
-    def __contains__(self, other):
-        """Returns whether the word is accepted by the DFA."""
-        return self.accepts_input(other)
-
     def __iter__(self):
         """
         Iterates through all words in the language represented by the DFA.
