@@ -205,6 +205,15 @@ minimal_dfa = dfa.minify()
 minimal_dfa_with_old_names = dfa.minify(retain_names=True)
 ```
 
+#### DFA Equivalence
+
+Use the `==` operator to check if two DFAs accept the same language. Please
+note that both DFAs must have the same input symbols.
+
+```python
+dfa1 == dfa2
+```
+
 #### DFA.complement(self, retain_names=False, minify=True)
 
 Creates a DFA which accepts an input if and only if the old one does not.
@@ -402,6 +411,15 @@ else:
 
 ```python
 nfa.copy()  # returns deep copy of nfa
+```
+
+#### NFA Equivalence
+
+Use the `==` operator to check if two NFAs accept the same language. Please
+note that both NFAs must have the same input symbols.
+
+```python
+nfa1 == nfa2
 ```
 
 #### NFA.reverse(self)
