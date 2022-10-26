@@ -368,7 +368,7 @@ dfa.cardinality()
 len(dfa)
 ```
 
-#### DFA.contains_substring(cls, substring, input_symbols)
+#### DFA.contains_substring(cls, input_symbols, substring)
 
 Directly computes the minimal DFA recognizing strings containing the
 given substring.
@@ -377,7 +377,7 @@ given substring.
 dfa = DFA.contains_substring('nano', {'a', 'n', 'o', 'b'})
 ```
 
-#### DFA.contains_subsequence(cls, subsequence, input_symbols)
+#### DFA.contains_subsequence(cls, input_symbols, subsequence)
 
 Creates a DFA which accepts all words which contain a specific subsequence of symbols
 
@@ -385,7 +385,7 @@ Creates a DFA which accepts all words which contain a specific subsequence of sy
 dfa = DFA.contains_subsequence('dcba', {'a', 'b', 'c', 'd'})
 ```
 
-#### DFA.of_length(cls, subsequence, input_symbols)
+#### DFA.of_length(cls, input_symbols, min_length=0, max_length=float('inf'))
 
 Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
 To allow infinitely long words the value `float('inf')` can be passed in for `max_length`.
@@ -394,7 +394,7 @@ To allow infinitely long words the value `float('inf')` can be passed in for `ma
 dfa = DFA.of_length(4, float('inf'), {'0', '1'})
 ```
 
-#### DFA.nth_from_end(cls, symbol, n, input_symbols)
+#### DFA.nth_from_end(cls, input_symbols, symbol, n)
 
 Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`, where `n` is a positive integer.
 

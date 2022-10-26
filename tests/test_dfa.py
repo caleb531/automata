@@ -684,7 +684,7 @@ class TestDFA(test_fa.TestFA):
         # This DFA accepts all words which contain at least
         # three occurrences of 1
         input_symbols = {'0', '1'}
-        A = DFA.contains_subsequence('111', input_symbols)
+        A = DFA.contains_subsequence(input_symbols, '111')
         # This DFA accepts all words which contain either zero
         # or one occurrence of 1
         B = DFA(
@@ -700,7 +700,7 @@ class TestDFA(test_fa.TestFA):
         )
         # This DFA accepts all words which contain at least
         # one occurrence of 1
-        C = DFA.contains_subsequence('1', input_symbols)
+        C = DFA.contains_subsequence(input_symbols, '1')
         self.assertTrue(A.isdisjoint(B))
         self.assertTrue(B.isdisjoint(A))
         self.assertFalse(A.isdisjoint(C))
@@ -710,7 +710,7 @@ class TestDFA(test_fa.TestFA):
         """Should test if a non-empty DFA is empty"""
         # This DFA accepts all words which contain at least
         # three occurrences of 1
-        A = DFA.contains_subsequence('111', {'0', '1'})
+        A = DFA.contains_subsequence({'0', '1'}, '111')
         self.assertFalse(A.isempty())
 
     def test_isempty_empty(self):
@@ -735,7 +735,7 @@ class TestDFA(test_fa.TestFA):
         """Should test if an infinite DFA is finite (case #1)"""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
-        A = DFA.contains_substring('11', {'0', '1'}).complement(minify=False)
+        A = DFA.contains_substring({'0', '1'}, '11').complement(minify=False)
         self.assertFalse(A.isfinite())
 
     def test_isfinite_infinite_case_2(self):
@@ -763,7 +763,7 @@ class TestDFA(test_fa.TestFA):
         """Should test if a finite DFA is finite"""
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
-        A = DFA.of_length(0, 5, {'0', '1'})
+        A = DFA.of_length({'0', '1'}, 0, 5)
         self.assertTrue(A.isfinite())
 
     def test_isfinite_empty(self):
@@ -795,10 +795,10 @@ class TestDFA(test_fa.TestFA):
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         input_symbols = {'0', '1'}
-        A = DFA.contains_substring('1111', input_symbols)
+        A = DFA.contains_substring(input_symbols, '1111')
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
-        B = DFA.contains_substring('11', input_symbols).complement(minify=False)
+        B = DFA.contains_substring(input_symbols, '11').complement(minify=False)
         # This DFA accepts all binary strings
         U = DFA.universal_language(input_symbols)
         # This DFA represents the empty language
@@ -1321,7 +1321,7 @@ class TestDFA(test_fa.TestFA):
             final_states={4, 9}
         )
 
-        minimal_dfa = DFA.from_finite_language(language, {'a', 'b'})
+        minimal_dfa = DFA.from_finite_language({'a', 'b'}, language)
 
         self.assertEqual(len(minimal_dfa.states), len(equiv_dfa.states))
         self.assertEqual(minimal_dfa, equiv_dfa)
@@ -1333,7 +1333,7 @@ class TestDFA(test_fa.TestFA):
         language = {('a' * i + 'b' * j)
                     for i, j in product(range(n), range(m))}
 
-        equiv_dfa = DFA.from_finite_language(language, {'a', 'b'})
+        equiv_dfa = DFA.from_finite_language({'a', 'b'}, language)
         minimal_dfa = equiv_dfa.minify()
 
         self.assertEqual(equiv_dfa, minimal_dfa)
@@ -1600,13 +1600,13 @@ class TestDFA(test_fa.TestFA):
             final_states={'nano'}
         )
 
-        substring_dfa = DFA.contains_substring('nano', input_symbols)
+        substring_dfa = DFA.contains_substring(input_symbols, 'nano')
         self.assertEqual(len(substring_dfa.states), len(substring_dfa.minify().states))
 
         self.assertEqual(len(substring_dfa.states), len(equiv_dfa.states))
         self.assertEqual(substring_dfa, equiv_dfa)
 
-        subset_dfa = DFA.from_finite_language(['nano', 'bananano', 'nananano', 'naonano'], input_symbols)
+        subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'bananano', 'nananano', 'naonano'])
         self.assertTrue(subset_dfa < substring_dfa)
 
     def test_contains_subsequence(self):
@@ -1628,59 +1628,61 @@ class TestDFA(test_fa.TestFA):
             final_states={'nano'}
         )
 
-        subsequence_dfa = DFA.contains_subsequence('nano', input_symbols)
+        subsequence_dfa = DFA.contains_subsequence(input_symbols, 'nano')
         self.assertEqual(len(subsequence_dfa.states), len(subsequence_dfa.minify().states))
 
         self.assertEqual(len(subsequence_dfa.states), len(equiv_dfa.states))
         self.assertEqual(subsequence_dfa, equiv_dfa)
 
-        subset_dfa = DFA.from_finite_language(['naooono', 'bananano', 'onbaonbo', 'ooonano'], input_symbols)
+        subset_dfa = DFA.from_finite_language(input_symbols, ['naooono', 'bananano', 'onbaonbo', 'ooonano'])
         self.assertTrue(subset_dfa < subsequence_dfa)
 
-        substring_dfa = DFA.contains_substring('nano', input_symbols)
+        substring_dfa = DFA.contains_substring(input_symbols, 'nano', )
         self.assertTrue(substring_dfa < subsequence_dfa)
 
     def test_of_length(self):
-        dfa = DFA.of_length(0, float('inf'), {'0', '1'})
+        binary = {'0', '1'}
+        dfa = DFA.of_length(binary)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
-        dfa = DFA.of_length(4, float('inf'), {'0', '1'})
+        dfa = DFA.of_length(binary, 4)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
-        dfa = DFA.of_length(0, 8, {'a', 'b'})
+        dfa = DFA.of_length(binary, 0, 8)
         self.assertTrue(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
-        dfa = DFA.of_length(4, 8, {'0', '1', '2'})
+        dfa = DFA.of_length(binary, 4, 8)
         self.assertTrue(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
     def test_nth_from_end(self):
+        binary = {'0', '1'}
         with self.assertRaises(ValueError):
-            dfa = DFA.nth_from_end('0', 0, {'0', '1'})
+            dfa = DFA.nth_from_end(binary, '0', 0)
 
         with self.assertRaises(ValueError):
-            dfa = DFA.nth_from_end('2', 1, {'0', '1'})
+            dfa = DFA.nth_from_end(binary, '2', 1)
 
-        dfa = DFA.nth_from_end('0', 1, {'0'})
+        dfa = DFA.nth_from_end({'0'}, '0', 1)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
-        dfa = DFA.nth_from_end('0', 1, {'0', '1'})
+        dfa = DFA.nth_from_end(binary, '0', 1)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
-        dfa = DFA.nth_from_end('0', 2, {'0', '1'})
+        dfa = DFA.nth_from_end(binary, '0', 2)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
-        dfa = DFA.nth_from_end('0', 3, {'0', '1'})
+        dfa = DFA.nth_from_end(binary, '0', 3)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
-        dfa = DFA.nth_from_end('1', 4, {'0', '1'})
+        dfa = DFA.nth_from_end(binary, '1', 4)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 

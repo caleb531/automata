@@ -710,7 +710,7 @@ class DFA(fa.FA):
             return float('inf')
 
     @classmethod
-    def contains_substring(cls, substring, input_symbols):
+    def contains_substring(cls, input_symbols, substring):
         """
         Directly computes the minimal DFA recognizing strings containing the
         given substring.
@@ -744,7 +744,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def contains_subsequence(cls, subsequence, input_symbols):
+    def contains_subsequence(cls, input_symbols, subsequence):
         """
         Creates a DFA which accepts all words which contain a specific subsequence of symbols
         """
@@ -764,7 +764,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def of_length(cls, min_length, max_length, input_symbols):
+    def of_length(cls, input_symbols, min_length=0, max_length=float('inf')):
         """
         Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
         To allow infinitely long words the value `float('inf')` can be passed in for `max_length`.
@@ -806,7 +806,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def nth_from_end(cls, symbol, n, input_symbols):
+    def nth_from_end(cls, input_symbols, symbol, n, ):
         """
         Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`,
         where `n` is a positive integer.
@@ -829,7 +829,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def from_finite_language(cls, language, input_symbols):
+    def from_finite_language(cls, input_symbols, language):
         """
         Directly computes the minimal DFA corresponding to a finite language.
         Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
