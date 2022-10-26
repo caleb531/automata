@@ -332,7 +332,7 @@ Returns `True` if the DFA accepts a finite language, False otherwise.
 dfa.isfinite()
 ```
 
-### DFA.minimum_word_lengt(self)
+### DFA.minimum_word_length(self)
 
 Returns the length of the shortest word in the language represented by the DFA.
 
@@ -357,12 +357,21 @@ Counts words of length `k` accepted by the DFA.
 dfa.count_words_of_length(3)
 ```
 
-### DFA.count_words_of_length(self, k)
+### DFA.words_of_length(self, k)
 
 Generates words of length `k` accepted by the DFA.
 
 ```python
 for word in dfa.words_of_length(3):
+    print(word)
+```
+
+You can also iterate through all words accepted by the DFA.
+
+```python
+for word in dfa:
+    if len(word) > 10:
+        break
     print(word)
 ```
 
