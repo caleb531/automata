@@ -1679,3 +1679,48 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(at_most_one_symbol.maximum_word_length(), 1)
         with self.assertRaises(ValueError):
             empty.maximum_word_length()
+
+    def test_contains_subsequence(self):
+        dfa = DFA.contains_subsequence('', {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.contains_subsequence('0', {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.contains_subsequence('01', {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.contains_subsequence('010', {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.contains_subsequence('dcba', {'a', 'b', 'c', 'd'})
+        self.assertFalse(dfa.isfinite())
+
+    def test_of_length(self):
+        dfa = DFA.of_length(0, float('inf'), {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.of_length(4, float('inf'), {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.of_length(0, 8, {'a', 'b'})
+        self.assertTrue(dfa.isfinite())
+
+        dfa = DFA.of_length(4, 8, {'0', '1', '2'})
+        self.assertTrue(dfa.isfinite())
+
+    def test_nth_from_end(self):
+        dfa = DFA.nth_from_end('0', 0, {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.nth_from_end('0', 1, {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.nth_from_end('0', 2, {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.nth_from_end('0', 3, {'0', '1'})
+        self.assertFalse(dfa.isfinite())
+
+        dfa = DFA.nth_from_end('1', 4, {'0', '1'})
+        self.assertFalse(dfa.isfinite())

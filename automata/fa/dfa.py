@@ -710,6 +710,66 @@ class DFA(fa.FA):
             return float('inf')
 
     @classmethod
+    def contains_subsequence(cls, subsequence, input_symbols):
+        """
+        Creates a DFA which accepts all words which contain a specific subsequence of symbols
+        """
+        transitions = {0: {symbol: 0 for symbol in input_symbols}}
+
+        for prev_state, symbol in enumerate(subsequence):
+            next_state = prev_state + 1
+            transitions[next_state] = {symbol: next_state for symbol in input_symbols}
+            transitions[prev_state][symbol] = next_state
+
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states={len(subsequence)},
+        )
+
+    @classmethod
+    def of_length(cls, min_length, max_length, input_symbols):
+        """
+        Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inlusive.
+        """
+        transitions = {}
+        length_range = range(min_length) if max_length == float('inf') else range(max_length+1)
+        for prev_state in length_range:
+            next_state = prev_state + 1
+            transitions[prev_state] = {symbol: next_state for symbol in input_symbols}
+        last_state = len(transitions)
+        transitions[last_state] = {symbol: last_state for symbol in input_symbols}
+        final_states = {last_state} if max_length == float('inf') else set(range(min_length, max_length+1))
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=final_states,
+        )
+
+    @classmethod
+    def nth_from_end(cls, symbol, n, input_symbols):
+        """
+        Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`.
+        """
+        # TODO: special case for len(input_symbols) == 1?
+        # TODO: special case for n == 0?
+        state_count = 2**n
+        return cls(
+            states=set(range(state_count)),
+            input_symbols=input_symbols,
+            transitions={state: {sym: (2 * state + 1) % state_count
+                                 if symbol == sym else (2 * state) % state_count
+                                 for sym in input_symbols}
+                         for state in range(state_count)},
+            initial_state=0,
+            final_states=set(range(state_count//2, state_count)),
+        )
+
+    @classmethod
     def from_finite_language(cls, language, input_symbols):
         """
         Directly computes the minimal DFA corresponding to a finite language.
