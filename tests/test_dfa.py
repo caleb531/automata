@@ -1712,7 +1712,7 @@ class TestDFA(test_fa.TestFA):
     def test_nth_from_end(self):
         with self.assertRaises(ValueError):
             dfa = DFA.nth_from_end('0', 0, {'0', '1'})
-            
+
         with self.assertRaises(ValueError):
             dfa = DFA.nth_from_end('2', 1, {'0', '1'})
 
@@ -1730,3 +1730,16 @@ class TestDFA(test_fa.TestFA):
 
         dfa = DFA.nth_from_end('1', 4, {'0', '1'})
         self.assertFalse(dfa.isfinite())
+
+    def test_empty_language(self):
+        dfa = DFA.empty_language({'0'})
+        self.assertTrue(dfa.isempty())
+
+        dfa = DFA.empty_language({'0', '1'})
+        self.assertTrue(dfa.isempty())
+
+        dfa = DFA.empty_language({'a', 'b'})
+        self.assertTrue(dfa.isempty())
+
+        dfa = DFA.empty_language({'0', '1', 'a', 'b'})
+        self.assertTrue(dfa.isempty())
