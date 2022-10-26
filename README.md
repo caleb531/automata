@@ -95,16 +95,6 @@ of returning the automaton's final configuration (or raising an exception). That
 is, the method always returns `True` if the input is accepted, and it always
 returns `False` if the input is rejected.
 
-#### Automaton.validate(self)
-
-Checks whether the automaton is actually a valid automaton (according to its
-subtype). It returns `True` if the automaton is valid; otherwise, it will raise
-the appropriate exception (*e.g.* the state transition is missing for a
-particular symbol).
-
-This method is automatically called when the automaton is initialized, so it's
-only really useful if a automaton object is modified after instantiation.
-
 #### Automaton.copy(self)
 
 Returns a deep copy of the automaton according to its subtype.
@@ -196,15 +186,6 @@ if dfa.accepts_input(my_input_str):
     print('accepted')
 else:
     print('rejected')
-```
-
-#### DFA.validate(self)
-
-Returns `True` if the DFA is valid, otherwise the appropriate exception is
-raised.
-
-```python
-dfa.validate()  # returns True or raises an exception
 ```
 
 #### DFA.copy(self)
@@ -417,15 +398,6 @@ else:
     print('rejected')
 ```
 
-#### NFA.validate(self)
-
-Returns `True` if the NFA is valid, otherwise the appropriate exception is
-raised.
-
-```python
-nfa.validate()  # returns True or raises an exception
-```
-
 #### NFA.copy(self)
 
 ```python
@@ -592,15 +564,6 @@ from automata.fa.nfa import NFA
 gnfa = GNFA.from_nfa(nfa) # returns an equivalent GNFA
 ```
 
-#### GNFA.validate(self)
-
-Returns `True` if the GNFA is valid, otherwise the appropriate exception is
-raised.
-
-```python
-gnfa.validate()
-```
-
 #### GNFA.copy()
 
 Returns a deep copy of GNFA.
@@ -726,12 +689,6 @@ else:
     print('rejected')
 ```
 
-#### DPDA.validate(self)
-
-```python
-dpda.validate()  # returns True
-```
-
 #### DPDA.copy(self)
 
 ```python
@@ -841,12 +798,6 @@ if npda.accepts_input(my_input_str):
     print('accepted')
 else:
     print('rejected')
-```
-
-#### NPDA.validate(self)
-
-```python
-npda.validate()  # returns True
 ```
 
 #### NPDA.copy(self)
@@ -968,12 +919,6 @@ else:
     print('rejected')
 ```
 
-#### DTM.validate(self)
-
-```python
-dtm.validate()  # returns True
-```
-
 #### DTM.copy(self)
 
 ```python
@@ -1083,12 +1028,6 @@ if ntm.accepts_input(my_input_str):
     print('accepted')
 else:
     print('rejected')
-```
-
-#### NTM.validate(self)
-
-```python
-ntm.validate()  # returns True
 ```
 
 #### NTM.copy(self)
@@ -1211,12 +1150,6 @@ if mntm.accepts_input(my_input_str):
     print('accepted')
 else:
     print('rejected')
-```
-
-#### MNTM.validate(self)
-
-```python
-ntm.validate()  # returns True
 ```
 
 #### MNTM.copy(self)
