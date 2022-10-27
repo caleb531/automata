@@ -123,7 +123,7 @@ class NFA(fa.FA):
     @classmethod
     def from_regex(cls, regex):
         """Initialize this NFA as one equivalent to the given regular expression"""
-        input_symbols = set(regex) - {'*', '|', '(', ')', '?'}
+        input_symbols = set(regex) - {'*', '|', '(', ')', '?', ' ', '\t'}
         nfa_builder = parse_regex(regex)
 
         return cls(
