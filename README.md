@@ -93,7 +93,8 @@ If the string is rejected by the automaton, the method still raises a
 Reads an input string like `read_input()`, except it returns a boolean instead
 of returning the automaton's final configuration (or raising an exception). That
 is, the method always returns `True` if the input is accepted, and it always
-returns `False` if the input is rejected.
+returns `False` if the input is rejected. Alternatively, you can use the `in`
+keyword such as `word in automata` to check whether the input is acccepted.
 
 #### Automaton.copy(self)
 
@@ -312,6 +313,59 @@ Returns `True` if the DFA accepts a finite language, False otherwise.
 
 ```python
 dfa.isfinite()
+```
+
+### DFA.minimum_word_length(self)
+
+Returns the length of the shortest word in the language represented by the DFA.
+
+```python
+dfa.minimum_word_length()
+```
+
+### DFA.maximum_word_length(self)
+
+Returns the length of the longest word in the language represented by the DFA.
+In the case of infinite languages, `float('inf')` is returned.
+
+```python
+dfa.maximum_word_length()
+```
+
+### DFA.count_words_of_length(self, k)
+
+Counts words of length `k` accepted by the DFA.
+
+```python
+dfa.count_words_of_length(3)
+```
+
+### DFA.words_of_length(self, k)
+
+Generates words of length `k` accepted by the DFA.
+
+```python
+for word in dfa.words_of_length(3):
+    print(word)
+```
+
+You can also iterate through all words accepted by the DFA.
+
+```python
+for word in dfa:
+    if len(word) > 10:
+        break
+    print(word)
+```
+
+### DFA.cardinality(self)
+
+Returns the cardinality of the language represented by the DFA.
+Note that `len(dfa)` raises a `ValueError` for infinite languages, whereas `DFA.cardinality` will return `float('inf')`.
+
+```python
+dfa.cardinality()
+len(dfa)
 ```
 
 #### DFA.from_nfa(cls, nfa, retain_names=False, minify=True)

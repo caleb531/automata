@@ -53,7 +53,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_dfa_immutable_dict(self):
         """Should create a DFA whose contents are fully immutable/hashable"""
-        self.assertIsInstance(hash(frozendict(self.dfa.__dict__)), int)
+        self.assertIsInstance(hash(frozendict(self.dfa.attributes())), int)
 
     @patch('automata.fa.dfa.DFA.validate')
     def test_init_validation(self, validate):
@@ -1452,4 +1452,230 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertEqual(
             repr(dfa),
-            "DFA(states={'q0'}, input_symbols={'a'}, transitions={'q0': {'a': 'q0'}}, initial_state='q0', final_states={'q0'}, allow_partial=False)")  # noqa: E501
+            "DFA(states={'q0'}, input_symbols={'a'}, transitions={'q0': {'a': 'q0'}}, "
+            "initial_state='q0', final_states={'q0'}, allow_partial=False)")
+
+    def test_iter_finite(self):
+        """
+        Test that DFA for finite language generates all words
+        """
+        language = {'aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
+                    'baa', 'babb', 'bbaa', 'bbabb', 'bbbab'}
+        dfa = DFA.from_finite_language(language, {'a', 'b'})
+        generated_set = {word for word in dfa}
+        self.assertEqual(generated_set, language)
+
+    def test_iter_infinite(self):
+        """
+        Test that language that avoids the pattern '11' generates the correct values in correct order
+        """
+        dfa = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+
+        generator = iter(dfa)
+        expected = ['',
+                    '0', '1',
+                    '00', '01', '10',
+                    '000', '001', '010', '100', '101',
+                    '0000', '0001', '0010', '0100', '0101', '1000', '1001', '1010']
+        generated_list = [next(generator) for _ in expected]
+        self.assertEqual(generated_list, expected)
+
+    def test_len_finite(self):
+        dfa = DFA.from_finite_language(set(), {'a', 'b'})
+        self.assertEqual(len(dfa), 0)
+        dfa = DFA.from_finite_language({''}, {'a', 'b'})
+        self.assertEqual(len(dfa), 1)
+        dfa = DFA.from_finite_language({'a'}, {'a', 'b'})
+        self.assertEqual(len(dfa), 1)
+        dfa = DFA.from_finite_language({'ababababab'}, {'a', 'b'})
+        self.assertEqual(len(dfa), 1)
+        dfa = DFA.from_finite_language({'a' * i for i in range(5)}, {'a', 'b'})
+        self.assertEqual(len(dfa), 5)
+        dfa = DFA.from_finite_language({'a' * i + 'b' * j for i in range(5) for j in range(5)}, {'a', 'b'})
+        self.assertEqual(len(dfa), 25)
+
+    def test_len_infinite(self):
+        dfa = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        with self.assertRaises(ValueError):
+            len(dfa)
+        with self.assertRaises(ValueError):
+            len(~dfa)
+
+    def test_count_words_of_length(self):
+        """
+        Test that language that avoids the pattern '11' is counted by fibonacci numbers
+        """
+        dfa = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+
+        fibonacci = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+        for i, fib in enumerate(fibonacci):
+            self.assertEqual(dfa.count_words_of_length(i), fib)
+
+    def test_words_of_length(self):
+        """
+        Test that all words generated are accepted and that count matches
+        """
+        dfa = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+
+        fibonacci = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+        for i, fib in enumerate(fibonacci):
+            count = 0
+            for word in dfa.words_of_length(i):
+                count += 1
+                self.assertIn(word, dfa)
+            self.assertEqual(count, fib)
+
+    def test_minimum_word_length(self):
+        # This DFA accepts all words which contain at least four
+        # occurrences of 1
+        at_least_four_ones = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q4'},
+                'q4': {'0': 'q4', '1': 'q4'}
+            },
+            initial_state='q0',
+            final_states={'q4'}
+        )
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        no_11_occurrence = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        # This DFA accepts all binary strings except the empty string
+        at_least_one_symbol = DFA(
+            states={'q0', 'q1'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q1'},
+            },
+            initial_state='q0',
+            final_states={'q1'}
+        )
+        # This DFA represents the empty language
+        empty = DFA(
+            states={'q0'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q0'}
+            },
+            initial_state='q0',
+            final_states=set()
+        )
+
+        self.assertEqual(at_least_four_ones.minimum_word_length(), 4)
+        self.assertEqual(no_11_occurrence.minimum_word_length(), 0)
+        self.assertEqual(at_least_one_symbol.minimum_word_length(), 1)
+        with self.assertRaises(ValueError):
+            empty.minimum_word_length()
+
+    def test_maximum_word_length(self):
+        # This DFA accepts all words which contain at least four
+        # occurrences of 1
+        at_least_four_ones = DFA(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q3'},
+                'q3': {'0': 'q3', '1': 'q4'},
+                'q4': {'0': 'q4', '1': 'q4'}
+            },
+            initial_state='q0',
+            final_states={'q4'}
+        )
+        # This DFA accepts all words which do not contain two
+        # consecutive occurrences of 1
+        no_11_occurrence = DFA(
+            states={'p0', 'p1', 'p2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'p0': {'0': 'p0', '1': 'p1'},
+                'p1': {'0': 'p0', '1': 'p2'},
+                'p2': {'0': 'p2', '1': 'p2'}
+            },
+            initial_state='p0',
+            final_states={'p0', 'p1'}
+        )
+        # This DFA accepts all binary strings except the empty string
+        at_most_one_symbol = DFA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q2', '1': 'q2'},
+                'q2': {'0': 'q2', '1': 'q2'},
+            },
+            initial_state='q0',
+            final_states={'q0', 'q1'}
+        )
+        # This DFA represents the empty language
+        empty = DFA(
+            states={'q0'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q0', '1': 'q0'}
+            },
+            initial_state='q0',
+            final_states=set()
+        )
+
+        self.assertEqual(at_least_four_ones.maximum_word_length(), float('inf'))
+        self.assertEqual(no_11_occurrence.maximum_word_length(), float('inf'))
+        self.assertEqual(at_most_one_symbol.maximum_word_length(), 1)
+        with self.assertRaises(ValueError):
+            empty.maximum_word_length()

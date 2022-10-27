@@ -79,11 +79,15 @@ class Automaton(metaclass=abc.ABCMeta):
                 'final states are not valid ({})'.format(
                     ', '.join(str(state) for state in invalid_states)))
 
+    def attributes(self):
+        """Return the public attributes for this automaton."""
+        return {key: value
+                for key, value in vars(self).items()
+                if not key.startswith('_')}
+
     def copy(self):
         """Create a deep copy of the automaton."""
-        return self.__class__(**{key: value
-                                 for key, value in vars(self).items()
-                                 if not key.startswith('_')})
+        return self.__class__(**self.attributes())
 
     # Format the given value for string output via repr() or str(); this exists for the purpose of displaying
 
@@ -108,5 +112,9 @@ class Automaton(metaclass=abc.ABCMeta):
         """Return a string representation of the automaton."""
         values = ', '.join(
             f'{attr_name}={self._get_repr_friendly_value(attr_value)!r}'
-            for attr_name, attr_value in self.__dict__.items())
+            for attr_name, attr_value in self.attributes().items())
         return f'{self.__class__.__qualname__}({values})'
+
+    def __contains__(self, input_str):
+        """Returns whether the word is accepted by the automaton."""
+        return self.accepts_input(input_str)

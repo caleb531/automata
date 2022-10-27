@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic finite automata."""
 
-from collections import deque
+from collections import defaultdict, deque
 from itertools import chain, count
 
 import networkx as nx
@@ -26,6 +26,8 @@ class DFA(fa.FA):
             final_states=final_states,
             allow_partial=allow_partial
         )
+        object.__setattr__(self, '_word_cache', [])
+        object.__setattr__(self, '_count_cache', [])
 
     def __eq__(self, other):
         """
@@ -137,6 +139,24 @@ class DFA(fa.FA):
     def __invert__(self):
         """Return the complement of this DFA and another DFA."""
         return self.complement()
+
+    def __iter__(self):
+        """
+        Iterates through all words in the language represented by the DFA.
+        The words are ordered first by length and then by the order of the input symbol set.
+        """
+        i = self.minimum_word_length()
+        limit = self.maximum_word_length()
+        while i <= limit:
+            yield from self.words_of_length(i)
+            i += 1
+
+    def __len__(self):
+        """Returns the cardinality of the language represented by the DFA."""
+        val = self.cardinality()
+        if val == float('inf'):
+            raise ValueError("The language represented by the DFA is infinite")
+        return val
 
     def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition input_symbols are missing."""
@@ -580,6 +600,99 @@ class DFA(fa.FA):
         """
         Returns True if the DFA accepts a finite language, False otherwise.
         """
+        try:
+            return self.maximum_word_length() != float('inf')
+        except ValueError:
+            return True
+
+    def count_words_of_length(self, k):
+        """
+        Counts words of length `k` accepted by the DFA
+        """
+        self._ensure_count_for_length(k)
+        return self._count_cache[k][self.initial_state]
+
+    def _ensure_count_for_length(self, k):
+        """
+        Populate count cache up to length k
+        """
+        while len(self._count_cache) <= k:
+            i = len(self._count_cache)
+            self._count_cache.append(defaultdict(int))
+            level = self._count_cache[i]
+            if i == 0:
+                level.update({state: 1 for state in self.final_states})
+            else:
+                prev_level = self._count_cache[i-1]
+                level.update({
+                    state: sum(prev_level[suffix_state] for suffix_state in self.transitions[state].values())
+                    for state in self.states
+                })
+
+    def words_of_length(self, k):
+        """
+        Generates all words of size k in the language represented by the DFA
+        """
+        self._ensure_words_of_length(k)
+        for word in self._word_cache[k][self.initial_state]:
+            yield word
+
+    def _ensure_words_of_length(self, k):
+        """
+        Populate word cache up to length k
+        """
+        sorted_symbols = sorted(self.input_symbols)
+        while len(self._word_cache) <= k:
+            i = len(self._word_cache)
+            self._word_cache.append(defaultdict(list))
+            level = self._word_cache[i]
+            if i == 0:
+                level.update({state: [''] for state in self.final_states})
+            else:
+                prev_level = self._word_cache[i-1]
+                level.update({
+                    state: [symbol+word
+                            for symbol in sorted_symbols
+                            for word in prev_level[self.transitions[state][symbol]]]
+                    for state in self.states
+                })
+
+    def cardinality(self):
+        """Returns the cardinality of the language represented by the DFA."""
+        try:
+            i = self.minimum_word_length()
+        except ValueError:
+            return 0
+        limit = self.maximum_word_length()
+        if limit == float('inf'):
+            return float('inf')
+        return sum(self.count_words_of_length(j) for j in range(i, limit+1))
+
+    def minimum_word_length(self):
+        """
+        Returns the length of the shortest word in the language represented by the DFA
+        """
+        queue = deque()
+        distances = defaultdict(lambda: float('inf'))
+        distances[self.initial_state] = 0
+        queue.append(self.initial_state)
+        while queue:
+            state = queue.popleft()
+            if state in self.final_states:
+                return distances[state]
+            for next_state in self.transitions[state].values():
+                if distances[next_state] == float('inf'):
+                    distances[next_state] = distances[state] + 1
+                    queue.append(next_state)
+        raise ValueError('The language represented by the DFA is empty')
+
+    def maximum_word_length(self):
+        """
+        Returns the length of the longest word in the language represented by the DFA
+        In the case of infinite languages, `float('inf')` is returned
+        """
+        if self.isempty():
+            raise ValueError('The language represented by the DFA is empty')
         G = self._get_digraph()
 
         accessible_nodes = nx.descendants(G, self.initial_state) | {self.initial_state}
@@ -590,12 +703,11 @@ class DFA(fa.FA):
         ))
 
         important_nodes = accessible_nodes.intersection(coaccessible_nodes)
-
+        subgraph = G.subgraph(important_nodes)
         try:
-            nx.find_cycle(G.subgraph(important_nodes))
-            return False
-        except nx.exception.NetworkXNoCycle:
-            return True
+            return nx.dag_longest_path_length(subgraph)
+        except nx.exception.NetworkXUnfeasible:
+            return float('inf')
 
     @classmethod
     def from_finite_language(cls, language, input_symbols):
@@ -604,6 +716,11 @@ class DFA(fa.FA):
         Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
         Chapter 10
         """
+
+        if len(language) == 0:
+            return DFA(states={0}, input_symbols=input_symbols,
+                       transitions={0: {symbol: 0 for symbol in input_symbols}},
+                       initial_state=0, final_states=set())
 
         transitions = dict()
         back_map = {'': set()}
