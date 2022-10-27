@@ -642,18 +642,19 @@ class DFA(fa.FA):
         """
         Populate word cache up to length k
         """
+        sorted_symbols = sorted(self.input_symbols)
         while len(self._word_cache) <= k:
             i = len(self._word_cache)
-            self._word_cache.append(defaultdict(set))
+            self._word_cache.append(defaultdict(list))
             level = self._word_cache[i]
             if i == 0:
                 level.update({state: {''} for state in self.final_states})
             else:
                 prev_level = self._word_cache[i-1]
                 level.update({
-                    state: {symbol+word
-                            for symbol, suffix_state in self.transitions[state].items()
-                            for word in prev_level[suffix_state]}
+                    state: [symbol+word
+                            for symbol in sorted_symbols
+                            for word in prev_level[self.transitions[state][symbol]]]
                     for state in self.states
                 })
 

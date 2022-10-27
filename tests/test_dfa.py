@@ -1482,13 +1482,13 @@ class TestDFA(test_fa.TestFA):
         )
 
         generator = iter(A)
-        expected = {'',
+        expected = ['',
                     '0', '1',
                     '00', '01', '10',
                     '000', '001', '010', '100', '101',
-                    '0000', '0001', '0010', '0100', '0101', '1000', '1001', '1010'}
-        generated_set = {next(generator) for _ in expected}
-        self.assertEqual(generated_set, expected)
+                    '0000', '0001', '0010', '0100', '0101', '1000', '1001', '1010']
+        generated_list = [next(generator) for _ in expected]
+        self.assertEqual(generated_list, expected)
 
     def test_len_finite(self):
         dfa = DFA.from_finite_language(set(), {'a', 'b'})
