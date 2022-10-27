@@ -91,10 +91,16 @@ If the string is rejected by the automaton, the method still raises a
 #### Automaton.accepts_input(self, input_str)
 
 Reads an input string like `read_input()`, except it returns a boolean instead
-of returning the automaton's final configuration (or raising an exception). That
-is, the method always returns `True` if the input is accepted, and it always
-returns `False` if the input is rejected. Alternatively, you can use the `in`
-keyword such as `word in automata` to check whether the input is acccepted.
+of returning the automaton's final configuration (or raising an exception).
+That is, the method always returns `True` if the input is accepted, and it
+always returns `False` if the input is rejected. Alternatively, you can use the
+`in` keyword such as `word in automaton` to check whether the input is
+acccepted.
+
+```python
+word in automaton
+automaton.accepts_input(word)
+```
 
 #### Automaton.copy(self)
 
