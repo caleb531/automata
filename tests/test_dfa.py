@@ -1362,7 +1362,7 @@ class TestDFA(test_fa.TestFA):
         """
         language = {'aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
                     'baa', 'babb', 'bbaa', 'bbabb', 'bbbab'}
-        dfa = DFA.from_finite_language(language, {'a', 'b'})
+        dfa = DFA.from_finite_language({'a', 'b'}, language)
         generated_set = {word for word in dfa}
         self.assertEqual(generated_set, language)
 
@@ -1392,17 +1392,18 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(generated_list, expected)
 
     def test_len_finite(self):
-        dfa = DFA.from_finite_language(set(), {'a', 'b'})
+        input_symbols = {'a', 'b'}
+        dfa = DFA.from_finite_language(input_symbols, set())
         self.assertEqual(len(dfa), 0)
-        dfa = DFA.from_finite_language({''}, {'a', 'b'})
+        dfa = DFA.from_finite_language(input_symbols, {''})
         self.assertEqual(len(dfa), 1)
-        dfa = DFA.from_finite_language({'a'}, {'a', 'b'})
+        dfa = DFA.from_finite_language(input_symbols, {'a'})
         self.assertEqual(len(dfa), 1)
-        dfa = DFA.from_finite_language({'ababababab'}, {'a', 'b'})
+        dfa = DFA.from_finite_language(input_symbols, {'ababababab'})
         self.assertEqual(len(dfa), 1)
-        dfa = DFA.from_finite_language({'a' * i for i in range(5)}, {'a', 'b'})
+        dfa = DFA.from_finite_language(input_symbols, {'a' * i for i in range(5)})
         self.assertEqual(len(dfa), 5)
-        dfa = DFA.from_finite_language({'a' * i + 'b' * j for i in range(5) for j in range(5)}, {'a', 'b'})
+        dfa = DFA.from_finite_language(input_symbols, {'a' * i + 'b' * j for i in range(5) for j in range(5)})
         self.assertEqual(len(dfa), 25)
 
     def test_len_infinite(self):
