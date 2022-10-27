@@ -301,7 +301,7 @@ class DFA(fa.FA):
         eq_classes = PartitionRefinement(reachable_states)
         refinement = eq_classes.refine(reachable_final_states)
 
-        final_states_id = refinement[0][0] if refinement else eq_classes.get_set_ids()[0]
+        final_states_id = refinement[0][0] if refinement else next(iter(eq_classes.get_set_ids()))
 
         transition_back_map = {
             symbol: {

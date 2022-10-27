@@ -46,12 +46,12 @@ class PartitionRefinement:
         return self._sets[id]
 
     def get_set_ids(self):
-        """Return list of set ids corresponding to the internal partition."""
-        return list(self._sets.keys())
+        """Return set ids corresponding to the internal partition."""
+        return self._sets.keys()
 
     def get_sets(self):
-        """Return list of sets corresponding to the internal partition."""
-        return list(self._sets.values())
+        """Return sets corresponding to the internal partition."""
+        return self._sets.values()
 
     def refine(self, S):
         """Refine each set A in the partition to the two sets

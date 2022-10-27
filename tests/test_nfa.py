@@ -692,3 +692,102 @@ class TestNFA(test_fa.TestFA):
             A.accepts_input('00'),
             B.accepts_input('00'),
             'DFA and NFA are not equivalent when they should be')
+
+    def test_nfa_equality(self):
+        nfa1 = NFA(
+            states={'s', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'},
+            input_symbols={'0', '1'},
+            transitions={
+                's': {'0': {'g'}, '1': {'a'}},
+                'a': {'0': {'b'}, '': {'d'}},
+                'b': {'1': {'c'}},
+                'c': {'0': {'a'}},
+                'd': {'1': {'e'}, '': {'f'}},
+                'e': {'1': {'d'}},
+                'f': {'':  {'s'}},
+                'g': {'1': {'h'}},
+                'h': {'0': {'f'}},
+            },
+            initial_state='s',
+            final_states={'s'}
+        )
+
+        self.assertEqual(DFA.from_nfa(nfa1),
+                         DFA.from_nfa(NFA.from_regex('((1(010)*(11)*)|(010))*')))
+
+        nfa2 = NFA(
+            states={'s', 'a', 'b', 'c', 'd', 'e'},
+            input_symbols={'0', '1'},
+            transitions={
+                's': {'0': {'a'}, '1': {'s'}, '': {'b', 'd'}},
+                'a': {'1': {'s'}},
+                'b': {'0': {'b'}, '1': {'c'}},
+                'c': {'0': {'c'}, '1': {'e'}},
+                'd': {'0': {'c'}, '1': {'d'}},
+                'e': {'0': {'c'}},
+            },
+            initial_state='s',
+            final_states={'c'}
+        )
+
+        self.assertEqual(DFA.from_nfa(nfa2),
+                         DFA.from_nfa(NFA.from_regex('(((01) | 1)*)((0*1) | (1*0))(((10) | 0)*)')))
+
+        nfa3 = NFA(
+            states={'s', '0', '1', '00', '01', '10', '11'},
+            input_symbols={'0', '1'},
+            transitions={
+                's':  {'0': {'0'},  '1': {'1'}},
+                '0':  {'0': {'00'}, '1': {'01'}},
+                '1':  {'0': {'10'}, '1': {'11'}},
+                '00': {'0': {'00'}, '1': {'01'}},
+                '01': {'0': {'00'}, '1': {'01'}},
+                '10': {'0': {'10'}, '1': {'11'}},
+                '11': {'0': {'10'}, '1': {'11'}},
+            },
+            initial_state='s',
+            final_states={'00', '11'}
+        )
+
+        self.assertEqual(DFA.from_nfa(nfa3),
+                         DFA.from_nfa(NFA.from_regex('(0(0 | 1)*0) | (1(0 | 1)*1)')))
+
+        nfa4 = NFA(
+            states={'s', '0', '1', '00', '01', '10', '11'},
+            input_symbols={'0', '1'},
+            transitions={
+                's':  {'0': {'0'},  '1': {'1'}},
+                '0':  {'0': {'00'}, '1': {'01'}},
+                '1':  {'0': {'10'}, '1': {'11'}},
+                '00': {'0': {'00'}, '1': {'01'}},
+                '01': {'0': {'10'}, '1': {'11'}},
+                '10': {'0': {'00'}, '1': {'01'}},
+                '11': {'0': {'10'}, '1': {'11'}},
+            },
+            initial_state='s',
+            final_states={'00', '11'}
+        )
+
+        self.assertEqual(DFA.from_nfa(nfa4),
+                         DFA.from_nfa(NFA.from_regex('((0 | 1)*00) | ((0 | 1)*11)')))
+
+        nfa5 = NFA(
+            states={'s', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'},
+            input_symbols={'0', '1', '2'},
+            transitions={
+                's': {'': {'a', 'f', 'g'}, '2': {'c'}},
+                'a': {'0': {'b', 'c'}},
+                'b': {'1': {'a'}},
+                'c': {'1': {'s', 'd'}},
+                'd': {'0': {'e'}},
+                'e': {'0': {'c'}},
+                'f': {'1': {'f'}},
+                'g': {'0': {'g'}, '': {'h'}},
+                'h': {'2': {'h'}}
+            },
+            initial_state='s',
+            final_states={'f', 'h'}
+        )
+
+        self.assertEqual(DFA.from_nfa(nfa5),
+                         DFA.from_nfa(NFA.from_regex('((((01)*0) | 2)(100)*1)*(1* | (0*2*))')))
