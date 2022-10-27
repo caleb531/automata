@@ -402,11 +402,8 @@ class TestNFA(test_fa.TestFA):
             },
             final_states={6, 8, 9, 10, 11}
         )
-        # convert them to dfa then check equivalence
-        dfa1 = DFA.from_nfa(nfa1)
-        dfa2 = DFA.from_nfa(nfa2)
 
-        self.assertEqual(dfa1, dfa2)
+        self.assertEqual(nfa1, nfa2)
 
     def test_from_regex_empty_string(self):
         NFA.from_regex('')
@@ -425,7 +422,7 @@ class TestNFA(test_fa.TestFA):
             final_states={3, 6}
         )
         nfa1 = original_nfa.eliminate_lambda()
-        self.assertEqual(DFA.from_nfa(nfa1), DFA.from_nfa(original_nfa))
+        self.assertEqual(nfa1, original_nfa)
         nfa2 = NFA(
             states={0, 1, 2, 3, 5},
             initial_state=0,
@@ -458,7 +455,7 @@ class TestNFA(test_fa.TestFA):
             final_states={2}
         )
         nfa1 = original_nfa.eliminate_lambda()
-        self.assertEqual(DFA.from_nfa(nfa1), DFA.from_nfa(original_nfa))
+        self.assertEqual(nfa1, original_nfa)
 
         nfa2 = NFA(
             states={0, 1, 2},
@@ -482,7 +479,7 @@ class TestNFA(test_fa.TestFA):
     def test_eliminate_lambda_regex(self):
         nfa = NFA.from_regex('a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?')
         nfa_without_lambdas = nfa.eliminate_lambda()
-        self.assertEqual(DFA.from_nfa(nfa), DFA.from_nfa(nfa_without_lambdas))
+        self.assertEqual(nfa, nfa_without_lambdas)
 
         for transition in nfa_without_lambdas.transitions.values():
             for char in transition.keys():
@@ -520,23 +517,20 @@ class TestNFA(test_fa.TestFA):
             final_states={2, 4},
             initial_state=0
         )
-        dfa1 = DFA.from_nfa(nfa3)
-        dfa2 = DFA.from_nfa(nfa4)
 
-        self.assertEqual(dfa1, dfa2)
+        self.assertEqual(nfa3, nfa4)
+
         # second check
         nfa5 = nfa1 | nfa2
-        dfa3 = DFA.from_nfa(nfa5)
-
-        self.assertEqual(dfa3, dfa2)
+        self.assertEqual(nfa5, nfa4)
 
         # third check: union of NFA which is subset of other
         nfa6 = NFA.from_regex('aa*')
         nfa7 = NFA.from_regex('a*')
         nfa8 = nfa6.union(nfa7)
         nfa9 = nfa7.union(nfa6)
-        self.assertEqual(DFA.from_nfa(nfa8), DFA.from_nfa(nfa7))
-        self.assertEqual(DFA.from_nfa(nfa9), DFA.from_nfa(nfa7))
+        self.assertEqual(nfa8, nfa7)
+        self.assertEqual(nfa9, nfa7)
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
@@ -549,15 +543,11 @@ class TestNFA(test_fa.TestFA):
         nfa3 = nfa1.intersection(nfa2)
 
         nfa4 = NFA.from_regex('aaa')
-        dfa1 = DFA.from_nfa(nfa3)
-        dfa2 = DFA.from_nfa(nfa4)
-
-        self.assertEqual(dfa1, dfa2)
+        self.assertEqual(nfa3, nfa4)
         # second check
         nfa5 = nfa1 & nfa2
-        dfa3 = DFA.from_nfa(nfa5)
 
-        self.assertEqual(dfa3, dfa2)
+        self.assertEqual(nfa5, nfa4)
 
         # third check: intersection of NFA which is subset of other
         nfa6 = NFA.from_regex('aa*')
@@ -712,8 +702,7 @@ class TestNFA(test_fa.TestFA):
             final_states={'s'}
         )
 
-        self.assertEqual(DFA.from_nfa(nfa1),
-                         DFA.from_nfa(NFA.from_regex('((1(010)*(11)*)|(010))*')))
+        self.assertEqual(nfa1, NFA.from_regex('((1(010)*(11)*)|(010))*'))
 
         nfa2 = NFA(
             states={'s', 'a', 'b', 'c', 'd', 'e'},
@@ -730,8 +719,7 @@ class TestNFA(test_fa.TestFA):
             final_states={'c'}
         )
 
-        self.assertEqual(DFA.from_nfa(nfa2),
-                         DFA.from_nfa(NFA.from_regex('(((01) | 1)*)((0*1) | (1*0))(((10) | 0)*)')))
+        self.assertEqual(nfa2, NFA.from_regex('(((01) | 1)*)((0*1) | (1*0))(((10) | 0)*)'))
 
         nfa3 = NFA(
             states={'s', '0', '1', '00', '01', '10', '11'},
@@ -749,8 +737,7 @@ class TestNFA(test_fa.TestFA):
             final_states={'00', '11'}
         )
 
-        self.assertEqual(DFA.from_nfa(nfa3),
-                         DFA.from_nfa(NFA.from_regex('(0(0 | 1)*0) | (1(0 | 1)*1)')))
+        self.assertEqual(nfa3, NFA.from_regex('(0(0 | 1)*0) | (1(0 | 1)*1)'))
 
         nfa4 = NFA(
             states={'s', '0', '1', '00', '01', '10', '11'},
@@ -768,8 +755,7 @@ class TestNFA(test_fa.TestFA):
             final_states={'00', '11'}
         )
 
-        self.assertEqual(DFA.from_nfa(nfa4),
-                         DFA.from_nfa(NFA.from_regex('((0 | 1)*00) | ((0 | 1)*11)')))
+        self.assertEqual(nfa4, NFA.from_regex('((0 | 1)*00) | ((0 | 1)*11)'))
 
         nfa5 = NFA(
             states={'s', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'},
@@ -789,5 +775,4 @@ class TestNFA(test_fa.TestFA):
             final_states={'f', 'h'}
         )
 
-        self.assertEqual(DFA.from_nfa(nfa5),
-                         DFA.from_nfa(NFA.from_regex('((((01)*0) | 2)(100)*1)*(1* | (0*2*))')))
+        self.assertEqual(nfa5, NFA.from_regex('((((01)*0) | 2)(100)*1)*(1* | (0*2*))'))

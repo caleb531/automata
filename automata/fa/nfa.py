@@ -596,7 +596,7 @@ class NFA(fa.FA):
             # If at least one of the current states is a final state, the
             # condition should satisfy
             return any(
-                nfa.final_states - nfa._lambda_closures[state]
+                len(nfa.final_states & nfa._lambda_closures[state]) > 0
                 for state in states
             )
 
