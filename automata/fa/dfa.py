@@ -806,7 +806,30 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def nth_from_end(cls, input_symbols, symbol, n, ):
+    def nth_from_start(cls, input_symbols, symbol, n):
+        """
+        Creates a DFA which accepts all words whose `n`-th character from the start is `symbol`,
+        where `n` is a positive integer.
+        """
+        # TODO: special case for len(input_symbols) == 1?
+        if n < 1:
+            raise ValueError("Integer must be positive")
+        if symbol not in input_symbols:
+            raise ValueError("Desired symbol is not in the set of input symbols")
+        transitions = {i: {symbol: i+1 for symbol in input_symbols} for i in range(n)}
+        transitions[n-1][symbol] = n+1
+        transitions[n] = {symbol: n for symbol in input_symbols}
+        transitions[n+1] = {symbol: n+1 for symbol in input_symbols}
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states={n+1}
+        )
+
+    @classmethod
+    def nth_from_end(cls, input_symbols, symbol, n):
         """
         Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`,
         where `n` is a positive integer.

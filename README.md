@@ -374,7 +374,7 @@ Directly computes the minimal DFA recognizing strings containing the
 given substring.
 
 ```python
-dfa = DFA.contains_substring('nano', {'a', 'n', 'o', 'b'})
+dfa = DFA.contains_substring({'a', 'n', 'o', 'b'}, 'nano')
 ```
 
 #### DFA.contains_subsequence(cls, input_symbols, subsequence)
@@ -382,7 +382,7 @@ dfa = DFA.contains_substring('nano', {'a', 'n', 'o', 'b'})
 Creates a DFA which accepts all words which contain a specific subsequence of symbols
 
 ```python
-dfa = DFA.contains_subsequence('dcba', {'a', 'b', 'c', 'd'})
+dfa = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba')
 ```
 
 #### DFA.of_length(cls, input_symbols, min_length=0, max_length=float('inf'))
@@ -391,7 +391,7 @@ Creates a DFA which accepts all words whose length is between `min_length` and `
 To allow infinitely long words the value `float('inf')` can be passed in for `max_length`.
 
 ```python
-dfa = DFA.of_length(4, float('inf'), {'0', '1'})
+dfa = DFA.of_length({'0', '1'}, 4, float('inf'))
 ```
 
 #### DFA.nth_from_end(cls, input_symbols, symbol, n)
@@ -399,7 +399,7 @@ dfa = DFA.of_length(4, float('inf'), {'0', '1'})
 Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`, where `n` is a positive integer.
 
 ```python
-dfa = DFA.nth_from_end('1', 4, {'0', '1'})
+dfa = DFA.nth_from_end({'0', '1'}, '1', 4)
 ```
 
 #### DFA.from_nfa(cls, nfa, retain_names=False, minify=True)

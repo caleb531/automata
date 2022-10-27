@@ -1658,6 +1658,34 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
 
+    def test_nth_from_start(self):
+        binary = {'0', '1'}
+        with self.assertRaises(ValueError):
+            dfa = DFA.nth_from_start(binary, '0', 0)
+
+        with self.assertRaises(ValueError):
+            dfa = DFA.nth_from_start(binary, '2', 1)
+
+        # dfa = DFA.nth_from_start({'0'}, '0', 1)
+        # self.assertFalse(dfa.isfinite())
+        # self.assertEqual(len(dfa.states), len(dfa.minify().states))
+
+        dfa = DFA.nth_from_start(binary, '0', 1)
+        self.assertFalse(dfa.isfinite())
+        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+
+        dfa = DFA.nth_from_start(binary, '0', 2)
+        self.assertFalse(dfa.isfinite())
+        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+
+        dfa = DFA.nth_from_start(binary, '0', 3)
+        self.assertFalse(dfa.isfinite())
+        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+
+        dfa = DFA.nth_from_start(binary, '1', 4)
+        self.assertFalse(dfa.isfinite())
+        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+
     def test_nth_from_end(self):
         binary = {'0', '1'}
         with self.assertRaises(ValueError):
