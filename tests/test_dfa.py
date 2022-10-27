@@ -1469,7 +1469,7 @@ class TestDFA(test_fa.TestFA):
         """
         Test that language that avoids the pattern '11' generates the correct values in correct order
         """
-        A = DFA(
+        dfa = DFA(
             states={'p0', 'p1', 'p2'},
             input_symbols={'0', '1'},
             transitions={
@@ -1481,7 +1481,7 @@ class TestDFA(test_fa.TestFA):
             final_states={'p0', 'p1'}
         )
 
-        generator = iter(A)
+        generator = iter(dfa)
         expected = ['',
                     '0', '1',
                     '00', '01', '10',
