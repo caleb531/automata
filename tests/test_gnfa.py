@@ -274,7 +274,7 @@ class TestGNFA(test_fa.TestFA):
     def test_from_dfa_single_state(self):
         nfa = NFA.from_regex('')
         dfa = DFA.from_nfa(nfa)
-        gnfa = GNFA.from_nfa(dfa)
+        gnfa = GNFA.from_dfa(dfa)
 
         gnfa2 = GNFA(
             states={0, 1, '{0}'},
