@@ -3,12 +3,13 @@
 
 from itertools import product
 
+from frozendict import frozendict
+from pydot import Dot, Edge, Node
+
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 import automata.regex.regex as re
-from frozendict import frozendict
-from pydot import Dot, Edge, Node
 
 
 class GNFA(nfa.NFA):
