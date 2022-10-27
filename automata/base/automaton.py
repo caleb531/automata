@@ -115,6 +115,6 @@ class Automaton(metaclass=abc.ABCMeta):
             for attr_name, attr_value in self.attributes().items())
         return f'{self.__class__.__qualname__}({values})'
 
-    def __contains__(self, other):
+    def __contains__(self, input_str):
         """Returns whether the word is accepted by the automaton."""
-        return self.accepts_input(other)
+        return self.accepts_input(input_str)

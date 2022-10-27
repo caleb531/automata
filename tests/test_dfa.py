@@ -1505,7 +1505,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(len(dfa), 25)
 
     def test_len_infinite(self):
-        A = DFA(
+        dfa = DFA(
             states={'p0', 'p1', 'p2'},
             input_symbols={'0', '1'},
             transitions={
@@ -1517,15 +1517,15 @@ class TestDFA(test_fa.TestFA):
             final_states={'p0', 'p1'}
         )
         with self.assertRaises(ValueError):
-            len(A)
+            len(dfa)
         with self.assertRaises(ValueError):
-            len(~A)
+            len(~dfa)
 
     def test_count_words_of_length(self):
         """
         Test that language that avoids the pattern '11' is counted by fibonacci numbers
         """
-        A = DFA(
+        dfa = DFA(
             states={'p0', 'p1', 'p2'},
             input_symbols={'0', '1'},
             transitions={
@@ -1539,13 +1539,13 @@ class TestDFA(test_fa.TestFA):
 
         fibonacci = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
         for i, fib in enumerate(fibonacci):
-            self.assertEqual(A.count_words_of_length(i), fib)
+            self.assertEqual(dfa.count_words_of_length(i), fib)
 
     def test_words_of_length(self):
         """
         Test that all words generated are accepted and that count matches
         """
-        A = DFA(
+        dfa = DFA(
             states={'p0', 'p1', 'p2'},
             input_symbols={'0', '1'},
             transitions={
@@ -1560,9 +1560,9 @@ class TestDFA(test_fa.TestFA):
         fibonacci = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
         for i, fib in enumerate(fibonacci):
             count = 0
-            for word in A.words_of_length(i):
+            for word in dfa.words_of_length(i):
                 count += 1
-                self.assertIn(word, A)
+                self.assertIn(word, dfa)
             self.assertEqual(count, fib)
 
     def test_minimum_word_length(self):
