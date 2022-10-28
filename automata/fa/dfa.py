@@ -1114,6 +1114,88 @@ class DFA(fa.FA):
             initial_state=dfa_initial_state,
             final_states=dfa_final_states)
 
+    @classmethod
+    def levenshtein(cls, input_symbols, query, D):
+        def transitions(state, chi):
+            (offset, D) = state
+            if D > 0:
+                yield (offset, D - 1)
+                yield (offset + 1, D - 1)
+            for (d, val) in enumerate(chi[offset:]):
+                if val:
+                    yield offset + d + 1, D - d
+
+
+        def simplify(states):
+            def implies(state1, state2):
+                """
+                Returns true, if state1 implies state2
+                """
+                (offset, D) = state1
+                (offset2, D2) = state2
+                if D2 < 0:
+                    return True
+                return D - D2 >= abs(offset2 - offset)
+
+            def is_useful(s):
+                for s2 in states:
+                    if s != s2 and implies(s2, s):
+                        return False
+                return True
+
+            return filter(is_useful, states)
+
+        def characteristic(c):
+            return tuple(
+                v == c
+                for (offset, v) in enumerate(query)
+            )
+
+        def step(c, states):
+            next_states = set()
+            for state in states:
+                next_states |= set(transitions(state, c))
+            states = simplify(next_states)
+            return states
+
+
+        accepting_states = set()
+        transitions_dict = dict()
+        start_state = frozenset({(0, D)})
+        states = {start_state}
+
+        state_queue = deque()
+        state_queue.append(start_state)
+
+        while state_queue:
+            state_set = state_queue.popleft()
+            state_transition_dict = transitions_dict.setdefault(state_set, dict())
+
+            for c in input_symbols:
+                chi = characteristic(c)
+                next_states = frozenset(step(chi, state_set))
+                state_transition_dict[c] = next_states
+
+                if next_states not in states:
+                    states.add(next_states)
+                    state_queue.append(next_states)
+
+                    for state in next_states:
+                        (offset, c) = state
+                        if len(query) - offset <= D:
+                            accepting_states.add(next_states)
+                            break
+
+        print(transitions_dict)
+        print(states)
+        return DFA(
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions_dict,
+            initial_state=start_state,
+            final_states=accepting_states,
+        )
+
     def show_diagram(self, path=None):
         """
             Creates the graph associated with this DFA

@@ -634,3 +634,8 @@ class NFA(fa.FA):
                     pair_stack.append((r_1, r_2))
 
         return True
+
+
+    @classmethod
+    def levenshtein(cls, input_symbols, query, D):
+        pass
