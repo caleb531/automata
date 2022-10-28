@@ -637,5 +637,46 @@ class NFA(fa.FA):
 
 
     @classmethod
-    def levenshtein(cls, input_symbols, query, D):
-        pass
+    def levenshtein(cls, input_symbols, query_string, D):
+        states = set(product(range(len(query_string)+1), range(D+1)))
+
+        transitions = dict()
+        final_states = set()
+
+        def add_transition(start_state, end_state, symbol):
+            """Add transition between start and end state on symbol"""
+            state_transitions = transitions.setdefault(start_state, dict())
+            char_transitions = state_transitions.setdefault(symbol, set())
+            char_transitions.add(end_state)
+
+
+        def add_any_transition(start_state, end_state):
+            """Add transition on all symbols between start and end state"""
+            for symbol in input_symbols:
+                add_transition(start_state, end_state, symbol)
+
+
+        for i, chr in enumerate(query_string):
+            for e in range(D + 1):
+                # Correct character
+                add_transition((i, e), (i + 1, e), chr)
+                if e < D:
+                    # Deletion
+                    add_any_transition((i, e), (i, e + 1))
+                    # Insertion
+                    add_transition((i, e), (i + 1, e + 1), '')
+                    # Substitution
+                    add_any_transition((i, e), (i + 1, e + 1))
+        for e in range(D + 1):
+            if e < D:
+                add_any_transition((len(query_string), e), (len(query_string), e + 1))
+
+            final_states.add((len(query_string), e))
+
+        return NFA(
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=(0,0),
+            final_states=final_states
+        )

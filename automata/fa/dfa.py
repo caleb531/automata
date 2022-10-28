@@ -1186,8 +1186,8 @@ class DFA(fa.FA):
                             accepting_states.add(next_states)
                             break
 
-        print(transitions_dict)
-        print(states)
+        #print(transitions_dict)
+        #print(states)
         return DFA(
             states=states,
             input_symbols=input_symbols,
