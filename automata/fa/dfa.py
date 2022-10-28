@@ -15,6 +15,9 @@ from automata.base.utils import PartitionRefinement
 class DFA(fa.FA):
     """A deterministic finite automaton."""
 
+    __slots__ = ('states', 'input_symbols', 'transitions',
+                 'initial_state', 'final_states', 'allow_partial')
+
     def __init__(self, *, states, input_symbols, transitions,
                  initial_state, final_states, allow_partial=False):
         """Initialize a complete DFA."""

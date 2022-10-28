@@ -48,7 +48,7 @@ class TestNFA(test_fa.TestFA):
 
     def test_nfa_immutable_dict(self):
         """Should create an NFA whose contents are fully immutable/hashable"""
-        self.assertIsInstance(hash(frozendict(self.nfa.__dict__)), int)
+        self.assertIsInstance(hash(frozendict(self.nfa.input_parameters)), int)
 
     def test_init_dfa(self):
         """Should convert DFA to NFA if passed into NFA constructor."""

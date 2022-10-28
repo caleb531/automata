@@ -269,7 +269,7 @@ class TestGNFA(test_fa.TestFA):
                 4: {5: '', 0: None, 1: None, 2: None, 4: None}}
         )
 
-        self.assertEqual(gnfa.__dict__, gnfa2.__dict__)
+        self.assertEqual(gnfa.input_parameters, gnfa2.input_parameters)
 
     def test_from_dfa_single_state(self):
         nfa = NFA.from_regex('')
@@ -337,7 +337,7 @@ class TestGNFA(test_fa.TestFA):
             }
         )
 
-        self.assertEqual(gnfa.__dict__, gnfa2.__dict__)
+        self.assertEqual(gnfa.input_parameters, gnfa2.input_parameters)
 
     def test_to_regex(self):
         """
