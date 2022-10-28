@@ -16,7 +16,7 @@ class TestDPDA(test_pda.TestPDA):
 
     def test_init_dpda(self):
         """Should copy DPDA if passed into DPDA constructor."""
-        new_dpda = DPDA.copy(self.dpda)
+        new_dpda = self.dpda.copy()
         self.assertIsNot(new_dpda, self.dpda)
 
     def test_init_dpda_missing_formal_params(self):

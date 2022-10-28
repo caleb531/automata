@@ -35,7 +35,7 @@ class TestNTM(test_tm.TestTM):
     @patch('automata.tm.ntm.NTM.validate')
     def test_init_validation(self, validate):
         """Should validate NTM when initialized."""
-        NTM.copy(self.ntm1)
+        self.ntm1.copy()
         validate.assert_called_once_with()
 
     def test_copy_ntm(self):

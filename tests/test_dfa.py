@@ -23,7 +23,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_dfa(self):
         """Should copy DFA if passed into DFA constructor."""
-        new_dfa = DFA.copy(self.dfa)
+        new_dfa = self.dfa.copy()
         self.assertIsNot(new_dfa, self.dfa)
 
     def test_init_dfa_missing_formal_params(self):
@@ -58,7 +58,7 @@ class TestDFA(test_fa.TestFA):
     @patch('automata.fa.dfa.DFA.validate')
     def test_init_validation(self, validate):
         """Should validate DFA when initialized."""
-        DFA.copy(self.dfa)
+        self.dfa.copy()
         validate.assert_called_once_with()
 
     def test_dfa_equal(self):

@@ -18,7 +18,7 @@ class TestGNFA(test_fa.TestFA):
 
     def test_init_gnfa(self):
         """Should copy GNFA if passed into NFA constructor."""
-        new_gnfa = GNFA.copy(self.gnfa)
+        new_gnfa = self.gnfa.copy()
         self.assertIsNot(new_gnfa, self.gnfa)
 
     def test_init_nfa_missing_formal_params(self):
@@ -72,7 +72,7 @@ class TestGNFA(test_fa.TestFA):
     @patch('automata.fa.gnfa.GNFA.validate')
     def test_init_validation(self, validate):
         """Should validate NFA when initialized."""
-        GNFA.copy(self.gnfa)
+        self.gnfa.copy()
         validate.assert_called_once_with()
 
     def test_validate_invalid_symbol(self):

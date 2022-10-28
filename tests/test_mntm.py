@@ -19,7 +19,7 @@ class TestMNTM(test_tm.TestTM):
 
     def test_init_mntm(self):
         """Should copy MNTM if passed into MNTM constructor."""
-        new_mntm = MNTM.copy(self.mntm1)
+        new_mntm = self.mntm1.copy()
         self.assertIsNot(new_mntm, self.mntm1)
 
     def test_init_mntm_missing_formal_params(self):

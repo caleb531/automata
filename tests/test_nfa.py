@@ -20,7 +20,7 @@ class TestNFA(test_fa.TestFA):
 
     def test_init_nfa(self):
         """Should copy NFA if passed into NFA constructor."""
-        new_nfa = NFA.copy(self.nfa)
+        new_nfa = self.nfa.copy()
         self.assertIsNot(new_nfa, self.nfa)
 
     def test_init_nfa_missing_formal_params(self):
@@ -65,7 +65,7 @@ class TestNFA(test_fa.TestFA):
     @patch('automata.fa.nfa.NFA.validate')
     def test_init_validation(self, validate):
         """Should validate NFA when initialized."""
-        NFA.copy(self.nfa)
+        self.nfa.copy()
         validate.assert_called_once_with()
 
     def test_nfa_equal(self):
