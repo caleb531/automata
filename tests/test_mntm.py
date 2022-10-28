@@ -440,8 +440,8 @@ class TestMNTM(test_tm.TestTM):
             self.assertTrue(self.mntm3.accepts_input(input_str_3))
 
             # Should not accept because this would not be of the form ww
-            self.assertEqual(self.mntm3.accepts_input(
-                input_str_3 + str(random.randint(0, 1))), False)
+            self.assertFalse(self.mntm3.accepts_input(
+                input_str_3 + str(random.randint(0, 1))))
 
             # Should accept only if input string's length is a perfect square
             if self.is_perfect_square(len(input_str_2) - 1):
