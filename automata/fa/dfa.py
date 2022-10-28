@@ -710,7 +710,7 @@ class DFA(fa.FA):
             return float('inf')
 
     @classmethod
-    def contains_substring(cls, input_symbols, substring):
+    def from_substring(cls, input_symbols, substring):
         """
         Directly computes the minimal DFA recognizing strings containing the
         given substring.
@@ -744,7 +744,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def contains_subsequence(cls, input_symbols, subsequence):
+    def from_subsequence(cls, input_symbols, subsequence):
         """
         Creates a DFA which accepts all words which contain a specific subsequence of symbols
         """
@@ -764,7 +764,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def of_length(cls, input_symbols, min_length=0, max_length=float('inf')):
+    def of_length(cls, input_symbols, *, min_length=0, max_length=float('inf')):
         """
         Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
         To allow infinitely long words the value `float('inf')` can be passed in for `max_length`.
@@ -814,9 +814,9 @@ class DFA(fa.FA):
         if n < 1:
             raise ValueError("Integer must be positive")
         if symbol not in input_symbols:
-            raise ValueError("Desired symbol is not in the set of input symbols")
+            raise exceptions.InvalidSymbolError("Desired symbol is not in the set of input symbols")
         if len(input_symbols) == 1:
-            return cls.of_length(input_symbols, n)
+            return cls.of_length(input_symbols, min_length=n)
         transitions = {i: {symbol: i+1 for symbol in input_symbols} for i in range(n)}
         transitions[n-1][symbol] = n+1
         transitions[n] = {symbol: n for symbol in input_symbols}
@@ -838,9 +838,14 @@ class DFA(fa.FA):
         if n < 1:
             raise ValueError("Integer must be positive")
         if symbol not in input_symbols:
-            raise ValueError("Desired symbol is not in the set of input symbols")
+            raise exceptions.InvalidSymbolError("Desired symbol is not in the set of input symbols")
         if len(input_symbols) == 1:
-            return cls.of_length(input_symbols, n)
+            return cls.of_length(input_symbols, min_length=n)
+        # Consider the states to be labelled with bitstrings of size n
+        # The bitstring represents how the current suffix in this state matches our desired symbol
+        # A 1 means the character at this position is the desired symbol and a 0 means it is not
+        # For transitions this is effectively doubling the label value and then adding 1 if the desired symbol is read
+        # Finally we trim the label to n bits with a modulo operation.
         state_count = 2**n
         return cls(
             states=set(range(state_count)),
