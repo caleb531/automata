@@ -235,11 +235,11 @@ class TestNFA(test_fa.TestFA):
 
     def test_accepts_input_true(self):
         """Should return True if NFA input is accepted."""
-        self.assertEqual(self.nfa.accepts_input('aba'), True)
+        self.assertTrue(self.nfa.accepts_input('aba'))
 
     def test_accepts_input_false(self):
         """Should return False if NFA input is rejected."""
-        self.assertEqual(self.nfa.accepts_input('abba'), False)
+        self.assertFalse(self.nfa.accepts_input('abba'))
 
     def test_cyclic_lambda_transitions(self):
         """Should traverse NFA containing cyclic lambda transitions."""
@@ -269,7 +269,7 @@ class TestNFA(test_fa.TestFA):
             final_states=set())
         # We don't care what the output is, just as long as no exception is
         # raised
-        self.assertNotEqual(nfa.accepts_input(''), None)
+        self.assertIsNotNone(nfa.accepts_input(''))
 
     def test_operations_other_type(self):
         """Should raise TypeError for concatenate."""
@@ -314,16 +314,16 @@ class TestNFA(test_fa.TestFA):
 
         concat_nfa = nfa_a + nfa_b
 
-        self.assertEqual(concat_nfa.accepts_input(''), False)
-        self.assertEqual(concat_nfa.accepts_input('0'), False)
-        self.assertEqual(concat_nfa.accepts_input('1'), True)
-        self.assertEqual(concat_nfa.accepts_input('00'), False)
-        self.assertEqual(concat_nfa.accepts_input('01'), True)
-        self.assertEqual(concat_nfa.accepts_input('10'), True)
-        self.assertEqual(concat_nfa.accepts_input('11'), True)
-        self.assertEqual(concat_nfa.accepts_input('101'), True)
-        self.assertEqual(concat_nfa.accepts_input('101100'), True)
-        self.assertEqual(concat_nfa.accepts_input('1010'), True)
+        self.assertFalse(concat_nfa.accepts_input(''))
+        self.assertFalse(concat_nfa.accepts_input('0'))
+        self.assertTrue(concat_nfa.accepts_input('1'))
+        self.assertFalse(concat_nfa.accepts_input('00'))
+        self.assertTrue(concat_nfa.accepts_input('01'))
+        self.assertTrue(concat_nfa.accepts_input('10'))
+        self.assertTrue(concat_nfa.accepts_input('11'))
+        self.assertTrue(concat_nfa.accepts_input('101'))
+        self.assertTrue(concat_nfa.accepts_input('101100'))
+        self.assertTrue(concat_nfa.accepts_input('1010'))
 
     def test_kleene_star(self):
         """Should perform the Kleene Star operation on an NFA"""
@@ -345,20 +345,20 @@ class TestNFA(test_fa.TestFA):
         # This NFA should then accept any number of repetitions
         # of aa or ab concatenated together.
         kleene_nfa = nfa.kleene_star()
-        self.assertEqual(kleene_nfa.accepts_input(''), True)
-        self.assertEqual(kleene_nfa.accepts_input('a'), False)
-        self.assertEqual(kleene_nfa.accepts_input('b'), False)
-        self.assertEqual(kleene_nfa.accepts_input('aa'), True)
-        self.assertEqual(kleene_nfa.accepts_input('ab'), True)
-        self.assertEqual(kleene_nfa.accepts_input('ba'), False)
-        self.assertEqual(kleene_nfa.accepts_input('bb'), False)
-        self.assertEqual(kleene_nfa.accepts_input('aaa'), False)
-        self.assertEqual(kleene_nfa.accepts_input('aba'), False)
-        self.assertEqual(kleene_nfa.accepts_input('abaa'), True)
-        self.assertEqual(kleene_nfa.accepts_input('abba'), False)
-        self.assertEqual(kleene_nfa.accepts_input('aaabababaaaaa'), False)
-        self.assertEqual(kleene_nfa.accepts_input('aaabababaaaaab'), True)
-        self.assertEqual(kleene_nfa.accepts_input('aaabababaaaaba'), False)
+        self.assertTrue(kleene_nfa.accepts_input(''))
+        self.assertFalse(kleene_nfa.accepts_input('a'))
+        self.assertFalse(kleene_nfa.accepts_input('b'))
+        self.assertTrue(kleene_nfa.accepts_input('aa'))
+        self.assertTrue(kleene_nfa.accepts_input('ab'))
+        self.assertFalse(kleene_nfa.accepts_input('ba'))
+        self.assertFalse(kleene_nfa.accepts_input('bb'))
+        self.assertFalse(kleene_nfa.accepts_input('aaa'))
+        self.assertFalse(kleene_nfa.accepts_input('aba'))
+        self.assertTrue(kleene_nfa.accepts_input('abaa'))
+        self.assertFalse(kleene_nfa.accepts_input('abba'))
+        self.assertFalse(kleene_nfa.accepts_input('aaabababaaaaa'))
+        self.assertTrue(kleene_nfa.accepts_input('aaabababaaaaab'))
+        self.assertFalse(kleene_nfa.accepts_input('aaabababaaaaba'))
 
     def test_reverse(self):
         """Should reverse an NFA"""
@@ -375,11 +375,11 @@ class TestNFA(test_fa.TestFA):
             final_states={2}
         )
         reverse_nfa = reversed(nfa)
-        self.assertEqual(reverse_nfa.accepts_input('a'), False)
-        self.assertEqual(reverse_nfa.accepts_input('ab'), False)
-        self.assertEqual(reverse_nfa.accepts_input('ba'), True)
-        self.assertEqual(reverse_nfa.accepts_input('bba'), True)
-        self.assertEqual(reverse_nfa.accepts_input('bbba'), True)
+        self.assertFalse(reverse_nfa.accepts_input('a'))
+        self.assertFalse(reverse_nfa.accepts_input('ab'))
+        self.assertTrue(reverse_nfa.accepts_input('ba'))
+        self.assertTrue(reverse_nfa.accepts_input('bba'))
+        self.assertTrue(reverse_nfa.accepts_input('bbba'))
 
     def test_from_regex(self):
         """Test if from_regex produces correct NFA"""

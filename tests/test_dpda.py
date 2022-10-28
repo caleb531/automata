@@ -360,11 +360,11 @@ class TestDPDA(test_pda.TestPDA):
 
     def test_accepts_input_true(self):
         """Should return False if DPDA input is not accepted."""
-        self.assertEqual(self.dpda.accepts_input('aabb'), True)
+        self.assertTrue(self.dpda.accepts_input('aabb'))
 
     def test_accepts_input_false(self):
         """Should return False if DPDA input is rejected."""
-        self.assertEqual(self.dpda.accepts_input('aab'), False)
+        self.assertFalse(self.dpda.accepts_input('aab'))
 
     def test_empty_dpda(self):
         """Should accept an empty input if the DPDA is empty."""

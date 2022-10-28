@@ -436,8 +436,8 @@ class TestMNTM(test_tm.TestTM):
 
             input_str_3 += input_str_3
             # Should accept all
-            self.assertEqual(self.mntm1.accepts_input(input_str_1), True)
-            self.assertEqual(self.mntm3.accepts_input(input_str_3), True)
+            self.assertTrue(self.mntm1.accepts_input(input_str_1))
+            self.assertTrue(self.mntm3.accepts_input(input_str_3))
 
             # Should not accept because this would not be of the form ww
             self.assertEqual(self.mntm3.accepts_input(
@@ -445,14 +445,14 @@ class TestMNTM(test_tm.TestTM):
 
             # Should accept only if input string's length is a perfect square
             if self.is_perfect_square(len(input_str_2) - 1):
-                self.assertEqual(self.mntm2.accepts_input(input_str_2), True)
+                self.assertTrue(self.mntm2.accepts_input(input_str_2))
             else:
-                self.assertEqual(self.mntm2.accepts_input(input_str_2), False)
+                self.assertFalse(self.mntm2.accepts_input(input_str_2))
 
     def test_accepts_input_false(self):
         """Should return False if MNTM input is rejected."""
-        self.assertEqual(self.mntm1.accepts_input('000012'), False)
-        self.assertEqual(self.mntm2.accepts_input('#00000'), False)
+        self.assertFalse(self.mntm1.accepts_input('000012'))
+        self.assertFalse(self.mntm2.accepts_input('#00000'))
 
     @staticmethod
     def is_perfect_square(number: int):

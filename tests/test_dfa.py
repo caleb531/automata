@@ -186,11 +186,11 @@ class TestDFA(test_fa.TestFA):
 
     def test_accepts_input_true(self):
         """Should return True if DFA input is accepted."""
-        self.assertEqual(self.dfa.accepts_input('0111'), True)
+        self.assertTrue(self.dfa.accepts_input('0111'))
 
     def test_accepts_input_false(self):
         """Should return False if DFA input is rejected."""
-        self.assertEqual(self.dfa.accepts_input('011'), False)
+        self.assertFalse(self.dfa.accepts_input('011'))
 
     def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""

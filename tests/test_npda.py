@@ -401,8 +401,8 @@ class TestNPDA(test_pda.TestPDA):
 
     def test_accepts_input_true(self):
         """Should return True if NPDA input is accepted."""
-        self.assertEqual(self.npda.accepts_input('abaaba'), True)
+        self.assertTrue(self.npda.accepts_input('abaaba'))
 
     def test_accepts_input_false(self):
         """Should return False if NPDA input is rejected."""
-        self.assertEqual(self.npda.accepts_input('aaba'), False)
+        self.assertFalse(self.npda.accepts_input('aaba'))

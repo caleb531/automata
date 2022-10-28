@@ -297,11 +297,11 @@ class TestDTM(test_tm.TestTM):
 
     def test_accepts_input_true(self):
         """Should return False if DTM input is not accepted."""
-        self.assertEqual(self.dtm1.accepts_input('00001111'), True)
+        self.assertTrue(self.dtm1.accepts_input('00001111'))
 
     def test_accepts_input_false(self):
         """Should return False if DTM input is rejected."""
-        self.assertEqual(self.dtm1.accepts_input('000011'), False)
+        self.assertFalse(self.dtm1.accepts_input('000011'))
 
     def test_transition_without_movement(self):
         """Tests transitions without movements."""
