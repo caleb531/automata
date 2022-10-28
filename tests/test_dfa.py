@@ -1643,21 +1643,45 @@ class TestDFA(test_fa.TestFA):
 
     def test_of_length(self):
         binary = {'0', '1'}
-        dfa = DFA.of_length(binary)
-        self.assertFalse(dfa.isfinite())
-        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        dfa1 = DFA.of_length(binary)
+        self.assertFalse(dfa1.isfinite())
+        self.assertEqual(len(dfa1.states), len(dfa1.minify().states))
+        self.assertEqual(dfa1, DFA.universal_language(binary))
+        self.assertEqual(dfa1.minimum_word_length(), 0)
+        self.assertEqual(dfa1.maximum_word_length(), float('inf'))
 
-        dfa = DFA.of_length(binary, 4)
-        self.assertFalse(dfa.isfinite())
-        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        dfa2 = DFA.of_length(binary, 5)
+        self.assertFalse(dfa2.isfinite())
+        self.assertEqual(len(dfa2.states), len(dfa2.minify().states))
+        generator = iter(dfa2)
+        for word in generator:
+            if len(word) > 8:
+                break
+            self.assertTrue(len(word) >= 5)
+        self.assertEqual(dfa2.minimum_word_length(), 5)
+        self.assertEqual(dfa2.maximum_word_length(), float('inf'))
 
-        dfa = DFA.of_length(binary, 0, 8)
-        self.assertTrue(dfa.isfinite())
-        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        dfa3 = DFA.of_length(binary, 0, 4)
+        self.assertTrue(dfa3.isfinite())
+        self.assertEqual(len(dfa3.states), len(dfa3.minify().states))
+        expected = ['', '0', '1', '00', '01', '10', '11',
+                    '000', '001', '010', '011', '100', '101', '110', '111',
+                    '0000', '0001', '0010', '0011', '0100', '0101', '0110', '0111',
+                    '1000', '1001', '1010', '1011', '1100', '1101', '1110', '1111']
+        self.assertListEqual(list(dfa3), expected)
+        self.assertEqual(dfa3, DFA.from_finite_language(binary, set(expected)))
+        self.assertEqual(dfa1, dfa2.union(dfa3))
+        self.assertEqual(dfa3.minimum_word_length(), 0)
+        self.assertEqual(dfa3.maximum_word_length(), 4)
 
-        dfa = DFA.of_length(binary, 4, 8)
-        self.assertTrue(dfa.isfinite())
-        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        dfa4 = DFA.of_length(binary, 4, 8)
+        self.assertTrue(dfa4.isfinite())
+        self.assertEqual(len(dfa4.states), len(dfa4.minify().states))
+        expected_counts = [0, 0, 0, 0, 2**4, 2**5, 2**6, 2**7, 2**8, 0, 0, 0, 0]
+        actual_counts = [dfa4.count_words_of_length(i) for i, _ in enumerate(expected_counts)]
+        self.assertListEqual(actual_counts, expected_counts)
+        self.assertEqual(dfa4.minimum_word_length(), 4)
+        self.assertEqual(dfa4.maximum_word_length(), 8)
 
     def test_nth_from_start(self):
         binary = {'0', '1'}
@@ -1667,25 +1691,39 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(ValueError):
             dfa = DFA.nth_from_start(binary, '2', 1)
 
-        # dfa = DFA.nth_from_start({'0'}, '0', 1)
-        # self.assertFalse(dfa.isfinite())
-        # self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        dfa = DFA.nth_from_start({'0'}, '0', 1)
+        self.assertFalse(dfa.isfinite())
+        self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertListEqual(list(~dfa), [''])
+        self.assertEqual(dfa.minimum_word_length(), 1)
 
         dfa = DFA.nth_from_start(binary, '0', 1)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertIn('00', dfa)
+        self.assertIn('01', dfa)
+        self.assertNotIn('10', dfa)
+        self.assertNotIn('11', dfa)
+        self.assertEqual(dfa.minimum_word_length(), 1)
 
         dfa = DFA.nth_from_start(binary, '0', 2)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertIn('00', dfa)
+        self.assertNotIn('01', dfa)
+        self.assertIn('10', dfa)
+        self.assertNotIn('11', dfa)
+        self.assertEqual(dfa.minimum_word_length(), 2)
 
         dfa = DFA.nth_from_start(binary, '0', 3)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertEqual(dfa.minimum_word_length(), 3)
 
         dfa = DFA.nth_from_start(binary, '1', 4)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertEqual(dfa.minimum_word_length(), 4)
 
     def test_nth_from_end(self):
         binary = {'0', '1'}
@@ -1698,22 +1736,27 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.nth_from_end({'0'}, '0', 1)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertEqual(dfa.minimum_word_length(), 1)
 
         dfa = DFA.nth_from_end(binary, '0', 1)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertEqual(dfa.minimum_word_length(), 1)
 
         dfa = DFA.nth_from_end(binary, '0', 2)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertEqual(dfa.minimum_word_length(), 2)
 
         dfa = DFA.nth_from_end(binary, '0', 3)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertEqual(dfa.minimum_word_length(), 3)
 
         dfa = DFA.nth_from_end(binary, '1', 4)
         self.assertFalse(dfa.isfinite())
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
+        self.assertEqual(dfa.minimum_word_length(), 4)
 
     def test_empty_language(self):
         dfa = DFA.empty_language({'0'})
