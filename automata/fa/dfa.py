@@ -811,11 +811,12 @@ class DFA(fa.FA):
         Creates a DFA which accepts all words whose `n`-th character from the start is `symbol`,
         where `n` is a positive integer.
         """
-        # TODO: special case for len(input_symbols) == 1?
         if n < 1:
             raise ValueError("Integer must be positive")
         if symbol not in input_symbols:
             raise ValueError("Desired symbol is not in the set of input symbols")
+        if len(input_symbols) == 1:
+            return cls.of_length(input_symbols, n)
         transitions = {i: {symbol: i+1 for symbol in input_symbols} for i in range(n)}
         transitions[n-1][symbol] = n+1
         transitions[n] = {symbol: n for symbol in input_symbols}
@@ -834,11 +835,12 @@ class DFA(fa.FA):
         Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`,
         where `n` is a positive integer.
         """
-        # TODO: special case for len(input_symbols) == 1?
         if n < 1:
             raise ValueError("Integer must be positive")
         if symbol not in input_symbols:
             raise ValueError("Desired symbol is not in the set of input symbols")
+        if len(input_symbols) == 1:
+            return cls.of_length(input_symbols, n)
         state_count = 2**n
         return cls(
             states=set(range(state_count)),
@@ -859,10 +861,8 @@ class DFA(fa.FA):
         Chapter 10
         """
 
-        if len(language) == 0:
-            return DFA(states={0}, input_symbols=input_symbols,
-                       transitions={0: {symbol: 0 for symbol in input_symbols}},
-                       initial_state=0, final_states=set())
+        if not language:
+            return DFA.empty_language(input_symbols)
 
         transitions = dict()
         back_map = {'': set()}
