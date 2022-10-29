@@ -1591,6 +1591,8 @@ class TestDFA(test_fa.TestFA):
         subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'nanobao', 'nanonana', 'nanonano', 'nanoo'])
         self.assertTrue(subset_dfa < prefix_dfa)
 
+        self.assertEqual(~prefix_dfa, DFA.from_prefix(input_symbols, 'nano', contains=False))
+
         for word in prefix_dfa:
             if len(word) > 8:
                 break
@@ -1605,6 +1607,8 @@ class TestDFA(test_fa.TestFA):
         subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'annnano', 'bnano',
                                                               'anbonano', 'nananananananananano'])
         self.assertTrue(subset_dfa < suffix_dfa)
+
+        self.assertEqual(~suffix_dfa, DFA.from_suffix(input_symbols, 'nano', contains=False))
 
         for word in suffix_dfa:
             if len(word) > 8:
@@ -1638,6 +1642,8 @@ class TestDFA(test_fa.TestFA):
 
         subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'bananano', 'nananano', 'naonano'])
         self.assertTrue(subset_dfa < substring_dfa)
+
+        self.assertEqual(~substring_dfa, DFA.from_substring(input_symbols, 'nano', contains=False))
 
         for word in substring_dfa:
             if len(word) > 8:
@@ -1674,6 +1680,8 @@ class TestDFA(test_fa.TestFA):
 
         substring_dfa = DFA.from_substring(input_symbols, 'nano', )
         self.assertTrue(substring_dfa < subsequence_dfa)
+
+        self.assertEqual(~subsequence_dfa, DFA.from_subsequence(input_symbols, 'nano', contains=False))
 
     def test_of_length(self):
         binary = {'0', '1'}
