@@ -4,12 +4,12 @@ from collections import deque
 from itertools import chain, product
 
 import networkx as nx
-from frozendict import frozendict
-from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.regex.parser import parse_regex
+from frozendict import frozendict
+from pydot import Dot, Edge, Node
 
 
 class NFA(fa.FA):
