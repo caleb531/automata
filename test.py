@@ -6,6 +6,7 @@ from itertools import product
 
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
+import string
 
 
 def get_random_string(n):
@@ -45,12 +46,18 @@ def speed_test():
 
     equiv_dfa = DFA.from_nfa(regex_2_nfa())
     '''
-    alphabet = {'f', 'o', 'd', 'a'}
-    temp_dfa = DFA.levenshtein(alphabet, 'food', 2)
-    temp_nfa = NFA.levenshtein(alphabet, 'food', 2)
+    tgt = 'flees'
+    alphabet =set(tgt)
+    temp_dfa = DFA.levenshtein(alphabet, tgt, 1)
+    equiv_dfa = DFA.from_nfa(NFA.levenshtein(alphabet, tgt, 1), minify=False)
 
-    assert reference_NFA() == temp_nfa
-    assert DFA.from_nfa(reference_NFA()) == temp_dfa
+    #for state in temp_dfa.states:
+    #    print(set(state))
+
+    print(len(equiv_dfa.states), len(temp_dfa.states))
+
+    assert DFA.from_nfa(reference_NFA()) == equiv_dfa
+    assert equiv_dfa == temp_dfa
 
 
 def main():
