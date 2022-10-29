@@ -635,7 +635,6 @@ class NFA(fa.FA):
 
         return True
 
-
     @classmethod
     def levenshtein(cls, input_symbols, query_string, D):
         """Code adapted from http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata """
@@ -650,12 +649,10 @@ class NFA(fa.FA):
             char_transitions = state_transitions.setdefault(symbol, set())
             char_transitions.add(end_state)
 
-
         def add_any_transition(start_state, end_state):
             """Add transition on all symbols between start and end state"""
             for symbol in input_symbols:
                 add_transition(start_state, end_state, symbol)
-
 
         for i, chr in enumerate(query_string):
             for e in range(D + 1):
@@ -678,6 +675,6 @@ class NFA(fa.FA):
             states=states,
             input_symbols=input_symbols,
             transitions=transitions,
-            initial_state=(0,0),
+            initial_state=(0, 0),
             final_states=final_states
         )
