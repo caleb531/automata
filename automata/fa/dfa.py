@@ -731,7 +731,11 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def from_substring(cls, input_symbols, substring, *, contains=True):
+    def from_suffix(cls, input_symbols, suffix, *, contains=True):
+        return cls.from_substring(input_symbols, suffix, contains=contains, must_be_suffix=True)
+
+    @classmethod
+    def from_substring(cls, input_symbols, substring, *, contains=True, must_be_suffix=False):
         """
         Directly computes the minimal DFA recognizing strings containing the
         given substring.
@@ -759,11 +763,12 @@ class DFA(fa.FA):
             candidate += 1
         kmp_table.append(candidate)
 
-        for i in range(len(substring)):
+        limit = len(substring)+1 if must_be_suffix else len(substring)
+        for i in range(limit):
             prefix_dict = transitions.setdefault(i, dict())
             for symbol in input_symbols:
                 # Look for next state after reading in the given input symbol
-                candidate = i
+                candidate = i if i < len(substring) else kmp_table[i]
                 while candidate != -1 and substring[candidate] != symbol:
                     candidate = kmp_table[candidate]
                 candidate += 1

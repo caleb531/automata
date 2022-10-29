@@ -1595,6 +1595,20 @@ class TestDFA(test_fa.TestFA):
             if len(word) > 8:
                 break
             self.assertTrue(word.startswith('nano'))
+    
+    def test_contains_suffix(self):
+        input_symbols = {'a', 'n', 'o', 'b'}
+
+        suffix_dfa = DFA.from_suffix(input_symbols, 'nano')
+        self.assertEqual(len(suffix_dfa.states), len(suffix_dfa.minify().states))
+
+        subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'annnano', 'bnano', 'anbonano', 'nananananananananano'])
+        self.assertTrue(subset_dfa < suffix_dfa)
+
+        for word in suffix_dfa:
+            if len(word) > 8:
+                break
+            self.assertTrue(word.endswith('nano'))
 
     def test_contains_substring(self):
         """Should compute the minimal DFA accepting strings with the given substring"""
