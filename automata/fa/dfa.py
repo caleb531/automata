@@ -1116,6 +1116,7 @@ class DFA(fa.FA):
 
     @classmethod
     def levenshtein(cls, input_symbols, query, D):
+        """Code adapted from https://fulmicoton.com/posts/levenshtein/"""
         def transitions(state, chi):
             (offset, D) = state
             if D > 0:

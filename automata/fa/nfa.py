@@ -638,6 +638,7 @@ class NFA(fa.FA):
 
     @classmethod
     def levenshtein(cls, input_symbols, query_string, D):
+        """Code adapted from http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata"""
         states = set(product(range(len(query_string)+1), range(D+1)))
 
         transitions = dict()
