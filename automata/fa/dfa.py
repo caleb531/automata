@@ -832,6 +832,25 @@ class DFA(fa.FA):
         )
 
     @classmethod
+    def count_mod(cls, input_symbols, k, *, remainders=None, symbols_to_count=None):
+        if k <= 0:
+            raise ValueError("Integer must be positive")
+        if symbols_to_count is None:
+            symbols_to_count = input_symbols
+        if remainders is None:
+            remainders = {0}
+        transitions = {i: {symbol: (i + 1) % k if symbol in symbols_to_count else i
+                           for symbol in input_symbols}
+                       for i in range(k)}
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=remainders
+        )
+
+    @classmethod
     def universal_language(cls, input_symbols):
         """
         Directly computes the minimal DFA accepting all strings.

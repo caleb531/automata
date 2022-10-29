@@ -1595,14 +1595,15 @@ class TestDFA(test_fa.TestFA):
             if len(word) > 8:
                 break
             self.assertTrue(word.startswith('nano'))
-    
+
     def test_contains_suffix(self):
         input_symbols = {'a', 'n', 'o', 'b'}
 
         suffix_dfa = DFA.from_suffix(input_symbols, 'nano')
         self.assertEqual(len(suffix_dfa.states), len(suffix_dfa.minify().states))
 
-        subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'annnano', 'bnano', 'anbonano', 'nananananananananano'])
+        subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'annnano', 'bnano',
+                                                              'anbonano', 'nananananananananano'])
         self.assertTrue(subset_dfa < suffix_dfa)
 
         for word in suffix_dfa:
@@ -1715,6 +1716,43 @@ class TestDFA(test_fa.TestFA):
         self.assertListEqual(actual_counts, expected_counts)
         self.assertEqual(dfa4.minimum_word_length(), 4)
         self.assertEqual(dfa4.maximum_word_length(), 8)
+
+    def test_count_mod(self):
+        binary = {'0', '1'}
+        with self.assertRaises(ValueError):
+            _ = DFA.count_mod(binary, 0)
+
+        no_symbols = DFA.count_mod(binary, 4, symbols_to_count=set())
+        self.assertEqual(no_symbols, DFA.universal_language(binary))
+
+        no_symbols_empty = DFA.count_mod(binary, 4, remainders={1, 2, 3}, symbols_to_count=set())
+        self.assertEqual(no_symbols_empty, DFA.empty_language(binary))
+
+        even = DFA.count_mod(binary, 2)
+        for word in even:
+            if len(word) >= 8:
+                break
+            self.assertEqual(len(word) % 2, 0)
+
+        odd = DFA.count_mod(binary, 2, remainders={1})
+        for word in odd:
+            if len(word) >= 8:
+                break
+            self.assertEqual(len(word) % 2, 1)
+
+        even_1 = DFA.count_mod(binary, 2, symbols_to_count={'1'})
+        for word in even_1:
+            if len(word) >= 8:
+                break
+            self.assertEqual(word.count('1') % 2, 0)
+
+        odd_0 = DFA.count_mod(binary, 2, remainders={1}, symbols_to_count={'0'})
+        for word in odd_0:
+            if len(word) >= 8:
+                break
+            self.assertEqual(word.count('0') % 2, 1)
+
+        self.assertEqual(DFA.count_mod(binary, 4, remainders={0, 2}), DFA.count_mod(binary, 2))
 
     def test_nth_from_start(self):
         binary = {'0', '1'}
