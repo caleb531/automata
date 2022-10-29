@@ -737,33 +737,45 @@ class DFA(fa.FA):
         given substring.
         If contains is set to False then the complement is constructed instead.
         """
-        prefixes = [substring[:i] for i in range(len(substring))]
-
-        transitions = {prefix: dict() for prefix in prefixes}
-        transitions[substring] = {
-            symbol: substring for symbol in input_symbols
+        transitions = {i: dict() for i in range(len(substring))}
+        transitions[len(substring)] = {
+            symbol: len(substring) for symbol in input_symbols
         }
 
-        for prefix in prefixes:
-            prefix_dict = transitions.setdefault(prefix, dict())
+        # Computing failure function for partial matches as is done in the
+        # Knuth-Morris-Pratt string algorithm so we can quickly compute the
+        # next state from another state
+        kmp_table = [-1 for _ in substring]
+        candidate = 0
+        for i, char in enumerate(substring):
+            if i == 0:
+                continue
+            elif char == substring[candidate]:
+                kmp_table[i] = kmp_table[candidate]
+            else:
+                kmp_table[i] = candidate
+                while candidate >= 0 and char != substring[candidate]:
+                    candidate = kmp_table[candidate]
+            candidate += 1
+        kmp_table.append(candidate)
 
+        for i in range(len(substring)):
+            prefix_dict = transitions.setdefault(i, dict())
             for symbol in input_symbols:
                 # Look for next state after reading in the given input symbol
-                possible_suffix = prefix + symbol
-
-                # This while loop will always terminate, since the empty string is in the dict
-                while possible_suffix not in transitions:
-                    possible_suffix = possible_suffix[1:]
-
-                prefix_dict[symbol] = possible_suffix
+                candidate = i
+                while candidate != -1 and substring[candidate] != symbol:
+                    candidate = kmp_table[candidate]
+                candidate += 1
+                prefix_dict[symbol] = candidate
 
         states = set(transitions.keys())
-        final_states = {substring}
+        final_states = {len(substring)}
         return cls(
             states=states,
             input_symbols=input_symbols,
             transitions=transitions,
-            initial_state='',
+            initial_state=0,
             final_states=final_states if contains else states - final_states,
         )
 
