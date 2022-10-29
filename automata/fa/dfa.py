@@ -147,16 +147,13 @@ class DFA(fa.FA):
         """
         i = self.minimum_word_length()
         limit = self.maximum_word_length()
-        while i <= limit:
+        while limit is None or i <= limit:
             yield from self.words_of_length(i)
             i += 1
 
     def __len__(self):
         """Returns the cardinality of the language represented by the DFA."""
-        val = self.cardinality()
-        if val == float('inf'):
-            raise ValueError("The language represented by the DFA is infinite")
-        return val
+        return self.cardinality()
 
     def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition input_symbols are missing."""
@@ -601,7 +598,7 @@ class DFA(fa.FA):
         Returns True if the DFA accepts a finite language, False otherwise.
         """
         try:
-            return self.maximum_word_length() != float('inf')
+            return self.maximum_word_length() is not None
         except ValueError:
             return True
 
@@ -664,8 +661,8 @@ class DFA(fa.FA):
         except ValueError:
             return 0
         limit = self.maximum_word_length()
-        if limit == float('inf'):
-            return float('inf')
+        if limit is None:
+            raise ValueError("The language represented by the DFA is infinite.")
         return sum(self.count_words_of_length(j) for j in range(i, limit+1))
 
     def minimum_word_length(self):
@@ -673,7 +670,7 @@ class DFA(fa.FA):
         Returns the length of the shortest word in the language represented by the DFA
         """
         queue = deque()
-        distances = defaultdict(lambda: float('inf'))
+        distances = defaultdict(lambda: None)
         distances[self.initial_state] = 0
         queue.append(self.initial_state)
         while queue:
@@ -681,7 +678,7 @@ class DFA(fa.FA):
             if state in self.final_states:
                 return distances[state]
             for next_state in self.transitions[state].values():
-                if distances[next_state] == float('inf'):
+                if distances[next_state] is None:
                     distances[next_state] = distances[state] + 1
                     queue.append(next_state)
         raise ValueError('The language represented by the DFA is empty')
@@ -689,7 +686,7 @@ class DFA(fa.FA):
     def maximum_word_length(self):
         """
         Returns the length of the longest word in the language represented by the DFA
-        In the case of infinite languages, `float('inf')` is returned
+        In the case of infinite languages, `None` is returned
         """
         if self.isempty():
             raise ValueError('The language represented by the DFA is empty')
@@ -707,20 +704,252 @@ class DFA(fa.FA):
         try:
             return nx.dag_longest_path_length(subgraph)
         except nx.exception.NetworkXUnfeasible:
-            return float('inf')
+            return None
 
     @classmethod
-    def from_finite_language(cls, language, input_symbols):
+    def from_prefix(cls, input_symbols, prefix, *, contains=True):
+        """
+        Directly computes the minimal DFA recognizing strings with the
+        given prefix.
+        If contains is set to False then the complement is constructed instead.
+        """
+        err_state = -1
+        last_state = len(prefix)
+        transitions = {i: {symbol: i+1 if symbol == char else err_state
+                           for symbol in input_symbols}
+                       for i, char in enumerate(prefix)}
+        transitions[last_state] = {symbol: last_state for symbol in input_symbols}
+        transitions[err_state] = {symbol: err_state for symbol in input_symbols}
+        states = set(transitions.keys())
+        final_states = {last_state}
+        return cls(
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=final_states if contains else states - final_states
+        )
+
+    @classmethod
+    def from_suffix(cls, input_symbols, suffix, *, contains=True):
+        """
+        Directly computes the minimal DFA recognizing strings with the
+        given prefix.
+        If contains is set to False then the complement is constructed instead.
+        """
+        return cls.from_substring(input_symbols, suffix, contains=contains, must_be_suffix=True)
+
+    @classmethod
+    def from_substring(cls, input_symbols, substring, *, contains=True, must_be_suffix=False):
+        """
+        Directly computes the minimal DFA recognizing strings containing the
+        given substring.
+        If contains is set to False then the complement is constructed instead.
+        If must_be_suffix is set to True, then the substring must be a suffix instead.
+        """
+        transitions = {i: dict() for i in range(len(substring))}
+        transitions[len(substring)] = {
+            symbol: len(substring) for symbol in input_symbols
+        }
+
+        # Computing failure function for partial matches as is done in the
+        # Knuth-Morris-Pratt string algorithm so we can quickly compute the
+        # next state from another state
+        kmp_table = [-1 for _ in substring]
+        candidate = 0
+        for i, char in enumerate(substring):
+            if i == 0:
+                continue
+            elif char == substring[candidate]:
+                kmp_table[i] = kmp_table[candidate]
+            else:
+                kmp_table[i] = candidate
+                while candidate >= 0 and char != substring[candidate]:
+                    candidate = kmp_table[candidate]
+            candidate += 1
+        kmp_table.append(candidate)
+
+        limit = len(substring)+1 if must_be_suffix else len(substring)
+        for i in range(limit):
+            prefix_dict = transitions.setdefault(i, dict())
+            for symbol in input_symbols:
+                # Look for next state after reading in the given input symbol
+                candidate = i if i < len(substring) else kmp_table[i]
+                while candidate != -1 and substring[candidate] != symbol:
+                    candidate = kmp_table[candidate]
+                candidate += 1
+                prefix_dict[symbol] = candidate
+
+        states = set(transitions.keys())
+        final_states = {len(substring)}
+        return cls(
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=final_states if contains else states - final_states,
+        )
+
+    @classmethod
+    def from_subsequence(cls, input_symbols, subsequence, *, contains=True):
+        """
+        Directly computes the minimal DFA recognizing strings containing the
+        given subsequence.
+        If contains is set to False then the complement is constructed instead.
+        """
+        transitions = {0: {symbol: 0 for symbol in input_symbols}}
+
+        for prev_state, char in enumerate(subsequence):
+            next_state = prev_state + 1
+            transitions[next_state] = {symbol: next_state for symbol in input_symbols}
+            transitions[prev_state][char] = next_state
+
+        states = set(transitions.keys())
+        final_states = {len(subsequence)}
+        return cls(
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=final_states if contains else states - final_states,
+        )
+
+    @classmethod
+    def of_length(cls, input_symbols, *, min_length=0, max_length=None):
+        """
+        Directly computes the minimal DFA recognizing strings whose length
+        is between `min_length` and `max_length`, inclusive.
+        To allow infinitely long words the value `None` can be passed in for `max_length`.
+        """
+        transitions = {}
+        length_range = range(min_length) if max_length is None else range(max_length+1)
+        for prev_state in length_range:
+            next_state = prev_state + 1
+            transitions[prev_state] = {symbol: next_state for symbol in input_symbols}
+        last_state = len(transitions)
+        transitions[last_state] = {symbol: last_state for symbol in input_symbols}
+        final_states = {last_state} if max_length is None else set(range(min_length, max_length+1))
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=final_states,
+        )
+
+    @classmethod
+    def count_mod(cls, input_symbols, k, *, remainders=None, symbols_to_count=None):
+        """
+        Directly computes a DFA that counts given symbols and accepts all strings where
+        the remainder of division by k is in the set of remainders given.
+        The default value of remainders is {0} and all symbols are counted by default.
+        """
+        if k <= 0:
+            raise ValueError("Integer must be positive")
+        if symbols_to_count is None:
+            symbols_to_count = input_symbols
+        if remainders is None:
+            remainders = {0}
+        transitions = {i: {symbol: (i + 1) % k if symbol in symbols_to_count else i
+                           for symbol in input_symbols}
+                       for i in range(k)}
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=remainders
+        )
+
+    @classmethod
+    def universal_language(cls, input_symbols):
+        """
+        Directly computes the minimal DFA accepting all strings.
+        """
+        return cls(
+            states={0},
+            input_symbols=input_symbols,
+            transitions={0: {symbol: 0 for symbol in input_symbols}},
+            initial_state=0,
+            final_states={0}
+        )
+
+    @classmethod
+    def empty_language(cls, input_symbols):
+        """
+        Directly computes the minimal DFA rejecting all strings.
+        """
+        return cls(
+            states={0},
+            input_symbols=input_symbols,
+            transitions={0: {symbol: 0 for symbol in input_symbols}},
+            initial_state=0,
+            final_states=set()
+        )
+
+    @classmethod
+    def nth_from_start(cls, input_symbols, symbol, n):
+        """
+        Directly computes the minimal DFA which accepts all words whose `n`-th
+        character from the start is `symbol`, where `n` is a positive integer.
+        """
+        if n < 1:
+            raise ValueError("Integer must be positive")
+        if symbol not in input_symbols:
+            raise exceptions.InvalidSymbolError("Desired symbol is not in the set of input symbols")
+        if len(input_symbols) == 1:
+            return cls.of_length(input_symbols, min_length=n)
+        transitions = {i: {symbol: i+1 for symbol in input_symbols} for i in range(n)}
+        transitions[n-1][symbol] = n+1
+        transitions[n] = {symbol: n for symbol in input_symbols}
+        transitions[n+1] = {symbol: n+1 for symbol in input_symbols}
+        return cls(
+            states=set(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states={n+1}
+        )
+
+    @classmethod
+    def nth_from_end(cls, input_symbols, symbol, n):
+        """
+        Directly computes the minimal DFA which accepts all words whose `n`-th
+        character from the end is `symbol`, where `n` is a positive integer.
+        """
+        if n < 1:
+            raise ValueError("Integer must be positive")
+        if symbol not in input_symbols:
+            raise exceptions.InvalidSymbolError("Desired symbol is not in the set of input symbols")
+        if len(input_symbols) == 1:
+            return cls.of_length(input_symbols, min_length=n)
+        # Consider the states to be labelled with bitstrings of size n
+        # The bitstring represents how the current suffix in this state matches our desired symbol
+        # A 1 means the character at this position is the desired symbol and a 0 means it is not
+        # For transitions this is effectively doubling the label value and then adding 1 if the desired symbol is read
+        # Finally we trim the label to n bits with a modulo operation.
+        state_count = 2**n
+        return cls(
+            states=set(range(state_count)),
+            input_symbols=input_symbols,
+            transitions={state: {sym: (2 * state + 1) % state_count
+                                 if symbol == sym else (2 * state) % state_count
+                                 for sym in input_symbols}
+                         for state in range(state_count)},
+            initial_state=0,
+            final_states=set(range(state_count//2, state_count)),
+        )
+
+    @classmethod
+    def from_finite_language(cls, input_symbols, language):
         """
         Directly computes the minimal DFA corresponding to a finite language.
         Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
         Chapter 10
         """
 
-        if len(language) == 0:
-            return DFA(states={0}, input_symbols=input_symbols,
-                       transitions={0: {symbol: 0 for symbol in input_symbols}},
-                       initial_state=0, final_states=set())
+        if not language:
+            return DFA.empty_language(input_symbols)
 
         transitions = dict()
         back_map = {'': set()}
