@@ -1095,6 +1095,7 @@ class DFA(fa.FA):
                 next_current_states_name = get_name(next_current_states)
                 dfa_transitions[current_state_name][input_symbol] = next_current_states_name
 
+                # Only enqueue a state if it has not been seen yet.
                 if next_current_states_name not in dfa_states:
                     dfa_states.add(next_current_states_name)
                     state_queue.append(next_current_states)

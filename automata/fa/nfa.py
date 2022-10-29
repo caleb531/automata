@@ -637,37 +637,46 @@ class NFA(fa.FA):
 
     @classmethod
     def levenshtein(cls, input_symbols, query_string, D):
-        """Code adapted from http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata """
+        """
+        Constructs the Levenshtein NFA for the given query_string and
+        distance D. This NFA recognizes strings within Levenshtein
+        distance (commonly called edit distance) D of query_string.
+
+        Code adapted from: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
+        """
         states = set(product(range(len(query_string)+1), range(D+1)))
 
         transitions = dict()
         final_states = set()
 
-        def add_transition(start_state, end_state, symbol):
+        def add_transition(start_state_dict, end_state, symbol):
             """Add transition between start and end state on symbol"""
-            state_transitions = transitions.setdefault(start_state, dict())
-            char_transitions = state_transitions.setdefault(symbol, set())
+            char_transitions = start_state_dict.setdefault(symbol, set())
             char_transitions.add(end_state)
 
-        def add_any_transition(start_state, end_state):
+        def add_any_transition(start_state_dict, end_state):
             """Add transition on all symbols between start and end state"""
             for symbol in input_symbols:
-                add_transition(start_state, end_state, symbol)
+                add_transition(start_state_dict, end_state, symbol)
 
         for i, chr in enumerate(query_string):
             for e in range(D + 1):
+                state_transition_dict = transitions.setdefault((i, e), dict())
+
                 # Correct character
-                add_transition((i, e), (i + 1, e), chr)
+                add_transition(state_transition_dict, (i + 1, e), chr)
                 if e < D:
                     # Deletion
-                    add_any_transition((i, e), (i, e + 1))
+                    add_any_transition(state_transition_dict, (i, e + 1))
                     # Insertion
-                    add_transition((i, e), (i + 1, e + 1), '')
+                    add_transition(state_transition_dict, (i + 1, e + 1), '')
                     # Substitution
-                    add_any_transition((i, e), (i + 1, e + 1))
+                    add_any_transition(state_transition_dict, (i + 1, e + 1))
+
         for e in range(D + 1):
+            state_transition_dict = transitions.setdefault((len(query_string), e), dict())
             if e < D:
-                add_any_transition((len(query_string), e), (len(query_string), e + 1))
+                add_any_transition(state_transition_dict, (len(query_string), e + 1))
 
             final_states.add((len(query_string), e))
 

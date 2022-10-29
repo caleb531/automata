@@ -44,10 +44,10 @@ class Automaton(metaclass=abc.ABCMeta):
 
         Return the automaton's final configuration if this string is valid.
         """
+
         # "Fast-forward" generator to get its final value
-        for config in self.read_input_stepwise(input_str):
-            pass
-        return config
+        *_, last_config = self.read_input_stepwise(input_str)
+        return last_config
 
     def accepts_input(self, input_str):
         """Return True if this automaton accepts the given input."""
