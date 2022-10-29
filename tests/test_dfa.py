@@ -1576,11 +1576,25 @@ class TestDFA(test_fa.TestFA):
             final_states=set()
         )
 
-        self.assertEqual(at_least_four_ones.maximum_word_length(), float('inf'))
-        self.assertEqual(no_11_occurrence.maximum_word_length(), float('inf'))
+        self.assertEqual(at_least_four_ones.maximum_word_length(), None)
+        self.assertEqual(no_11_occurrence.maximum_word_length(), None)
         self.assertEqual(at_most_one_symbol.maximum_word_length(), 1)
         with self.assertRaises(ValueError):
             empty.maximum_word_length()
+
+    def test_contains_prefix(self):
+        input_symbols = {'a', 'n', 'o', 'b'}
+
+        prefix_dfa = DFA.from_prefix(input_symbols, 'nano')
+        self.assertEqual(len(prefix_dfa.states), len(prefix_dfa.minify().states))
+
+        subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'nanobao', 'nanonana', 'nanonano', 'nanoo'])
+        self.assertTrue(subset_dfa < prefix_dfa)
+
+        for word in prefix_dfa:
+            if len(word) > 8:
+                break
+            self.assertTrue(word.startswith('nano'))
 
     def test_contains_substring(self):
         """Should compute the minimal DFA accepting strings with the given substring"""
@@ -1609,6 +1623,11 @@ class TestDFA(test_fa.TestFA):
 
         subset_dfa = DFA.from_finite_language(input_symbols, ['nano', 'bananano', 'nananano', 'naonano'])
         self.assertTrue(subset_dfa < substring_dfa)
+
+        for word in substring_dfa:
+            if len(word) > 8:
+                break
+            self.assertIn('nano', word)
 
     def test_contains_subsequence(self):
         """Should compute the minimal DFA accepting strings with the given subsequence"""
@@ -1648,7 +1667,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(len(dfa1.states), len(dfa1.minify().states))
         self.assertEqual(dfa1, DFA.universal_language(binary))
         self.assertEqual(dfa1.minimum_word_length(), 0)
-        self.assertEqual(dfa1.maximum_word_length(), float('inf'))
+        self.assertEqual(dfa1.maximum_word_length(), None)
 
         dfa2 = DFA.of_length(binary, min_length=5)
         self.assertFalse(dfa2.isfinite())
@@ -1659,7 +1678,7 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertTrue(len(word) >= 5)
         self.assertEqual(dfa2.minimum_word_length(), 5)
-        self.assertEqual(dfa2.maximum_word_length(), float('inf'))
+        self.assertEqual(dfa2.maximum_word_length(), None)
 
         dfa3 = DFA.of_length(binary, min_length=0, max_length=4)
         self.assertTrue(dfa3.isfinite())

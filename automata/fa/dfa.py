@@ -147,16 +147,13 @@ class DFA(fa.FA):
         """
         i = self.minimum_word_length()
         limit = self.maximum_word_length()
-        while i <= limit:
+        while limit is None or i <= limit:
             yield from self.words_of_length(i)
             i += 1
 
     def __len__(self):
         """Returns the cardinality of the language represented by the DFA."""
-        val = self.cardinality()
-        if val == float('inf'):
-            raise ValueError("The language represented by the DFA is infinite")
-        return val
+        return self.cardinality()
 
     def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition input_symbols are missing."""
@@ -601,7 +598,7 @@ class DFA(fa.FA):
         Returns True if the DFA accepts a finite language, False otherwise.
         """
         try:
-            return self.maximum_word_length() != float('inf')
+            return self.maximum_word_length() is not None
         except ValueError:
             return True
 
@@ -664,8 +661,8 @@ class DFA(fa.FA):
         except ValueError:
             return 0
         limit = self.maximum_word_length()
-        if limit == float('inf'):
-            return float('inf')
+        if limit is None:
+            raise ValueError("The language represented by the DFA is infinite.")
         return sum(self.count_words_of_length(j) for j in range(i, limit+1))
 
     def minimum_word_length(self):
@@ -673,7 +670,7 @@ class DFA(fa.FA):
         Returns the length of the shortest word in the language represented by the DFA
         """
         queue = deque()
-        distances = defaultdict(lambda: float('inf'))
+        distances = defaultdict(lambda: None)
         distances[self.initial_state] = 0
         queue.append(self.initial_state)
         while queue:
@@ -681,7 +678,7 @@ class DFA(fa.FA):
             if state in self.final_states:
                 return distances[state]
             for next_state in self.transitions[state].values():
-                if distances[next_state] == float('inf'):
+                if distances[next_state] is None:
                     distances[next_state] = distances[state] + 1
                     queue.append(next_state)
         raise ValueError('The language represented by the DFA is empty')
@@ -707,13 +704,38 @@ class DFA(fa.FA):
         try:
             return nx.dag_longest_path_length(subgraph)
         except nx.exception.NetworkXUnfeasible:
-            return float('inf')
+            return None
 
     @classmethod
-    def from_substring(cls, input_symbols, substring):
+    def from_prefix(cls, input_symbols, prefix, *, contains=True):
+        """
+        Directly computes the minimal DFA recognizing strings with the
+        given prefix.
+        If contains is set to False then the complement is constructed instead.
+        """
+        err_state = -1
+        last_state = len(prefix)
+        transitions = {i: {symbol: i+1 if symbol == char else err_state
+                           for symbol in input_symbols}
+                       for i, char in enumerate(prefix)}
+        transitions[last_state] = {symbol: last_state for symbol in input_symbols}
+        transitions[err_state] = {symbol: err_state for symbol in input_symbols}
+        states = set(transitions.keys())
+        final_states = {last_state}
+        return cls(
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=final_states if contains else states - final_states
+        )
+
+    @classmethod
+    def from_substring(cls, input_symbols, substring, *, contains=True):
         """
         Directly computes the minimal DFA recognizing strings containing the
         given substring.
+        If contains is set to False then the complement is constructed instead.
         """
         prefixes = [substring[:i] for i in range(len(substring))]
 
@@ -735,48 +757,55 @@ class DFA(fa.FA):
 
                 prefix_dict[symbol] = possible_suffix
 
+        states = set(transitions.keys())
+        final_states = {substring}
         return cls(
-            states=set(transitions.keys()),
+            states=states,
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state='',
-            final_states={substring},
+            final_states=final_states if contains else states - final_states,
         )
 
     @classmethod
-    def from_subsequence(cls, input_symbols, subsequence):
+    def from_subsequence(cls, input_symbols, subsequence, *, contains=True):
         """
-        Creates a DFA which accepts all words which contain a specific subsequence of symbols
+        Directly computes the minimal DFA recognizing strings containing the
+        given subsequence.
+        If contains is set to False then the complement is constructed instead.
         """
         transitions = {0: {symbol: 0 for symbol in input_symbols}}
 
-        for prev_state, symbol in enumerate(subsequence):
+        for prev_state, char in enumerate(subsequence):
             next_state = prev_state + 1
             transitions[next_state] = {symbol: next_state for symbol in input_symbols}
-            transitions[prev_state][symbol] = next_state
+            transitions[prev_state][char] = next_state
 
+        states = set(transitions.keys())
+        final_states = {len(subsequence)}
         return cls(
-            states=set(transitions.keys()),
+            states=states,
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
-            final_states={len(subsequence)},
+            final_states=final_states if contains else states - final_states,
         )
 
     @classmethod
-    def of_length(cls, input_symbols, *, min_length=0, max_length=float('inf')):
+    def of_length(cls, input_symbols, *, min_length=0, max_length=None):
         """
-        Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
-        To allow infinitely long words the value `float('inf')` can be passed in for `max_length`.
+        Directly computes the minimal DFA recognizing strings whose length
+        is between `min_length` and `max_length`, inclusive.
+        To allow infinitely long words the value `None` can be passed in for `max_length`.
         """
         transitions = {}
-        length_range = range(min_length) if max_length == float('inf') else range(max_length+1)
+        length_range = range(min_length) if max_length is None else range(max_length+1)
         for prev_state in length_range:
             next_state = prev_state + 1
             transitions[prev_state] = {symbol: next_state for symbol in input_symbols}
         last_state = len(transitions)
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
-        final_states = {last_state} if max_length == float('inf') else set(range(min_length, max_length+1))
+        final_states = {last_state} if max_length is None else set(range(min_length, max_length+1))
         return cls(
             states=set(transitions.keys()),
             input_symbols=input_symbols,
@@ -787,6 +816,9 @@ class DFA(fa.FA):
 
     @classmethod
     def universal_language(cls, input_symbols):
+        """
+        Directly computes the minimal DFA accepting all strings.
+        """
         return cls(
             states={0},
             input_symbols=input_symbols,
@@ -797,6 +829,9 @@ class DFA(fa.FA):
 
     @classmethod
     def empty_language(cls, input_symbols):
+        """
+        Directly computes the minimal DFA rejecting all strings.
+        """
         return cls(
             states={0},
             input_symbols=input_symbols,
@@ -808,8 +843,8 @@ class DFA(fa.FA):
     @classmethod
     def nth_from_start(cls, input_symbols, symbol, n):
         """
-        Creates a DFA which accepts all words whose `n`-th character from the start is `symbol`,
-        where `n` is a positive integer.
+        Directly computes the minimal DFA which accepts all words whose `n`-th
+        character from the start is `symbol`, where `n` is a positive integer.
         """
         if n < 1:
             raise ValueError("Integer must be positive")
@@ -832,8 +867,8 @@ class DFA(fa.FA):
     @classmethod
     def nth_from_end(cls, input_symbols, symbol, n):
         """
-        Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`,
-        where `n` is a positive integer.
+        Directly computes the minimal DFA which accepts all words whose `n`-th
+        character from the end is `symbol`, where `n` is a positive integer.
         """
         if n < 1:
             raise ValueError("Integer must be positive")
