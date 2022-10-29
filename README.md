@@ -270,7 +270,7 @@ minimal_symmetric_difference_dfa = dfa ^ other_dfa
 symmetric_difference_dfa = dfa.symmetric_difference(other_dfa, minify=False)
 ```
 
-### DFA.issubset(self, other_dfa)
+#### DFA.issubset(self, other_dfa)
 
 Given two DFAs which accept the languages A and B respectively,
 returns True of the A is a subset of B, False otherwise.
@@ -280,7 +280,7 @@ dfa <= other_dfa
 dfa.issubset(other_dfa)
 ```
 
-### DFA.issuperset(self, other_dfa)
+#### DFA.issuperset(self, other_dfa)
 
 Given two DFAs which accept the languages A and B respectively,
 returns True of the A is a superset of B, False otherwise.
@@ -290,7 +290,7 @@ dfa >= other_dfa
 dfa.issuperset(other_dfa)
 ```
 
-### DFA.isdisjoint(self, other_dfa)
+#### DFA.isdisjoint(self, other_dfa)
 
 Given two DFAs which accept the languages A and B respectively,
 returns True of A and B are disjoint, False otherwise.
@@ -299,7 +299,7 @@ returns True of A and B are disjoint, False otherwise.
 dfa.isdisjoint(other_dfa)
 ```
 
-### DFA.isempty(self)
+#### DFA.isempty(self)
 
 Returns `True` if the DFA does not accept any inputs, False otherwise.
 
@@ -307,7 +307,7 @@ Returns `True` if the DFA does not accept any inputs, False otherwise.
 dfa.isempty()
 ```
 
-### DFA.isfinite(self)
+#### DFA.isfinite(self)
 
 Returns `True` if the DFA accepts a finite language, False otherwise.
 
@@ -315,7 +315,7 @@ Returns `True` if the DFA accepts a finite language, False otherwise.
 dfa.isfinite()
 ```
 
-### DFA.minimum_word_length(self)
+#### DFA.minimum_word_length(self)
 
 Returns the length of the shortest word in the language represented by the DFA.
 
@@ -323,7 +323,7 @@ Returns the length of the shortest word in the language represented by the DFA.
 dfa.minimum_word_length()
 ```
 
-### DFA.maximum_word_length(self)
+#### DFA.maximum_word_length(self)
 
 Returns the length of the longest word in the language represented by the DFA.
 In the case of infinite languages, `float('inf')` is returned.
@@ -332,7 +332,7 @@ In the case of infinite languages, `float('inf')` is returned.
 dfa.maximum_word_length()
 ```
 
-### DFA.count_words_of_length(self, k)
+#### DFA.count_words_of_length(self, k)
 
 Counts words of length `k` accepted by the DFA.
 
@@ -340,7 +340,7 @@ Counts words of length `k` accepted by the DFA.
 dfa.count_words_of_length(3)
 ```
 
-### DFA.words_of_length(self, k)
+#### DFA.words_of_length(self, k)
 
 Generates words of length `k` accepted by the DFA.
 
@@ -350,6 +350,7 @@ for word in dfa.words_of_length(3):
 ```
 
 You can also iterate through all words accepted by the DFA.
+Be aware that the generator may be infinite.
 
 ```python
 for word in dfa:
@@ -358,7 +359,7 @@ for word in dfa:
     print(word)
 ```
 
-### DFA.cardinality(self)
+#### DFA.cardinality(self)
 
 Returns the cardinality of the language represented by the DFA.
 Note that `len(dfa)` raises a `ValueError` for infinite languages, whereas `DFA.cardinality` will return `float('inf')`.
@@ -368,35 +369,83 @@ dfa.cardinality()
 len(dfa)
 ```
 
-#### DFA.contains_substring(cls, input_symbols, substring)
+#### DFA.from_prefix(cls, input_symbols, prefix, contains=True)
+
+Directly computes the minimal DFA recognizing strings with the
+given prefix.
+If `contains` is set to `False` then the complement is constructed instead.
+
+```python
+contains_prefix_nano = DFA.from_prefix({'a', 'n', 'o', 'b'}, 'nano')
+avoids_prefix_nano = DFA.from_prefix({'a', 'n', 'o', 'b'}, 'nano', contains=False)
+```
+
+#### DFA.from_suffix(cls, input_symbols, suffix, contains=True)
+
+Directly computes the minimal DFA recognizing strings with the
+given prefix.
+If `contains` is set to `False` then the complement is constructed instead.
+
+```python
+contains_suffix_nano = DFA.from_suffix({'a', 'n', 'o', 'b'}, 'nano')
+avoids_suffix_nano = DFA.from_suffix({'a', 'n', 'o', 'b'}, 'nano', contains=False)
+```
+
+#### DFA.from_substring(cls, input_symbols, substring, contains=True, must_be_suffix=False)
 
 Directly computes the minimal DFA recognizing strings containing the
 given substring.
+If `contains` is set to `False` then the complement is constructed instead.
+If `must_be_suffix` is set to `True`, then the substring must be a suffix instead.
 
 ```python
-dfa = DFA.contains_substring({'a', 'n', 'o', 'b'}, 'nano')
+contains_substring_nano = DFA.contains_substring({'a', 'n', 'o', 'b'}, 'nano')
+avoids_substring_nano = DFA.contains_substring({'a', 'n', 'o', 'b'}, 'nano', contains=False)
 ```
 
-#### DFA.contains_subsequence(cls, input_symbols, subsequence)
+#### DFA.from_subsequence(cls, input_symbols, subsequence, contains=True)
 
-Creates a DFA which accepts all words which contain a specific subsequence of symbols
+Directly computes the minimal DFA recognizing strings containing the
+given subsequence.
+If `contains` is set to `False` then the complement is constructed instead.
 
 ```python
-dfa = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba')
+contains_substring_dcba = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba')
+avoids_substring_dcba = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba', contains=False)
 ```
 
-#### DFA.of_length(cls, input_symbols, min_length=0, max_length=float('inf'))
+#### DFA.of_length(cls, input_symbols, min_length=0, max_length=None)
 
-Creates a DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
-To allow infinitely long words the value `float('inf')` can be passed in for `max_length`.
+Directly computes the minimal DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
+To allow infinitely long words the value `None` can be passed in for `max_length`.
 
 ```python
-dfa = DFA.of_length({'0', '1'}, 4, float('inf'))
+dfa = DFA.of_length({'0', '1'}, min_length=4)
+dfa = DFA.of_length({'0', '1'}, min_length=4, max_length=8)
+```
+
+#### DFA.count_mod(cls, input_symbol, k, remainders=None, symbols_to_count=None)
+
+Directly computes a DFA that counts given symbols and accepts all strings where
+the remainder of division by `k` is in the set of `remainders` given.
+The default value of `remainders` is `{0}` and all symbols are counted by default.
+
+```python
+even_length_strings = DFA.count_mod({'0', '1'}, 2)
+odd_number_of_ones = DFA.count_mod({'0', '1'}, 2, remainders={1}, symbols_to_count={'1'})
+```
+
+#### DFA.nth_from_start(cls, input_symbols, symbol, n)
+
+Directly computes the minimal DFA which accepts all words whose `n`-th character from the end is `symbol`, where `n` is a positive integer.
+
+```python
+dfa = DFA.nth_from_start({'0', '1'}, '1', 4)
 ```
 
 #### DFA.nth_from_end(cls, input_symbols, symbol, n)
 
-Creates a DFA which accepts all words whose `n`-th character from the end is `symbol`, where `n` is a positive integer.
+Directly computes the minimal DFA which accepts all words whose `n`-th character from the end is `symbol`, where `n` is a positive integer.
 
 ```python
 dfa = DFA.nth_from_end({'0', '1'}, '1', 4)
@@ -413,7 +462,7 @@ from automata.fa.nfa import NFA
 dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
 ```
 
-#### DFA.from_finite_language(self, language, input_symbols)
+#### DFA.from_finite_language(cls, input_symbols, language)
 
 Constructs the minimal DFA corresponding to the given finite language and input symbols.
 

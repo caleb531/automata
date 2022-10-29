@@ -686,7 +686,7 @@ class DFA(fa.FA):
     def maximum_word_length(self):
         """
         Returns the length of the longest word in the language represented by the DFA
-        In the case of infinite languages, `float('inf')` is returned
+        In the case of infinite languages, `None` is returned
         """
         if self.isempty():
             raise ValueError('The language represented by the DFA is empty')
@@ -732,6 +732,11 @@ class DFA(fa.FA):
 
     @classmethod
     def from_suffix(cls, input_symbols, suffix, *, contains=True):
+        """
+        Directly computes the minimal DFA recognizing strings with the
+        given prefix.
+        If contains is set to False then the complement is constructed instead.
+        """
         return cls.from_substring(input_symbols, suffix, contains=contains, must_be_suffix=True)
 
     @classmethod
@@ -740,6 +745,7 @@ class DFA(fa.FA):
         Directly computes the minimal DFA recognizing strings containing the
         given substring.
         If contains is set to False then the complement is constructed instead.
+        If must_be_suffix is set to True, then the substring must be a suffix instead.
         """
         transitions = {i: dict() for i in range(len(substring))}
         transitions[len(substring)] = {
@@ -833,6 +839,11 @@ class DFA(fa.FA):
 
     @classmethod
     def count_mod(cls, input_symbols, k, *, remainders=None, symbols_to_count=None):
+        """
+        Directly computes a DFA that counts given symbols and accepts all strings where
+        the remainder of division by k is in the set of remainders given.
+        The default value of remainders is {0} and all symbols are counted by default.
+        """
         if k <= 0:
             raise ValueError("Integer must be positive")
         if symbols_to_count is None:
