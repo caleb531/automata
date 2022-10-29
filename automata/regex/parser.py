@@ -13,7 +13,7 @@ from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
 class NFARegexBuilder:
     """Builder class designed for speed in parsing regular expressions into NFAs."""
 
-    __slots__ = ['_transitions', '_initial_state', '_final_states']
+    __slots__ = ('_transitions', '_initial_state', '_final_states')
     _state_name_counter = count(0)
 
     def __init__(self, literal):

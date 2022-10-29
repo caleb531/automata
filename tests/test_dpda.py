@@ -66,7 +66,7 @@ class TestDPDA(test_pda.TestPDA):
 
     def test_dpda_immutable_dict(self):
         """Should create a DPDA whose contents are fully immutable/hashable"""
-        self.assertIsInstance(hash(frozendict(self.dpda.__dict__)), int)
+        self.assertIsInstance(hash(frozendict(self.dpda.input_parameters)), int)
 
     def test_validate_invalid_input_symbol(self):
         """Should raise error if a transition has an invalid input symbol."""

@@ -11,6 +11,10 @@ from automata.pda.stack import PDAStack
 class DPDA(pda.PDA):
     """A deterministic pushdown automaton."""
 
+    __slots__ = ('states', 'input_symbols', 'stack_symbols',
+                 'transitions', 'initial_state',
+                 'initial_stack_symbol', 'final_states', 'acceptance_mode')
+
     def __init__(self, *, states, input_symbols, stack_symbols,
                  transitions, initial_state,
                  initial_stack_symbol, final_states, acceptance_mode='both'):

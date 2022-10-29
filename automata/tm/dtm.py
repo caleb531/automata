@@ -11,6 +11,10 @@ from automata.tm.tape import TMTape
 class DTM(tm.TM):
     """A deterministic Turing machine."""
 
+    __slots__ = ('states', 'input_symbols', 'tape_symbols',
+                 'transitions', 'initial_state', 'blank_symbol',
+                 'final_states')
+
     def __init__(self, *, states, input_symbols, tape_symbols,
                  transitions, initial_state, blank_symbol,
                  final_states):

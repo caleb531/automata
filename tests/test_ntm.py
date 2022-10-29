@@ -53,7 +53,7 @@ class TestNTM(test_tm.TestTM):
 
     def test_ntm_immutable_dict(self):
         """Should create a DPDA whose contents are fully immutable/hashable"""
-        self.assertIsInstance(hash(frozendict(self.ntm1.__dict__)), int)
+        self.assertIsInstance(hash(frozendict(self.ntm1.input_parameters)), int)
 
     def test_validate_input_symbol_subset(self):
         """Should raise error if input symbols are not a strict superset of tape symbols."""

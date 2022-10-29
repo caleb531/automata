@@ -10,7 +10,7 @@ import automata.base.exceptions as exceptions
 class Token(metaclass=abc.ABCMeta):
     """Base class for tokens."""
 
-    __slots__ = ['text']
+    __slots__ = ('text',)
 
     def __init__(self, text):
         self.text = text
@@ -25,7 +25,7 @@ class Token(metaclass=abc.ABCMeta):
 class TokenRegistry():
     """Registry holding token rules."""
 
-    __slots__ = ['_tokens']
+    __slots__ = ('_tokens',)
 
     def __init__(self):
         self._tokens = []
@@ -72,7 +72,7 @@ class Lexer():
     classes (in infix ordering) matching the regex patterns.
     """
 
-    __slots__ = ['tokens', 'blank_chars']
+    __slots__ = ('tokens', 'blank_chars')
 
     def __init__(self, blank_chars={' ', '\t'}):
         self.tokens = TokenRegistry()

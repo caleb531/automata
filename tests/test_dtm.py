@@ -53,7 +53,7 @@ class TestDTM(test_tm.TestTM):
 
     def test_dtm_immutable_dict(self):
         """Should create a DTM whose contents are fully immutable/hashable"""
-        self.assertIsInstance(hash(frozendict(self.dtm1.__dict__)), int)
+        self.assertIsInstance(hash(frozendict(self.dtm1.input_parameters)), int)
 
     def test_validate_input_symbol_subset(self):
         """Should raise error if input symbols are not a strict superset of tape symbols."""

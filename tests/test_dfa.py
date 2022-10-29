@@ -53,7 +53,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_dfa_immutable_dict(self):
         """Should create a DFA whose contents are fully immutable/hashable"""
-        self.assertIsInstance(hash(frozendict(self.dfa.attributes())), int)
+        self.assertIsInstance(hash(frozendict(self.dfa.input_parameters)), int)
 
     @patch('automata.fa.dfa.DFA.validate')
     def test_init_validation(self, validate):
