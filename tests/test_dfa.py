@@ -1450,7 +1450,9 @@ class TestDFA(test_fa.TestFA):
         self.assertListEqual(actual, expected)
 
         self.assertEqual(dfa.successor('000'), '010')
-        self.assertEqual(dfa.successor('010'), '010101111111101011010100')
+        self.assertEqual(dfa.successor('0100'), '010101111111101011010100')
+        self.assertIsNone(dfa.successor('110'))
+        self.assertIsNone(dfa.successor('111111110101011'))
 
     def test_count_words_of_length(self):
         """
