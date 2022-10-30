@@ -65,7 +65,7 @@ class TestRegex(unittest.TestCase):
 
     def test_intersection(self):
         """Should correctly check non-equivalence of two regular expressions"""
-        nfa_1 = NFA.from_regex('(0|1)&(0)')
-        print(nfa_1)
-        nfa_2 = NFA.from_regex('0')
+        nfa_1 = NFA.from_regex('(0|(01))&(01)')
+        nfa_2 = NFA.from_regex('01')
+
         self.assertEqual(nfa_1, nfa_2)

@@ -68,7 +68,7 @@ class NFARegexBuilder:
         new_transitions = dict()
         new_initial_state = (self._initial_state, other._initial_state)
 
-        initial_state_name = get_state_name(new_initial_state)
+        new_initial_state_name = get_state_name(new_initial_state)
         new_input_symbols = set(chain.from_iterable(
             transition_dict.keys()
             for transition_dict in chain(self._transitions.values(), other._transitions.values())
@@ -77,7 +77,7 @@ class NFARegexBuilder:
         queue = deque()
 
         queue.append(new_initial_state)
-        new_transitions[initial_state_name] = dict()
+        new_transitions[new_initial_state_name] = dict()
 
         while queue:
             curr_state = queue.popleft()
@@ -131,14 +131,9 @@ class NFARegexBuilder:
                     new_transitions[product_state_name] = dict()
                     queue.append(product_state)
 
-            print(curr_state, new_transitions)
-
-        print(new_transitions)
-        print(new_final_states)
-        print(initial_state_name)
         self._final_states = new_final_states
         self._transitions = new_transitions
-        self._initial_state = initial_state_name
+        self._initial_state = new_initial_state_name
 
     def concatenate(self, other):
         """
