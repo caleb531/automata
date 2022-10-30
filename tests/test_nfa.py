@@ -905,7 +905,6 @@ class TestNFA(test_fa.TestFA):
         close_strings_insertion = ['anice', 'nicee', 'niece', 'unice', 'niace']
         close_strings_deletion = ['ice', 'nce', 'nic']
 
-
         nice_nfa_insertion = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1,
                                                insertion=True, substitution=False, deletion=False)
         nice_nfa_deletion = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1,
