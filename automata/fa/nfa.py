@@ -678,12 +678,12 @@ class NFA(fa.FA):
                 # Correct character
                 add_transition(state_transition_dict, (i + 1, e), chr)
                 if e < max_edit_distance:
-                    if deletion:
-                        # Deletion
-                        add_any_transition(state_transition_dict, (i, e + 1))
-
                     if insertion:
                         # Insertion
+                        add_any_transition(state_transition_dict, (i, e + 1))
+
+                    if deletion:
+                        # Deletion
                         add_transition(state_transition_dict, (i + 1, e + 1), '')
 
                     if substitution:
