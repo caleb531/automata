@@ -636,15 +636,15 @@ class NFA(fa.FA):
         return True
 
     @classmethod
-    def levenshtein_distance(cls, input_symbols, query_string, D):
+    def levenshtein_distance(cls, input_symbols, query_string, distance):
         """
         Constructs the Levenshtein NFA for the given query_string and
-        distance D. This NFA recognizes strings within Levenshtein
-        distance (commonly called edit distance) D of query_string.
+        given Levenshtein distance. This NFA recognizes strings within the given
+        Levenshtein distance (commonly called edit distance) distance of query_string.
 
         Code adapted from: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
         """
-        states = set(product(range(len(query_string)+1), range(D+1)))
+        states = set(product(range(len(query_string)+1), range(distance+1)))
 
         transitions = dict()
         final_states = set()
@@ -660,12 +660,12 @@ class NFA(fa.FA):
                 add_transition(start_state_dict, end_state, symbol)
 
         for i, chr in enumerate(query_string):
-            for e in range(D + 1):
+            for e in range(distance + 1):
                 state_transition_dict = transitions.setdefault((i, e), dict())
 
                 # Correct character
                 add_transition(state_transition_dict, (i + 1, e), chr)
-                if e < D:
+                if e < distance:
                     # Deletion
                     add_any_transition(state_transition_dict, (i, e + 1))
                     # Insertion
@@ -673,9 +673,9 @@ class NFA(fa.FA):
                     # Substitution
                     add_any_transition(state_transition_dict, (i + 1, e + 1))
 
-        for e in range(D + 1):
+        for e in range(distance + 1):
             state_transition_dict = transitions.setdefault((len(query_string), e), dict())
-            if e < D:
+            if e < distance:
                 add_any_transition(state_transition_dict, (len(query_string), e + 1))
 
             final_states.add((len(query_string), e))

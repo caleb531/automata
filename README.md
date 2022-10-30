@@ -622,11 +622,11 @@ Removes epsilon transitions from the NFA which recognizes the same language.
 ```python
 nfa1.eliminate_lambda()
 ```
-#### NFA.levenshtein_distance(cls, input_symbols, query_string, D)
+#### NFA.levenshtein_distance(cls, input_symbols, query_string, distance)
 
-Constructs the NFA for the given query_string for Levenshtein distance at most D.
-This NFA recognizes strings within Levenshtein distance (commonly called edit distance)
-D of query_string.
+Constructs the NFA for the given query_string for the given Levenshtein distance.
+This NFA recognizes strings within the given Levenshtein distance
+(commonly called edit distance) of the query_string.
 
 
 ```python
