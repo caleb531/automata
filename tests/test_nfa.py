@@ -901,12 +901,14 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2, substitution=False))
 
-        nice_nfa_insertion = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1, substitution=False, deletion=False)
-        close_strings_insertion = ['anice', 'nicee', 'niece', 'unice', 'niace',]
+        nice_nfa_insertion = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1,
+                                               insertion=True, substitution=False, deletion=False)
+        close_strings_insertion = ['anice', 'nicee', 'niece', 'unice', 'niace']
         for close_string in close_strings_insertion:
             self.assertTrue(nice_nfa_insertion.accepts_input(close_string))
 
-        nice_nfa_deletion = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1, substitution=False, insertion=False)
+        nice_nfa_deletion = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1,
+                                              deletion=True, substitution=False, insertion=False)
         close_strings_deletion = ['ice', 'nce']
         for close_string in close_strings_deletion:
             self.assertTrue(nice_nfa_deletion.accepts_input(close_string))
