@@ -236,7 +236,6 @@ class IntersectionToken(InfixOperator):
         left.intersection(right)
         return left
 
-
 class KleeneStarToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene star operator."""
 
@@ -248,7 +247,7 @@ class KleeneStarToken(PostfixOperator):
         return left
 
 class KleenePlusToken(PostfixOperator):
-    """Subclass of postfix operator defining the kleene star operator."""
+    """Subclass of postfix operator defining the kleene plus operator."""
 
     def get_precedence(self):
         return 3
@@ -311,7 +310,6 @@ def add_concat_tokens(token_list):
 
     return final_token_list
 
-
 def get_regex_lexer():
     """Get lexer for parsing regular expressions."""
     lexer = Lexer()
@@ -325,9 +323,7 @@ def get_regex_lexer():
     lexer.register_token(KleenePlusToken, r'\+')
     lexer.register_token(OptionToken, r'\?')
 
-
     return lexer
-
 
 def parse_regex(regexstr):
     """Return an NFARegexBuilder corresponding to regexstr."""

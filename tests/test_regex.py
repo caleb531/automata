@@ -92,6 +92,8 @@ class TestRegex(unittest.TestCase):
         nfa_7 = NFA.from_regex(regex_4)
         nfa_8 = NFA.from_regex(regex_5)
 
+        self.assertEqual(nfa_7, nfa_8)
+
     def test_kleene_plus(self):
         """Should correctly check kleene plus of two regular expressions"""
         # Basic test
