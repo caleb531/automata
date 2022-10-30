@@ -830,6 +830,8 @@ class TestNFA(test_fa.TestFA):
 
         with self.assertRaises(ValueError):
             _ = NFA.edit_distance(alphabet, 'food', -1)
+        with self.assertRaises(ValueError):
+            _ = NFA.edit_distance(alphabet, 'food', 2, insertion=False, deletion=False, substitution=False)
 
     def test_nfa_hamming_distance(self):
         alphabet = {'f', 'o', 'd', 'a'}

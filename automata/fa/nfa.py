@@ -642,6 +642,8 @@ class NFA(fa.FA):
         Constructs the Levenshtein NFA for the given reference_string and
         given Levenshtein distance. This NFA recognizes strings within the given
         Levenshtein distance (commonly called edit distance) of the reference_string.
+        Parameters control which error types the NFA will recognize (insertions,
+        deletions, or substitutions). At least one error type must be set.
 
         If insertion and deletion are False and substitution is True,
         then this is the same as Hamming distance.
@@ -655,6 +657,8 @@ class NFA(fa.FA):
         """
         if max_edit_distance < 0:
             raise ValueError("max_edit_distance must be greater than zero")
+        if not (insertion or deletion or substitution):
+            raise ValueError("At least one of insertion, deletion, or substitution must be enabled.")
 
         states = set(product(range(len(reference_string)+1), range(max_edit_distance+1)))
 

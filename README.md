@@ -628,6 +628,8 @@ insertion=True, deletion=True, substitution=True)
 Constructs the NFA for the given reference_string for the given Levenshtein distance.
 This NFA recognizes strings within the given Levenshtein distance
 (commonly called edit distance) of the reference_string.
+Parameters control which error types the NFA will recognize (insertions,
+deletions, or substitutions).
 
 If insertion and deletion are False and substitution is True,
 then this is the same as Hamming distance.
