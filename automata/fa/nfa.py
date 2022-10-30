@@ -573,9 +573,49 @@ class NFA(fa.FA):
 
         new_transitions = dict()
 
-        for state, symbol in product(self.states, ):
+        # Populate transitions for before reading the suffix
+        for state in self.states:
+            new_state = (state, other.initial_state, False)
+            new_state_dict = new_transitions.setdefault(new_state, dict())
+            old_transitions_dict = self.transitions.get(state)
 
+            if old_transitions_dict:
+                for symbol, end_states in old_transitions_dict.items():
+                    new_state_dict[symbol] = {
+                        (end_state, other.initial_state, False)
+                        for end_state in end_states
+                    }
 
+            new_state_dict[''] = {(state, other.initial_state, True)}
+
+        # Start reading after the suffix
+        for q_a, q_b in product(self.states, other.states):
+            curr_state = (q_a, q_b, True)
+
+            # Get transition dict for states in self
+            transitions_a = self.transitions.get(q_a, {})
+            # Add epsilon transitions for first set of transitions
+            epsilon_transitions_a = transitions_a.get('')
+            if epsilon_transitions_a is not None:
+                state_dict = new_transitions.setdefault(curr_state, dict())
+                state_dict.setdefault('', set()).update(product(epsilon_transitions_a, [q_b], [True]))
+
+            # Get transition dict for states in other
+            transitions_b = other.transitions.get(q_b, {})
+            # Add epsilon transitions for second set of transitions
+            epsilon_transitions_b = transitions_b.get('')
+            if epsilon_transitions_b is not None:
+                state_dict = new_transitions.setdefault(curr_state, dict())
+                state_dict.setdefault('', set()).update(product([q_a], epsilon_transitions_b, [True]))
+
+            # Add all transitions moving over same input symbols
+            for symbol in new_input_symbols:
+                end_states_a = transitions_a.get(symbol)
+                end_states_b = transitions_b.get(symbol)
+
+                if end_states_a is not None and end_states_b is not None:
+                    state_dict = new_transitions.setdefault(curr_state, dict())
+                    state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, [True]))
 
 
 
