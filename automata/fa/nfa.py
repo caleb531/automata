@@ -636,7 +636,7 @@ class NFA(fa.FA):
         return True
 
     @classmethod
-    def levenshtein(cls, input_symbols, query_string, D):
+    def levenshtein_distance(cls, input_symbols, query_string, D):
         """
         Constructs the Levenshtein NFA for the given query_string and
         distance D. This NFA recognizes strings within Levenshtein

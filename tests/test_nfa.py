@@ -779,7 +779,7 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(nfa5, NFA.from_regex('((((01)*0) | 2)(100)*1)*(1* | (0*2*))'))
 
-    def test_nfa_levenshtein(self):
+    def test_nfa_levenshtein_distance(self):
         alphabet = {'f', 'o', 'd', 'a'}
 
         nfa = NFA(
@@ -813,9 +813,9 @@ class TestNFA(test_fa.TestFA):
             final_states=set(product([4], range(3)))
         )
 
-        self.assertEqual(nfa, NFA.levenshtein(alphabet, 'food', 2))
+        self.assertEqual(nfa, NFA.levenshtein_distance(alphabet, 'food', 2))
 
-        nice_nfa = NFA.levenshtein(set(string.ascii_lowercase), 'nice', 1)
+        nice_nfa = NFA.levenshtein_distance(set(string.ascii_lowercase), 'nice', 1)
 
         self.assertFalse(nice_nfa.accepts_input('food'))
 
