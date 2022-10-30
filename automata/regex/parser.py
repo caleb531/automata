@@ -160,6 +160,40 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.add(new_initial_state)
 
+    def kleene_plus(self):
+        """
+        Apply the kleene plus operation to the NFA represented by this builder
+        """
+        state_map = {
+            old_state_name: self.__get_next_state_name()
+            for old_state_name in self._transitions
+        }
+
+        initial_state = state_map[self._initial_state]
+
+        new_transitions = {
+            state_map[state]: {
+                chr: {state_map[end_state] for end_state in end_states}
+                for chr, end_states in path.items()
+            }
+            for state, path in self._transitions.items()
+        }
+
+        new_initial_state = self.__get_next_state_name()
+
+        new_transitions[new_initial_state] = {
+            '': {initial_state}
+        }
+
+        new_final_states = {new_initial_state}
+        for state in self._final_states:
+            new_final_state = state_map[state]
+            new_final_states.add(new_final_state)
+            new_transitions[new_final_state].setdefault('', set()).add(new_initial_state)
+
+        self._transitions.update(new_transitions)
+        self._final_states = new_final_states
+
     def option(self):
         """
         Apply the option operation to the NFA represented by this builder
@@ -199,7 +233,7 @@ class IntersectionToken(InfixOperator):
         return left
 
 
-class KleeneToken(PostfixOperator):
+class KleeneStarToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene star operator."""
 
     def get_precedence(self):
@@ -209,6 +243,15 @@ class KleeneToken(PostfixOperator):
         left.kleene_star()
         return left
 
+class KleenePlusToken(PostfixOperator):
+    """Subclass of postfix operator defining the kleene star operator."""
+
+    def get_precedence(self):
+        return 3
+
+    def op(self, left):
+        left.kleene_plus()
+        return left
 
 class OptionToken(PostfixOperator):
     """Subclass of postfix operator defining the option operator."""
@@ -274,7 +317,8 @@ def get_regex_lexer():
     lexer.register_token(StringToken, r'[A-Za-z0-9]')
     lexer.register_token(UnionToken, r'\|')
     lexer.register_token(IntersectionToken, r'\&')
-    lexer.register_token(KleeneToken, r'\*')
+    lexer.register_token(KleeneStarToken, r'\*')
+    lexer.register_token(KleenePlusToken, r'\+')
     lexer.register_token(OptionToken, r'\?')
 
 
