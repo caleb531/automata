@@ -99,4 +99,5 @@ class TestRegex(unittest.TestCase):
         # Basic test
         self.assertTrue(re.isequal('aa*', 'a+'))
         self.assertTrue(re.isequal('(abc)(abc)*', '(abc)+'))
+        self.assertTrue(re.isequal('a&a+', 'a'))
         self.assertFalse(re.isequal('a*', 'a+'))
