@@ -64,8 +64,15 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.issuperset('a*b|b*c*', 'aaa*b|bc'))
 
     def test_intersection(self):
-        """Should correctly check non-equivalence of two regular expressions"""
+        """Should correctly check intersection of two regular expressions"""
         nfa_1 = NFA.from_regex('(0|(01))&(01)')
         nfa_2 = NFA.from_regex('01')
 
         self.assertEqual(nfa_1, nfa_2)
+
+        regex_1 = 'a(a*b|b)'
+        regex_2 = 'a(a*b|b)b(cd*|dc*)'
+        nfa_3 = NFA.from_regex(regex_1).intersection(NFA.regex_2)
+        nfa_4 = NFA.from_regex(f'({regex_1})&({regex_2})')
+
+        self.assertEqual(nfa_3, nfa_4)
