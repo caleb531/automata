@@ -636,7 +636,7 @@ class NFA(fa.FA):
         return True
 
     @classmethod
-    def levenshtein_distance(cls, input_symbols, query_string, distance):
+    def levenshtein_distance(cls, input_symbols, reference_string, max_edit_distance):
         """
         Constructs the Levenshtein NFA for the given query_string and
         given Levenshtein distance. This NFA recognizes strings within the given
@@ -644,7 +644,7 @@ class NFA(fa.FA):
 
         Code adapted from: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
         """
-        states = set(product(range(len(query_string)+1), range(distance+1)))
+        states = set(product(range(len(reference_string)+1), range(max_edit_distance+1)))
 
         transitions = dict()
         final_states = set()
@@ -659,13 +659,13 @@ class NFA(fa.FA):
             for symbol in input_symbols:
                 add_transition(start_state_dict, end_state, symbol)
 
-        for i, chr in enumerate(query_string):
-            for e in range(distance + 1):
+        for i, chr in enumerate(reference_string):
+            for e in range(max_edit_distance + 1):
                 state_transition_dict = transitions.setdefault((i, e), dict())
 
                 # Correct character
                 add_transition(state_transition_dict, (i + 1, e), chr)
-                if e < distance:
+                if e < max_edit_distance:
                     # Deletion
                     add_any_transition(state_transition_dict, (i, e + 1))
                     # Insertion
@@ -673,12 +673,12 @@ class NFA(fa.FA):
                     # Substitution
                     add_any_transition(state_transition_dict, (i + 1, e + 1))
 
-        for e in range(distance + 1):
-            state_transition_dict = transitions.setdefault((len(query_string), e), dict())
-            if e < distance:
-                add_any_transition(state_transition_dict, (len(query_string), e + 1))
+        for e in range(max_edit_distance + 1):
+            state_transition_dict = transitions.setdefault((len(reference_string), e), dict())
+            if e < max_edit_distance:
+                add_any_transition(state_transition_dict, (len(reference_string), e + 1))
 
-            final_states.add((len(query_string), e))
+            final_states.add((len(reference_string), e))
 
         return NFA(
             states=states,
