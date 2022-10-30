@@ -630,6 +630,21 @@ class DFA(fa.FA):
         return ''.join(result)
 
     def successor(self, input_str):
+        """
+        Returns the first string accepted by the DFA that comes after
+        the input string in lexicographical order.
+        """
+        for word in self.successors(input_str):
+            return word
+        return None
+
+    def successors(self, input_str, *, include_input=False):
+        """
+        Generates all strings that come after the input string 
+        in lexicographical order.
+        If include_input is set to True, and input_str is accepted by the DFA then
+        it will be included in the output.
+        """
         G = self._get_digraph()
         coaccessible_nodes = self.final_states.union(*(
             nx.ancestors(G, state)
@@ -638,17 +653,18 @@ class DFA(fa.FA):
 
         sorted_symbols = sorted(self.input_symbols)
         symbol_succ = {sorted_symbols[i]: sorted_symbols[i+1] for i in range(len(self.input_symbols)-1)}
-        state_stack = [state for state in self.read_input_stepwise(input_str, check=False)]
+        state_stack = list(self.read_input_stepwise(input_str, check=False))
         char_stack = list(input_str)
 
         first_symbol = sorted_symbols[0]
         candidate = first_symbol
+        should_yield = include_input
         while True:
             state = state_stack[-1]
+            if should_yield and candidate == first_symbol and state in self.final_states:
+                yield ''.join(char_stack)
+            should_yield = True
             candidate_state = self._get_next_current_state(state, candidate)
-            if candidate_state in self.final_states:
-                char_stack.append(candidate)
-                return ''.join(char_stack)
             if candidate_state in coaccessible_nodes:
                 state_stack.append(candidate_state)
                 char_stack.append(candidate)

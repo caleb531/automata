@@ -329,6 +329,28 @@ Returns a uniformly random word of length `k`
 dfa.random_word(1000, seed=42)
 ```
 
+#### DFA.successor(self, input_str)
+
+Returns the first string accepted by the DFA that comes after
+the input string in lexicographical order.
+
+```python
+next_word = dfa.successor('0110')
+```
+
+#### DFA.successors(self, input_str, include_input=False)
+
+Generates all strings that come after the input string in lexicographical order.
+If `include_input` is set to `True`, and `input_str` is accepted by the DFA then
+it will be included in the output.
+Be aware that the generator may be infinite.
+
+```python
+# Generates all strings in a language in lexographical order
+for word in dfa.successors('', include_input=True):
+    print(word)
+```
+
 #### DFA.minimum_word_length(self)
 
 Returns the length of the shortest word in the language represented by the DFA.
