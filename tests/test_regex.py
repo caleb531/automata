@@ -3,9 +3,9 @@
 
 import unittest
 
-from automata.fa.nfa import NFA
 import automata.base.exceptions as exceptions
 import automata.regex.regex as re
+from automata.fa.nfa import NFA
 
 
 class TestRegex(unittest.TestCase):
