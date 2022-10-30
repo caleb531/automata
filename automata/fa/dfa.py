@@ -229,7 +229,7 @@ class DFA(fa.FA):
                 'the DFA stopped on a non-final state ({})'.format(
                     current_state))
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str, check=True):
         """
         Check if the given string is accepted by this DFA.
 
@@ -243,7 +243,8 @@ class DFA(fa.FA):
                 current_state, input_symbol)
             yield current_state
 
-        self._check_for_input_rejection(current_state)
+        if check:
+            self._check_for_input_rejection(current_state)
 
     def _get_digraph(self):
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
@@ -627,6 +628,40 @@ class DFA(fa.FA):
 
         assert state in self.final_states
         return ''.join(result)
+
+    def successor(self, input_str):
+        G = self._get_digraph()
+        coaccessible_nodes = self.final_states.union(*(
+            nx.ancestors(G, state)
+            for state in self.final_states
+        ))
+
+        sorted_symbols = sorted(self.input_symbols)
+        symbol_succ = {sorted_symbols[i]: sorted_symbols[i+1] for i in range(len(self.input_symbols)-1)}
+        state_stack = [state for state in self.read_input_stepwise(input_str, check=False)]
+        char_stack = list(input_str)
+
+        first_symbol = sorted_symbols[0]
+        candidate = first_symbol
+        while True:
+            state = state_stack[-1]
+            candidate_state = self._get_next_current_state(state, candidate)
+            if candidate_state in self.final_states:
+                char_stack.append(candidate)
+                return ''.join(char_stack)
+            if candidate_state in coaccessible_nodes:
+                state_stack.append(candidate_state)
+                char_stack.append(candidate)
+                candidate = first_symbol
+            else:
+                while char_stack and candidate not in symbol_succ:
+                    state = state_stack.pop()
+                    candidate = char_stack.pop()
+                if candidate not in symbol_succ:
+                    # This means there is nothing left to pop off the stack
+                    # and we have tried all symbols, thus ending the iteration
+                    break
+                candidate = symbol_succ[candidate]
 
     def count_words_of_length(self, k):
         """
