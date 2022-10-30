@@ -58,6 +58,7 @@ class NFARegexBuilder:
         Use BFS to only traverse reachable part (keeps number of states down).
         """
         new_state_name_dict = dict()
+
         def get_state_name(state_name):
             return new_state_name_dict.setdefault(state_name, self.__get_next_state_name())
 
@@ -226,6 +227,7 @@ class UnionToken(InfixOperator):
         left.union(right)
         return left
 
+
 class IntersectionToken(InfixOperator):
     """Subclass of infix operator defining the intersection operator."""
 
@@ -235,6 +237,7 @@ class IntersectionToken(InfixOperator):
     def op(self, left, right):
         left.intersection(right)
         return left
+
 
 class KleeneStarToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene star operator."""
@@ -246,6 +249,7 @@ class KleeneStarToken(PostfixOperator):
         left.kleene_star()
         return left
 
+
 class KleenePlusToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene plus operator."""
 
@@ -255,6 +259,7 @@ class KleenePlusToken(PostfixOperator):
     def op(self, left):
         left.kleene_plus()
         return left
+
 
 class OptionToken(PostfixOperator):
     """Subclass of postfix operator defining the option operator."""
@@ -310,6 +315,7 @@ def add_concat_tokens(token_list):
 
     return final_token_list
 
+
 def get_regex_lexer():
     """Get lexer for parsing regular expressions."""
     lexer = Lexer()
@@ -324,6 +330,7 @@ def get_regex_lexer():
     lexer.register_token(OptionToken, r'\?')
 
     return lexer
+
 
 def parse_regex(regexstr):
     """Return an NFARegexBuilder corresponding to regexstr."""
