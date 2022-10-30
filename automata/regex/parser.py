@@ -57,9 +57,6 @@ class NFARegexBuilder:
         Apply the intersection operation to the NFA represented by this builder and other.
         Use BFS to only traverse reachable part (keeps number of states down).
         """
-        print()
-        print(self._transitions)
-        print(other._transitions)
         new_state_name_dict = dict()
         def get_state_name(state_name):
             return new_state_name_dict.setdefault(state_name, self.__get_next_state_name())

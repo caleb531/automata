@@ -65,14 +65,29 @@ class TestRegex(unittest.TestCase):
 
     def test_intersection(self):
         """Should correctly check intersection of two regular expressions"""
+        # Basic test
         nfa_1 = NFA.from_regex('(0|(01))&(01)')
         nfa_2 = NFA.from_regex('01')
 
         self.assertEqual(nfa_1, nfa_2)
 
-        regex_1 = 'a(a*b|b)'
+        # Test intersection with NFA function on unrelated regexes
+        regex_1 = 'a|abacd'
         regex_2 = 'a(a*b|b)b(cd*|dc*)'
-        nfa_3 = NFA.from_regex(regex_1).intersection(NFA.regex_2)
+        nfa_3 = NFA.from_regex(regex_1).intersection(NFA.from_regex(regex_2))
         nfa_4 = NFA.from_regex(f'({regex_1})&({regex_2})')
 
         self.assertEqual(nfa_3, nfa_4)
+
+        # Test intersection subset
+        regex_3 = 'bcdaaa'
+        nfa_5 = NFA.from_regex(regex_3)
+        nfa_6 = NFA.from_regex(f'({regex_3}) & (bcda*)')
+
+        self.assertEqual(nfa_5, nfa_6)
+
+        # Test distributive law
+        regex_4 = f'{regex_1} & (({regex_2}) | ({regex_3}))'
+        regex_5 = f'(({regex_1}) & ({regex_2})) | (({regex_1}) & ({regex_3}))'
+        nfa_7 = NFA.from_regex(regex_4)
+        nfa_8 = NFA.from_regex(regex_5)
