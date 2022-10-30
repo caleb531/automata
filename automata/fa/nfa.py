@@ -640,7 +640,7 @@ class NFA(fa.FA):
         """
         Constructs the Levenshtein NFA for the given query_string and
         given Levenshtein distance. This NFA recognizes strings within the given
-        Levenshtein distance (commonly called edit distance) distance of query_string.
+        Levenshtein distance (commonly called edit distance) of the query_string.
 
         Code adapted from: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
         """
