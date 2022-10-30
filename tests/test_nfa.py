@@ -827,3 +827,6 @@ class TestNFA(test_fa.TestFA):
 
         for close_string in close_strings:
             self.assertTrue(nice_nfa.accepts_input(close_string))
+
+        with self.assertRaises(ValueError):
+            _ = NFA.levenshtein_distance(alphabet, 'food', -1)

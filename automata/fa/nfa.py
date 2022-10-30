@@ -644,6 +644,9 @@ class NFA(fa.FA):
 
         Code adapted from: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
         """
+        if max_edit_distance < 0:
+            raise ValueError("max_edit_distance must be greater than zero")
+
         states = set(product(range(len(reference_string)+1), range(max_edit_distance+1)))
 
         transitions = dict()
