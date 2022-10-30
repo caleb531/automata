@@ -3,6 +3,7 @@
 
 import unittest
 
+from automata.fa.nfa import NFA
 import automata.base.exceptions as exceptions
 import automata.regex.regex as re
 
@@ -61,3 +62,10 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(re.issuperset('aa?', 'a*'))
         self.assertTrue(re.issuperset('a*', 'a?'))
         self.assertTrue(re.issuperset('a*b|b*c*', 'aaa*b|bc'))
+
+    def test_intersection(self):
+        """Should correctly check non-equivalence of two regular expressions"""
+        nfa_1 = NFA.from_regex('(0|1)&(0)')
+        print(nfa_1)
+        nfa_2 = NFA.from_regex('0')
+        self.assertEqual(nfa_1, nfa_2)
