@@ -1454,6 +1454,18 @@ class TestDFA(test_fa.TestFA):
         self.assertIsNone(dfa.successor('110'))
         self.assertIsNone(dfa.successor('111111110101011'))
 
+        dfa2 = DFA.from_nfa(NFA.from_dfa(DFA.from_subsequence(binary, '1', contains=False)) +
+                            NFA.from_dfa(DFA.from_subsequence(binary, '0', contains=False)))
+        self.assertEqual(dfa2.successor(''), '0')
+        self.assertEqual(dfa2.successor('0'), '00')
+        self.assertEqual(dfa2.successor('00'), '000')
+        self.assertEqual(dfa2.successor('0001'), '00011')
+        self.assertEqual(dfa2.successor('00011'), '000111')
+        self.assertEqual(dfa2.successor('0000000011111'), '00000000111111')
+        self.assertEqual(dfa2.successor('1'), '11')
+        self.assertEqual(dfa2.successor(100 * '0'), 101 * '0')
+        self.assertEqual(dfa2.successor(100 * '1'), 101 * '1')
+
     def test_count_words_of_length(self):
         """
         Test that language that avoids the pattern '11' is counted by fibonacci numbers
