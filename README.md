@@ -637,7 +637,6 @@ then this is the same as LCS distance.
 
 insertion, deletion, and substitution all default to True.
 
-
 ```python
 levenshtein_nfa = NFA.edit_distance({'0', '1'}, '0101', 2)
 hamming_nfa = NFA.edit_distance({'0', '1'}, '0101', 2, insertion=False, deletion=False)

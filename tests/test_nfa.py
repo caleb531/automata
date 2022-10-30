@@ -901,14 +901,24 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2, substitution=False))
 
+        close_strings_substitution = ['tice', 'nick', 'noce']
+        close_strings_insertion = ['anice', 'nicee', 'niece', 'unice', 'niace']
+        close_strings_deletion = ['ice', 'nce', 'nic']
+
+
         nice_nfa_insertion = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1,
                                                insertion=True, substitution=False, deletion=False)
-        close_strings_insertion = ['anice', 'nicee', 'niece', 'unice', 'niace']
-        for close_string in close_strings_insertion:
-            self.assertTrue(nice_nfa_insertion.accepts_input(close_string))
-
         nice_nfa_deletion = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1,
                                               deletion=True, substitution=False, insertion=False)
-        close_strings_deletion = ['ice', 'nce']
+
+        for close_string in close_strings_substitution:
+            self.assertFalse(nice_nfa_deletion.accepts_input(close_string))
+            self.assertFalse(nice_nfa_insertion.accepts_input(close_string))
+
+        for close_string in close_strings_insertion:
+            self.assertFalse(nice_nfa_deletion.accepts_input(close_string))
+            self.assertTrue(nice_nfa_insertion.accepts_input(close_string))
+
         for close_string in close_strings_deletion:
             self.assertTrue(nice_nfa_deletion.accepts_input(close_string))
+            self.assertFalse(nice_nfa_insertion.accepts_input(close_string))
