@@ -813,9 +813,9 @@ class TestNFA(test_fa.TestFA):
             final_states=set(product([4], range(3)))
         )
 
-        self.assertEqual(nfa, NFA.levenshtein_distance(alphabet, 'food', 2))
+        self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2))
 
-        nice_nfa = NFA.levenshtein_distance(set(string.ascii_lowercase), 'nice', 1)
+        nice_nfa = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1)
 
         self.assertFalse(nice_nfa.accepts_input('food'))
 
@@ -829,7 +829,7 @@ class TestNFA(test_fa.TestFA):
             self.assertTrue(nice_nfa.accepts_input(close_string))
 
         with self.assertRaises(ValueError):
-            _ = NFA.levenshtein_distance(alphabet, 'food', -1)
+            _ = NFA.edit_distance(alphabet, 'food', -1)
 
     def test_nfa_hamming_distance(self):
         alphabet = {'f', 'o', 'd', 'a'}
@@ -858,9 +858,9 @@ class TestNFA(test_fa.TestFA):
             final_states=set(product([4], range(3)))
         )
 
-        self.assertEqual(nfa, NFA.levenshtein_distance(alphabet, 'food', 2, ins_del=False))
+        self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2, ins_del=False))
 
-        nice_nfa = NFA.levenshtein_distance(set(string.ascii_lowercase), 'nice', 1, ins_del=False)
+        nice_nfa = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1, ins_del=False)
 
         self.assertFalse(nice_nfa.accepts_input('food'))
 
@@ -899,9 +899,9 @@ class TestNFA(test_fa.TestFA):
             final_states=set(product([4], range(3)))
         )
 
-        self.assertEqual(nfa, NFA.levenshtein_distance(alphabet, 'food', 2, ins_del=True, substitution=False))
+        self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2, ins_del=True, substitution=False))
 
-        nice_nfa = NFA.levenshtein_distance(set(string.ascii_lowercase), 'nice', 1, ins_del=True, substitution=False)
+        nice_nfa = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1, ins_del=True, substitution=False)
 
         self.assertFalse(nice_nfa.accepts_input('food'))
 
