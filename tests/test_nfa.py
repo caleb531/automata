@@ -850,8 +850,8 @@ class TestNFA(test_fa.TestFA):
                 (3, 0): {'d': {(4, 0), (4, 1)}, 'o': {(4, 1)}, 'a': {(4, 1)}, 'f': {(4, 1)}},
                 (3, 1): {'d': {(4, 1), (4, 2)}, 'o': {(4, 2)}, 'a': {(4, 2)}, 'f': {(4, 2)}},
                 (3, 2): {'d': {(4, 2)}},
-                (4, 0): {'d': {(4, 1)}, 'o': {(4, 1)}, 'a': {(4, 1)}, 'f': {(4, 1)}},
-                (4, 1): {'d': {(4, 2)}, 'o': {(4, 2)}, 'a': {(4, 2)}, 'f': {(4, 2)}},
+                (4, 0): {},
+                (4, 1): {},
                 (4, 2): {}
             },
             initial_state=(0, 0),
@@ -872,6 +872,13 @@ class TestNFA(test_fa.TestFA):
 
         for close_string in close_strings:
             self.assertTrue(nice_nfa.accepts_input(close_string))
+
+        close_strings_insertion_deletion = [
+            'anice', 'nicee', 'niece', 'unice', 'niace', 'ice', 'nce', 'nic'
+        ]
+
+        for close_string in close_strings_insertion_deletion:
+            self.assertFalse(nice_nfa.accepts_input(close_string))
 
     def test_nfa_LCS_distance(self):
         alphabet = {'f', 'o', 'd', 'a'}

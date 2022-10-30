@@ -692,7 +692,7 @@ class NFA(fa.FA):
 
         for e in range(max_edit_distance + 1):
             state_transition_dict = transitions.setdefault((len(reference_string), e), dict())
-            if e < max_edit_distance and (insertion or substitution):
+            if e < max_edit_distance and insertion:
                 add_any_transition(state_transition_dict, (len(reference_string), e + 1))
 
             final_states.add((len(reference_string), e))
