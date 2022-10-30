@@ -169,7 +169,7 @@ class NFARegexBuilder:
             for old_state_name in self._transitions
         }
 
-        initial_state = state_map[self._initial_state]
+        second_initial_state = state_map[self._initial_state]
 
         new_transitions = {
             state_map[state]: {
@@ -182,11 +182,15 @@ class NFARegexBuilder:
         new_initial_state = self.__get_next_state_name()
 
         new_transitions[new_initial_state] = {
-            '': {initial_state}
+            '': {second_initial_state}
         }
 
         new_final_states = {new_initial_state}
         for state in self._final_states:
+            # Add transitions from old final states to intermediate one
+            self._transitions[state].setdefault('', set()).add(new_initial_state)
+
+            # Add transitions from the new final states to new initial state
             new_final_state = state_map[state]
             new_final_states.add(new_final_state)
             new_transitions[new_final_state].setdefault('', set()).add(new_initial_state)

@@ -95,4 +95,6 @@ class TestRegex(unittest.TestCase):
     def test_kleene_plus(self):
         """Should correctly check kleene plus of two regular expressions"""
         # Basic test
-        re.isequal('aa*', 'a+')
+        self.assertTrue(re.isequal('aa*', 'a+'))
+        self.assertTrue(re.isequal('(abc)(abc)*', '(abc)+'))
+        self.assertFalse(re.isequal('a*', 'a+'))
