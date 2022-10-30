@@ -5,6 +5,7 @@ import unittest
 
 import automata.base.exceptions as exceptions
 import automata.regex.regex as re
+from automata.fa.nfa import NFA
 
 
 class TestRegex(unittest.TestCase):
@@ -61,3 +62,42 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(re.issuperset('aa?', 'a*'))
         self.assertTrue(re.issuperset('a*', 'a?'))
         self.assertTrue(re.issuperset('a*b|b*c*', 'aaa*b|bc'))
+
+    def test_intersection(self):
+        """Should correctly check intersection of two regular expressions"""
+        # Basic test
+        nfa_1 = NFA.from_regex('(0|(01))&(01)')
+        nfa_2 = NFA.from_regex('01')
+
+        self.assertEqual(nfa_1, nfa_2)
+
+        # Test intersection with NFA function on unrelated regexes
+        regex_1 = 'a|abacd'
+        regex_2 = 'a(a*b|b)b(cd*|dc*)'
+        nfa_3 = NFA.from_regex(regex_1).intersection(NFA.from_regex(regex_2))
+        nfa_4 = NFA.from_regex(f'({regex_1})&({regex_2})')
+
+        self.assertEqual(nfa_3, nfa_4)
+
+        # Test intersection subset
+        regex_3 = 'bcdaaa'
+        nfa_5 = NFA.from_regex(regex_3)
+        nfa_6 = NFA.from_regex(f'({regex_3}) & (bcda*)')
+
+        self.assertEqual(nfa_5, nfa_6)
+
+        # Test distributive law
+        regex_4 = f'{regex_1} & (({regex_2}) | ({regex_3}))'
+        regex_5 = f'(({regex_1}) & ({regex_2})) | (({regex_1}) & ({regex_3}))'
+        nfa_7 = NFA.from_regex(regex_4)
+        nfa_8 = NFA.from_regex(regex_5)
+
+        self.assertEqual(nfa_7, nfa_8)
+
+    def test_kleene_plus(self):
+        """Should correctly check kleene plus of two regular expressions"""
+        # Basic test
+        self.assertTrue(re.isequal('aa*', 'a+'))
+        self.assertTrue(re.isequal('(abc)(abc)*', '(abc)+'))
+        self.assertTrue(re.isequal('a&a+', 'a'))
+        self.assertFalse(re.isequal('a*', 'a+'))

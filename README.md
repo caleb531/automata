@@ -1326,11 +1326,13 @@ A set of tools for working with regular languages. These can be found under
 
 A regular expression with the following operations only are supported in this library:
 
-- `*`: Kleene star operation. language repeated zero or more times. Ex: `a*`,`(ab)*`
+- `*`: Kleene star operation, language repeated zero or more times. Ex: `a*`,`(ab)*`
+- `+`: Kleene plus operation, language repeated one or more times. Ex: `a+`,`(ab)+`
 - `?`: Language repeated zero or one time. Ex: `a?`
-- Concatenation: Ex: `abcd`
+- Concatenation. Ex: `abcd`
 - `|`: Union. Ex: `a|b`
-- `()`: Grouping
+- `&`: Intersection. Ex: `a&b`
+- `()`: Grouping.
 
 This is similar to the python RE module but this library does not support any other
 special character than given above. All regular languages can be written with these.
@@ -1356,6 +1358,7 @@ Returns `True` if both regular expressions are equivalent.
 
 ```python
 re.isequal('aa?', 'a|aa')
+re.isequal('aa*', 'a+')
 ```
 
 #### automata.regex.regex.issubset(re1, re2)

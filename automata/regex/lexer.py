@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Classes and methods for lexing expressions into lists of tokens."""
+"""
+Classes and methods for lexing expressions into lists of tokens.
+
+Adapted from code in the tdparser library: https://github.com/rbarrois/tdparser
+"""
 
 import abc
 import re
