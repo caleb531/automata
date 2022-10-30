@@ -872,3 +872,27 @@ class TestNFA(test_fa.TestFA):
 
         for close_string in close_strings:
             self.assertTrue(nice_nfa.accepts_input(close_string))
+
+    def test_nfa_LCS_distance(self):
+        alphabet = {'f', 'o', 'd', 'a'}
+
+        nfa = NFA(
+            states=set(product(range(5), range(4))),
+            input_symbols=alphabet,
+            transitions={(0, 0): {'f': {(1, 0), (0, 1)}, 'd': {(0, 1)}, 'a': {(0, 1)}, 'o': {(0, 1)}, '': {(1, 1)}}, (0, 1): {'f': {(1, 1), (0, 2)}, 'd': {(0, 2)}, 'a': {(0, 2)}, 'o': {(0, 2)}, '': {(1, 2)}}, (0, 2): {'f': {(1, 2)}}, (1, 0): {'o': {(1, 1), (2, 0)}, 'd': {(1, 1)}, 'a': {(1, 1)}, 'f': {(1, 1)}, '': {(2, 1)}}, (1, 1): {'o': {(1, 2), (2, 1)}, 'd': {(1, 2)}, 'a': {(1, 2)}, 'f': {(1, 2)}, '': {(2, 2)}}, (1, 2): {'o': {(2, 2)}}, (2, 0): {'o': {(2, 1), (3, 0)}, 'd': {(2, 1)}, 'a': {(2, 1)}, 'f': {(2, 1)}, '': {(3, 1)}}, (2, 1): {'o': {(3, 1), (2, 2)}, 'd': {(2, 2)}, 'a': {(2, 2)}, 'f': {(2, 2)}, '': {(3, 2)}}, (2, 2): {'o': {(3, 2)}}, (3, 0): {'d': {(3, 1), (4, 0)}, 'a': {(3, 1)}, 'f': {(3, 1)}, 'o': {(3, 1)}, '': {(4, 1)}}, (3, 1): {'d': {(3, 2), (4, 1)}, 'a': {(3, 2)}, 'f': {(3, 2)}, 'o': {(3, 2)}, '': {(4, 2)}}, (3, 2): {'d': {(4, 2)}}, (4, 0): {'d': {(4, 1)}, 'a': {(4, 1)}, 'f': {(4, 1)}, 'o': {(4, 1)}}, (4, 1): {'d': {(4, 2)}, 'a': {(4, 2)}, 'f': {(4, 2)}, 'o': {(4, 2)}}, (4, 2): {}},
+            initial_state=(0, 0),
+            final_states=set(product([4], range(3)))
+        )
+
+        self.assertEqual(nfa, NFA.levenshtein_distance(alphabet, 'food', 2, ins_del=True, substitution=False))
+
+        nice_nfa = NFA.levenshtein_distance(set(string.ascii_lowercase), 'nice', 1, ins_del=True, substitution=False)
+
+        self.assertFalse(nice_nfa.accepts_input('food'))
+
+        close_strings = [
+            'anice', 'ice', 'nicee', 'niece', 'unice', 'niace', 'nce'
+        ]
+
+        for close_string in close_strings:
+            self.assertTrue(nice_nfa.accepts_input(close_string))
