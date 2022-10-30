@@ -611,12 +611,11 @@ class DFA(fa.FA):
 
         result = []
         rng = Random(seed)
-        for i in range(k):
-            cur_length = k - i
-            total = self._count_cache[cur_length][state]
+        for remaining in range(k, 0, -1):
+            total = self._count_cache[remaining][state]
             choice = rng.randint(0, total-1)
             for symbol, next_state in self.transitions[state].items():
-                next_state_count = self._count_cache[cur_length - 1][next_state]
+                next_state_count = self._count_cache[remaining - 1][next_state]
                 if choice < next_state_count:
                     result.append(symbol)
                     state = next_state
