@@ -637,19 +637,19 @@ class NFA(fa.FA):
 
     @classmethod
     def edit_distance(cls, input_symbols, reference_string, max_edit_distance, *,
-                      ins_del=True, substitution=True):
+                      insertion=True, deletion=True, substitution=True):
         """
-        Constructs the Levenshtein NFA for the given query_string and
+        Constructs the Levenshtein NFA for the given reference_string and
         given Levenshtein distance. This NFA recognizes strings within the given
-        Levenshtein distance (commonly called edit distance) of the query_string.
+        Levenshtein distance (commonly called edit distance) of the reference_string.
 
-        If ins_del is False and substitution is True, then doesn't allow for
-        insertions or deletions, only substitutions (same as Hamming distance).
+        If insertion and deletion are False and substitution is True,
+        then this is the same as Hamming distance.
 
-        If ins_del is True and substitution is False, then doesn't allow for
-        substitutions, only insertions or deletions (same as LCS distance).
+        If insertion and deletion are True and substitution is False,
+        then this is the same as LCS distance.
 
-        ins_del and substitution both default to True.
+        insertion, deletion, and substitution all default to True.
 
         Code adapted from: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
         """
@@ -678,9 +678,11 @@ class NFA(fa.FA):
                 # Correct character
                 add_transition(state_transition_dict, (i + 1, e), chr)
                 if e < max_edit_distance:
-                    if ins_del:
+                    if deletion:
                         # Deletion
                         add_any_transition(state_transition_dict, (i, e + 1))
+
+                    if insertion:
                         # Insertion
                         add_transition(state_transition_dict, (i + 1, e + 1), '')
 

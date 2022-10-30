@@ -622,25 +622,26 @@ Removes epsilon transitions from the NFA which recognizes the same language.
 ```python
 nfa1.eliminate_lambda()
 ```
-#### NFA.edit_distance(cls, input_symbols, reference_string, max_edit_distance, ins_del=True, substitution=True)
+#### NFA.edit_distance(cls, input_symbols, reference_string, max_edit_distance,
+insertion=True, deletion=True, substitution=True)
 
-Constructs the NFA for the given query_string for the given Levenshtein distance.
+Constructs the NFA for the given reference_string for the given Levenshtein distance.
 This NFA recognizes strings within the given Levenshtein distance
-(commonly called edit distance) of the query_string.
+(commonly called edit distance) of the reference_string.
 
-If ins_del is False and substitution is True, then doesn't allow for
-insertions or deletions, only substitutions (same as Hamming distance).
+If insertion and deletion are False and substitution is True,
+then this is the same as Hamming distance.
 
-If ins_del is True and substitution is False, then doesn't allow for
-substitutions, only insertions or deletions (same as LCS distance).
+If insertion and deletion are True and substitution is False,
+then this is the same as LCS distance.
 
-ins_del and substitution both default to True.
+insertion, deletion, and substitution all default to True.
 
 
 ```python
 levenshtein_nfa = NFA.edit_distance({'0', '1'}, '0101', 2)
-hamming_nfa = NFA.edit_distance({'0', '1'}, '0101', 2, ins_del=False, substitution=True)
-LCS_nfa = NFA.edit_distance({'0', '1'}, '0101', 2, ins_del=True, substitution=False)
+hamming_nfa = NFA.edit_distance({'0', '1'}, '0101', 2, insertion=False, deletion=False)
+LCS_nfa = NFA.edit_distance({'0', '1'}, '0101', 2, substitution=False)
 ```
 
 #### NFA.from_dfa(cls, dfa)

@@ -858,9 +858,9 @@ class TestNFA(test_fa.TestFA):
             final_states=set(product([4], range(3)))
         )
 
-        self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2, ins_del=False))
+        self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2, insertion=False, deletion=False))
 
-        nice_nfa = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1, ins_del=False)
+        nice_nfa = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1, insertion=False, deletion=False)
 
         self.assertFalse(nice_nfa.accepts_input('food'))
 
@@ -899,9 +899,9 @@ class TestNFA(test_fa.TestFA):
             final_states=set(product([4], range(3)))
         )
 
-        self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2, ins_del=True, substitution=False))
+        self.assertEqual(nfa, NFA.edit_distance(alphabet, 'food', 2, substitution=False))
 
-        nice_nfa = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1, ins_del=True, substitution=False)
+        nice_nfa = NFA.edit_distance(set(string.ascii_lowercase), 'nice', 1, substitution=False)
 
         self.assertFalse(nice_nfa.accepts_input('food'))
 
