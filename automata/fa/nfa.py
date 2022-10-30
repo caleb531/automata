@@ -553,6 +553,36 @@ class NFA(fa.FA):
             final_states=frozenset(product(self.final_states, other.final_states))
         )
 
+    def right_quotient(self, other):
+        """
+        Given two NFAs, M1 and M2, which accept the languages
+        L1 and L2 respectively, returns an NFA which accepts
+        the right quotient of L1 with respect to L2.
+
+        Construction is based off of the one described here:
+        https://cs.stackexchange.com/a/102043
+        """
+
+        new_input_symbols = self.input_symbols | other.input_symbols
+        new_initial_state = (self.initial_state, other.initial_state, False)
+        new_final_states = set(product(self.final_states, other.final_states, [True]))
+        new_states = set(chain(
+            product(self.states, [other.initial_state], [False]),
+            product(self.states, other.states, [True])
+        ))
+
+        new_transitions = dict()
+
+        for state, symbol in product(self.states, ):
+
+
+
+
+
+            final_states=new_final_states
+        )
+
+
     def show_diagram(self, path=None):
         """
             Creates the graph associated with this DFA

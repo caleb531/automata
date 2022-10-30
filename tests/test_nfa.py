@@ -987,3 +987,26 @@ class TestNFA(test_fa.TestFA):
             nfa1.shuffle_product(nfa2.union(nfa3)),
             nfa1.shuffle_product(nfa2).union(nfa1.shuffle_product(nfa3))
         )
+
+    def test_right_quotient(self):
+        nfa1 = NFA.from_regex('ab(cd*|dc)|a?')
+        nfa2 = NFA(
+            states={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
+            input_symbols={'a', 'b', 'c', 'd'},
+            initial_state=0,
+            transitions={
+                0: {'': {1, 10}},
+                1: {'a': {2}},
+                2: {'b': {3}},
+                3: {'': {4, 7}},
+                4: {'d': {5}},
+                5: {'c': {6}},
+                7: {'c': {8}},
+                8: {'d': {9}},
+                9: {'d': {9}},
+                10: {'a': {11}}
+            },
+            final_states={6, 8, 9, 10, 11}
+        )
+        nfa1.right_quotient(nfa2)
+        self.assertEqual(nfa1, nfa2)

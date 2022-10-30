@@ -1339,6 +1339,9 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(equiv_dfa, minimal_dfa)
         self.assertEqual(len(equiv_dfa.states), len(minimal_dfa.states))
 
+        dfa_language = {word for word in equiv_dfa}
+        self.assertEqual(dfa_language, language)
+
     def test_dfa_repr(self):
         """Should display proper string representation of DFA"""
         dfa = DFA(
