@@ -1018,6 +1018,15 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(quotient_nfa_3, reference_nfa_3)
 
+        # Other test case for regex
+        nfa_7 = NFA.from_regex('a*baa*')
+        nfa_8 = NFA.from_regex('ab*')
+
+        quotient_nfa_4 = nfa_7.right_quotient(nfa_8)
+        reference_nfa_4 = NFA.from_regex('a*ba*')
+
+        self.assertEqual(quotient_nfa_4, reference_nfa_4)
+
 
     def test_left_quotient(self):
         # Hardcode simple test case
