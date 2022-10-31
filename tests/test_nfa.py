@@ -1039,3 +1039,12 @@ class TestNFA(test_fa.TestFA):
         reference_dfa_1 = DFA.from_finite_language(alphabet, {'ch' , 'ter', '', 'zoth'})
 
         self.assertEqual(quotient_dfa_1, reference_dfa_1)
+
+        # Another simple test case
+        nfa3 = NFA.from_dfa(DFA.from_finite_language({'0', '1'}, {'10', '100', '1010', '101110'}))
+        nfa4 = NFA.from_dfa(DFA.from_finite_language({'0', '1'}, {'10'}))
+
+        quotient_dfa_2 = DFA.from_nfa(nfa3.left_quotient(nfa4))
+        reference_dfa_2 = DFA.from_finite_language({'0', '1'}, {'' , '0', '10', '1110'})
+
+        self.assertEqual(quotient_dfa_2, reference_dfa_2)
