@@ -1028,7 +1028,6 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(quotient_nfa_4, reference_nfa_4)
 
-
     def test_left_quotient(self):
         """Tests for left quotient operator, based on https://www.geeksforgeeks.org/quotient-operation-in-automata/"""
         # Hardcode simple test case
@@ -1038,7 +1037,7 @@ class TestNFA(test_fa.TestFA):
         nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'mat'}))
 
         quotient_dfa_1 = DFA.from_nfa(nfa1.left_quotient(nfa2))
-        reference_dfa_1 = DFA.from_finite_language(alphabet, {'ch' , 'ter', '', 'zoth'})
+        reference_dfa_1 = DFA.from_finite_language(alphabet, {'ch', 'ter', '', 'zoth'})
 
         self.assertEqual(quotient_dfa_1, reference_dfa_1)
 
@@ -1047,7 +1046,7 @@ class TestNFA(test_fa.TestFA):
         nfa4 = NFA.from_dfa(DFA.from_finite_language({'0', '1'}, {'10'}))
 
         quotient_dfa_2 = DFA.from_nfa(nfa3.left_quotient(nfa4))
-        reference_dfa_2 = DFA.from_finite_language({'0', '1'}, {'' , '0', '10', '1110'})
+        reference_dfa_2 = DFA.from_finite_language({'0', '1'}, {'', '0', '10', '1110'})
 
         self.assertEqual(quotient_dfa_2, reference_dfa_2)
 

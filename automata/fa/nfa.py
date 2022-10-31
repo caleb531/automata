@@ -557,7 +557,7 @@ class NFA(fa.FA):
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
-        the right quotient of L1 with respect to L2 (L1/L2).
+        the right quotient of L1 with respect to L2 (L1 / L2).
 
         Construction is based off of the one described here:
         https://cs.stackexchange.com/a/102043
@@ -617,7 +617,7 @@ class NFA(fa.FA):
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
-        the left quotient of L1 with respect to L2 (L2\L1).
+        the left quotient of L1 with respect to L2 (L2 \\ L1).
 
         Construction is based off of the one described here:
         https://cs.stackexchange.com/a/102043
