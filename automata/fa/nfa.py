@@ -563,7 +563,7 @@ class NFA(fa.FA):
         https://cs.stackexchange.com/a/102043
         """
 
-        # First, eliminita lambdas (cause problems with this algorithm)
+        # First, eliminate lambdas because they cause problems with this algorithm
         self_without_lambdas = self.eliminate_lambda()
         other_without_lambdas = other.eliminate_lambda()
 
@@ -623,7 +623,7 @@ class NFA(fa.FA):
         https://cs.stackexchange.com/a/102043
         """
 
-        # First, eliminita lambdas (cause problems with this algorithm)
+        # First, eliminate lambdas because they cause problems with this algorithm
         self_without_lambdas = self.eliminate_lambda()
         other_without_lambdas = other.eliminate_lambda()
 
