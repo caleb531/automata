@@ -563,50 +563,40 @@ class NFA(fa.FA):
         https://cs.stackexchange.com/a/102043
         """
 
-        new_input_symbols = self.input_symbols | other.input_symbols
-        new_initial_state = (self.initial_state, other.initial_state, False)
-        new_final_states = set(product(self.final_states, other.final_states, [True]))
+        self_without_lambdas = self.eliminate_lambda()
+        other_without_lambdas = other.eliminate_lambda()
+
+        new_input_symbols = self_without_lambdas.input_symbols | other_without_lambdas.input_symbols
+        new_initial_state = (self_without_lambdas.initial_state, other_without_lambdas.initial_state, False)
+        new_final_states = set(product(self_without_lambdas.final_states, other_without_lambdas.final_states, [True]))
         new_states = set(chain(
-            product(self.states, [other.initial_state], [False]),
-            product(self.states, other.states, [True])
+            product(self_without_lambdas.states, [other_without_lambdas.initial_state], [False]),
+            product(self_without_lambdas.states, other_without_lambdas.states, [True])
         ))
 
         new_transitions = dict()
 
         # Populate transitions for before reading the suffix
-        for state in self.states:
-            new_state = (state, other.initial_state, False)
+        for state in self_without_lambdas.states:
+            new_state = (state, other_without_lambdas.initial_state, False)
             new_state_dict = new_transitions.setdefault(new_state, dict())
-            old_transitions_dict = self.transitions.get(state)
+            old_transitions_dict = self_without_lambdas.transitions.get(state)
 
             if old_transitions_dict:
                 for symbol, end_states in old_transitions_dict.items():
                     new_state_dict[symbol] = {
-                        (end_state, other.initial_state, False)
+                        (end_state, other_without_lambdas.initial_state, False)
                         for end_state in end_states
                     }
 
-            new_state_dict[''] = {(state, other.initial_state, True)}
+            new_state_dict[''] = {(state, other_without_lambdas.initial_state, True)}
 
         # Start reading after the suffix
-        for q_a, q_b in product(self.states, other.states):
+        for q_a, q_b in product(self_without_lambdas.states, other_without_lambdas.states):
             curr_state = (q_a, q_b, True)
 
-            # Get transition dict for states in self
-            transitions_a = self.transitions.get(q_a, {})
-            # Add epsilon transitions for first set of transitions
-            epsilon_transitions_a = transitions_a.get('')
-            if epsilon_transitions_a is not None:
-                state_dict = new_transitions.setdefault(curr_state, dict())
-                state_dict.setdefault('', set()).update(product(epsilon_transitions_a, [q_b], [True]))
-
-            # Get transition dict for states in other
-            transitions_b = other.transitions.get(q_b, {})
-            # Add epsilon transitions for second set of transitions
-            epsilon_transitions_b = transitions_b.get('')
-            if epsilon_transitions_b is not None:
-                state_dict = new_transitions.setdefault(curr_state, dict())
-                state_dict.setdefault('', set()).update(product([q_a], epsilon_transitions_b, [True]))
+            transitions_a = self_without_lambdas.transitions.get(q_a, {})
+            transitions_b = other_without_lambdas.transitions.get(q_b, {})
 
             # Add all transitions moving over same input symbols
             for symbol in new_input_symbols:

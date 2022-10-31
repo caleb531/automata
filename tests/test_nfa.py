@@ -1003,8 +1003,8 @@ class TestNFA(test_fa.TestFA):
 
         # Test case for regex
 
-        nfa_3 = NFA.from_regex('ab*a').eliminate_lambda()
-        nfa_4 = NFA.from_regex('a').eliminate_lambda()
+        nfa_3 = NFA.from_regex('ab*a')
+        nfa_4 = NFA.from_regex('a')
 
         quotient_nfa = nfa_3.right_quotient(nfa_4)
         reference_nfa = NFA.from_regex('ab*')
