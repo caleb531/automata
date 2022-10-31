@@ -989,7 +989,11 @@ class TestNFA(test_fa.TestFA):
         )
 
     def test_right_quotient(self):
-        """Tests for right quotient operator, based on https://www.geeksforgeeks.org/quotient-operation-in-automata/"""
+        """
+        Tests for right quotient operator,
+        based on https://www.geeksforgeeks.org/quotient-operation-in-automata/
+        """
+
         # Hardcode simple test case
         alphabet = set(string.ascii_lowercase)
 
@@ -1038,7 +1042,11 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(quotient_nfa_5, reference_nfa_5)
 
     def test_left_quotient(self):
-        """Tests for left quotient operator, based on https://www.geeksforgeeks.org/quotient-operation-in-automata/"""
+        """
+        Tests for left quotient operator,
+        based on https://www.geeksforgeeks.org/quotient-operation-in-automata/
+        """
+
         # Hardcode simple test case
         alphabet = set(string.ascii_lowercase)
 
@@ -1076,3 +1084,22 @@ class TestNFA(test_fa.TestFA):
         reference_nfa_4 = NFA.from_regex('b*aa*')
 
         self.assertEqual(quotient_nfa_4, reference_nfa_4)
+
+    def test_quotient_properties(self):
+        """Test some properties of quotients, based on https://planetmath.org/quotientoflanguages """
+
+        nfa1 = NFA.from_regex('(ab*aa*)|(baa+)')
+        nfa2 = NFA.from_regex('(aa*b*a)|(b+aaba)')
+
+        nfa1_reversed = nfa1.reverse()
+        nfa2_reversed = nfa2.reverse()
+
+        self.assertEqual(nfa1.right_quotient(nfa2).reverse(), nfa1_reversed.left_quotient(nfa2_reversed))
+        self.assertEqual(nfa1.left_quotient(nfa2).reverse(), nfa1_reversed.right_quotient(nfa2_reversed))
+
+        def is_subset_nfa(nfa_a, nfa_b):
+            """Returns true if nfa_a is a subset of nfa_b"""
+            return (nfa_a | nfa_b) == nfa_b
+
+        self.assertTrue(is_subset_nfa(nfa1.left_quotient(nfa2) + nfa2, (nfa1 + nfa2).left_quotient(nfa2)))
+        self.assertTrue(is_subset_nfa(nfa2 + nfa1.right_quotient(nfa2), (nfa2 + nfa1).right_quotient(nfa2)))
