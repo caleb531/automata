@@ -1028,6 +1028,15 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(quotient_nfa_4, reference_nfa_4)
 
+        # Yet another regex test case
+        nfa_9 = NFA.from_regex('a+bc+')
+        nfa_10 = NFA.from_regex('c+')
+
+        quotient_nfa_5 = nfa_9.right_quotient(nfa_10)
+        reference_nfa_5 = NFA.from_regex('a+bc*')
+
+        self.assertEqual(quotient_nfa_5, reference_nfa_5)
+
     def test_left_quotient(self):
         """Tests for left quotient operator, based on https://www.geeksforgeeks.org/quotient-operation-in-automata/"""
         # Hardcode simple test case
