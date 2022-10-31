@@ -995,26 +995,25 @@ class TestNFA(test_fa.TestFA):
         nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'hooray', 'sunray', 'defray', 'ray'}))
         nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'ray'}))
 
-        quotient_dfa = DFA.from_nfa(nfa1.right_quotient(nfa2))
-        reference_dfa = DFA.from_finite_language(alphabet, {'hoo', 'sun', 'def', ''})
+        quotient_dfa_1 = DFA.from_nfa(nfa1.right_quotient(nfa2))
+        reference_dfa_1 = DFA.from_finite_language(alphabet, {'hoo', 'sun', 'def', ''})
 
-        self.assertEqual(quotient_dfa, reference_dfa)
+        self.assertEqual(quotient_dfa_1, reference_dfa_1)
 
+        # More complicated test case
+        nfa3 = NFA.from_dfa(DFA.from_finite_language({'a', 'b'}, {'', 'a', 'ab', 'aba', 'abab', 'abb'}))
+        nfa4 = NFA.from_dfa(DFA.from_finite_language({'a', 'b'}, {'b', 'bb', 'bbb', 'bbbb'}))
+
+        quotient_dfa_2 = DFA.from_nfa(nfa3.right_quotient(nfa4))
+        reference_dfa_2 = DFA.from_finite_language({'a', 'b'}, {'a', 'aba', 'ab'})
+
+        self.assertEqual(quotient_dfa_2, reference_dfa_2)
 
         # Test case for regex
+        nfa_5 = NFA.from_regex('bba*baa*')
+        nfa_6 = NFA.from_regex('ab*')
 
-        nfa_3 = NFA.from_regex('ab*a')
-        nfa_4 = NFA.from_regex('a')
+        quotient_nfa_3 = nfa_5.right_quotient(nfa_6)
+        reference_nfa_3 = NFA.from_regex('bba*ba*')
 
-        quotient_nfa = nfa_3.right_quotient(nfa_4)
-        reference_nfa = NFA.from_regex('ab*')
-        print()
-        print(DFA.from_nfa(quotient_nfa))
-        print(DFA.from_nfa(reference_nfa))
-        #for word in :
-        #    print(word)
-
-        #print(quotient_nfa)
-        #print(reference_nfa)
-
-        self.assertEqual(quotient_nfa, reference_nfa)
+        self.assertEqual(quotient_nfa_3, reference_nfa_3)
