@@ -1017,3 +1017,16 @@ class TestNFA(test_fa.TestFA):
         reference_nfa_3 = NFA.from_regex('bba*ba*')
 
         self.assertEqual(quotient_nfa_3, reference_nfa_3)
+
+
+    def test_left_quotient(self):
+        # Hardcode simple test case
+        alphabet = set(string.ascii_lowercase)
+
+        nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'match', 'matter', 'mat', 'matzoth'}))
+        nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'mat'}))
+
+        quotient_dfa_1 = DFA.from_nfa(nfa1.left_quotient(nfa2))
+        reference_dfa_1 = DFA.from_finite_language(alphabet, {'ch' , 'ter', '', 'zoth'})
+
+        self.assertEqual(quotient_dfa_1, reference_dfa_1)

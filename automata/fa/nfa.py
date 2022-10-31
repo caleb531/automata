@@ -557,7 +557,7 @@ class NFA(fa.FA):
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
-        the right quotient of L1 with respect to L2.
+        the right quotient of L1 with respect to L2 (L1/L2).
 
         Construction is based off of the one described here:
         https://cs.stackexchange.com/a/102043
@@ -613,6 +613,71 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
+    def left_quotient(self, other):
+        """
+        Given two NFAs, M1 and M2, which accept the languages
+        L1 and L2 respectively, returns an NFA which accepts
+        the left quotient of L1 with respect to L2 (L2\L1).
+
+        Construction is based off of the one described here:
+        https://cs.stackexchange.com/a/102043
+        """
+
+        # First, eliminita lambdas (cause problems with this algorithm)
+        self_without_lambdas = self.eliminate_lambda()
+        other_without_lambdas = other.eliminate_lambda()
+
+        new_input_symbols = self_without_lambdas.input_symbols | other_without_lambdas.input_symbols
+        new_initial_state = (self_without_lambdas.initial_state, other_without_lambdas.initial_state, False)
+        new_final_states = set(product(self_without_lambdas.final_states, other_without_lambdas.final_states, [True]))
+        new_states = set(chain(
+            product(self_without_lambdas.states, other_without_lambdas.states, [False]),
+            product(self_without_lambdas.states, other_without_lambdas.final_states, [True])
+        ))
+
+        new_transitions = dict()
+
+        # Start reading the prefix
+        for q_a, q_b in product(self_without_lambdas.states, other_without_lambdas.states):
+            curr_state = (q_a, q_b, False)
+
+            transitions_a = self_without_lambdas.transitions.get(q_a, {})
+            transitions_b = other_without_lambdas.transitions.get(q_b, {})
+
+            # Add all transitions moving over same input symbols
+            for symbol in new_input_symbols:
+                end_states_a = transitions_a.get(symbol)
+                end_states_b = transitions_b.get(symbol)
+
+                if end_states_a is not None and end_states_b is not None:
+                    state_dict = new_transitions.setdefault(curr_state, dict())
+                    state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, [False]))
+
+            # Add lambda transition from final state, flipping third entry to true
+            if q_b in other_without_lambdas.final_states:
+                state_dict = new_transitions.setdefault(curr_state, dict())
+                state_dict.setdefault('', set()).update({(q_a, q_b, True)})
+
+        # Populate transitions for after reading the prefix
+        for state_a, state_b in product(self_without_lambdas.states, other_without_lambdas.final_states):
+            new_state = (state_a, state_b, True)
+            new_state_dict = new_transitions.setdefault(new_state, dict())
+            old_transitions_dict = self_without_lambdas.transitions.get(state_a)
+
+            if old_transitions_dict:
+                for symbol, end_states in old_transitions_dict.items():
+                    new_state_dict[symbol] = {
+                        (end_state, state_b, True)
+                        for end_state in end_states
+                    }
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=new_input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=new_final_states
+        )
 
     def show_diagram(self, path=None):
         """
