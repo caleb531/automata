@@ -989,12 +989,32 @@ class TestNFA(test_fa.TestFA):
         )
 
     def test_right_quotient(self):
-        import string
+        # Hardcode simple test case
         alphabet = set(string.ascii_lowercase)
 
         nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'hooray', 'sunray', 'defray', 'ray'}))
         nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'ray'}))
 
-        equiv_dfa = DFA.from_nfa(nfa1.right_quotient(nfa2))
-        print([word for word in equiv_dfa])
-        #self.assertEqual(nfa1, nfa2)
+        quotient_dfa = DFA.from_nfa(nfa1.right_quotient(nfa2))
+        reference_dfa = DFA.from_finite_language(alphabet, {'hoo', 'sun', 'def', ''})
+
+        self.assertEqual(quotient_dfa, reference_dfa)
+
+
+        # Test case for regex
+
+        nfa_3 = NFA.from_regex('ab*a').eliminate_lambda()
+        nfa_4 = NFA.from_regex('a').eliminate_lambda()
+
+        quotient_nfa = nfa_3.right_quotient(nfa_4)
+        reference_nfa = NFA.from_regex('ab*')
+        print()
+        print(DFA.from_nfa(quotient_nfa))
+        print(DFA.from_nfa(reference_nfa))
+        #for word in :
+        #    print(word)
+
+        #print(quotient_nfa)
+        #print(reference_nfa)
+
+        self.assertEqual(quotient_nfa, reference_nfa)
