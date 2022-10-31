@@ -989,6 +989,7 @@ class TestNFA(test_fa.TestFA):
         )
 
     def test_right_quotient(self):
+        """Tests for right quotient operator, based on https://www.geeksforgeeks.org/quotient-operation-in-automata/"""
         # Hardcode simple test case
         alphabet = set(string.ascii_lowercase)
 
@@ -1029,6 +1030,7 @@ class TestNFA(test_fa.TestFA):
 
 
     def test_left_quotient(self):
+        """Tests for left quotient operator, based on https://www.geeksforgeeks.org/quotient-operation-in-automata/"""
         # Hardcode simple test case
         alphabet = set(string.ascii_lowercase)
 
@@ -1048,3 +1050,21 @@ class TestNFA(test_fa.TestFA):
         reference_dfa_2 = DFA.from_finite_language({'0', '1'}, {'' , '0', '10', '1110'})
 
         self.assertEqual(quotient_dfa_2, reference_dfa_2)
+
+        # Test case for regex
+        nfa_5 = NFA.from_regex('0*1')
+        nfa_6 = NFA.from_regex('01*')
+
+        quotient_nfa_3 = nfa_5.left_quotient(nfa_6)
+        reference_nfa_3 = NFA.from_regex('0*1') | NFA.from_regex('')
+
+        self.assertEqual(quotient_nfa_3, reference_nfa_3)
+
+        # Another test case for regex
+        nfa_7 = NFA.from_regex('ab*aa*')
+        nfa_8 = NFA.from_regex('ab*')
+
+        quotient_nfa_4 = nfa_7.left_quotient(nfa_8)
+        reference_nfa_4 = NFA.from_regex('b*aa*')
+
+        self.assertEqual(quotient_nfa_4, reference_nfa_4)
