@@ -679,6 +679,21 @@ new_nfa = nfa1.intersection(nfa2)
 ```python
 new_nfa = nfa1 & nfa2
 ```
+#### NFA.right_quotient(self, other)
+
+Returns right quotient of self with respect to other.
+
+```python
+new_nfa = nfa1.right_quotient(nfa2)
+```
+
+#### NFA.left_quotient(self, other)
+
+Returns left quotient of self with respect to other.
+
+```python
+new_nfa = nfa1.left_quotient(nfa2)
+```
 
 #### NFA.shuffle_product(self, other)
 
