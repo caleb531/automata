@@ -930,3 +930,18 @@ class TestNFA(test_fa.TestFA):
         for close_string in close_strings_deletion:
             self.assertTrue(nice_nfa_deletion.accepts_input(close_string))
             self.assertFalse(nice_nfa_insertion.accepts_input(close_string))
+
+    def test_nfa_shuffle_product(self):
+        """
+        Test shuffle product of two NFAs.
+
+        Test cases based on https://planetmath.org/shuffleoflanguages
+        """
+        alphabet = {'a', 'b'}
+
+        nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'aba'}))
+        nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'bab'}))
+
+        nfa3 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'abbaab', 'baabab', 'ababab', 'babaab', 'abbaba', 'baabba', 'ababba', 'bababa'}))
+
+        self.assertEqual(nfa1.shuffle_product(nfa2), nfa3)

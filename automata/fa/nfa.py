@@ -510,6 +510,44 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
+    def shuffle_product(self, other):
+        """
+        Given two NFAs, M1 and M2, which accept the languages
+        L1 and L2 respectively, returns an NFA which accepts
+        the shuffle of L1 and L2.
+        """
+
+        # First, eliminate lambdas because they cause problems with this construction
+        self_without_lambdas = self.eliminate_lambda()
+        other_without_lambdas = other.eliminate_lambda()
+
+        new_input_symbols = self_without_lambdas.input_symbols | other_without_lambdas.input_symbols
+        new_initial_state = (self_without_lambdas.initial_state, other_without_lambdas.initial_state)
+        new_final_states = set(product(self_without_lambdas.final_states, other_without_lambdas.final_states))
+        new_states = set(product(self_without_lambdas.states, other_without_lambdas.states))
+
+        new_transitions = dict()
+
+        for curr_state in new_states:
+            state_dict = new_transitions.setdefault(curr_state, dict())
+            q_a, q_b = curr_state
+
+            transitions_a = self_without_lambdas.transitions.get(q_a, dict())
+            for symbol, end_states in transitions_a.items():
+                state_dict.setdefault(symbol, set()).update(product(end_states, [q_b]))
+
+            transitions_b = other_without_lambdas.transitions.get(q_b, dict())
+            for symbol, end_states in transitions_b.items():
+                state_dict.setdefault(symbol, set()).update(product([q_a], end_states))
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=new_input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=new_final_states
+        )
+
     def show_diagram(self, path=None):
         """
             Creates the graph associated with this DFA
