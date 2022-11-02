@@ -1089,9 +1089,7 @@ class DFA(fa.FA):
 
         def compute_signature(state):
             """Computes signature for input state"""
-            return (state in final_states, frozenset(
-                (chr, end_state) for chr, end_state in transitions[state].items()
-            ))
+            return (state in final_states, frozenset(transitions[state].items()))
 
         def longest_common_prefix_length(string_1, string_2):
             """Returns length of longest common prefix."""
