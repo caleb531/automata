@@ -962,7 +962,6 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(nfa5.shuffle_product(nfa7), nfa8)
 
-
     def test_nfa_shuffle_product_set_laws(self):
         """Test set laws for shuffle product"""
         alphabet = {'a', 'b'}
