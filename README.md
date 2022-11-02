@@ -623,6 +623,16 @@ new_nfa = nfa1.intersection(nfa2)
 new_nfa = nfa1 & nfa2
 ```
 
+#### NFA.shuffle_product(self, other)
+
+Returns shuffle product of two NFAs. This produces an NFA that accepts all
+interleavings of strings in the input NFAs.
+See [this article](https://link.springer.com/chapter/10.1007/978-3-031-19685-0_3) for more details.
+
+```python
+new_nfa = nfa1.shuffle_product(nfa2)
+```
+
 #### NFA.eliminate_lambda(self)
 
 Removes epsilon transitions from the NFA which recognizes the same language.
