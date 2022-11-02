@@ -529,10 +529,10 @@ class TestNFA(test_fa.TestFA):
         # third check: union of NFA which is subset of other
         nfa6 = NFA.from_regex('aa*')
         nfa7 = NFA.from_regex('a*')
-        nfa1 = nfa6.union(nfa7)
-        nfa2 = nfa7.union(nfa6)
-        self.assertEqual(nfa1, nfa7)
-        self.assertEqual(nfa2, nfa7)
+        nfa8 = nfa6.union(nfa7)
+        nfa9 = nfa7.union(nfa6)
+        self.assertEqual(nfa8, nfa7)
+        self.assertEqual(nfa9, nfa7)
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
@@ -554,10 +554,10 @@ class TestNFA(test_fa.TestFA):
         # third check: intersection of NFA which is subset of other
         nfa6 = NFA.from_regex('aa*')
         nfa7 = NFA.from_regex('a*')
-        nfa1 = nfa6.intersection(nfa7)
-        nfa2 = nfa7.intersection(nfa6)
-        self.assertEqual(nfa1, nfa6)
-        self.assertEqual(nfa2, nfa6)
+        nfa8 = nfa6.intersection(nfa7)
+        nfa9 = nfa7.intersection(nfa6)
+        self.assertEqual(nfa8, nfa6)
+        self.assertEqual(nfa9, nfa6)
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
