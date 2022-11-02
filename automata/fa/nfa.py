@@ -701,7 +701,7 @@ class NFA(fa.FA):
 
             final_states.add((len(reference_string), e))
 
-        return NFA(
+        return cls(
             states=states,
             input_symbols=input_symbols,
             transitions=transitions,
