@@ -971,6 +971,17 @@ class TestNFA(test_fa.TestFA):
         # Language properties test case
         nfa7 = NFA.from_regex('a(a*b|b)', input_symbols=alphabet)
         nfa8 = NFA.from_regex('(aa+b)&(abbb)|(bba+)', input_symbols=alphabet)
-        nfa8 = NFA.from_regex('a(a*b|b)b(ab*|ba*)', input_symbols=alphabet)
+        nfa9 = NFA.from_regex('a(a*b|b)b(ab*|ba*)', input_symbols=alphabet)
 
+        # Commutativity
         self.assertEqual(nfa7.shuffle_product(nfa8), nfa8.shuffle_product(nfa7))
+        # Associativity
+        self.assertEqual(
+            nfa7.shuffle_product(nfa8.shuffle_product(nfa9)),
+            nfa7.shuffle_product(nfa8).shuffle_product(nfa9)
+        )
+        # Distributes over union
+        self.assertEqual(
+            nfa7.shuffle_product(nfa8.union(nfa9)),
+            nfa7.shuffle_product(nfa8).union(nfa7.shuffle_product(nfa9))
+        )
