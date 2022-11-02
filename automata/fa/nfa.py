@@ -124,9 +124,17 @@ class NFA(fa.FA):
         )
 
     @classmethod
-    def from_regex(cls, regex):
+    def from_regex(cls, regex, *, input_symbols=None):
         """Initialize this NFA as one equivalent to the given regular expression"""
-        input_symbols = set(regex) - {'*', '|', '(', ')', '?', ' ', '\t', '&', '+'}
+        reserved_characters = {'*', '|', '(', ')', '?', ' ', '\t', '&', '+'}
+
+        if input_symbols is None:
+            input_symbols = set(regex) - reserved_characters
+        else:
+            conflicting_symbols = reserved_characters & input_symbols
+            if conflicting_symbols:
+                raise ValueError(f'Invalid input symbols: {conflicting_symbols}')
+
         nfa_builder = parse_regex(regex)
 
         return cls(

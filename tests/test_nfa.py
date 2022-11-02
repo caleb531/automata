@@ -939,9 +939,38 @@ class TestNFA(test_fa.TestFA):
         """
         alphabet = {'a', 'b'}
 
+        # Basic finite language test case
         nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'aba'}))
         nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'bab'}))
 
-        nfa3 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'abbaab', 'baabab', 'ababab', 'babaab', 'abbaba', 'baabba', 'ababba', 'bababa'}))
+        nfa3 = NFA.from_dfa(DFA.from_finite_language(alphabet, {
+            'abbaab', 'baabab', 'ababab', 'babaab', 'abbaba', 'baabba', 'ababba', 'bababa'
+        }))
 
         self.assertEqual(nfa1.shuffle_product(nfa2), nfa3)
+
+        # Regular language test case
+        nfa4 = NFA.from_regex('aa', input_symbols=alphabet)
+        nfa5 = NFA.from_regex('b*', input_symbols=alphabet)
+
+        nfa6 = NFA(
+            states={0, 1, 2, 3},
+            input_symbols=alphabet,
+            transitions={
+                0: {'a': {1}, 'b': {0}},
+                1: {'a': {2}, 'b': {1}},
+                2: {'a': {3}, 'b': {2}},
+                3: {'b': {3}},
+            },
+            initial_state=0,
+            final_states={2}
+        )
+
+        self.assertEqual(nfa4.shuffle_product(nfa5), nfa6)
+
+        # Language properties test case
+        nfa7 = NFA.from_regex('a(a*b|b)', input_symbols=alphabet)
+        nfa8 = NFA.from_regex('(aa+b)&(abbb)|(bba+)', input_symbols=alphabet)
+        nfa8 = NFA.from_regex('a(a*b|b)b(ab*|ba*)', input_symbols=alphabet)
+
+        self.assertEqual(nfa7.shuffle_product(nfa8), nfa8.shuffle_product(nfa7))
