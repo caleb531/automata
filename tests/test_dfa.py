@@ -1441,6 +1441,29 @@ class TestDFA(test_fa.TestFA):
         for i in range(10):
             self.assertIn(dfa.random_word(100), dfa)
 
+    def test_predecessor(self):
+        binary = {'0', '1'}
+        language = {'', '0', '00', '000', '010', '100', '110', '010101111111101011010100'}
+        dfa = DFA.from_finite_language(binary, language)
+        expected = sorted(language, reverse=True)
+        actual = list(dfa.predecessors('11111111111111111111111111111111'))
+        self.assertListEqual(actual, expected)
+        expected = sorted({'', '0', '00', '000', '010'}, reverse=True)
+        actual = list(dfa.predecessors('010', include_input=True))
+
+        self.assertEqual(dfa.predecessor('000'), '00')
+        self.assertEqual(dfa.predecessor('0100'), '010')
+        self.assertEqual(dfa.predecessor('1'), '010101111111101011010100')
+        self.assertEqual(dfa.predecessor('0111111110101011'), '010101111111101011010100')
+        self.assertIsNone(dfa.predecessor(''))
+
+        infinite_dfa = DFA.from_nfa(NFA.from_dfa(DFA.from_subsequence(binary, '1', contains=False)) +
+                                    NFA.from_dfa(DFA.from_subsequence(binary, '0', contains=False)))
+        with self.assertRaises(ValueError):
+            infinite_dfa.predecessor('000')
+        with self.assertRaises(ValueError):
+            [_ for _ in infinite_dfa.predecessors('000')]
+
     def test_successor(self):
         binary = {'0', '1'}
         language = {'', '0', '00', '000', '010', '100', '110', '010101111111101011010100'}
@@ -1465,6 +1488,14 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dfa2.successor('1'), '11')
         self.assertEqual(dfa2.successor(100 * '0'), 101 * '0')
         self.assertEqual(dfa2.successor(100 * '1'), 101 * '1')
+
+    def test_successor_and_predecessor(self):
+        binary = {'0', '1'}
+        language = {'', '0', '00', '000', '010', '100', '110', '010101111111101011010100'}
+        dfa = DFA.from_finite_language(binary, language)
+        for word in language:
+            self.assertEqual(dfa.successor(dfa.predecessor(word)), word)
+            self.assertEqual(dfa.predecessor(dfa.successor(word)), word)
 
     def test_count_words_of_length(self):
         """

@@ -629,10 +629,60 @@ class DFA(fa.FA):
         assert state in self.final_states
         return ''.join(result)
 
+    def predecessor(self, input_str):
+        """
+        Returns the first string accepted by the DFA that comes before
+        the input string in lexicographical order.
+        Passing in None will produce the lexicographically last word.
+        """
+        for word in self.predecessors(input_str):
+            return word
+        return None
+
+    def predecessors(self, input_str, *, include_input=False):
+        if not self.isfinite():
+            raise ValueError('Predecessors cannot be computed for infinite languages')
+        G = self._get_digraph()
+        coaccessible_nodes = self.final_states.union(*(
+            nx.ancestors(G, state)
+            for state in self.final_states
+        ))
+
+        sorted_symbols = sorted(self.input_symbols)
+        symbol_pred = {sorted_symbols[i+1]: sorted_symbols[i] for i in range(len(self.input_symbols)-1)}
+        symbol_pred[sorted_symbols[0]] = None
+
+        state_stack = ([self.initial_state] if input_str is None
+                       else list(self.read_input_stepwise(input_str, check=False)))
+        char_stack = [] if input_str is None else list(input_str)
+
+        first_symbol = sorted_symbols[-1]
+        candidate = first_symbol if input_str is None else None
+        should_yield = include_input or input_str is None
+
+        while char_stack or candidate is not None:
+            state = state_stack[-1]
+            candidate_state = None if candidate is None else self._get_next_current_state(state, candidate)
+            if candidate_state in coaccessible_nodes:
+                state_stack.append(candidate_state)
+                char_stack.append(candidate)
+                candidate = first_symbol
+            else:
+                if should_yield and candidate is None and state in self.final_states:
+                    yield ''.join(char_stack)
+                if char_stack and candidate is None:
+                    state = state_stack.pop()
+                    candidate = char_stack.pop()
+                candidate = symbol_pred[candidate]
+            should_yield = True
+        if should_yield and candidate is None and state in self.final_states:
+            yield ''.join(char_stack)
+
     def successor(self, input_str):
         """
         Returns the first string accepted by the DFA that comes after
         the input string in lexicographical order.
+        Passing in None will produce the lexicographically first word.
         """
         for word in self.successors(input_str):
             return word
@@ -640,7 +690,7 @@ class DFA(fa.FA):
 
     def successors(self, input_str, *, include_input=False):
         """
-        Generates all strings that come after the input string 
+        Generates all strings that come after the input string
         in lexicographical order.
         If include_input is set to True, and input_str is accepted by the DFA then
         it will be included in the output.
@@ -653,30 +703,28 @@ class DFA(fa.FA):
 
         sorted_symbols = sorted(self.input_symbols)
         symbol_succ = {sorted_symbols[i]: sorted_symbols[i+1] for i in range(len(self.input_symbols)-1)}
-        state_stack = list(self.read_input_stepwise(input_str, check=False))
-        char_stack = list(input_str)
+        symbol_succ[sorted_symbols[-1]] = None
+        state_stack = ([self.initial_state] if input_str is None
+                       else list(self.read_input_stepwise(input_str, check=False)))
+        char_stack = [] if input_str is None else list(input_str)
 
         first_symbol = sorted_symbols[0]
         candidate = first_symbol
-        should_yield = include_input
-        while True:
+        should_yield = include_input or input_str is None
+        while char_stack or candidate is not None:
             state = state_stack[-1]
             if should_yield and candidate == first_symbol and state in self.final_states:
                 yield ''.join(char_stack)
             should_yield = True
-            candidate_state = self._get_next_current_state(state, candidate)
+            candidate_state = None if candidate is None else self._get_next_current_state(state, candidate)
             if candidate_state in coaccessible_nodes:
                 state_stack.append(candidate_state)
                 char_stack.append(candidate)
                 candidate = first_symbol
             else:
-                while char_stack and candidate not in symbol_succ:
+                if char_stack and candidate is None:
                     state = state_stack.pop()
                     candidate = char_stack.pop()
-                if candidate not in symbol_succ:
-                    # This means there is nothing left to pop off the stack
-                    # and we have tried all symbols, thus ending the iteration
-                    break
                 candidate = symbol_succ[candidate]
 
     def count_words_of_length(self, k):
