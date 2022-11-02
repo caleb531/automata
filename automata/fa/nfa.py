@@ -525,14 +525,10 @@ class NFA(fa.FA):
         the shuffle of L1 and L2.
         """
 
-        # First, eliminate lambdas because they cause problems with this construction
-        self_without_lambdas = self.eliminate_lambda()
-        other_without_lambdas = other.eliminate_lambda()
-
-        new_input_symbols = self_without_lambdas.input_symbols | other_without_lambdas.input_symbols
-        new_initial_state = (self_without_lambdas.initial_state, other_without_lambdas.initial_state)
-        new_final_states = set(product(self_without_lambdas.final_states, other_without_lambdas.final_states))
-        new_states = set(product(self_without_lambdas.states, other_without_lambdas.states))
+        new_input_symbols = self.input_symbols | other.input_symbols
+        new_initial_state = (self.initial_state, other.initial_state)
+        new_final_states = set(product(self.final_states, other.final_states))
+        new_states = set(product(self.states, other.states))
 
         new_transitions = dict()
 
@@ -540,11 +536,11 @@ class NFA(fa.FA):
             state_dict = new_transitions.setdefault(curr_state, dict())
             q_a, q_b = curr_state
 
-            transitions_a = self_without_lambdas.transitions.get(q_a, dict())
+            transitions_a = self.transitions.get(q_a, dict())
             for symbol, end_states in transitions_a.items():
                 state_dict.setdefault(symbol, set()).update(product(end_states, [q_b]))
 
-            transitions_b = other_without_lambdas.transitions.get(q_b, dict())
+            transitions_b = other.transitions.get(q_b, dict())
             for symbol, end_states in transitions_b.items():
                 state_dict.setdefault(symbol, set()).update(product([q_a], end_states))
 
