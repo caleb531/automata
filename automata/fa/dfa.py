@@ -841,17 +841,23 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def of_length(cls, input_symbols, *, min_length=0, max_length=None):
+    def of_length(cls, input_symbols, *, min_length=0, max_length=None, symbols_to_count=None):
         """
         Directly computes the minimal DFA recognizing strings whose length
         is between `min_length` and `max_length`, inclusive.
         To allow infinitely long words the value `None` can be passed in for `max_length`.
         """
+        if symbols_to_count is None:
+            symbols_to_count = input_symbols
+
         transitions = {}
         length_range = range(min_length) if max_length is None else range(max_length+1)
         for prev_state in length_range:
             next_state = prev_state + 1
-            transitions[prev_state] = {symbol: next_state for symbol in input_symbols}
+            transitions[prev_state] = {
+                symbol: next_state if symbol in symbols_to_count else prev_state
+                for symbol in input_symbols
+            }
         last_state = len(transitions)
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
         final_states = {last_state} if max_length is None else set(range(min_length, max_length+1))

@@ -529,10 +529,10 @@ class TestNFA(test_fa.TestFA):
         # third check: union of NFA which is subset of other
         nfa6 = NFA.from_regex('aa*')
         nfa7 = NFA.from_regex('a*')
-        nfa8 = nfa6.union(nfa7)
-        nfa9 = nfa7.union(nfa6)
-        self.assertEqual(nfa8, nfa7)
-        self.assertEqual(nfa9, nfa7)
+        nfa1 = nfa6.union(nfa7)
+        nfa2 = nfa7.union(nfa6)
+        self.assertEqual(nfa1, nfa7)
+        self.assertEqual(nfa2, nfa7)
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
@@ -554,10 +554,10 @@ class TestNFA(test_fa.TestFA):
         # third check: intersection of NFA which is subset of other
         nfa6 = NFA.from_regex('aa*')
         nfa7 = NFA.from_regex('a*')
-        nfa8 = nfa6.intersection(nfa7)
-        nfa9 = nfa7.intersection(nfa6)
-        self.assertEqual(nfa8, nfa6)
-        self.assertEqual(nfa9, nfa6)
+        nfa1 = nfa6.intersection(nfa7)
+        nfa2 = nfa7.intersection(nfa6)
+        self.assertEqual(nfa1, nfa6)
+        self.assertEqual(nfa2, nfa6)
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
@@ -953,35 +953,34 @@ class TestNFA(test_fa.TestFA):
         nfa4 = NFA.from_regex('aa', input_symbols=alphabet)
         nfa5 = NFA.from_regex('b*', input_symbols=alphabet)
 
-        nfa6 = NFA(
-            states={0, 1, 2, 3},
-            input_symbols=alphabet,
-            transitions={
-                0: {'a': {1}, 'b': {0}},
-                1: {'a': {2}, 'b': {1}},
-                2: {'a': {3}, 'b': {2}},
-                3: {'b': {3}},
-            },
-            initial_state=0,
-            final_states={2}
-        )
+        nfa6 = NFA.from_dfa(DFA.of_length(alphabet, min_length=2, max_length=2, symbols_to_count={'a'}))
 
         self.assertEqual(nfa4.shuffle_product(nfa5), nfa6)
 
+        nfa7 = NFA.from_regex('a?a?a?')
+        nfa8 = NFA.from_dfa(DFA.of_length(alphabet, max_length=3, symbols_to_count={'a'}))
+
+        self.assertEqual(nfa5.shuffle_product(nfa7), nfa8)
+
+
+    def test_nfa_shuffle_product_set_laws(self):
+        """Test set laws for shuffle product"""
+        alphabet = {'a', 'b'}
+
         # Language properties test case
-        nfa7 = NFA.from_regex('a(a*b|b)', input_symbols=alphabet)
-        nfa8 = NFA.from_regex('(aa+b)&(abbb)|(bba+)', input_symbols=alphabet)
-        nfa9 = NFA.from_regex('a(a*b|b)b(ab*|ba*)', input_symbols=alphabet)
+        nfa1 = NFA.from_regex('a(a*b|b)', input_symbols=alphabet)
+        nfa2 = NFA.from_regex('(aa+b)&(abbb)|(bba+)', input_symbols=alphabet)
+        nfa3 = NFA.from_regex('a(a*b|b)b(ab*|ba*)', input_symbols=alphabet)
 
         # Commutativity
-        self.assertEqual(nfa7.shuffle_product(nfa8), nfa8.shuffle_product(nfa7))
+        self.assertEqual(nfa1.shuffle_product(nfa2), nfa2.shuffle_product(nfa1))
         # Associativity
         self.assertEqual(
-            nfa7.shuffle_product(nfa8.shuffle_product(nfa9)),
-            nfa7.shuffle_product(nfa8).shuffle_product(nfa9)
+            nfa1.shuffle_product(nfa2.shuffle_product(nfa3)),
+            nfa1.shuffle_product(nfa2).shuffle_product(nfa3)
         )
         # Distributes over union
         self.assertEqual(
-            nfa7.shuffle_product(nfa8.union(nfa9)),
-            nfa7.shuffle_product(nfa8).union(nfa7.shuffle_product(nfa9))
+            nfa1.shuffle_product(nfa2.union(nfa3)),
+            nfa1.shuffle_product(nfa2).union(nfa1.shuffle_product(nfa3))
         )

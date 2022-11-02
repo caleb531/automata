@@ -428,7 +428,7 @@ contains_substring_dcba = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba')
 avoids_substring_dcba = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba', contains=False)
 ```
 
-#### DFA.of_length(cls, input_symbols, min_length=0, max_length=None)
+#### DFA.of_length(cls, input_symbols, min_length=0, max_length=None, symbols_to_count=None)
 
 Directly computes the minimal DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
 To allow infinitely long words the value `None` can be passed in for `max_length`.
