@@ -667,7 +667,7 @@ class DFA(fa.FA):
             return word
         return None
 
-    def successors(self, input_str, *, strict=True, reverse=False, key=None):
+    def successors(self, input_str, *, strict=True, key=None, reverse=False):
         """
         Generates all strings that come after the input string
         in lexicographical order.
