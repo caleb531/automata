@@ -321,6 +321,14 @@ Returns `True` if the DFA accepts a finite language, False otherwise.
 dfa.isfinite()
 ```
 
+#### DFA.random_word(self, k, seed=None)
+
+Returns a uniformly random word of length `k`
+
+```python
+dfa.random_word(1000, seed=42)
+```
+
 #### DFA.minimum_word_length(self)
 
 Returns the length of the shortest word in the language represented by the DFA.

@@ -1423,6 +1423,24 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(ValueError):
             len(~dfa)
 
+    def test_random_word(self):
+        """
+        Test random generation of words, the generation should be uniformly random
+        """
+        binary = {'0', '1'}
+        dfa = DFA.from_prefix(binary, '00')
+        with self.assertRaises(ValueError):
+            dfa.random_word(1)
+
+        for i in range(10):
+            self.assertEqual(dfa.random_word(2), '00')
+
+        for i in range(10):
+            self.assertIn(dfa.random_word(10), dfa)
+
+        for i in range(10):
+            self.assertIn(dfa.random_word(100), dfa)
+
     def test_count_words_of_length(self):
         """
         Test that language that avoids the pattern '11' is counted by fibonacci numbers

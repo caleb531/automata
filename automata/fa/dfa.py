@@ -3,6 +3,7 @@
 
 from collections import defaultdict, deque
 from itertools import chain, count
+from random import Random
 
 import networkx as nx
 from pydot import Dot, Edge, Node
@@ -604,6 +605,28 @@ class DFA(fa.FA):
             return self.maximum_word_length() is not None
         except ValueError:
             return True
+
+    def random_word(self, k, *, seed=None):
+        self._ensure_count_for_length(k)
+        state = self.initial_state
+        if self._count_cache[k][state] == 0:
+            raise ValueError(f"Language has no words of length {k}")
+
+        result = []
+        rng = Random(seed)
+        for remaining in range(k, 0, -1):
+            total = self._count_cache[remaining][state]
+            choice = rng.randint(0, total-1)
+            for symbol, next_state in self.transitions[state].items():
+                next_state_count = self._count_cache[remaining - 1][next_state]
+                if choice < next_state_count:
+                    result.append(symbol)
+                    state = next_state
+                    break
+                choice -= next_state_count
+
+        assert state in self.final_states
+        return ''.join(result)
 
     def count_words_of_length(self, k):
         """
