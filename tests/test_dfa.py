@@ -1449,7 +1449,7 @@ class TestDFA(test_fa.TestFA):
         actual = list(dfa.predecessors('11111111111111111111111111111111'))
         self.assertListEqual(actual, expected)
         expected = sorted({'', '0', '00', '000', '010'}, reverse=True)
-        actual = list(dfa.predecessors('010', include_input=True))
+        actual = list(dfa.predecessors('010', strict=False))
 
         self.assertEqual(dfa.predecessor('000'), '00')
         self.assertEqual(dfa.predecessor('0100'), '010')
@@ -1469,7 +1469,7 @@ class TestDFA(test_fa.TestFA):
         language = {'', '0', '00', '000', '010', '100', '110', '010101111111101011010100'}
         dfa = DFA.from_finite_language(binary, language)
         expected = sorted(language)
-        actual = list(dfa.successors('', include_input=True))
+        actual = list(dfa.successors('', strict=False))
         self.assertListEqual(actual, expected)
 
         self.assertEqual(dfa.successor('000'), '010')

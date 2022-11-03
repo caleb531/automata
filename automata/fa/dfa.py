@@ -629,41 +629,53 @@ class DFA(fa.FA):
         assert state in self.final_states
         return ''.join(result)
 
-    def predecessor(self, input_str):
+    def predecessor(self, input_str, *, strict=True, key=None):
         """
         Returns the first string accepted by the DFA that comes before
         the input string in lexicographical order.
-        Passing in None will produce the lexicographically last word.
+        Passing in None will generate the lexicographically last word.
+        If strict is set to False and input_str is accepted by the DFA then
+        it will be returned.
+        The value of key can be set to define a custom lexicographical ordering.
         """
-        for word in self.predecessors(input_str):
+        for word in self.predecessors(input_str, strict=strict, key=key):
             return word
         return None
 
-    def predecessors(self, input_str, *, include_input=False, key=None):
+    def predecessors(self, input_str, *, strict=True, key=None):
         """
         Generates all strings that come before the input string
-        in reverse lexicographical order.
-        If include_input is set to True, and input_str is accepted by the DFA then
+        in lexicographical order.
+        Passing in None will generate all words.
+        If strict is set to False and input_str is accepted by the DFA then
         it will be included in the output.
+        The value of key can be set to define a custom lexicographical ordering.
+        Raises a ValueError for infinite languages.
         """
-        yield from self.successors(input_str, include_input=include_input, reverse=True, key=key)
+        yield from self.successors(input_str, strict=strict, reverse=True, key=key)
 
-    def successor(self, input_str):
+    def successor(self, input_str, *, strict=True, key=None):
         """
         Returns the first string accepted by the DFA that comes after
         the input string in lexicographical order.
-        Passing in None will produce the lexicographically first word.
+        Passing in None will generate the lexicographically first word.
+        If strict is set to False and input_str is accepted by the DFA then
+        it will be returned.
+        The value of key can be set to define a custom lexicographical ordering.
         """
-        for word in self.successors(input_str):
+        for word in self.successors(input_str, strict=strict, key=key):
             return word
         return None
 
-    def successors(self, input_str, *, include_input=False, reverse=False, key=None):
+    def successors(self, input_str, *, strict=True, reverse=False, key=None):
         """
         Generates all strings that come after the input string
         in lexicographical order.
-        If include_input is set to True, and input_str is accepted by the DFA then
+        Passing in None will generate all words.
+        If strict is set to False and input_str is accepted by the DFA then
         it will be included in the output.
+        If reverse is set to True then predecessors will be generated instead. See the DFA.predecessors method.
+        The value of key can be set to define a custom lexicographical ordering.
         """
         # A predecessor for a finite string may be infinite but a successor for a finite string is always finite
         if reverse and not self.isfinite():
@@ -675,6 +687,7 @@ class DFA(fa.FA):
         ))
 
         # Precomputations and setup
+        include_input = not strict
         sorted_symbols = sorted(self.input_symbols, reverse=reverse, key=key)
         symbol_succ = {sorted_symbols[i]: sorted_symbols[i+1] for i in range(len(self.input_symbols)-1)}
         symbol_succ[sorted_symbols[-1]] = None
