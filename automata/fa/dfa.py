@@ -674,7 +674,7 @@ class DFA(fa.FA):
             for state in self.final_states
         ))
 
-        # Precomputations, special cases for 
+        # Precomputations and setup
         sorted_symbols = sorted(self.input_symbols, reverse=reverse, key=key)
         symbol_succ = {sorted_symbols[i]: sorted_symbols[i+1] for i in range(len(self.input_symbols)-1)}
         symbol_succ[sorted_symbols[-1]] = None
