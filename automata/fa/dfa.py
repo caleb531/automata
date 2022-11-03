@@ -639,44 +639,14 @@ class DFA(fa.FA):
             return word
         return None
 
-    def predecessors(self, input_str, *, include_input=False):
-        if not self.isfinite():
-            raise ValueError('Predecessors cannot be computed for infinite languages')
-        G = self._get_digraph()
-        coaccessible_nodes = self.final_states.union(*(
-            nx.ancestors(G, state)
-            for state in self.final_states
-        ))
-
-        sorted_symbols = sorted(self.input_symbols)
-        symbol_pred = {sorted_symbols[i+1]: sorted_symbols[i] for i in range(len(self.input_symbols)-1)}
-        symbol_pred[sorted_symbols[0]] = None
-
-        state_stack = ([self.initial_state] if input_str is None
-                       else list(self.read_input_stepwise(input_str, check=False)))
-        char_stack = [] if input_str is None else list(input_str)
-
-        first_symbol = sorted_symbols[-1]
-        candidate = first_symbol if input_str is None else None
-        should_yield = include_input or input_str is None
-
-        while char_stack or candidate is not None:
-            state = state_stack[-1]
-            candidate_state = None if candidate is None else self._get_next_current_state(state, candidate)
-            if candidate_state in coaccessible_nodes:
-                state_stack.append(candidate_state)
-                char_stack.append(candidate)
-                candidate = first_symbol
-            else:
-                if should_yield and candidate is None and state in self.final_states:
-                    yield ''.join(char_stack)
-                if char_stack and candidate is None:
-                    state = state_stack.pop()
-                    candidate = char_stack.pop()
-                candidate = symbol_pred[candidate]
-            should_yield = True
-        if should_yield and candidate is None and state in self.final_states:
-            yield ''.join(char_stack)
+    def predecessors(self, input_str, *, include_input=False, key=None):
+        """
+        Generates all strings that come before the input string
+        in reverse lexicographical order.
+        If include_input is set to True, and input_str is accepted by the DFA then
+        it will be included in the output.
+        """
+        yield from self.successors(input_str, include_input=include_input, reverse=True, key=key)
 
     def successor(self, input_str):
         """
@@ -688,44 +658,61 @@ class DFA(fa.FA):
             return word
         return None
 
-    def successors(self, input_str, *, include_input=False):
+    def successors(self, input_str, *, include_input=False, reverse=False, key=None):
         """
         Generates all strings that come after the input string
         in lexicographical order.
         If include_input is set to True, and input_str is accepted by the DFA then
         it will be included in the output.
         """
+        # A predecessor for a finite string may be infinite but a successor for a finite string is always finite
+        if reverse and not self.isfinite():
+            raise ValueError('Predecessors cannot be computed for infinite languages')
         G = self._get_digraph()
         coaccessible_nodes = self.final_states.union(*(
             nx.ancestors(G, state)
             for state in self.final_states
         ))
 
-        sorted_symbols = sorted(self.input_symbols)
+        # Precomputations, special cases for 
+        sorted_symbols = sorted(self.input_symbols, reverse=reverse, key=key)
         symbol_succ = {sorted_symbols[i]: sorted_symbols[i+1] for i in range(len(self.input_symbols)-1)}
         symbol_succ[sorted_symbols[-1]] = None
+        # Special case for None
         state_stack = ([self.initial_state] if input_str is None
                        else list(self.read_input_stepwise(input_str, check=False)))
         char_stack = [] if input_str is None else list(input_str)
-
         first_symbol = sorted_symbols[0]
-        candidate = first_symbol
+        # For predecessors we need to special case the input string None
+        candidate = None if reverse and input_str is not None else first_symbol
+        # If input_str is None then we yield on first value found no matter the value of include_input
         should_yield = include_input or input_str is None
+
+        # Iterative preorder/postorder (depends on reverse) traversal that yields on final states
         while char_stack or candidate is not None:
             state = state_stack[-1]
-            if should_yield and candidate == first_symbol and state in self.final_states:
+            # Successors yield here
+            if not reverse and should_yield and candidate == first_symbol and state in self.final_states:
                 yield ''.join(char_stack)
-            should_yield = True
             candidate_state = None if candidate is None else self._get_next_current_state(state, candidate)
+            # Traverse to child if candidate is viable
             if candidate_state in coaccessible_nodes:
                 state_stack.append(candidate_state)
                 char_stack.append(candidate)
                 candidate = first_symbol
             else:
-                if char_stack and candidate is None:
+                # Predecessors yield here
+                if reverse and should_yield and candidate is None and state in self.final_states:
+                    yield ''.join(char_stack)
+                # Candidate is None means no more children to explore, so traverse to parent
+                if candidate is None:
                     state = state_stack.pop()
                     candidate = char_stack.pop()
                 candidate = symbol_succ[candidate]
+            should_yield = True
+        # Predecessor yields here for empty string
+        if reverse and should_yield and candidate is None and state in self.final_states:
+            yield ''.join(char_stack)
 
     def count_words_of_length(self, k):
         """

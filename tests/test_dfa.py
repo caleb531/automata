@@ -1497,6 +1497,16 @@ class TestDFA(test_fa.TestFA):
             self.assertEqual(dfa.successor(dfa.predecessor(word)), word)
             self.assertEqual(dfa.predecessor(dfa.successor(word)), word)
 
+    def test_successor_custom_key(self):
+        input_symbols = {'a', 'b', 'c', 'd'}
+        order = {'b': 0, 'c': 1, 'a': 2, 'd': 3}
+        expected = ['', 'b', 'ba', 'bab', 'bad', 'c', 'cd', 'cda', 'a', 'ab',
+                    'ac', 'aa', 'ad', 'dddddddddddddddddb', 'dddddddddddddddddd']
+        language = set(expected)
+        dfa = DFA.from_finite_language(input_symbols, language)
+        actual = list(dfa.successors(None, key=order.get))
+        self.assertListEqual(actual, expected)
+
     def test_count_words_of_length(self):
         """
         Test that language that avoids the pattern '11' is counted by fibonacci numbers
