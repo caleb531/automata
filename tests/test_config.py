@@ -4,17 +4,17 @@
 import unittest
 from unittest.mock import patch
 
-from automata.base.config import global_config
+import automata.base.config as global_config
 from automata.fa.dfa import DFA
 
 
 class TestConfig(unittest.TestCase):
 
     def setUp(self):
-        self.orig_global_config = global_config.__dict__.copy()
+        self.orig_should_validate = global_config.should_validate_automata
 
     def tearDown(self):
-        global_config.__dict__ = self.orig_global_config
+        global_config.should_validate_automata = self.orig_should_validate
 
     @patch('automata.fa.dfa.DFA.validate')
     def test_disable_validation(self, validate):

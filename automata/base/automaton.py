@@ -5,8 +5,8 @@ import abc
 
 from frozendict import frozendict
 
+import automata.base.config as global_config
 import automata.base.exceptions as exceptions
-from automata.base.config import global_config
 from automata.base.utils import freezeValue
 
 
