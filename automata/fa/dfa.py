@@ -693,8 +693,9 @@ class DFA(fa.FA):
                        for symbol_a, symbol_b in zip(sorted_symbols, sorted_symbols[1:])}
         symbol_succ[sorted_symbols[-1]] = None
         # Special case for None
-        state_stack = ([self.initial_state] if input_str is None
-                       else list(self.read_input_stepwise(input_str, check=False)))
+        state_stack = deque([self.initial_state]
+                            if input_str is None
+                            else self.read_input_stepwise(input_str, check=False))
         char_stack = [] if input_str is None else list(input_str)
         first_symbol = sorted_symbols[0]
         # For predecessors we need to special case the input string None
