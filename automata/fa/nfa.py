@@ -4,12 +4,12 @@ from collections import deque
 from itertools import chain, product
 
 import networkx as nx
-from frozendict import frozendict
-from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.regex.parser import parse_regex
+from frozendict import frozendict
+from pydot import Dot, Edge, Node
 
 
 class NFA(fa.FA):
@@ -634,3 +634,77 @@ class NFA(fa.FA):
                     pair_stack.append((r_1, r_2))
 
         return True
+
+    @classmethod
+    def edit_distance(cls, input_symbols, reference_string, max_edit_distance, *,
+                      insertion=True, deletion=True, substitution=True):
+        """
+        Constructs the Levenshtein NFA for the given reference_string and
+        given Levenshtein distance. This NFA recognizes strings within the given
+        Levenshtein distance (commonly called edit distance) of the reference_string.
+        Parameters control which error types the NFA will recognize (insertions,
+        deletions, or substitutions). At least one error type must be set.
+
+        If insertion and deletion are False and substitution is True,
+        then this is the same as Hamming distance.
+
+        If insertion and deletion are True and substitution is False,
+        then this is the same as LCS distance.
+
+        insertion, deletion, and substitution all default to True.
+
+        Code adapted from: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
+        """
+        if max_edit_distance < 0:
+            raise ValueError("max_edit_distance must be greater than zero")
+        if not (insertion or deletion or substitution):
+            raise ValueError("At least one of insertion, deletion, or substitution must be enabled.")
+
+        states = set(product(range(len(reference_string)+1), range(max_edit_distance+1)))
+
+        transitions = dict()
+        final_states = set()
+
+        def add_transition(start_state_dict, end_state, symbol):
+            """Add transition between start and end state on symbol"""
+            char_transitions = start_state_dict.setdefault(symbol, set())
+            char_transitions.add(end_state)
+
+        def add_any_transition(start_state_dict, end_state):
+            """Add transition on all symbols between start and end state"""
+            for symbol in input_symbols:
+                add_transition(start_state_dict, end_state, symbol)
+
+        for i, chr in enumerate(reference_string):
+            for e in range(max_edit_distance + 1):
+                state_transition_dict = transitions.setdefault((i, e), dict())
+
+                # Correct character
+                add_transition(state_transition_dict, (i + 1, e), chr)
+                if e < max_edit_distance:
+                    if insertion:
+                        # Insertion
+                        add_any_transition(state_transition_dict, (i, e + 1))
+
+                    if deletion:
+                        # Deletion
+                        add_transition(state_transition_dict, (i + 1, e + 1), '')
+
+                    if substitution:
+                        # Substitution
+                        add_any_transition(state_transition_dict, (i + 1, e + 1))
+
+        for e in range(max_edit_distance + 1):
+            state_transition_dict = transitions.setdefault((len(reference_string), e), dict())
+            if e < max_edit_distance and insertion:
+                add_any_transition(state_transition_dict, (len(reference_string), e + 1))
+
+            final_states.add((len(reference_string), e))
+
+        return cls(
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=(0, 0),
+            final_states=final_states
+        )
