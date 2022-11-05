@@ -673,13 +673,16 @@ from automata.fa.dfa import DFA
 nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
 ```
 
-#### NFA.from_regex(cls, regex)
+#### NFA.from_regex(cls, regex, input_symbols=None)
 
-Returns a new NFA instance from the given regular expression.
+Returns a new NFA instance from the given regular expression. The
+parameter `input_symbols` should be a set of the input symbols to use,
+defaults to all non-reserved symbols in the given `regex`.
 
 ```python
 from automata.fa.nfa import NFA
-NFA.from_regex('ab(c|d)*ba?')
+nfa1 = NFA.from_regex('ab(c|d)*ba?')
+nfa2 = NFA.from_regex('aaa*', input_symbols={'a', 'b'})
 ```
 
 #### Converting NFA to regular expression
@@ -705,7 +708,7 @@ The `GNFA` class is a subclass of `NFA` and represents a generalized
 nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
 Its main usage is for conversion of DFAs and NFAs to regular expressions.
 
-Every `GNFA` has the following properties: `states`, `input_sympols`,
+Every `GNFA` has the following properties: `states`, `input_symbols`,
 `transitions`, `initial_state`, and `final_state`. This is very similar to the
 `NFA` signature, except that a `GNFA` has several differences with respect to
 `NFA`

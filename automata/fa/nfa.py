@@ -138,7 +138,7 @@ class NFA(fa.FA):
         nfa_builder = parse_regex(regex)
 
         return cls(
-            states=set(nfa_builder._transitions.keys()),
+            states=frozenset(nfa_builder._transitions.keys()),
             input_symbols=input_symbols,
             transitions=nfa_builder._transitions,
             initial_state=nfa_builder._initial_state,
@@ -527,8 +527,7 @@ class NFA(fa.FA):
 
         new_input_symbols = self.input_symbols | other.input_symbols
         new_initial_state = (self.initial_state, other.initial_state)
-        new_final_states = set(product(self.final_states, other.final_states))
-        new_states = set(product(self.states, other.states))
+        new_states = frozenset(product(self.states, other.states))
 
         new_transitions = dict()
 
@@ -549,7 +548,7 @@ class NFA(fa.FA):
             input_symbols=new_input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=new_final_states
+            final_states=frozenset(product(self.final_states, other.final_states))
         )
 
     def show_diagram(self, path=None):
