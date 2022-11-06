@@ -216,11 +216,11 @@ class DFA(fa.FA):
 
         Raise an error if the transition does not exist.
         """
-        if input_symbol in self.transitions[current_state]:
+        if current_state is not None and input_symbol in self.transitions[current_state]:
             return self.transitions[current_state][input_symbol]
-        else:
-            raise exceptions.RejectionException(
-                '{} is not a valid input symbol'.format(input_symbol))
+        return None
+        raise exceptions.RejectionException(
+            '{} is not a valid input symbol'.format(input_symbol))
 
     def _check_for_input_rejection(self, current_state):
         """Raise an error if the given config indicates rejected input."""
@@ -229,7 +229,7 @@ class DFA(fa.FA):
                 'the DFA stopped on a non-final state ({})'.format(
                     current_state))
 
-    def read_input_stepwise(self, input_str, check=True):
+    def read_input_stepwise(self, input_str, allow_rejection=False):
         """
         Check if the given string is accepted by this DFA.
 
@@ -243,7 +243,7 @@ class DFA(fa.FA):
                 current_state, input_symbol)
             yield current_state
 
-        if check:
+        if not allow_rejection:
             self._check_for_input_rejection(current_state)
 
     def _get_digraph(self):
@@ -693,7 +693,7 @@ class DFA(fa.FA):
         symbol_succ[sorted_symbols[-1]] = None
         # Special case for None
         state_stack = ([self.initial_state] if input_str is None
-                       else list(self.read_input_stepwise(input_str, check=False)))
+                       else list(self.read_input_stepwise(input_str, allow_rejection=True)))
         char_stack = [] if input_str is None else list(input_str)
         first_symbol = sorted_symbols[0]
         # For predecessors we need to special case the input string None

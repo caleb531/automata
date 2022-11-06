@@ -1457,8 +1457,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dfa.predecessor('0111111110101011'), '010101111111101011010100')
         self.assertIsNone(dfa.predecessor(''))
 
-        infinite_dfa = DFA.from_nfa(NFA.from_dfa(DFA.from_subsequence(binary, '1', contains=False)) +
-                                    NFA.from_dfa(DFA.from_subsequence(binary, '0', contains=False)))
+        infinite_dfa = DFA.from_nfa(NFA.from_regex('0*1*'))
         with self.assertRaises(ValueError):
             infinite_dfa.predecessor('000')
         with self.assertRaises(ValueError):
@@ -1477,17 +1476,16 @@ class TestDFA(test_fa.TestFA):
         self.assertIsNone(dfa.successor('110'))
         self.assertIsNone(dfa.successor('111111110101011'))
 
-        dfa2 = DFA.from_nfa(NFA.from_dfa(DFA.from_subsequence(binary, '1', contains=False)) +
-                            NFA.from_dfa(DFA.from_subsequence(binary, '0', contains=False)))
-        self.assertEqual(dfa2.successor(''), '0')
-        self.assertEqual(dfa2.successor('0'), '00')
-        self.assertEqual(dfa2.successor('00'), '000')
-        self.assertEqual(dfa2.successor('0001'), '00011')
-        self.assertEqual(dfa2.successor('00011'), '000111')
-        self.assertEqual(dfa2.successor('0000000011111'), '00000000111111')
-        self.assertEqual(dfa2.successor('1'), '11')
-        self.assertEqual(dfa2.successor(100 * '0'), 101 * '0')
-        self.assertEqual(dfa2.successor(100 * '1'), 101 * '1')
+        infinite_dfa = DFA.from_nfa(NFA.from_regex('0*1*'))
+        self.assertEqual(infinite_dfa.successor(''), '0')
+        self.assertEqual(infinite_dfa.successor('0'), '00')
+        self.assertEqual(infinite_dfa.successor('00'), '000')
+        self.assertEqual(infinite_dfa.successor('0001'), '00011')
+        self.assertEqual(infinite_dfa.successor('00011'), '000111')
+        self.assertEqual(infinite_dfa.successor('0000000011111'), '00000000111111')
+        self.assertEqual(infinite_dfa.successor('1'), '11')
+        self.assertEqual(infinite_dfa.successor(100 * '0'), 101 * '0')
+        self.assertEqual(infinite_dfa.successor(100 * '1'), 101 * '1')
 
     def test_successor_and_predecessor(self):
         binary = {'0', '1'}
@@ -1506,6 +1504,19 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.from_finite_language(input_symbols, language)
         actual = list(dfa.successors(None, key=order.get))
         self.assertListEqual(actual, expected)
+
+    def test_successor_partial(self):
+        binary = {'0', '1'}
+        dfa = DFA(states={0, 1}, input_symbols=binary, transitions={0: {'0': 1}, 1: {'1': 1}},
+                  initial_state=0, final_states={1}, allow_partial=True)
+        self.assertEqual(dfa.successor(None), '0')
+        self.assertEqual(dfa.successor(''), '0')
+        self.assertEqual(dfa.successor('0'), '01')
+        self.assertEqual(dfa.successor('00'), '01')
+        self.assertEqual(dfa.successor('0000101010111'), '01')
+        self.assertEqual(dfa.successor('01'), '011')
+        self.assertEqual(dfa.successor('01000'), '011')
+        self.assertEqual(dfa.successor('1'), None)
 
     def test_count_words_of_length(self):
         """
