@@ -689,11 +689,13 @@ class DFA(fa.FA):
         # Precomputations and setup
         include_input = not strict
         sorted_symbols = sorted(self.input_symbols, reverse=reverse, key=key)
-        symbol_succ = {sorted_symbols[i]: sorted_symbols[i+1] for i in range(len(self.input_symbols)-1)}
+        symbol_succ = {symbol_a: symbol_b
+                       for symbol_a, symbol_b in zip(sorted_symbols, sorted_symbols[1:])}
         symbol_succ[sorted_symbols[-1]] = None
         # Special case for None
-        state_stack = ([self.initial_state] if input_str is None
-                       else list(self.read_input_stepwise(input_str, allow_rejection=True)))
+        state_stack = deque([self.initial_state]
+                            if input_str is None
+                            else self.read_input_stepwise(input_str, check=False))
         char_stack = [] if input_str is None else list(input_str)
         first_symbol = sorted_symbols[0]
         # For predecessors we need to special case the input string None
