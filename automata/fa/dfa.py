@@ -219,8 +219,6 @@ class DFA(fa.FA):
         if current_state is not None and input_symbol in self.transitions[current_state]:
             return self.transitions[current_state][input_symbol]
         return None
-        raise exceptions.RejectionException(
-            '{} is not a valid input symbol'.format(input_symbol))
 
     def _check_for_input_rejection(self, current_state):
         """Raise an error if the given config indicates rejected input."""
