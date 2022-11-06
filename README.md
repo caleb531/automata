@@ -430,8 +430,11 @@ avoids_substring_dcba = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba', c
 
 #### DFA.of_length(cls, input_symbols, min_length=0, max_length=None, symbols_to_count=None)
 
-Directly computes the minimal DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
-To allow infinitely long words the value `None` can be passed in for `max_length`.
+Directly computes the minimal DFA which accepts all words whose length is between `min_length`
+and `max_length`, inclusive. To allow infinitely long words, the value `None` can be
+passed in for `max_length`. If `symbols_to_count` is `None` (default behavior), then counts
+all symbols. Otherwise, only counts symbols present in the set `symbols_to_count` and
+ignores other symbols.
 
 ```python
 dfa = DFA.of_length({'0', '1'}, min_length=4)
@@ -443,6 +446,9 @@ dfa = DFA.of_length({'0', '1'}, min_length=4, max_length=8)
 Directly computes a DFA that counts given symbols and accepts all strings where
 the remainder of division by `k` is in the set of `remainders` given.
 The default value of `remainders` is `{0}` and all symbols are counted by default.
+If `symbols_to_count` is `None` (default behavior), then counts all symbols.
+Otherwise, only counts symbols present in the set `symbols_to_count` and
+ignores other symbols.
 
 ```python
 even_length_strings = DFA.count_mod({'0', '1'}, 2)

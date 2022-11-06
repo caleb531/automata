@@ -133,7 +133,7 @@ class NFA(fa.FA):
         else:
             conflicting_symbols = reserved_characters & input_symbols
             if conflicting_symbols:
-                raise ValueError(f'Invalid input symbols: {conflicting_symbols}')
+                raise exceptions.InvalidSymbolError(f'Invalid input symbols: {conflicting_symbols}')
 
         nfa_builder = parse_regex(regex)
 

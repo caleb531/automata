@@ -104,5 +104,5 @@ class TestRegex(unittest.TestCase):
 
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""
-        with self.assertRaises(ValueError):
+        with self.assertRaises(exceptions.InvalidSymbolError):
             NFA.from_regex('a+', input_symbols={'a', '+'})
