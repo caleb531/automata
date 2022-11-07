@@ -227,7 +227,7 @@ class DFA(fa.FA):
                 'the DFA stopped on a non-final state ({})'.format(
                     current_state))
 
-    def read_input_stepwise(self, input_str, allow_rejection=False):
+    def read_input_stepwise(self, input_str, ignore_rejection=False):
         """
         Check if the given string is accepted by this DFA.
 
@@ -241,7 +241,7 @@ class DFA(fa.FA):
                 current_state, input_symbol)
             yield current_state
 
-        if not allow_rejection:
+        if not ignore_rejection:
             self._check_for_input_rejection(current_state)
 
     def _get_digraph(self):
@@ -693,7 +693,7 @@ class DFA(fa.FA):
         # Special case for None
         state_stack = deque([self.initial_state]
                             if input_str is None
-                            else self.read_input_stepwise(input_str, allow_rejection=True))
+                            else self.read_input_stepwise(input_str, ignore_rejection=True))
         char_stack = [] if input_str is None else list(input_str)
         first_symbol = sorted_symbols[0]
         # For predecessors we need to special case the input string None
