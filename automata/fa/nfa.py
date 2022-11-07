@@ -124,13 +124,21 @@ class NFA(fa.FA):
         )
 
     @classmethod
-    def from_regex(cls, regex):
+    def from_regex(cls, regex, *, input_symbols=None):
         """Initialize this NFA as one equivalent to the given regular expression"""
-        input_symbols = set(regex) - {'*', '|', '(', ')', '?', ' ', '\t', '&', '+'}
+        reserved_characters = {'*', '|', '(', ')', '?', ' ', '\t', '&', '+'}
+
+        if input_symbols is None:
+            input_symbols = set(regex) - reserved_characters
+        else:
+            conflicting_symbols = reserved_characters & input_symbols
+            if conflicting_symbols:
+                raise exceptions.InvalidSymbolError(f'Invalid input symbols: {conflicting_symbols}')
+
         nfa_builder = parse_regex(regex)
 
         return cls(
-            states=set(nfa_builder._transitions.keys()),
+            states=frozenset(nfa_builder._transitions.keys()),
             input_symbols=input_symbols,
             transitions=nfa_builder._transitions,
             initial_state=nfa_builder._initial_state,
@@ -508,6 +516,41 @@ class NFA(fa.FA):
             transitions=new_transitions,
             initial_state=new_initial_state,
             final_states=new_final_states
+        )
+
+    def shuffle_product(self, other):
+        """
+        Given two NFAs, M1 and M2, which accept the languages
+        L1 and L2 respectively, returns an NFA which accepts
+        the shuffle of L1 and L2.
+        """
+        if not isinstance(other, NFA):
+            raise TypeError(f"other must be an NFA, not {other.__class__.__name__}")
+
+        new_input_symbols = self.input_symbols | other.input_symbols
+        new_initial_state = (self.initial_state, other.initial_state)
+        new_states = frozenset(product(self.states, other.states))
+
+        new_transitions = dict()
+
+        for curr_state in new_states:
+            state_dict = new_transitions.setdefault(curr_state, dict())
+            q_a, q_b = curr_state
+
+            transitions_a = self.transitions.get(q_a, dict())
+            for symbol, end_states in transitions_a.items():
+                state_dict.setdefault(symbol, set()).update(product(end_states, [q_b]))
+
+            transitions_b = other.transitions.get(q_b, dict())
+            for symbol, end_states in transitions_b.items():
+                state_dict.setdefault(symbol, set()).update(product([q_a], end_states))
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=new_input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
+            final_states=frozenset(product(self.final_states, other.final_states))
         )
 
     def show_diagram(self, path=None):

@@ -428,10 +428,13 @@ contains_substring_dcba = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba')
 avoids_substring_dcba = DFA.contains_subsequence({'a', 'b', 'c', 'd'}, 'dcba', contains=False)
 ```
 
-#### DFA.of_length(cls, input_symbols, min_length=0, max_length=None)
+#### DFA.of_length(cls, input_symbols, min_length=0, max_length=None, symbols_to_count=None)
 
-Directly computes the minimal DFA which accepts all words whose length is between `min_length` and `max_length`, inclusive.
-To allow infinitely long words the value `None` can be passed in for `max_length`.
+Directly computes the minimal DFA which accepts all words whose length is between `min_length`
+and `max_length`, inclusive. To allow infinitely long words, the value `None` can be
+passed in for `max_length`. If `symbols_to_count` is `None` (default behavior), then counts
+all symbols. Otherwise, only counts symbols present in the set `symbols_to_count` and
+ignores other symbols.
 
 ```python
 dfa = DFA.of_length({'0', '1'}, min_length=4)
@@ -443,6 +446,9 @@ dfa = DFA.of_length({'0', '1'}, min_length=4, max_length=8)
 Directly computes a DFA that counts given symbols and accepts all strings where
 the remainder of division by `k` is in the set of `remainders` given.
 The default value of `remainders` is `{0}` and all symbols are counted by default.
+If `symbols_to_count` is `None` (default behavior), then counts all symbols.
+Otherwise, only counts symbols present in the set `symbols_to_count` and
+ignores other symbols.
 
 ```python
 even_length_strings = DFA.count_mod({'0', '1'}, 2)
@@ -623,6 +629,16 @@ new_nfa = nfa1.intersection(nfa2)
 new_nfa = nfa1 & nfa2
 ```
 
+#### NFA.shuffle_product(self, other)
+
+Returns shuffle product of two NFAs. This produces an NFA that accepts all
+interleavings of strings in the input NFAs.
+See [this article](https://link.springer.com/chapter/10.1007/978-3-031-19685-0_3) for more details.
+
+```python
+new_nfa = nfa1.shuffle_product(nfa2)
+```
+
 #### NFA.eliminate_lambda(self)
 
 Removes epsilon transitions from the NFA which recognizes the same language.
@@ -663,13 +679,16 @@ from automata.fa.dfa import DFA
 nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
 ```
 
-#### NFA.from_regex(cls, regex)
+#### NFA.from_regex(cls, regex, input_symbols=None)
 
-Returns a new NFA instance from the given regular expression.
+Returns a new NFA instance from the given regular expression. The
+parameter `input_symbols` should be a set of the input symbols to use,
+defaults to all non-reserved symbols in the given `regex`.
 
 ```python
 from automata.fa.nfa import NFA
-NFA.from_regex('ab(c|d)*ba?')
+nfa1 = NFA.from_regex('ab(c|d)*ba?')
+nfa2 = NFA.from_regex('aaa*', input_symbols={'a', 'b'})
 ```
 
 #### Converting NFA to regular expression
@@ -695,7 +714,7 @@ The `GNFA` class is a subclass of `NFA` and represents a generalized
 nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
 Its main usage is for conversion of DFAs and NFAs to regular expressions.
 
-Every `GNFA` has the following properties: `states`, `input_sympols`,
+Every `GNFA` has the following properties: `states`, `input_symbols`,
 `transitions`, `initial_state`, and `final_state`. This is very similar to the
 `NFA` signature, except that a `GNFA` has several differences with respect to
 `NFA`

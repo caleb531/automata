@@ -101,3 +101,8 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.isequal('(abc)(abc)*', '(abc)+'))
         self.assertTrue(re.isequal('a&a+', 'a'))
         self.assertFalse(re.isequal('a*', 'a+'))
+
+    def test_invalid_symbols(self):
+        """Should throw exception if reserved character is in input symbols"""
+        with self.assertRaises(exceptions.InvalidSymbolError):
+            NFA.from_regex('a+', input_symbols={'a', '+'})

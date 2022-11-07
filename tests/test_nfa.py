@@ -930,3 +930,60 @@ class TestNFA(test_fa.TestFA):
         for close_string in close_strings_deletion:
             self.assertTrue(nice_nfa_deletion.accepts_input(close_string))
             self.assertFalse(nice_nfa_insertion.accepts_input(close_string))
+
+    def test_nfa_shuffle_product(self):
+        """
+        Test shuffle product of two NFAs.
+
+        Test cases based on https://planetmath.org/shuffleoflanguages
+        """
+        alphabet = {'a', 'b'}
+
+        # Basic finite language test case
+        nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'aba'}))
+        nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'bab'}))
+
+        nfa3 = NFA.from_dfa(DFA.from_finite_language(alphabet, {
+            'abbaab', 'baabab', 'ababab', 'babaab', 'abbaba', 'baabba', 'ababba', 'bababa'
+        }))
+
+        self.assertEqual(nfa1.shuffle_product(nfa2), nfa3)
+
+        # Regular language test case
+        nfa4 = NFA.from_regex('aa', input_symbols=alphabet)
+        nfa5 = NFA.from_regex('b*', input_symbols=alphabet)
+
+        nfa6 = NFA.from_dfa(DFA.of_length(alphabet, min_length=2, max_length=2, symbols_to_count={'a'}))
+
+        self.assertEqual(nfa4.shuffle_product(nfa5), nfa6)
+
+        nfa7 = NFA.from_regex('a?a?a?')
+        nfa8 = NFA.from_dfa(DFA.of_length(alphabet, max_length=3, symbols_to_count={'a'}))
+
+        self.assertEqual(nfa5.shuffle_product(nfa7), nfa8)
+
+        # raise error if other is not NFA
+        with self.assertRaises(TypeError):
+            self.nfa.shuffle_product(self.dfa)
+
+    def test_nfa_shuffle_product_set_laws(self):
+        """Test set laws for shuffle product"""
+        alphabet = {'a', 'b'}
+
+        # Language properties test case
+        nfa1 = NFA.from_regex('a(a*b|b)', input_symbols=alphabet)
+        nfa2 = NFA.from_regex('(aa+b)&(abbb)|(bba+)', input_symbols=alphabet)
+        nfa3 = NFA.from_regex('a(a*b|b)b(ab*|ba*)', input_symbols=alphabet)
+
+        # Commutativity
+        self.assertEqual(nfa1.shuffle_product(nfa2), nfa2.shuffle_product(nfa1))
+        # Associativity
+        self.assertEqual(
+            nfa1.shuffle_product(nfa2.shuffle_product(nfa3)),
+            nfa1.shuffle_product(nfa2).shuffle_product(nfa3)
+        )
+        # Distributes over union
+        self.assertEqual(
+            nfa1.shuffle_product(nfa2.union(nfa3)),
+            nfa1.shuffle_product(nfa2).union(nfa1.shuffle_product(nfa3))
+        )

@@ -1743,6 +1743,26 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dfa4.minimum_word_length(), 4)
         self.assertEqual(dfa4.maximum_word_length(), 8)
 
+        dfa5 = DFA.of_length(binary, min_length=2, max_length=2, symbols_to_count={'1'})
+        dfa6 = DFA(
+            states={0, 1, 2, 3},
+            input_symbols=binary,
+            transitions={
+                0: {'1': 1, '0': 0},
+                1: {'1': 2, '0': 1},
+                2: {'1': 3, '0': 2},
+                3: {'1': 3, '0': 3},
+            },
+            initial_state=0,
+            final_states={2}
+        )
+        self.assertEqual(dfa5, dfa6)
+
+        dfa7 = DFA.of_length(binary, symbols_to_count={'1'})
+        dfa8 = DFA.of_length(binary, symbols_to_count={'0'})
+
+        self.assertEqual(dfa7.union(dfa8), DFA.universal_language(binary))
+
     def test_count_mod(self):
         binary = {'0', '1'}
         with self.assertRaises(ValueError):
