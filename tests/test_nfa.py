@@ -964,7 +964,7 @@ class TestNFA(test_fa.TestFA):
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
-            self.nfa & self.dfa
+            self.nfa.shuffle_product(self.dfa)
 
     def test_nfa_shuffle_product_set_laws(self):
         """Test set laws for shuffle product"""
