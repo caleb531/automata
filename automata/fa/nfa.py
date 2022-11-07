@@ -524,6 +524,8 @@ class NFA(fa.FA):
         L1 and L2 respectively, returns an NFA which accepts
         the shuffle of L1 and L2.
         """
+        if not isinstance(other, NFA):
+            raise TypeError(f"other must be an NFA, not {other.__class__.__name__}")
 
         new_input_symbols = self.input_symbols | other.input_symbols
         new_initial_state = (self.initial_state, other.initial_state)
