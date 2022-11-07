@@ -679,12 +679,12 @@ class NFA(fa.FA):
         return True
 
     @classmethod
-    def edit_distance(cls, input_symbols, reference_string, max_edit_distance, *,
+    def edit_distance(cls, input_symbols, reference_str, max_edit_distance, *,
                       insertion=True, deletion=True, substitution=True):
         """
-        Constructs the Levenshtein NFA for the given reference_string and
+        Constructs the Levenshtein NFA for the given reference_str and
         given Levenshtein distance. This NFA recognizes strings within the given
-        Levenshtein distance (commonly called edit distance) of the reference_string.
+        Levenshtein distance (commonly called edit distance) of the reference_str.
         Parameters control which error types the NFA will recognize (insertions,
         deletions, or substitutions). At least one error type must be set.
 
@@ -703,7 +703,7 @@ class NFA(fa.FA):
         if not (insertion or deletion or substitution):
             raise ValueError("At least one of insertion, deletion, or substitution must be enabled.")
 
-        states = set(product(range(len(reference_string)+1), range(max_edit_distance+1)))
+        states = set(product(range(len(reference_str)+1), range(max_edit_distance+1)))
 
         transitions = dict()
         final_states = set()
@@ -718,7 +718,7 @@ class NFA(fa.FA):
             for symbol in input_symbols:
                 add_transition(start_state_dict, end_state, symbol)
 
-        for i, chr in enumerate(reference_string):
+        for i, chr in enumerate(reference_str):
             for e in range(max_edit_distance + 1):
                 state_transition_dict = transitions.setdefault((i, e), dict())
 
@@ -738,11 +738,11 @@ class NFA(fa.FA):
                         add_any_transition(state_transition_dict, (i + 1, e + 1))
 
         for e in range(max_edit_distance + 1):
-            state_transition_dict = transitions.setdefault((len(reference_string), e), dict())
+            state_transition_dict = transitions.setdefault((len(reference_str), e), dict())
             if e < max_edit_distance and insertion:
-                add_any_transition(state_transition_dict, (len(reference_string), e + 1))
+                add_any_transition(state_transition_dict, (len(reference_str), e + 1))
 
-            final_states.add((len(reference_string), e))
+            final_states.add((len(reference_str), e))
 
         return cls(
             states=states,
