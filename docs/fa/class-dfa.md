@@ -390,6 +390,22 @@ even_length_strings = DFA.count_mod({'0', '1'}, 2)
 odd_number_of_ones = DFA.count_mod({'0', '1'}, 2, remainders={1}, symbols_to_count={'1'})
 ```
 
+## DFA.universal_language(cls, input_symbols)
+
+Returns a new DFA which accepts all strings formed from the given input symbols.
+
+```python
+DFA.universal_language(input_symbols={'a', 'b'})
+```
+
+## DFA.empty_language(cls, input_symbols)
+
+Returns a new DFA which rejects all strings formed from the given input symbols.
+
+```python
+DFA.empty_language(input_symbols={'a', 'b'})
+```
+
 ## DFA.nth_from_start(cls, input_symbols, symbol, n)
 
 Directly computes the minimal DFA which accepts all words whose `n`-th character from the end is `symbol`, where `n` is a positive integer.
