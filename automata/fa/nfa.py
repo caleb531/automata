@@ -179,7 +179,7 @@ class NFA(fa.FA):
         return frozenset(next_current_states)
 
     @staticmethod
-    def compute_reachable_states(initial_state, input_symbols, transitions):
+    def _compute_reachable_states(initial_state, input_symbols, transitions):
         """Compute the states which are reachable from the initial state."""
 
         visited_set = set()
@@ -234,7 +234,7 @@ class NFA(fa.FA):
                 new_transitions[state].pop('', None)
 
         # Remove unreachable states
-        reachable_states = NFA.compute_reachable_states(self.initial_state, self.input_symbols, new_transitions)
+        reachable_states = NFA._compute_reachable_states(self.initial_state, self.input_symbols, new_transitions)
         reachable_final_states = reachable_states & new_final_states
 
         for state in self.states - reachable_states:
@@ -307,7 +307,7 @@ class NFA(fa.FA):
         # Starting at 1 because 0 is for the initial state
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
 
-        new_states = {*state_map_a.values(), *state_map_b.values(), 0}
+        new_states = frozenset(chain(state_map_a.values(), state_map_b.values(), [0]))
         new_transitions = {state: dict() for state in new_states}
 
         # Connect new initial state to both branch
@@ -319,10 +319,10 @@ class NFA(fa.FA):
         NFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
 
         # Final states
-        new_final_states = {
-            *(state_map_a[state] for state in self.final_states),
-            *(state_map_b[state] for state in other.final_states)
-        }
+        new_final_states = frozenset(chain(
+            (state_map_a[state] for state in self.final_states),
+            (state_map_b[state] for state in other.final_states)
+        ))
 
         return self.__class__(
             states=new_states,
@@ -341,7 +341,7 @@ class NFA(fa.FA):
 
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states)
 
-        new_states = {*state_map_a.values(), *state_map_b.values()}
+        new_states = frozenset(chain(state_map_a.values(), state_map_b.values()))
         new_transitions = {state: dict() for state in new_states}
 
         # Transitions of self
@@ -356,7 +356,7 @@ class NFA(fa.FA):
             )
 
         # Final states of other
-        new_final_states = {state_map_b[state] for state in other.final_states}
+        new_final_states = frozenset((state_map_b[state] for state in other.final_states))
 
         return self.__class__(
             states=new_states,
@@ -511,11 +511,11 @@ class NFA(fa.FA):
                     new_states.add(product_state)
                     queue.append(product_state)
 
-        new_final_states = {
+        new_final_states = frozenset((
             (state_a, state_b)
             for (state_a, state_b) in new_states
             if state_a in self.final_states and state_b in other.final_states
-        }
+        ))
 
         return self.__class__(
             states=new_states,

@@ -354,9 +354,9 @@ class DFA(fa.FA):
         }
 
         new_input_symbols = input_symbols
-        new_states = set(back_map.values())
+        new_states = frozenset(back_map.values())
         new_initial_state = back_map[initial_state]
-        new_final_states = {back_map[acc] for acc in reachable_final_states}
+        new_final_states = frozenset((back_map[acc] for acc in reachable_final_states))
         new_transitions = {
             name: {
                 letter: back_map[transitions[next(iter(eq))][letter]]
@@ -373,28 +373,6 @@ class DFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def _cross_product(self, other):
-        """
-        Creates a new DFA which is the cross product of DFAs self and other
-        with an empty set of final states.
-        """
-        if self.input_symbols != other.input_symbols:
-            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
-
-        new_states = self._get_reachable_states_product_graph(other)
-
-        new_transitions = {
-            (state_a, state_b): {
-                symbol: (self.transitions[state_a][symbol], other.transitions[state_b][symbol])
-                for symbol in self.input_symbols
-            }
-            for (state_a, state_b) in new_states
-        }
-
-        new_initial_state = (self.initial_state, other.initial_state)
-
-        return new_states, new_transitions, new_initial_state
-
     def union(self, other, *, retain_names=False, minify=True):
         """
         Takes as input two DFAs M1 and M2 which
@@ -402,13 +380,13 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
-        new_final_states = {
+        new_final_states = frozenset((
             (state_a, state_b)
             for state_a, state_b in new_states
             if state_a in self.final_states or state_b in other.final_states
-        }
+        ))
 
         if minify:
             return self._minify(
@@ -434,13 +412,13 @@ class DFA(fa.FA):
         Returns a DFA which accepts the intersection of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
-        new_final_states = {
+        new_final_states = frozenset((
             (state_a, state_b)
             for state_a, state_b in new_states
             if state_a in self.final_states and state_b in other.final_states
-        }
+        ))
 
         if minify:
             return self._minify(
@@ -465,13 +443,14 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
         """
-        new_states, new_transitions, new_initial_state = self._cross_product(other)
 
-        new_final_states = {
+        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
+
+        new_final_states = frozenset((
             (state_a, state_b)
             for state_a, state_b in new_states
             if state_a in self.final_states and state_b not in other.final_states
-        }
+        ))
 
         if minify:
             return self._minify(
@@ -497,13 +476,13 @@ class DFA(fa.FA):
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
-        new_final_states = {
+        new_final_states = frozenset((
             (state_a, state_b)
             for state_a, state_b in new_states
             if (state_a in self.final_states) ^ (state_b in other.final_states)
-        }
+        ))
 
         if minify:
             return self._minify(
@@ -546,10 +525,16 @@ class DFA(fa.FA):
             allow_partial=self.allow_partial
         )
 
-    def _get_reachable_states_product_graph(self, other):
-        """Get reachable states corresponding to product graph between self and other"""
+    def _cross_product(self, other, states_only):
+        """
+        Get reachable states corresponding to product graph between self and other.
+        If states_only is True, only returns states. Otherwise, constructs corresponding
+        transitions to the reachable states and new initial state.
+        """
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
+
+        product_transitions = dict() if not states_only else None
 
         visited_set = set()
         queue = deque()
@@ -559,20 +544,37 @@ class DFA(fa.FA):
         visited_set.add(product_initial_state)
 
         while queue:
-            q_a, q_b = queue.popleft()
+            # Get next state in BFS queue
+            curr_state = queue.popleft()
+
+            # Add state to the transition dict
+            if not states_only:
+                state_transitions = product_transitions.setdefault(curr_state, dict())
+
+            # Unpack state and get transitions
+            q_a, q_b = curr_state
+            transitions_a = self.transitions[q_a]
+            transitions_b = other.transitions[q_b]
 
             for chr in self.input_symbols:
-                product_state = (self.transitions[q_a][chr], other.transitions[q_b][chr])
+                product_state = (transitions_a[chr], transitions_b[chr])
 
+                if not states_only:
+                    state_transitions[chr] = product_state
+
+                # If next state is new, add to queue
                 if product_state not in visited_set:
                     visited_set.add(product_state)
                     queue.append(product_state)
+
+        if not states_only:
+            return visited_set, product_transitions, product_initial_state
 
         return visited_set
 
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
-        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+        for (state_a, state_b) in self._cross_product(other, True):
             # Check for reachable state that is counterexample to subset
             if state_a in self.final_states and state_b not in other.final_states:
                 return False
@@ -585,7 +587,7 @@ class DFA(fa.FA):
 
     def isdisjoint(self, other):
         """Return True if this DFA has no common elements with another DFA."""
-        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+        for (state_a, state_b) in self._cross_product(other, True):
             # Check for reachable state that is counterexample to disjointness
             if state_a in self.final_states and state_b in other.final_states:
                 return False
@@ -845,7 +847,8 @@ class DFA(fa.FA):
                        for i, char in enumerate(prefix)}
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
         transitions[err_state] = {symbol: err_state for symbol in input_symbols}
-        states = set(transitions.keys())
+
+        states = frozenset(transitions.keys())
         final_states = {last_state}
         return cls(
             states=states,
@@ -905,7 +908,7 @@ class DFA(fa.FA):
                 candidate += 1
                 prefix_dict[symbol] = candidate
 
-        states = set(transitions.keys())
+        states = frozenset(transitions.keys())
         final_states = {len(substring)}
         return cls(
             states=states,
@@ -929,7 +932,7 @@ class DFA(fa.FA):
             transitions[next_state] = {symbol: next_state for symbol in input_symbols}
             transitions[prev_state][char] = next_state
 
-        states = set(transitions.keys())
+        states = frozenset(transitions.keys())
         final_states = {len(subsequence)}
         return cls(
             states=states,
@@ -959,9 +962,10 @@ class DFA(fa.FA):
             }
         last_state = len(transitions)
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
-        final_states = {last_state} if max_length is None else set(range(min_length, max_length+1))
+        final_states = frozenset((last_state,)) if max_length is None else frozenset(range(min_length, max_length+1))
+
         return cls(
-            states=set(transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
@@ -984,8 +988,9 @@ class DFA(fa.FA):
         transitions = {i: {symbol: (i + 1) % k if symbol in symbols_to_count else i
                            for symbol in input_symbols}
                        for i in range(k)}
+
         return cls(
-            states=set(transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
@@ -1015,7 +1020,7 @@ class DFA(fa.FA):
             input_symbols=input_symbols,
             transitions={0: {symbol: 0 for symbol in input_symbols}},
             initial_state=0,
-            final_states=set()
+            final_states=frozenset()
         )
 
     @classmethod
@@ -1034,8 +1039,9 @@ class DFA(fa.FA):
         transitions[n-1][symbol] = n+1
         transitions[n] = {symbol: n for symbol in input_symbols}
         transitions[n+1] = {symbol: n+1 for symbol in input_symbols}
+
         return cls(
-            states=set(transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
@@ -1060,15 +1066,16 @@ class DFA(fa.FA):
         # For transitions this is effectively doubling the label value and then adding 1 if the desired symbol is read
         # Finally we trim the label to n bits with a modulo operation.
         state_count = 2**n
+
         return cls(
-            states=set(range(state_count)),
+            states=frozenset(range(state_count)),
             input_symbols=input_symbols,
             transitions={state: {sym: (2 * state + 1) % state_count
                                  if symbol == sym else (2 * state) % state_count
                                  for sym in input_symbols}
                          for state in range(state_count)},
             initial_state=0,
-            final_states=set(range(state_count//2, state_count)),
+            final_states=frozenset(range(state_count//2, state_count)),
         )
 
     @classmethod
@@ -1169,7 +1176,7 @@ class DFA(fa.FA):
                 path.setdefault(chr, dump_state)
 
         return cls(
-            states=set(transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state='',
