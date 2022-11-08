@@ -10,6 +10,8 @@ from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     parse_postfix_tokens, tokens_to_postfix,
                                     validate_tokens)
 
+RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.'})
+
 
 class NFARegexBuilder:
     """Builder class designed for speed in parsing regular expressions into NFAs."""
@@ -17,24 +19,58 @@ class NFARegexBuilder:
     __slots__ = ('_transitions', '_initial_state', '_final_states')
     _state_name_counter = count(0)
 
-    def __init__(self, literal):
+    def __init__(self, *, transitions, initial_state, final_states):
         """
-        Initialize new builder class according to given literal
+        Initialize new builder class
         """
-        self._transitions = {
-            self.__get_next_state_name(): {chr: set()}
+
+        self._transitions = transitions
+        self._initial_state = initial_state
+        self._final_states = final_states
+
+    @classmethod
+    def from_string_literal(cls, literal):
+        """
+        Initialize this builder accepting only the given string literal
+        """
+
+        transitions = {
+            cls.__get_next_state_name(): {chr: set()}
             for chr in literal
         }
 
-        for start_state, path in self._transitions.items():
+        for start_state, path in transitions.items():
             for end_states in path.values():
                 end_states.add(start_state+1)
 
-        final_state = self.__get_next_state_name()
-        self._transitions[final_state] = dict()
+        final_state = cls.__get_next_state_name()
+        transitions[final_state] = dict()
 
-        self._initial_state = min(self._transitions.keys())
-        self._final_states = {final_state}
+        return cls(
+            transitions=transitions,
+            initial_state=min(transitions.keys()),
+            final_states={final_state}
+        )
+
+    @classmethod
+    def wildcard(cls, input_symbols):
+        """
+        Initialize this builder for a wildcard with the given input symbols
+        """
+
+        initial_state = cls.__get_next_state_name()
+        final_state = cls.__get_next_state_name()
+
+        transitions = {
+            initial_state: {symbol: {final_state} for symbol in input_symbols},
+            final_state: dict()
+        }
+
+        return cls(
+            transitions=transitions,
+            initial_state=initial_state,
+            final_states={final_state}
+        )
 
     def union(self, other):
         """
@@ -287,7 +323,18 @@ class StringToken(Literal):
     """Subclass of literal token defining a string literal."""
 
     def val(self):
-        return NFARegexBuilder(self.text)
+        return NFARegexBuilder.from_string_literal(self.text)
+
+
+class WildcardToken(Literal):
+    """Subclass of literal token defining a wildcard literal."""
+
+    def __init__(self, text, input_symbols):
+        super().__init__(text)
+        self.input_symbols = input_symbols
+
+    def val(self):
+        return NFARegexBuilder.wildcard(self.input_symbols)
 
 
 def add_concat_tokens(token_list):
@@ -311,12 +358,12 @@ def add_concat_tokens(token_list):
         if next_token:
             for firstClass, secondClass in concat_pairs:
                 if isinstance(curr_token, firstClass) and isinstance(next_token, secondClass):
-                    final_token_list.append(ConcatToken('.'))
+                    final_token_list.append(ConcatToken(''))
 
     return final_token_list
 
 
-def get_regex_lexer():
+def get_regex_lexer(input_symbols):
     """Get lexer for parsing regular expressions."""
     lexer = Lexer()
 
@@ -328,17 +375,18 @@ def get_regex_lexer():
     lexer.register_token(KleeneStarToken, r'\*')
     lexer.register_token(KleenePlusToken, r'\+')
     lexer.register_token(OptionToken, r'\?')
+    lexer.register_token(lambda text: WildcardToken(text, input_symbols), r'\.')
 
     return lexer
 
 
-def parse_regex(regexstr):
+def parse_regex(regexstr, input_symbols):
     """Return an NFARegexBuilder corresponding to regexstr."""
 
     if len(regexstr) == 0:
-        return NFARegexBuilder(regexstr)
+        return NFARegexBuilder.from_string_literal(regexstr)
 
-    lexer = get_regex_lexer()
+    lexer = get_regex_lexer(input_symbols)
     lexed_tokens = lexer.lex(regexstr)
     validate_tokens(lexed_tokens)
     tokens_with_concats = add_concat_tokens(lexed_tokens)

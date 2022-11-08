@@ -9,7 +9,7 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-from automata.regex.parser import parse_regex
+from automata.regex.parser import parse_regex, RESERVED_CHARACTERS
 
 
 class NFA(fa.FA):
@@ -126,16 +126,15 @@ class NFA(fa.FA):
     @classmethod
     def from_regex(cls, regex, *, input_symbols=None):
         """Initialize this NFA as one equivalent to the given regular expression"""
-        reserved_characters = {'*', '|', '(', ')', '?', ' ', '\t', '&', '+'}
 
         if input_symbols is None:
-            input_symbols = set(regex) - reserved_characters
+            input_symbols = set(regex) - RESERVED_CHARACTERS
         else:
-            conflicting_symbols = reserved_characters & input_symbols
+            conflicting_symbols = RESERVED_CHARACTERS & input_symbols
             if conflicting_symbols:
                 raise exceptions.InvalidSymbolError(f'Invalid input symbols: {conflicting_symbols}')
 
-        nfa_builder = parse_regex(regex)
+        nfa_builder = parse_regex(regex, input_symbols)
 
         return cls(
             states=frozenset(nfa_builder._transitions.keys()),
