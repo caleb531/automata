@@ -106,6 +106,30 @@ automaton.accepts_input(word)
 
 Returns a deep copy of the automaton according to its subtype.
 
+### Disabling automatic validation
+
+By default, all Automaton instances are checked for common inconsistencies when
+they are instantiated. If inconsistencies are found, the appropriate exception
+from `automata.base.exceptions` is raised.
+
+Because this validation can be performance-intensive for large automaton
+instances with many states/transitions, you can disable the automatic validation
+using the global configuration feature (introduced in v7):
+
+```python
+import automata.base.config as global_config
+
+global_config.should_validate_automata = False
+
+# The rest of your code...
+```
+
+If, at any point, you wish to opt into validation for a specific Automaton instance, you can call the `validate` method:
+
+```python
+my_automaton.validate()
+```
+
 ### class FA(Automaton, metaclass=ABCMeta)
 
 The `FA` class is an abstract base class from which all finite automata inherit.
