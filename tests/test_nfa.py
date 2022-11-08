@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of NFAs."""
 import os
+import string
 import tempfile
 import types
+from itertools import product
 from unittest.mock import patch
 
 from frozendict import frozendict
-from itertools import product
-import string
 
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
