@@ -356,7 +356,7 @@ class DFA(fa.FA):
         new_input_symbols = input_symbols
         new_states = frozenset(back_map.values())
         new_initial_state = back_map[initial_state]
-        new_final_states = frozenset((back_map[acc] for acc in reachable_final_states))
+        new_final_states = frozenset(back_map[acc] for acc in reachable_final_states)
         new_transitions = {
             name: {
                 letter: back_map[transitions[next(iter(eq))][letter]]
@@ -382,11 +382,11 @@ class DFA(fa.FA):
 
         new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
-        new_final_states = frozenset((
+        new_final_states = frozenset(
             (state_a, state_b)
             for state_a, state_b in new_states
             if state_a in self.final_states or state_b in other.final_states
-        ))
+        )
 
         if minify:
             return self._minify(
@@ -414,11 +414,11 @@ class DFA(fa.FA):
 
         new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
-        new_final_states = frozenset((
+        new_final_states = frozenset(
             (state_a, state_b)
             for state_a, state_b in new_states
             if state_a in self.final_states and state_b in other.final_states
-        ))
+        )
 
         if minify:
             return self._minify(
@@ -446,11 +446,11 @@ class DFA(fa.FA):
 
         new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
-        new_final_states = frozenset((
+        new_final_states = frozenset(
             (state_a, state_b)
             for state_a, state_b in new_states
             if state_a in self.final_states and state_b not in other.final_states
-        ))
+        )
 
         if minify:
             return self._minify(
@@ -478,11 +478,11 @@ class DFA(fa.FA):
 
         new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
-        new_final_states = frozenset((
+        new_final_states = frozenset(
             (state_a, state_b)
             for state_a, state_b in new_states
             if (state_a in self.final_states) ^ (state_b in other.final_states)
-        ))
+        )
 
         if minify:
             return self._minify(

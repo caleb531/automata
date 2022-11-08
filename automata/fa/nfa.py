@@ -356,7 +356,7 @@ class NFA(fa.FA):
             )
 
         # Final states of other
-        new_final_states = frozenset((state_map_b[state] for state in other.final_states))
+        new_final_states = frozenset(state_map_b[state] for state in other.final_states)
 
         return self.__class__(
             states=new_states,
@@ -511,11 +511,11 @@ class NFA(fa.FA):
                     new_states.add(product_state)
                     queue.append(product_state)
 
-        new_final_states = frozenset((
+        new_final_states = frozenset(
             (state_a, state_b)
             for (state_a, state_b) in new_states
             if state_a in self.final_states and state_b in other.final_states
-        ))
+        )
 
         return self.__class__(
             states=new_states,
