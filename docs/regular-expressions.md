@@ -3,7 +3,8 @@
 [Table of Contents](index.md)
 
 A set of tools for working with regular languages. These can be found under
-`automata/base/regex.py`
+`automata/base/regex.py`. Can recognize regular expressions consisting of
+ascii uppercase characters, ascii lowercase characters, digits, and subsets of these.
 
 A regular expression with the following operations only are supported in this library:
 
