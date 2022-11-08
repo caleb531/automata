@@ -179,7 +179,7 @@ class NFA(fa.FA):
         return frozenset(next_current_states)
 
     @staticmethod
-    def compute_reachable_states(initial_state, input_symbols, transitions):
+    def _compute_reachable_states(initial_state, input_symbols, transitions):
         """Compute the states which are reachable from the initial state."""
 
         visited_set = set()
@@ -234,7 +234,7 @@ class NFA(fa.FA):
                 new_transitions[state].pop('', None)
 
         # Remove unreachable states
-        reachable_states = NFA.compute_reachable_states(self.initial_state, self.input_symbols, new_transitions)
+        reachable_states = NFA._compute_reachable_states(self.initial_state, self.input_symbols, new_transitions)
         reachable_final_states = reachable_states & new_final_states
 
         for state in self.states - reachable_states:
