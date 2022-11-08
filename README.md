@@ -106,7 +106,7 @@ automaton.accepts_input(word)
 
 Returns a deep copy of the automaton according to its subtype.
 
-### Disabling automatic validation
+#### Disabling automatic validation
 
 By default, all Automaton instances are checked for common inconsistencies when
 they are instantiated. If inconsistencies are found, the appropriate exception
