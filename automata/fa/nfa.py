@@ -579,8 +579,8 @@ class NFA(fa.FA):
 
         new_input_symbols = self.input_symbols | other.input_symbols
         new_initial_state = (self.initial_state, other.initial_state, False)
-        new_final_states = set(product(self_reachable_final_states, other_reachable_final_states, [True]))
-        new_states = set(chain(
+        new_final_states = frozenset(product(self_reachable_final_states, other_reachable_final_states, [True]))
+        new_states = frozenset(chain(
             product(self_reachable_states, [other.initial_state], [False]),
             product(self_reachable_states, other_reachable_states, [True])
         ))
@@ -645,8 +645,8 @@ class NFA(fa.FA):
 
         new_input_symbols = self.input_symbols | other.input_symbols
         new_initial_state = (self.initial_state, other.initial_state, False)
-        new_final_states = set(product(self_reachable_final_states, other_reachable_final_states, [True]))
-        new_states = set(chain(
+        new_final_states = frozenset(product(self_reachable_final_states, other_reachable_final_states, [True]))
+        new_states = frozenset(chain(
             product(self_reachable_states, other_reachable_states, [False]),
             product(self_reachable_states, other_reachable_final_states, [True])
         ))
