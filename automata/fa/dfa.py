@@ -373,28 +373,6 @@ class DFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def _cross_product(self, other):
-        """
-        Creates a new DFA which is the cross product of DFAs self and other
-        with an empty set of final states.
-        """
-        if self.input_symbols != other.input_symbols:
-            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
-
-        new_states = self._get_reachable_states_product_graph(other)
-
-        new_transitions = {
-            (state_a, state_b): {
-                symbol: (self.transitions[state_a][symbol], other.transitions[state_b][symbol])
-                for symbol in self.input_symbols
-            }
-            for (state_a, state_b) in new_states
-        }
-
-        new_initial_state = (self.initial_state, other.initial_state)
-
-        return new_states, new_transitions, new_initial_state
-
     def union(self, other, *, retain_names=False, minify=True):
         """
         Takes as input two DFAs M1 and M2 which
@@ -402,7 +380,7 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
         new_final_states = {
             (state_a, state_b)
@@ -434,7 +412,7 @@ class DFA(fa.FA):
         Returns a DFA which accepts the intersection of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
         new_final_states = {
             (state_a, state_b)
@@ -465,7 +443,7 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
         """
-        new_states, new_transitions, new_initial_state = self._cross_product(other)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
         new_final_states = {
             (state_a, state_b)
@@ -497,7 +475,7 @@ class DFA(fa.FA):
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
         new_final_states = {
             (state_a, state_b)
@@ -546,10 +524,16 @@ class DFA(fa.FA):
             allow_partial=self.allow_partial
         )
 
-    def _get_reachable_states_product_graph(self, other):
-        """Get reachable states corresponding to product graph between self and other"""
+    def _cross_product(self, other, states_only):
+        """
+        Get reachable states corresponding to product graph between self and other.
+        If states_only is True, only returns states. Otherwise, constructs corresponding
+        transitions to the reachable states and new initial state.
+        """
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
+
+        product_transitions = dict() if not states_only else None
 
         visited_set = set()
         queue = deque()
@@ -559,20 +543,30 @@ class DFA(fa.FA):
         visited_set.add(product_initial_state)
 
         while queue:
-            q_a, q_b = queue.popleft()
+            curr_state = queue.popleft()
+            q_a, q_b = curr_state
+
+            if not states_only:
+                state_transitions = product_transitions.setdefault(curr_state, dict())
 
             for chr in self.input_symbols:
                 product_state = (self.transitions[q_a][chr], other.transitions[q_b][chr])
+
+                if not states_only:
+                    state_transitions[chr] = product_state
 
                 if product_state not in visited_set:
                     visited_set.add(product_state)
                     queue.append(product_state)
 
-        return visited_set
+        if states_only:
+            return visited_set
+
+        return visited_set, product_transitions, product_initial_state
 
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
-        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+        for (state_a, state_b) in self._cross_product(other, True):
             # Check for reachable state that is counterexample to subset
             if state_a in self.final_states and state_b not in other.final_states:
                 return False
@@ -585,7 +579,7 @@ class DFA(fa.FA):
 
     def isdisjoint(self, other):
         """Return True if this DFA has no common elements with another DFA."""
-        for (state_a, state_b) in self._get_reachable_states_product_graph(other):
+        for (state_a, state_b) in self._cross_product(other, True):
             # Check for reachable state that is counterexample to disjointness
             if state_a in self.final_states and state_b in other.final_states:
                 return False
