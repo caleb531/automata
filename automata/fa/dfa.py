@@ -560,10 +560,10 @@ class DFA(fa.FA):
                     visited_set.add(product_state)
                     queue.append(product_state)
 
-        if states_only:
-            return visited_set
+        if not states_only:
+            return visited_set, product_transitions, product_initial_state
 
-        return visited_set, product_transitions, product_initial_state
+        return visited_set
 
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
@@ -955,7 +955,7 @@ class DFA(fa.FA):
             }
         last_state = len(transitions)
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
-        final_states = {last_state} if max_length is None else set(range(min_length, max_length+1))
+        final_states = frozenset((last_state,)) if max_length is None else frozenset(range(min_length, max_length+1))
 
         return cls(
             states=frozenset(transitions.keys()),
