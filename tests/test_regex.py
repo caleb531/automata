@@ -102,6 +102,15 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.isequal('a&a+', 'a'))
         self.assertFalse(re.isequal('a*', 'a+'))
 
+    def test_wildcard(self):
+        """Should correctly check wildcard"""
+
+        input_symbols = {'a', 'b', 'c'}
+
+        self.assertTrue(re.isequal('a|b|c', '.', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(abc)|(aac)|(acc)', 'a.c', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a&.', 'a', input_symbols=input_symbols))
+
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""
         with self.assertRaises(exceptions.InvalidSymbolError):
