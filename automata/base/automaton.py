@@ -5,6 +5,7 @@ import abc
 
 from frozendict import frozendict
 
+import automata.base.config as global_config
 import automata.base.exceptions as exceptions
 from automata.base.utils import freezeValue
 
@@ -18,7 +19,8 @@ class Automaton(metaclass=abc.ABCMeta):
         self.__post_init__()
 
     def __post_init__(self):
-        self.validate()
+        if global_config.should_validate_automata:
+            self.validate()
 
     @abc.abstractmethod
     def validate(self):
