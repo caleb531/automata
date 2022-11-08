@@ -443,6 +443,7 @@ class DFA(fa.FA):
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
         """
+
         new_states, new_transitions, new_initial_state = self._cross_product(other, False)
 
         new_final_states = {
@@ -839,7 +840,8 @@ class DFA(fa.FA):
                        for i, char in enumerate(prefix)}
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
         transitions[err_state] = {symbol: err_state for symbol in input_symbols}
-        states = set(transitions.keys())
+
+        states = frozenset(transitions.keys())
         final_states = {last_state}
         return cls(
             states=states,
@@ -899,7 +901,7 @@ class DFA(fa.FA):
                 candidate += 1
                 prefix_dict[symbol] = candidate
 
-        states = set(transitions.keys())
+        states = frozenset(transitions.keys())
         final_states = {len(substring)}
         return cls(
             states=states,
@@ -923,7 +925,7 @@ class DFA(fa.FA):
             transitions[next_state] = {symbol: next_state for symbol in input_symbols}
             transitions[prev_state][char] = next_state
 
-        states = set(transitions.keys())
+        states = frozenset(transitions.keys())
         final_states = {len(subsequence)}
         return cls(
             states=states,
@@ -954,8 +956,9 @@ class DFA(fa.FA):
         last_state = len(transitions)
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
         final_states = {last_state} if max_length is None else set(range(min_length, max_length+1))
+
         return cls(
-            states=set(transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
@@ -978,8 +981,9 @@ class DFA(fa.FA):
         transitions = {i: {symbol: (i + 1) % k if symbol in symbols_to_count else i
                            for symbol in input_symbols}
                        for i in range(k)}
+
         return cls(
-            states=set(transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
@@ -1009,7 +1013,7 @@ class DFA(fa.FA):
             input_symbols=input_symbols,
             transitions={0: {symbol: 0 for symbol in input_symbols}},
             initial_state=0,
-            final_states=set()
+            final_states=frozenset()
         )
 
     @classmethod
@@ -1028,8 +1032,9 @@ class DFA(fa.FA):
         transitions[n-1][symbol] = n+1
         transitions[n] = {symbol: n for symbol in input_symbols}
         transitions[n+1] = {symbol: n+1 for symbol in input_symbols}
+
         return cls(
-            states=set(transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
@@ -1054,15 +1059,16 @@ class DFA(fa.FA):
         # For transitions this is effectively doubling the label value and then adding 1 if the desired symbol is read
         # Finally we trim the label to n bits with a modulo operation.
         state_count = 2**n
+
         return cls(
-            states=set(range(state_count)),
+            states=frozenset(range(state_count)),
             input_symbols=input_symbols,
             transitions={state: {sym: (2 * state + 1) % state_count
                                  if symbol == sym else (2 * state) % state_count
                                  for sym in input_symbols}
                          for state in range(state_count)},
             initial_state=0,
-            final_states=set(range(state_count//2, state_count)),
+            final_states=frozenset(range(state_count//2, state_count)),
         )
 
     @classmethod
@@ -1163,7 +1169,7 @@ class DFA(fa.FA):
                 path.setdefault(chr, dump_state)
 
         return cls(
-            states=set(transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state='',
