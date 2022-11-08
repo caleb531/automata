@@ -1,4 +1,4 @@
-### Regular Expressions
+# Regular Expressions
 
 [Table of Contents](index.md)
 
@@ -24,7 +24,7 @@ Preferably the tools for the same can be imported as:
 import automata.regex.regex as re
 ```
 
-#### automata.regex.regex.validate(regex)
+## automata.regex.regex.validate(regex)
 
 Returns `True` if the regular expression is valid. Otherwise, raise an
 `InvalidRegexError`.
@@ -33,7 +33,7 @@ Returns `True` if the regular expression is valid. Otherwise, raise an
 re.validate('ab(c|d)*ba?')
 ```
 
-#### automata.regex.regex.isequal(re1, re2)
+## automata.regex.regex.isequal(re1, re2)
 
 Returns `True` if both regular expressions are equivalent.
 
@@ -42,7 +42,7 @@ re.isequal('aa?', 'a|aa')
 re.isequal('aa*', 'a+')
 ```
 
-#### automata.regex.regex.issubset(re1, re2)
+## automata.regex.regex.issubset(re1, re2)
 
 Returns `True` if re1 is a subset of re2.
 
@@ -50,7 +50,7 @@ Returns `True` if re1 is a subset of re2.
 re.issubset('aa?', 'a*')
 ```
 
-#### automata.regex.regex.issuperset(re1, re2)
+## automata.regex.regex.issuperset(re1, re2)
 
 Returns `True` if re1 is a subset of re2.
 
