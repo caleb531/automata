@@ -216,11 +216,9 @@ class DFA(fa.FA):
 
         Raise an error if the transition does not exist.
         """
-        if input_symbol in self.transitions[current_state]:
+        if current_state is not None and input_symbol in self.transitions[current_state]:
             return self.transitions[current_state][input_symbol]
-        else:
-            raise exceptions.RejectionException(
-                '{} is not a valid input symbol'.format(input_symbol))
+        return None
 
     def _check_for_input_rejection(self, current_state):
         """Raise an error if the given config indicates rejected input."""
@@ -229,7 +227,7 @@ class DFA(fa.FA):
                 'the DFA stopped on a non-final state ({})'.format(
                     current_state))
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str, ignore_rejection=False):
         """
         Check if the given string is accepted by this DFA.
 
@@ -243,7 +241,8 @@ class DFA(fa.FA):
                 current_state, input_symbol)
             yield current_state
 
-        self._check_for_input_rejection(current_state)
+        if not ignore_rejection:
+            self._check_for_input_rejection(current_state)
 
     def _get_digraph(self):
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
@@ -627,6 +626,106 @@ class DFA(fa.FA):
 
         assert state in self.final_states
         return ''.join(result)
+
+    def predecessor(self, input_str, *, strict=True, key=None):
+        """
+        Returns the first string accepted by the DFA that comes before
+        the input string in lexicographical order.
+        Passing in None will generate the lexicographically last word.
+        If strict is set to False and input_str is accepted by the DFA then
+        it will be returned.
+        The value of key can be set to define a custom lexicographical ordering.
+        """
+        for word in self.predecessors(input_str, strict=strict, key=key):
+            return word
+        return None
+
+    def predecessors(self, input_str, *, strict=True, key=None):
+        """
+        Generates all strings that come before the input string
+        in lexicographical order.
+        Passing in None will generate all words.
+        If strict is set to False and input_str is accepted by the DFA then
+        it will be included in the output.
+        The value of key can be set to define a custom lexicographical ordering.
+        Raises a ValueError for infinite languages.
+        """
+        yield from self.successors(input_str, strict=strict, reverse=True, key=key)
+
+    def successor(self, input_str, *, strict=True, key=None):
+        """
+        Returns the first string accepted by the DFA that comes after
+        the input string in lexicographical order.
+        Passing in None will generate the lexicographically first word.
+        If strict is set to False and input_str is accepted by the DFA then
+        it will be returned.
+        The value of key can be set to define a custom lexicographical ordering.
+        """
+        for word in self.successors(input_str, strict=strict, key=key):
+            return word
+        return None
+
+    def successors(self, input_str, *, strict=True, key=None, reverse=False):
+        """
+        Generates all strings that come after the input string
+        in lexicographical order.
+        Passing in None will generate all words.
+        If strict is set to False and input_str is accepted by the DFA then
+        it will be included in the output.
+        If reverse is set to True then predecessors will be generated instead. See the DFA.predecessors method.
+        The value of key can be set to define a custom lexicographical ordering.
+        """
+        # A predecessor for a finite string may be infinite but a successor for a finite string is always finite
+        if reverse and not self.isfinite():
+            raise ValueError('Predecessors cannot be computed for infinite languages')
+        G = self._get_digraph()
+        coaccessible_nodes = self.final_states.union(*(
+            nx.ancestors(G, state)
+            for state in self.final_states
+        ))
+
+        # Precomputations and setup
+        include_input = not strict
+        sorted_symbols = sorted(self.input_symbols, reverse=reverse, key=key)
+        symbol_succ = {symbol_a: symbol_b
+                       for symbol_a, symbol_b in zip(sorted_symbols, sorted_symbols[1:])}
+        symbol_succ[sorted_symbols[-1]] = None
+        # Special case for None
+        state_stack = deque([self.initial_state]
+                            if input_str is None
+                            else self.read_input_stepwise(input_str, ignore_rejection=True))
+        char_stack = [] if input_str is None else list(input_str)
+        first_symbol = sorted_symbols[0]
+        # For predecessors we need to special case the input string None
+        candidate = None if reverse and input_str is not None else first_symbol
+        # If input_str is None then we yield on first value found no matter the value of include_input
+        should_yield = include_input or input_str is None
+
+        # Iterative preorder/postorder (depends on reverse) traversal that yields on final states
+        while char_stack or candidate is not None:
+            state = state_stack[-1]
+            # Successors yield here
+            if not reverse and should_yield and candidate == first_symbol and state in self.final_states:
+                yield ''.join(char_stack)
+            candidate_state = None if candidate is None else self._get_next_current_state(state, candidate)
+            # Traverse to child if candidate is viable
+            if candidate_state in coaccessible_nodes:
+                state_stack.append(candidate_state)
+                char_stack.append(candidate)
+                candidate = first_symbol
+            else:
+                # Predecessors yield here
+                if reverse and should_yield and candidate is None and state in self.final_states:
+                    yield ''.join(char_stack)
+                # Candidate is None means no more children to explore, so traverse to parent
+                if candidate is None:
+                    state = state_stack.pop()
+                    candidate = char_stack.pop()
+                candidate = symbol_succ[candidate]
+            should_yield = True
+        # Predecessor yields here for empty string
+        if reverse and should_yield and candidate is None and state in self.final_states:
+            yield ''.join(char_stack)
 
     def count_words_of_length(self, k):
         """

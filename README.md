@@ -329,6 +329,57 @@ Returns a uniformly random word of length `k`
 dfa.random_word(1000, seed=42)
 ```
 
+#### DFA.predecessor(self, input_str, strict=True, key=None)
+
+Returns the first string accepted by the DFA that comes before
+the input string in lexicographical order.
+See `DFA.successors` for more information.
+
+```python
+prev_word = dfa.predecessor('0110')
+same_word = dfa.predecessor(prev_word, strict=False)
+```
+
+#### DFA.predecessors(self, input_str, strict=True, key=None)
+
+Generates all strings that come before the input string
+in lexicographical order.
+See `DFA.successors` for more information.
+
+```python
+# Generates all strings in a language in lexographical order
+for word in dfa.predecessors(None):
+    print(word)
+```
+
+#### DFA.successor(self, input_str, strict=True, key=None)
+
+Returns the first string accepted by the DFA that comes after
+the input string in lexicographical order.
+See `DFA.successors` for more information.
+
+```python
+next_word = dfa.successor('0110')
+same_word = dfa.predecessor(next_word, strict=False)
+```
+
+#### DFA.successors(self, input_str, strict=True, key=None, reverse=False)
+
+Generates all strings that come after the input string
+in lexicographical order.
+Passing in `None` will generate all words.
+If `strict` is set to `False` and `input_str` is accepted by the DFA then
+it will be included in the output.
+The value of `key` can be set to define a custom lexicographical ordering.
+If `reverse` is set to `True` then predecessors will be generated instead.
+Predecessors can only be generated for finite languagesnly for finite languages, infinite languages raise a `ValueError`.
+
+```python
+# Generates all strings in a language in lexographical order
+for word in dfa.successors(None):
+    print(word)
+```
+
 #### DFA.minimum_word_length(self)
 
 Returns the length of the shortest word in the language represented by the DFA.

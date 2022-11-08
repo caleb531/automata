@@ -1441,6 +1441,83 @@ class TestDFA(test_fa.TestFA):
         for i in range(10):
             self.assertIn(dfa.random_word(100), dfa)
 
+    def test_predecessor(self):
+        binary = {'0', '1'}
+        language = {'', '0', '00', '000', '010', '100', '110', '010101111111101011010100'}
+        dfa = DFA.from_finite_language(binary, language)
+        expected = sorted(language, reverse=True)
+        actual = list(dfa.predecessors('11111111111111111111111111111111'))
+        self.assertListEqual(actual, expected)
+        expected = sorted({'', '0', '00', '000', '010'}, reverse=True)
+        actual = list(dfa.predecessors('010', strict=False))
+
+        self.assertEqual(dfa.predecessor('000'), '00')
+        self.assertEqual(dfa.predecessor('0100'), '010')
+        self.assertEqual(dfa.predecessor('1'), '010101111111101011010100')
+        self.assertEqual(dfa.predecessor('0111111110101011'), '010101111111101011010100')
+        self.assertIsNone(dfa.predecessor(''))
+
+        infinite_dfa = DFA.from_nfa(NFA.from_regex('0*1*'))
+        with self.assertRaises(ValueError):
+            infinite_dfa.predecessor('000')
+        with self.assertRaises(ValueError):
+            [_ for _ in infinite_dfa.predecessors('000')]
+
+    def test_successor(self):
+        binary = {'0', '1'}
+        language = {'', '0', '00', '000', '010', '100', '110', '010101111111101011010100'}
+        dfa = DFA.from_finite_language(binary, language)
+        expected = sorted(language)
+        actual = list(dfa.successors('', strict=False))
+        self.assertListEqual(actual, expected)
+
+        self.assertEqual(dfa.successor('000'), '010')
+        self.assertEqual(dfa.successor('0100'), '010101111111101011010100')
+        self.assertIsNone(dfa.successor('110'))
+        self.assertIsNone(dfa.successor('111111110101011'))
+
+        infinite_dfa = DFA.from_nfa(NFA.from_regex('0*1*'))
+        self.assertEqual(infinite_dfa.successor(''), '0')
+        self.assertEqual(infinite_dfa.successor('0'), '00')
+        self.assertEqual(infinite_dfa.successor('00'), '000')
+        self.assertEqual(infinite_dfa.successor('0001'), '00011')
+        self.assertEqual(infinite_dfa.successor('00011'), '000111')
+        self.assertEqual(infinite_dfa.successor('0000000011111'), '00000000111111')
+        self.assertEqual(infinite_dfa.successor('1'), '11')
+        self.assertEqual(infinite_dfa.successor(100 * '0'), 101 * '0')
+        self.assertEqual(infinite_dfa.successor(100 * '1'), 101 * '1')
+
+    def test_successor_and_predecessor(self):
+        binary = {'0', '1'}
+        language = {'', '0', '00', '000', '010', '100', '110', '010101111111101011010100'}
+        dfa = DFA.from_finite_language(binary, language)
+        for word in language:
+            self.assertEqual(dfa.successor(dfa.predecessor(word)), word)
+            self.assertEqual(dfa.predecessor(dfa.successor(word)), word)
+
+    def test_successor_custom_key(self):
+        input_symbols = {'a', 'b', 'c', 'd'}
+        order = {'b': 0, 'c': 1, 'a': 2, 'd': 3}
+        expected = ['', 'b', 'ba', 'bab', 'bad', 'c', 'cd', 'cda', 'a', 'ab',
+                    'ac', 'aa', 'ad', 'dddddddddddddddddb', 'dddddddddddddddddd']
+        language = set(expected)
+        dfa = DFA.from_finite_language(input_symbols, language)
+        actual = list(dfa.successors(None, key=order.get))
+        self.assertListEqual(actual, expected)
+
+    def test_successor_partial(self):
+        binary = {'0', '1'}
+        dfa = DFA(states={0, 1}, input_symbols=binary, transitions={0: {'0': 1}, 1: {'1': 1}},
+                  initial_state=0, final_states={1}, allow_partial=True)
+        self.assertEqual(dfa.successor(None), '0')
+        self.assertEqual(dfa.successor(''), '0')
+        self.assertEqual(dfa.successor('0'), '01')
+        self.assertEqual(dfa.successor('00'), '01')
+        self.assertEqual(dfa.successor('0000101010111'), '01')
+        self.assertEqual(dfa.successor('01'), '011')
+        self.assertEqual(dfa.successor('01000'), '011')
+        self.assertEqual(dfa.successor('1'), None)
+
     def test_count_words_of_length(self):
         """
         Test that language that avoids the pattern '11' is counted by fibonacci numbers
