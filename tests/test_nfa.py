@@ -987,3 +987,127 @@ class TestNFA(test_fa.TestFA):
             nfa1.shuffle_product(nfa2.union(nfa3)),
             nfa1.shuffle_product(nfa2).union(nfa1.shuffle_product(nfa3))
         )
+
+    def test_right_quotient(self):
+        """
+        Tests for right quotient operator,
+        based on https://www.geeksforgeeks.org/quotient-operation-in-automata/
+        """
+
+        # Hardcode simple test case
+        alphabet = set(string.ascii_lowercase)
+
+        nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'hooray', 'sunray', 'defray', 'ray'}))
+        nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'ray'}))
+
+        quotient_dfa_1 = DFA.from_nfa(nfa1.right_quotient(nfa2))
+        reference_dfa_1 = DFA.from_finite_language(alphabet, {'hoo', 'sun', 'def', ''})
+
+        self.assertEqual(quotient_dfa_1, reference_dfa_1)
+
+        # More complicated test case
+        nfa3 = NFA.from_dfa(DFA.from_finite_language({'a', 'b'}, {'', 'a', 'ab', 'aba', 'abab', 'abb'}))
+        nfa4 = NFA.from_dfa(DFA.from_finite_language({'a', 'b'}, {'b', 'bb', 'bbb', 'bbbb'}))
+
+        quotient_dfa_2 = DFA.from_nfa(nfa3.right_quotient(nfa4))
+        reference_dfa_2 = DFA.from_finite_language({'a', 'b'}, {'a', 'aba', 'ab'})
+
+        self.assertEqual(quotient_dfa_2, reference_dfa_2)
+
+        # Test case for regex
+        nfa_5 = NFA.from_regex('bba*baa*')
+        nfa_6 = NFA.from_regex('ab*')
+
+        quotient_nfa_3 = nfa_5.right_quotient(nfa_6)
+        reference_nfa_3 = NFA.from_regex('bba*ba*')
+
+        self.assertEqual(quotient_nfa_3, reference_nfa_3)
+
+        # Other test case for regex
+        nfa_7 = NFA.from_regex('a*baa*')
+        nfa_8 = NFA.from_regex('ab*')
+
+        quotient_nfa_4 = nfa_7.right_quotient(nfa_8)
+        reference_nfa_4 = NFA.from_regex('a*ba*')
+
+        self.assertEqual(quotient_nfa_4, reference_nfa_4)
+
+        # Yet another regex test case
+        nfa_9 = NFA.from_regex('a+bc+')
+        nfa_10 = NFA.from_regex('c+')
+
+        quotient_nfa_5 = nfa_9.right_quotient(nfa_10)
+        reference_nfa_5 = NFA.from_regex('a+bc*')
+
+        self.assertEqual(quotient_nfa_5, reference_nfa_5)
+
+        # raise error if other is not NFA
+        with self.assertRaises(TypeError):
+            self.nfa.right_quotient(self.dfa)
+
+    def test_left_quotient(self):
+        """
+        Tests for left quotient operator,
+        based on https://www.geeksforgeeks.org/quotient-operation-in-automata/
+        """
+
+        # Hardcode simple test case
+        alphabet = set(string.ascii_lowercase)
+
+        nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'match', 'matter', 'mat', 'matzoth'}))
+        nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'mat'}))
+
+        quotient_dfa_1 = DFA.from_nfa(nfa1.left_quotient(nfa2))
+        reference_dfa_1 = DFA.from_finite_language(alphabet, {'ch', 'ter', '', 'zoth'})
+
+        self.assertEqual(quotient_dfa_1, reference_dfa_1)
+
+        # Another simple test case
+        nfa3 = NFA.from_dfa(DFA.from_finite_language({'0', '1'}, {'10', '100', '1010', '101110'}))
+        nfa4 = NFA.from_dfa(DFA.from_finite_language({'0', '1'}, {'10'}))
+
+        quotient_dfa_2 = DFA.from_nfa(nfa3.left_quotient(nfa4))
+        reference_dfa_2 = DFA.from_finite_language({'0', '1'}, {'', '0', '10', '1110'})
+
+        self.assertEqual(quotient_dfa_2, reference_dfa_2)
+
+        # Test case for regex
+        nfa_5 = NFA.from_regex('0*1')
+        nfa_6 = NFA.from_regex('01*')
+
+        quotient_nfa_3 = nfa_5.left_quotient(nfa_6)
+        reference_nfa_3 = NFA.from_regex('0*1') | NFA.from_regex('')
+
+        self.assertEqual(quotient_nfa_3, reference_nfa_3)
+
+        # Another test case for regex
+        nfa_7 = NFA.from_regex('ab*aa*')
+        nfa_8 = NFA.from_regex('ab*')
+
+        quotient_nfa_4 = nfa_7.left_quotient(nfa_8)
+        reference_nfa_4 = NFA.from_regex('b*aa*')
+
+        self.assertEqual(quotient_nfa_4, reference_nfa_4)
+
+        # raise error if other is not NFA
+        with self.assertRaises(TypeError):
+            self.nfa.left_quotient(self.dfa)
+
+    def test_quotient_properties(self):
+        """Test some properties of quotients, based on https://planetmath.org/quotientoflanguages """
+
+        nfa1 = NFA.from_regex('(ab*aa*)|(baa+)')
+        nfa2 = NFA.from_regex('(aa*b*a)|(b+aaba)')
+
+        nfa1_reversed = nfa1.reverse()
+        nfa2_reversed = nfa2.reverse()
+
+        self.assertEqual(nfa1.right_quotient(nfa2).reverse(), nfa1_reversed.left_quotient(nfa2_reversed))
+        self.assertEqual(nfa1.left_quotient(nfa2).reverse(), nfa1_reversed.right_quotient(nfa2_reversed))
+
+        def is_subset_nfa(nfa_a, nfa_b):
+            """Returns true if nfa_a is a subset of nfa_b"""
+            return (nfa_a | nfa_b) == nfa_b
+
+        self.assertTrue(is_subset_nfa(nfa1.left_quotient(nfa2) + nfa2, (nfa1 + nfa2).left_quotient(nfa2)))
+        self.assertTrue(is_subset_nfa(nfa2 + nfa1.right_quotient(nfa2), (nfa2 + nfa1).right_quotient(nfa2)))
