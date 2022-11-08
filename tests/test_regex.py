@@ -111,6 +111,9 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.isequal('(abc)|(aac)|(acc)', 'a.c', input_symbols=input_symbols))
         self.assertTrue(re.isequal('a&.', 'a', input_symbols=input_symbols))
 
+        self.assertTrue(re.issubset('a.b', '...', input_symbols=input_symbols))
+        self.assertTrue(re.issuperset('.', 'a|b', input_symbols=input_symbols))
+
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""
         with self.assertRaises(exceptions.InvalidSymbolError):
