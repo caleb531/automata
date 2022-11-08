@@ -544,18 +544,25 @@ class DFA(fa.FA):
         visited_set.add(product_initial_state)
 
         while queue:
+            # Get next state in BFS queue
             curr_state = queue.popleft()
-            q_a, q_b = curr_state
 
+            # Add state to the transition dict
             if not states_only:
                 state_transitions = product_transitions.setdefault(curr_state, dict())
 
+            # Unpack state and get transitions
+            q_a, q_b = curr_state
+            transitions_a = self.transitions[q_a]
+            transitions_b = other.transitions[q_b]
+
             for chr in self.input_symbols:
-                product_state = (self.transitions[q_a][chr], other.transitions[q_b][chr])
+                product_state = (transitions_a[chr], transitions_b[chr])
 
                 if not states_only:
                     state_transitions[chr] = product_state
 
+                # If next state is new, add to queue
                 if product_state not in visited_set:
                     visited_set.add(product_state)
                     queue.append(product_state)
