@@ -39,7 +39,7 @@ re.validate('ab(c|d)*ba?')
 
 Returns `True` if both regular expressions are equivalent. The
 parameter `input_symbols` should be a set of the input symbols to use,
-defaults to all non-reserved symbols in the given `regex`.
+defaults to all non-reserved symbols in `re1` and `re2`.
 
 ```python
 re.isequal('aa?', 'a|aa')
@@ -50,7 +50,7 @@ re.isequal('aa*', 'a+')
 
 Returns `True` if re1 is a subset of re2. The
 parameter `input_symbols` should be a set of the input symbols to use,
-defaults to all non-reserved symbols in the given `regex`.
+defaults to all non-reserved symbols in `re1` and `re2`.
 
 ```python
 re.issubset('aa?', 'a*')
@@ -60,7 +60,7 @@ re.issubset('aa?', 'a*')
 
 Returns `True` if re1 is a subset of re2. The
 parameter `input_symbols` should be a set of the input symbols to use,
-defaults to all non-reserved symbols in the given `regex`.
+defaults to all non-reserved symbols in `re1` and `re2`.
 
 ```python
 re.issuperset('a*', 'a?')
