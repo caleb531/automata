@@ -563,6 +563,9 @@ class NFA(fa.FA):
         https://cs.stackexchange.com/a/102043
         """
 
+        if not isinstance(other, NFA):
+            raise TypeError(f"other must be an NFA, not {other.__class__.__name__}")
+
         # First, eliminate lambdas because they cause problems with this algorithm
         self_without_lambdas = self.eliminate_lambda()
         other_without_lambdas = other.eliminate_lambda()
@@ -608,8 +611,11 @@ class NFA(fa.FA):
                     state_dict = new_transitions.setdefault(curr_state, dict())
                     state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, [True]))
 
-
-
+        return self.__class__(
+            states=new_states,
+            input_symbols=new_input_symbols,
+            transitions=new_transitions,
+            initial_state=new_initial_state,
             final_states=new_final_states
         )
 
@@ -622,6 +628,9 @@ class NFA(fa.FA):
         Construction is based off of the one described here:
         https://cs.stackexchange.com/a/102043
         """
+
+        if not isinstance(other, NFA):
+            raise TypeError(f"other must be an NFA, not {other.__class__.__name__}")
 
         # First, eliminate lambdas because they cause problems with this algorithm
         self_without_lambdas = self.eliminate_lambda()

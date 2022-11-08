@@ -1041,6 +1041,10 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(quotient_nfa_5, reference_nfa_5)
 
+        # raise error if other is not NFA
+        with self.assertRaises(TypeError):
+            self.nfa.right_quotient(self.dfa)
+
     def test_left_quotient(self):
         """
         Tests for left quotient operator,
@@ -1084,6 +1088,10 @@ class TestNFA(test_fa.TestFA):
         reference_nfa_4 = NFA.from_regex('b*aa*')
 
         self.assertEqual(quotient_nfa_4, reference_nfa_4)
+
+        # raise error if other is not NFA
+        with self.assertRaises(TypeError):
+            self.nfa.left_quotient(self.dfa)
 
     def test_quotient_properties(self):
         """Test some properties of quotients, based on https://planetmath.org/quotientoflanguages """
