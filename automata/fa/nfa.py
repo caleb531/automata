@@ -200,8 +200,8 @@ class NFA(fa.FA):
 
         return visited_set
 
-    def eliminate_lambda(self):
-        """Removes epsilon transitions from the NFA which recognizes the same language."""
+    def _eliminate_lambda(self):
+        """Internal helper function for eliminate lambda. Doesn't create final NFA."""
 
         # Create new transitions and final states for running this algorithm
         new_transitions = {
@@ -239,6 +239,13 @@ class NFA(fa.FA):
 
         for state in self.states - reachable_states:
             new_transitions.pop(state, None)
+
+        return reachable_states, new_transitions, reachable_final_states
+
+    def eliminate_lambda(self):
+        """Removes epsilon transitions from the NFA which recognizes the same language."""
+
+        reachable_states, new_transitions, reachable_final_states = self._eliminate_lambda()
 
         return self.__class__(
             states=reachable_states,
@@ -567,40 +574,40 @@ class NFA(fa.FA):
             raise TypeError(f"other must be an NFA, not {other.__class__.__name__}")
 
         # First, eliminate lambdas because they cause problems with this algorithm
-        self_without_lambdas = self.eliminate_lambda()
-        other_without_lambdas = other.eliminate_lambda()
+        self_reachable_states, self_new_transitions, self_reachable_final_states = self._eliminate_lambda()
+        other_reachable_states, other_new_transitions, other_reachable_final_states = other._eliminate_lambda()
 
-        new_input_symbols = self_without_lambdas.input_symbols | other_without_lambdas.input_symbols
-        new_initial_state = (self_without_lambdas.initial_state, other_without_lambdas.initial_state, False)
-        new_final_states = set(product(self_without_lambdas.final_states, other_without_lambdas.final_states, [True]))
+        new_input_symbols = self.input_symbols | other.input_symbols
+        new_initial_state = (self.initial_state, other.initial_state, False)
+        new_final_states = set(product(self_reachable_final_states, other_reachable_final_states, [True]))
         new_states = set(chain(
-            product(self_without_lambdas.states, [other_without_lambdas.initial_state], [False]),
-            product(self_without_lambdas.states, other_without_lambdas.states, [True])
+            product(self_reachable_states, [other.initial_state], [False]),
+            product(self_reachable_states, other_reachable_states, [True])
         ))
 
         new_transitions = dict()
 
         # Populate transitions for before reading the suffix
-        for state in self_without_lambdas.states:
-            new_state = (state, other_without_lambdas.initial_state, False)
+        for state in self_reachable_states:
+            new_state = (state, other.initial_state, False)
             new_state_dict = new_transitions.setdefault(new_state, dict())
-            old_transitions_dict = self_without_lambdas.transitions.get(state)
+            old_transitions_dict = self_new_transitions.get(state)
 
             if old_transitions_dict:
                 for symbol, end_states in old_transitions_dict.items():
                     new_state_dict[symbol] = {
-                        (end_state, other_without_lambdas.initial_state, False)
+                        (end_state, other.initial_state, False)
                         for end_state in end_states
                     }
 
-            new_state_dict[''] = {(state, other_without_lambdas.initial_state, True)}
+            new_state_dict[''] = {(state, other.initial_state, True)}
 
         # Start reading after the suffix
-        for q_a, q_b in product(self_without_lambdas.states, other_without_lambdas.states):
+        for q_a, q_b in product(self_reachable_states, other_reachable_states):
             curr_state = (q_a, q_b, True)
 
-            transitions_a = self_without_lambdas.transitions.get(q_a, {})
-            transitions_b = other_without_lambdas.transitions.get(q_b, {})
+            transitions_a = self_new_transitions.get(q_a, {})
+            transitions_b = other_new_transitions.get(q_b, {})
 
             # Add all transitions moving over same input symbols
             for symbol in new_input_symbols:
@@ -633,25 +640,25 @@ class NFA(fa.FA):
             raise TypeError(f"other must be an NFA, not {other.__class__.__name__}")
 
         # First, eliminate lambdas because they cause problems with this algorithm
-        self_without_lambdas = self.eliminate_lambda()
-        other_without_lambdas = other.eliminate_lambda()
+        self_reachable_states, self_new_transitions, self_reachable_final_states = self._eliminate_lambda()
+        other_reachable_states, other_new_transitions, other_reachable_final_states = other._eliminate_lambda()
 
-        new_input_symbols = self_without_lambdas.input_symbols | other_without_lambdas.input_symbols
-        new_initial_state = (self_without_lambdas.initial_state, other_without_lambdas.initial_state, False)
-        new_final_states = set(product(self_without_lambdas.final_states, other_without_lambdas.final_states, [True]))
+        new_input_symbols = self.input_symbols | other.input_symbols
+        new_initial_state = (self.initial_state, other.initial_state, False)
+        new_final_states = set(product(self_reachable_final_states, other_reachable_final_states, [True]))
         new_states = set(chain(
-            product(self_without_lambdas.states, other_without_lambdas.states, [False]),
-            product(self_without_lambdas.states, other_without_lambdas.final_states, [True])
+            product(self_reachable_states, other_reachable_states, [False]),
+            product(self_reachable_states, other_reachable_final_states, [True])
         ))
 
         new_transitions = dict()
 
         # Start reading the prefix
-        for q_a, q_b in product(self_without_lambdas.states, other_without_lambdas.states):
+        for q_a, q_b in product(self_reachable_states, other_reachable_states):
             curr_state = (q_a, q_b, False)
 
-            transitions_a = self_without_lambdas.transitions.get(q_a, {})
-            transitions_b = other_without_lambdas.transitions.get(q_b, {})
+            transitions_a = self_new_transitions.get(q_a, {})
+            transitions_b = other_new_transitions.get(q_b, {})
 
             # Add all transitions moving over same input symbols
             for symbol in new_input_symbols:
@@ -663,15 +670,15 @@ class NFA(fa.FA):
                     state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, [False]))
 
             # Add lambda transition from final state, flipping third entry to true
-            if q_b in other_without_lambdas.final_states:
+            if q_b in other_reachable_final_states:
                 state_dict = new_transitions.setdefault(curr_state, dict())
                 state_dict.setdefault('', set()).update({(q_a, q_b, True)})
 
         # Populate transitions for after reading the prefix
-        for state_a, state_b in product(self_without_lambdas.states, other_without_lambdas.final_states):
+        for state_a, state_b in product(self_reachable_states, other_reachable_final_states):
             new_state = (state_a, state_b, True)
             new_state_dict = new_transitions.setdefault(new_state, dict())
-            old_transitions_dict = self_without_lambdas.transitions.get(state_a)
+            old_transitions_dict = self_new_transitions.get(state_a)
 
             if old_transitions_dict:
                 for symbol, end_states in old_transitions_dict.items():
