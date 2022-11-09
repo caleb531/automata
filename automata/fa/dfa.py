@@ -757,11 +757,11 @@ class DFA(fa.FA):
         """
         Generates all words of size k in the language represented by the DFA
         """
-        self._ensure_words_of_length(k)
+        self._populate_word_cache_up_to_len(k)
         for word in self._word_cache[k][self.initial_state]:
             yield word
 
-    def _ensure_words_of_length(self, k):
+    def _populate_word_cache_up_to_len(self, k):
         """
         Populate word cache up to length k
         """
