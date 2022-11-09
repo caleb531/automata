@@ -971,9 +971,9 @@ class TestNFA(test_fa.TestFA):
         alphabet = {'a', 'b'}
 
         # Language properties test case
-        nfa1 = NFA.from_regex('a(a*b|b)', input_symbols=alphabet)
-        nfa2 = NFA.from_regex('(aa+b)&(abbb)|(bba+)', input_symbols=alphabet)
-        nfa3 = NFA.from_regex('a(a*b|b)b(ab*|ba*)', input_symbols=alphabet)
+        nfa1 = NFA.from_regex('a*b*', input_symbols=alphabet)
+        nfa2 = NFA.from_regex('b*a*', input_symbols=alphabet)
+        nfa3 = NFA.from_regex('ab*a', input_symbols=alphabet)
 
         # Commutativity
         self.assertEqual(nfa1.shuffle_product(nfa2), nfa2.shuffle_product(nfa1))
