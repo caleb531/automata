@@ -73,3 +73,13 @@ class InvalidRegexError(RegexException):
 class SymbolMismatchError(AutomatonException):
     """The input symbols between the given automata do not match"""
     pass
+
+
+class EmptyLanguageException(AutomatonException):
+    """The operation cannot be performed because the language is empty"""
+    pass
+
+
+class InfiniteLanguageException(AutomatonException):
+    """The operation cannot be performed because the language is infinite"""
+    pass

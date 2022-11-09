@@ -68,6 +68,11 @@ Raised if the input regular expression is invalid.
 Raised if input symbols don't match between two automata but are expected to (e.g.
 in the creation of a product automaton).
 
+## class InfiniteLanguageException
+
+Raised if the attempted operation cannot be performed because the associated
+language is infinite. For example, 
+
 ------
 
 [Table of Contents](index.md)

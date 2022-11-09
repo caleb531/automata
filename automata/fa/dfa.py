@@ -604,7 +604,7 @@ class DFA(fa.FA):
         """
         try:
             return self.maximum_word_length() is not None
-        except ValueError:
+        except exceptions.EmptyLanguageException:
             return True
 
     def random_word(self, k, *, seed=None):
@@ -650,7 +650,7 @@ class DFA(fa.FA):
         If strict is set to False and input_str is accepted by the DFA then
         it will be included in the output.
         The value of key can be set to define a custom lexicographical ordering.
-        Raises a ValueError for infinite languages.
+        Raises an InfiniteLanguageException for infinite languages.
         """
         yield from self.successors(input_str, strict=strict, reverse=True, key=key)
 
@@ -679,7 +679,7 @@ class DFA(fa.FA):
         """
         # A predecessor for a finite string may be infinite but a successor for a finite string is always finite
         if reverse and not self.isfinite():
-            raise ValueError('Predecessors cannot be computed for infinite languages')
+            raise exceptions.InfiniteLanguageException('Predecessors cannot be computed for infinite languages')
         G = self._get_digraph()
         coaccessible_nodes = self.final_states.union(*(
             nx.ancestors(G, state)
@@ -785,11 +785,11 @@ class DFA(fa.FA):
         """Returns the cardinality of the language represented by the DFA."""
         try:
             i = self.minimum_word_length()
-        except ValueError:
+        except exceptions.EmptyLanguageException:
             return 0
         limit = self.maximum_word_length()
         if limit is None:
-            raise ValueError("The language represented by the DFA is infinite.")
+            raise exceptions.InfiniteLanguageException("The language represented by the DFA is infinite.")
         return sum(self.count_words_of_length(j) for j in range(i, limit+1))
 
     def minimum_word_length(self):
@@ -808,7 +808,7 @@ class DFA(fa.FA):
                 if distances[next_state] is None:
                     distances[next_state] = distances[state] + 1
                     queue.append(next_state)
-        raise ValueError('The language represented by the DFA is empty')
+        raise exceptions.EmptyLanguageException('The language represented by the DFA is empty')
 
     def maximum_word_length(self):
         """
@@ -816,7 +816,7 @@ class DFA(fa.FA):
         In the case of infinite languages, `None` is returned
         """
         if self.isempty():
-            raise ValueError('The language represented by the DFA is empty')
+            raise exceptions.EmptyLanguageException('The language represented by the DFA is empty')
         G = self._get_digraph()
 
         accessible_nodes = nx.descendants(G, self.initial_state) | {self.initial_state}

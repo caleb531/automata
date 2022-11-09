@@ -1421,9 +1421,9 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        with self.assertRaises(ValueError):
+        with self.assertRaises(exceptions.InfiniteLanguageException):
             len(dfa)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(exceptions.InfiniteLanguageException):
             len(~dfa)
 
     def test_random_word(self):
@@ -1461,9 +1461,9 @@ class TestDFA(test_fa.TestFA):
         self.assertIsNone(dfa.predecessor(''))
 
         infinite_dfa = DFA.from_nfa(NFA.from_regex('0*1*'))
-        with self.assertRaises(ValueError):
+        with self.assertRaises(exceptions.InfiniteLanguageException):
             infinite_dfa.predecessor('000')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(exceptions.InfiniteLanguageException):
             [_ for _ in infinite_dfa.predecessors('000')]
 
     def test_successor(self):
@@ -1619,7 +1619,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(at_least_four_ones.minimum_word_length(), 4)
         self.assertEqual(no_11_occurrence.minimum_word_length(), 0)
         self.assertEqual(at_least_one_symbol.minimum_word_length(), 1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(exceptions.EmptyLanguageException):
             empty.minimum_word_length()
 
     def test_maximum_word_length(self):
@@ -1677,7 +1677,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(at_least_four_ones.maximum_word_length(), None)
         self.assertEqual(no_11_occurrence.maximum_word_length(), None)
         self.assertEqual(at_most_one_symbol.maximum_word_length(), 1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(exceptions.EmptyLanguageException):
             empty.maximum_word_length()
 
     def test_contains_prefix(self):
