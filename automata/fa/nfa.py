@@ -844,7 +844,7 @@ class NFA(fa.FA):
         if not (insertion or deletion or substitution):
             raise ValueError("At least one of insertion, deletion, or substitution must be enabled.")
 
-        states = set(product(range(len(reference_str)+1), range(max_edit_distance+1)))
+        states = frozenset(product(range(len(reference_str)+1), range(max_edit_distance+1)))
 
         transitions = dict()
         final_states = set()
