@@ -9,7 +9,7 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-from automata.regex.parser import parse_regex, RESERVED_CHARACTERS
+from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
 
 
 class NFA(fa.FA):

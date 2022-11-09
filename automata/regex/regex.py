@@ -3,7 +3,8 @@
 
 import automata.base.exceptions as exceptions
 from automata.fa.nfa import NFA
-from automata.regex.parser import get_regex_lexer, validate_tokens, RESERVED_CHARACTERS
+from automata.regex.parser import (RESERVED_CHARACTERS, get_regex_lexer,
+                                   validate_tokens)
 
 
 def _validate(regex):
