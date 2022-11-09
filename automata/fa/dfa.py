@@ -680,9 +680,9 @@ class DFA(fa.FA):
         # A predecessor for a finite string may be infinite but a successor for a finite string is always finite
         if reverse and not self.isfinite():
             raise exceptions.InfiniteLanguageException('Predecessors cannot be computed for infinite languages')
-        G = self._get_digraph()
+        graph = self._get_digraph()
         coaccessible_nodes = self.final_states.union(*(
-            nx.ancestors(G, state)
+            nx.ancestors(graph, state)
             for state in self.final_states
         ))
 
@@ -817,17 +817,17 @@ class DFA(fa.FA):
         """
         if self.isempty():
             raise exceptions.EmptyLanguageException('The language represented by the DFA is empty')
-        G = self._get_digraph()
+        graph = self._get_digraph()
 
-        accessible_nodes = nx.descendants(G, self.initial_state) | {self.initial_state}
+        accessible_nodes = nx.descendants(graph, self.initial_state) | {self.initial_state}
 
         coaccessible_nodes = self.final_states.union(*(
-            nx.ancestors(G, state)
+            nx.ancestors(graph, state)
             for state in self.final_states
         ))
 
         important_nodes = accessible_nodes.intersection(coaccessible_nodes)
-        subgraph = G.subgraph(important_nodes)
+        subgraph = graph.subgraph(important_nodes)
         try:
             return nx.dag_longest_path_length(subgraph)
         except nx.exception.NetworkXUnfeasible:

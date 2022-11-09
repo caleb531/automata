@@ -341,7 +341,7 @@ class TestDFA(test_fa.TestFA):
         """Should compute the union between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
-        A = DFA(
+        dfa1 = DFA(
             states={'q0', 'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
             transitions={
@@ -356,7 +356,7 @@ class TestDFA(test_fa.TestFA):
         )
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
-        B = DFA(
+        dfa2 = DFA(
             states={'p0', 'p1', 'p2'},
             input_symbols={'0', '1'},
             transitions={
@@ -367,7 +367,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        new_dfa = A.union(B, retain_names=True, minify=False)
+        new_dfa = dfa1.union(dfa2, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
             ('q0', 'p0'),
             ('q1', 'p0'), ('q1', 'p1'),
@@ -403,7 +403,7 @@ class TestDFA(test_fa.TestFA):
         """Should compute the intersection between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
-        A = DFA(
+        dfa1 = DFA(
             states={'q0', 'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
             transitions={
@@ -418,7 +418,7 @@ class TestDFA(test_fa.TestFA):
         )
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
-        B = DFA(
+        dfa2 = DFA(
             states={'p0', 'p1', 'p2'},
             input_symbols={'0', '1'},
             transitions={
@@ -429,7 +429,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        new_dfa = A.intersection(B, retain_names=True, minify=False)
+        new_dfa = dfa1.intersection(dfa2, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
             ('q0', 'p0'),
             ('q1', 'p0'), ('q1', 'p1'),
@@ -461,7 +461,7 @@ class TestDFA(test_fa.TestFA):
         """Should compute the difference between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
-        A = DFA(
+        dfa1 = DFA(
             states={'q0', 'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
             transitions={
@@ -476,7 +476,7 @@ class TestDFA(test_fa.TestFA):
         )
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
-        B = DFA(
+        dfa2 = DFA(
             states={'p0', 'p1', 'p2'},
             input_symbols={'0', '1'},
             transitions={
@@ -487,7 +487,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        new_dfa = A.difference(B, retain_names=True, minify=False)
+        new_dfa = dfa1.difference(dfa2, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
             ('q0', 'p0'),
             ('q1', 'p0'), ('q1', 'p1'),
@@ -519,7 +519,7 @@ class TestDFA(test_fa.TestFA):
         """Should compute the symmetric difference between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
-        A = DFA(
+        dfa1 = DFA(
             states={'q0', 'q1', 'q2', 'q3', 'q4'},
             input_symbols={'0', '1'},
             transitions={
@@ -534,7 +534,7 @@ class TestDFA(test_fa.TestFA):
         )
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
-        B = DFA(
+        dfa2 = DFA(
             states={'p0', 'p1', 'p2'},
             input_symbols={'0', '1'},
             transitions={
@@ -545,7 +545,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='p0',
             final_states={'p0', 'p1'}
         )
-        new_dfa = A.symmetric_difference(B, retain_names=True, minify=False)
+        new_dfa = dfa1.symmetric_difference(dfa2, retain_names=True, minify=False)
         self.assertEqual(new_dfa.states, {
             ('q0', 'p0'),
             ('q1', 'p0'), ('q1', 'p1'),
@@ -717,7 +717,7 @@ class TestDFA(test_fa.TestFA):
         """Should test if an empty DFA is empty"""
         # This DFA has no reachable final states and
         # therefore accepts the empty language
-        A = DFA(
+        dfa1 = DFA(
             states={'q0', 'q1', 'q2', 'q3'},
             input_symbols={'0', '1'},
             transitions={
@@ -729,7 +729,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q3'}
         )
-        self.assertTrue(A.isempty())
+        self.assertTrue(dfa1.isempty())
 
     def test_isfinite_infinite(self):
         """Should test if an infinite DFA is finite (case #1)"""
@@ -742,7 +742,7 @@ class TestDFA(test_fa.TestFA):
         """Should test if an infinite DFA is finite (case #2)"""
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
-        A = DFA(
+        dfa1 = DFA(
             states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'},
             input_symbols={'0', '1'},
             transitions={
@@ -757,7 +757,7 @@ class TestDFA(test_fa.TestFA):
             initial_state='q0',
             final_states={'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'}
         )
-        self.assertFalse(A.isfinite())
+        self.assertFalse(dfa1.isfinite())
 
     def test_isfinite_finite(self):
         """Should test if a finite DFA is finite"""

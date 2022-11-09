@@ -670,7 +670,7 @@ class TestNFA(test_fa.TestFA):
         Should properly add new state of different type than original states;
         see <https://github.com/caleb531/automata/issues/60> for more details
         """
-        A = NFA(
+        dfa1 = NFA(
             states={'0', '1'},
             input_symbols={'0'},
             transitions={'0': {'0': {'1'}}, '1': {'0': {'1'}}},
@@ -678,11 +678,11 @@ class TestNFA(test_fa.TestFA):
             final_states={'1'}
         )
 
-        B = DFA.from_nfa(A.reverse())
+        dfa2 = DFA.from_nfa(dfa1.reverse())
 
         self.assertEqual(
-            A.accepts_input('00'),
-            B.accepts_input('00'),
+            dfa1.accepts_input('00'),
+            dfa2.accepts_input('00'),
             'DFA and NFA are not equivalent when they should be')
 
     def test_nfa_equality(self):
