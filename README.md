@@ -23,9 +23,9 @@ for their invaluable code contributions to this project! 🎉
 [abhinavsinha-adrino]: https://github.com/abhinavsinha-adrino
 [eliotwrobson]: https://github.com/eliotwrobson
 
-## Migrating to v6
+## Migrating to v7
 
-If you wish to migrate to Automata v6 from an older version, please follow the
+If you wish to migrate to Automata v7 from an older version, please follow the
 [migration guide][migration].
 
 <!-- the below link must be an absolute URL to be functional in the PyPI README -->

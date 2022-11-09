@@ -1,5 +1,58 @@
 # Automata Migration Guide
 
+## Backwards-incompatible changes from v6 to v7
+
+### Immutable instances
+
+All Automaton instances are now fully immutable to protect against common
+pitfalls, such as mutating an automaton to an invalid state after it's already
+been validated.
+
+This means that if you wish to make a change to an automaton instance, you must
+retrieve its attributes as a dictionary (using the new `input_parameters`
+property), make your desired change, then pass those parameters to the relevant
+constructor. For example:
+
+```python
+from automata.fa.dfa import DFA
+
+dfa1 = DFA(
+    states={'q0', 'q1', 'q2'},
+    input_symbols={'0', '1'},
+    transitions={
+        'q0': {'0': 'q0', '1': 'q1'},
+        'q1': {'0': 'q0', '1': 'q2'},
+        'q2': {'0': 'q2', '1': 'q1'}
+    },
+    initial_state='q0',
+    final_states={'q1'}
+)
+# You can still copy an automaton just fine
+dfa2 = dfa.copy()
+# If you want to make a change, you must create a new instance; please note
+# that dfa2.input_parameters is always a deep copy of the input parameters for
+# dfa2 (in other words, mutating dfa2.input_parameters will not actually mutate
+# dfa2)
+params = dfa2.input_parameters
+params['final_states'] = {'q2'}
+dfa3 = DFA(**params)
+```
+
+### Renamed Regex Module
+
+The `automata.base.regex` module has been renamed to `automata.regex.regex`
+alongside the other regular expression-related modules.
+
+### DFA.minify() defaults
+
+The default value of the `retain_names` parameter for `DFA.minify()` has been
+corrected from `True` to `False`; the API documentation has always stated that
+the default value _should_ be `False`, however the default value in the code was
+actually `True`; therefore, the code has been updated to match the documentation
+(#59)
+ - Since this code correction may break existing developer code, this is labeled
+   as a backwards-_incompatible_ change rather than just a mere bugfix
+
 ## Backwards-incompatible changes from v5 to v6
 
 Python 3.6 support has been dropped, since it has been end-of-life since
