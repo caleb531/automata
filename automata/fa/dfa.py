@@ -608,7 +608,7 @@ class DFA(fa.FA):
             return True
 
     def random_word(self, k, *, seed=None):
-        self._ensure_count_for_length(k)
+        self._populate_count_cache_up_to_len(k)
         state = self.initial_state
         if self._count_cache[k][state] == 0:
             raise ValueError(f"Language has no words of length {k}")
@@ -733,10 +733,10 @@ class DFA(fa.FA):
         """
         Counts words of length `k` accepted by the DFA
         """
-        self._ensure_count_for_length(k)
+        self._populate_count_cache_up_to_len(k)
         return self._count_cache[k][self.initial_state]
 
-    def _ensure_count_for_length(self, k):
+    def _populate_count_cache_up_to_len(self, k):
         """
         Populate count cache up to length k
         """
