@@ -749,7 +749,7 @@ class DFA(fa.FA):
             else:
                 prev_level = self._count_cache[i-1]
                 level.update({
-                    state: sum(prev_level[suffix_state] for suffix_state in self.transitions[state].values())
+                    state: sum(prev_level[suffix_state] for suffix_state in self.transitions.get(state, {}).values())
                     for state in self.states
                 })
 

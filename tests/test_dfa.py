@@ -1444,6 +1444,31 @@ class TestDFA(test_fa.TestFA):
         for i in range(10):
             self.assertIn(dfa.random_word(100), dfa)
 
+    def test_random_word_partial(self):
+        """
+        Test random generation of words, the generation should be uniformly random for a partial DFA
+        """
+        dfa = DFA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'0', '1'},
+            transitions={
+                'q0': {'0': 'q1', '1': 'q1'},
+                'q1': {'0': 'q1', '1': 'q2'},
+                'q2': {}
+            },
+            initial_state='q0',
+            final_states={'q2'},
+            allow_partial=True
+        )
+        with self.assertRaises(ValueError):
+            dfa.random_word(1)
+
+        for i in range(10):
+            self.assertIn(dfa.random_word(10), dfa)
+
+        for i in range(10):
+            self.assertIn(dfa.random_word(100), dfa)
+
     def test_predecessor(self):
         binary = {'0', '1'}
         language = {'', '0', '00', '000', '010', '100', '110', '010101111111101011010100'}
