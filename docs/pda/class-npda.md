@@ -1,7 +1,7 @@
 # class NPDA(PDA)
 
 [PDA Class](class-pda.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `NPDA` class is a subclass of `PDA` and represents a nondeterministic pushdown automaton. It can be found under `automata/pda/npda.py`.
 
@@ -115,4 +115,4 @@ npda.copy()  # returns deep copy of npda
 ------
 
 [PDA Class](class-pda.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

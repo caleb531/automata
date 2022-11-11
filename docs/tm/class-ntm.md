@@ -1,7 +1,7 @@
 # class NTM(TM)
 
 [TM Class](class-tm.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `NTM` class is a subclass of `TM` and represents a nondeterministic Turing machine. It can be found under `automata/tm/ntm.py`.
 
@@ -116,4 +116,4 @@ ntm.copy()  # returns deep copy of ntm
 
 [Next: MNTM Class](class-mntm.md)  
 [TM Class](class-tm.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

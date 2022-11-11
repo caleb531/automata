@@ -1,7 +1,7 @@
 # class NFA(FA)
 
 [FA Class](class-fa.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `NFA` class is a subclass of `FA` and represents a nondeterministic finite
 automaton. It can be found under `automata/fa/nfa.py`.
@@ -229,4 +229,4 @@ nfa1.show_diagram(path='./abc.png')
 
 [Next: GNFA Class](class-gnfa.md)  
 [FA Class](class-fa.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

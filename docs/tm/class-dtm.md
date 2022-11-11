@@ -1,7 +1,7 @@
 # class DTM(TM)
 
 [TM Class](class-tm.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `DTM` class is a subclass of `TM` and represents a deterministic Turing
 machine. It can be found under `automata/tm/dtm.py`.
@@ -119,4 +119,4 @@ dtm.copy()  # returns deep copy of dtm
 
 [Next: NTM Class](class-ntm.md)  
 [TM Class](class-tm.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

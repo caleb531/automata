@@ -1,6 +1,6 @@
 # class FA(Automaton, metaclass=ABCMeta)
 
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `FA` class is an abstract base class from which all finite automata inherit.
 The `FA` class can be found under `automata/fa/fa.py`.
@@ -19,4 +19,4 @@ from automata.fa.fa import FA
 
 ------
 
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

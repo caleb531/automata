@@ -1,7 +1,7 @@
 # class DPDA(PDA)
 
 [PDA Class](class-pda.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `DPDA` class is a subclass of `PDA` and represents a deterministic finite
 automaton. It can be found under `automata/pda/dpda.py`.
@@ -103,4 +103,4 @@ dpda.copy()  # returns deep copy of dpda
 ------
 
 [PDA Class](class-pda.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

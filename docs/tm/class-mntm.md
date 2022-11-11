@@ -1,7 +1,7 @@
 # class MNTM(TM)
 
 [TM Class](class-tm.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `MNTM` class is a subclass of `TM` and represents a multitape (non)deterministic Turing machine. It can be found under `automata/tm/mntm.py`.
 
@@ -126,4 +126,4 @@ ntm.copy()  # returns deep copy of ntm
 ------
 
 [TM Class](class-tm.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

@@ -1,6 +1,6 @@
 # Regular Expressions
 
-[Table of Contents](index.md)
+[Table of Contents](README.md)
 
 A set of tools for working with regular languages. These can be found under
 `automata/base/regex.py`. Can recognize regular expressions consisting of
@@ -68,4 +68,4 @@ re.issuperset('a*', 'a?')
 
 ------
 
-[Table of Contents](index.md)
+[Table of Contents](README.md)

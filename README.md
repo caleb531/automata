@@ -45,4 +45,4 @@ Please refer to [the official API Documentation][docs] in the `docs/` directory
 of the GitHub repository.
 
 <!-- the below link must be an absolute URL to be functional in the PyPI README -->
-[docs]: https://github.com/caleb531/automata/blob/main/docs/index.md
+[docs]: https://github.com/caleb531/automata/blob/main/docs/README.md

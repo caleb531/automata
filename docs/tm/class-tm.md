@@ -1,6 +1,6 @@
 # class TM(Automaton, metaclass=ABCMeta)
 
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `TM` class is an abstract base class from which all Turing machines inherit.
 It can be found under `automata/tm/tm.py`.
@@ -13,4 +13,4 @@ It can be found under `automata/tm/tm.py`.
 
 ------
 
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

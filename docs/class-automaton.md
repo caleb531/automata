@@ -1,6 +1,6 @@
 # class Automaton(metaclass=ABCMeta)
 
-[Table of Contents](index.md)
+[Table of Contents](README.md)
 
 The `Automaton` class is an abstract base class from which all automata
 (including Turing machines) inherit. As such, it cannot be instantiated on its
@@ -114,4 +114,4 @@ Returns a deep copy of the automaton according to its subtype.
 
 ------
 
-[Table of Contents](index.md)
+[Table of Contents](README.md)

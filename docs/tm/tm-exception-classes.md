@@ -1,6 +1,6 @@
 # Turing machine exception classes
 
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `automata.tm` package also includes a module for exceptions specific to
 Turing machines. You can reference these exception classes like so:
@@ -28,4 +28,4 @@ Raised if the extended tape for simulating a mntm as a ntm is not valid.
 
 ------
 
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

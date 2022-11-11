@@ -1,7 +1,7 @@
 # class DFA(FA)
 
 [FA Class](class-fa.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `DFA` class is a subclass of `FA` and represents a deterministic finite
 automaton. It can be found under `automata/fa/dfa.py`.
@@ -454,4 +454,4 @@ dfa.show_diagram(path='./dfa1.png')
 
 [Next: NFA Class](class-nfa.md)  
 [FA Class](class-fa.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

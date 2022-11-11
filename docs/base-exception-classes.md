@@ -1,6 +1,6 @@
 # Base exception classes
 
-[Table of Contents](index.md)
+[Table of Contents](README.md)
 
 The library also includes a number of exception classes to ensure that errors
 never pass silently (unless explicitly silenced). See
@@ -75,4 +75,4 @@ language is infinite. For example,
 
 ------
 
-[Table of Contents](index.md)
+[Table of Contents](README.md)

@@ -1,7 +1,7 @@
 # class GNFA(NFA)
 
 [FA Class](class-fa.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `GNFA` class is a subclass of `NFA` and represents a generalized
 nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
@@ -97,4 +97,4 @@ gnfa.show_diagram(path='./gnfa.png', show_None=False)
 ------
 
 [FA Class](class-fa.md)  
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)

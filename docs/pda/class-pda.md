@@ -1,6 +1,6 @@
 # class PDA(Automaton, metaclass=ABCMeta)
 
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
 
 The `PDA` class is an abstract base class from which all pushdown automata
 inherit. It can be found under `automata/pda/pda.py`.
@@ -12,4 +12,4 @@ inherit. It can be found under `automata/pda/pda.py`.
 
 ------
 
-[Table of Contents](../index.md)
+[Table of Contents](../README.md)
