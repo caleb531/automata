@@ -275,7 +275,7 @@ dfa.minimum_word_length()
 ## DFA.maximum_word_length(self)
 
 Returns the length of the longest word in the language represented by the DFA.
-In the case of infinite languages, `float('inf')` is returned.
+In the case of infinite languages, `None` is returned.
 
 ```python
 dfa.maximum_word_length()
@@ -310,8 +310,8 @@ for word in dfa:
 
 ## DFA.cardinality(self)
 
-Returns the cardinality of the language represented by the DFA.
-Note that `len(dfa)` raises a `ValueError` for infinite languages, whereas `DFA.cardinality` will return `float('inf')`.
+Returns the cardinality of the language represented by the DFA. Raises an
+`InfiniteLanguageException` if the language is infinite.
 
 ```python
 dfa.cardinality()
