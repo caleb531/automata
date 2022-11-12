@@ -10,7 +10,6 @@ import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 import automata.regex.regex as re
-from automata.regex.parser import RESERVED_CHARACTERS
 
 
 class GNFA(nfa.NFA):
@@ -127,7 +126,7 @@ class GNFA(nfa.NFA):
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
-        check = self.input_symbols.copy() | RESERVED_CHARACTERS
+        check = self.input_symbols.copy() | {'*', '|', '(', ')', '?'}
 
         for regex in paths.values():
             if regex is not None and (set(regex) - check and regex != '' or not re._validate(regex)):
