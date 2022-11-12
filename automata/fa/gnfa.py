@@ -126,7 +126,7 @@ class GNFA(nfa.NFA):
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
-        check = self.input_symbols.copy() | {'*', '|', '(', ')', '?'}
+        check = self.input_symbols | {'*', '|', '(', ')', '?'}
 
         for regex in paths.values():
             if regex is not None and (set(regex) - check and regex != '' or not re._validate(regex)):
