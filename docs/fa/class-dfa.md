@@ -275,7 +275,8 @@ dfa.minimum_word_length()
 ## DFA.maximum_word_length(self)
 
 Returns the length of the longest word in the language represented by the DFA.
-In the case of infinite languages, `None` is returned.
+In the case of infinite languages, `None` is returned. In the case of empty
+languages, `EmptyLanguageException` is raised.
 
 ```python
 dfa.maximum_word_length()
