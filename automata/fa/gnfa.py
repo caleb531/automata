@@ -126,9 +126,9 @@ class GNFA(nfa.NFA):
 
     def _validate_transition_invalid_symbols(self, start_state, paths):
         """Raise an error if transition symbols are invalid."""
+        check = self.input_symbols | {'*', '|', '(', ')', '?'}
+
         for regex in paths.values():
-            check = self.input_symbols.copy()
-            check = check.union({'*', '|', '(', ')', '?'})
             if regex is not None and (set(regex) - check and regex != '' or not re._validate(regex)):
                 raise exceptions.InvalidRegexError(
                     'state {} has invalid transition expression {}'.format(
@@ -174,27 +174,28 @@ class GNFA(nfa.NFA):
     @staticmethod
     def _isbracket_req(regex):
         bracket_open = 0
-        for i in range(len(regex)):
-            if regex[i] == '(':
+        for symbol in regex:
+            if symbol == '(':
                 bracket_open += 1
-            elif regex[i] == ')':
-                bracket_open = bracket_open - 1
-            if bracket_open == 0 and regex[i] == '|':
+            elif symbol == ')':
+                bracket_open -= 1
+            if bracket_open == 0 and symbol == '|':
                 return True
 
         return False
 
     @staticmethod
     def _find_min_connected_node(states, transitions, initial_state, final_state):
-        state_set = states-{initial_state, final_state}
+        state_set = states - {initial_state, final_state}
         state_degree = dict.fromkeys(state_set, 0)
+
         for state in states - {final_state}:
             for to_state, label in transitions[state].items():
                 if label is not None:
                     if state != initial_state:
-                        state_degree[state] = state_degree[state] + 1
+                        state_degree[state] += 1
                     if to_state != final_state:
-                        state_degree[to_state] = state_degree[to_state] + 1
+                        state_degree[to_state] += 1
 
         return min(state_degree, key=state_degree.get)
 
@@ -243,7 +244,7 @@ class GNFA(nfa.NFA):
                     else:
                         r4 = f'|{r4}'
 
-                    if r4 == '?' and len(r1+r2+r3) > 1:
+                    if r4 == '?' and len(r1) + len(r2) + len(r3) > 1:
                         new_transitions[q_i][q_j] = f'({r1}{r2}{r3}){r4}'
                     else:
                         new_transitions[q_i][q_j] = f'{r1}{r2}{r3}{r4}'
