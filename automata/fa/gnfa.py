@@ -9,8 +9,8 @@ from pydot import Dot, Edge, Node
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
-from automata.regex.parser import RESERVED_CHARACTERS
 import automata.regex.regex as re
+from automata.regex.parser import RESERVED_CHARACTERS
 
 
 class GNFA(nfa.NFA):
