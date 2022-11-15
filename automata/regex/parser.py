@@ -181,25 +181,10 @@ class NFARegexBuilder:
 
         self._final_states = other._final_states
 
-    def kleene_star(self):
+    def kleene(self, *, is_kleene_star):
         """
-        Apply the kleene star operation to the NFA represented by this builder
-        """
-        new_initial_state = self.__get_next_state_name()
-
-        self._transitions[new_initial_state] = {
-            '': {self._initial_state}
-        }
-
-        for state in self._final_states:
-            self._transitions[state].setdefault('', set()).add(self._initial_state)
-
-        self._initial_state = new_initial_state
-        self._final_states.add(new_initial_state)
-
-    def kleene_plus(self):
-        """
-        Apply the kleene plus operation to the NFA represented by this builder
+        Apply the kleene star operation to the NFA represented by this builder if
+        is_kleene_star is True. Otherwise, apply the kleene plus operation
         """
         new_initial_state = self.__get_next_state_name()
 
@@ -211,6 +196,9 @@ class NFARegexBuilder:
             self._transitions[state].setdefault('', set()).add(self._initial_state)
 
         self._initial_state = new_initial_state
+
+        if is_kleene_star:
+            self._final_states.add(new_initial_state)
 
     def option(self):
         """
@@ -259,7 +247,7 @@ class KleeneStarToken(PostfixOperator):
         return 3
 
     def op(self, left):
-        left.kleene_star()
+        left.kleene(is_kleene_star=True)
         return left
 
 
@@ -270,7 +258,7 @@ class KleenePlusToken(PostfixOperator):
         return 3
 
     def op(self, left):
-        left.kleene_plus()
+        left.kleene(is_kleene_star=False)
         return left
 
 
