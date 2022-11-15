@@ -183,8 +183,8 @@ class NFARegexBuilder:
 
     def kleene(self, *, is_kleene_star):
         """
-        Apply the kleene star operation to the NFA represented by this builder if
-        is_kleene_star is True. Otherwise, apply the kleene plus operation
+        If is_kleene_star is True, apply the kleene star operation to the NFA
+        represented by this builder. Otherwise, apply the kleene plus operation.
         """
         new_initial_state = self.__get_next_state_name()
 
