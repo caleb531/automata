@@ -36,29 +36,29 @@ npda = NPDA(
     transitions={
         'q0': {
             '': {
-                '#': {('q2', '#')},
+                '#': {('q2', '#')},  # no change to stack
             },
             'a': {
-                '#': {('q0', ('A', '#'))},
+                '#': {('q0', ('A', '#'))},  # replace top of stack with 'A#'
                 'A': {
-                    ('q0', ('A', 'A')),
-                    ('q1', ''),
+                    ('q0', ('A', 'A')),  # push 'A' to stack
+                    ('q1', ''),  # pop from stack
                 },
-                'B': {('q0', ('A', 'B'))},
+                'B': {('q0', ('A', 'B'))},  # push 'B' to stack
             },
             'b': {
-                '#': {('q0', ('B', '#'))},
-                'A': {('q0', ('B', 'A'))},
+                '#': {('q0', ('B', '#'))},  # replace top of stack with 'B#'
+                'A': {('q0', ('B', 'A'))},  # replace top of stack with 'BA'
                 'B': {
-                    ('q0', ('B', 'B')),
-                    ('q1', ''),
+                    ('q0', ('B', 'B')),  # push 'B' to stack
+                    ('q1', ''),  # pop from stack
                 },
             },
         },
         'q1': {
-            '': {'#': {('q2', '#')}},
-            'a': {'A': {('q1', '')}},
-            'b': {'B': {('q1', '')}},
+            '': {'#': {('q2', '#')}},  # push '#' to (currently empty) stack
+            'a': {'A': {('q1', '')}},  # pop from stack
+            'b': {'B': {('q1', '')}},  # pop from stack
         },
     },
     initial_state='q0',
