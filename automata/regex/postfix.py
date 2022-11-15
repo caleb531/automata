@@ -58,15 +58,14 @@ class LeftParen(Token):
 def validate_tokens(token_list):
     """Validate the inputted tokens list (in infix ordering)."""
 
-    token_list_prev = [None]
-    token_list_prev.extend(token_list)
+    token_list_prev = [None] + token_list
 
     paren_counter = 0
 
     for prev_token, curr_token in zip_longest(token_list_prev, token_list):
         # No postfix or infix operators at the beginning
         if prev_token is None and isinstance(curr_token, (InfixOperator, PostfixOperator)):
-            raise exceptions.InvalidRegexError(f"Token '{curr_token}' cannot appear at the start of a statement.")
+            raise exceptions.InvalidRegexError(f"'{curr_token}' cannot appear at the start of a statement.")
 
         # No postfix operators at the end of a statement or right before another operator or right paren
         elif isinstance(prev_token, InfixOperator):
@@ -78,7 +77,7 @@ def validate_tokens(token_list):
         # No left parens right before infix or postfix operators, or right before a right paren
         elif isinstance(prev_token, LeftParen):
             if isinstance(curr_token, (InfixOperator, PostfixOperator, RightParen)):
-                raise exceptions.InvalidRegexError(f"'{prev_token}' cannot appear immediately before '{prev_token}'.")
+                raise exceptions.InvalidRegexError(f"'{prev_token}' cannot appear immediately before '{curr_token}'.")
 
             # Track open/closed parens
             paren_counter += 1

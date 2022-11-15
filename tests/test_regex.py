@@ -100,7 +100,9 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.isequal('aa*', 'a+'))
         self.assertTrue(re.isequal('(abc)(abc)*', '(abc)+'))
         self.assertTrue(re.isequal('a&a+', 'a'))
+
         self.assertFalse(re.isequal('a*', 'a+'))
+        self.assertTrue(re.issuperset('a*', 'a+'))
 
     def test_wildcard(self):
         """Should correctly check wildcard"""

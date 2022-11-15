@@ -201,39 +201,16 @@ class NFARegexBuilder:
         """
         Apply the kleene plus operation to the NFA represented by this builder
         """
-        state_map = {
-            old_state_name: self.__get_next_state_name()
-            for old_state_name in self._transitions
-        }
-
-        second_initial_state = state_map[self._initial_state]
-
-        new_transitions = {
-            state_map[state]: {
-                chr: {state_map[end_state] for end_state in end_states}
-                for chr, end_states in path.items()
-            }
-            for state, path in self._transitions.items()
-        }
-
         new_initial_state = self.__get_next_state_name()
 
-        new_transitions[new_initial_state] = {
-            '': {second_initial_state}
+        self._transitions[new_initial_state] = {
+            '': {self._initial_state}
         }
 
-        new_final_states = {new_initial_state}
         for state in self._final_states:
-            # Add transitions from old final states to intermediate one
-            self._transitions[state].setdefault('', set()).add(new_initial_state)
+            self._transitions[state].setdefault('', set()).add(self._initial_state)
 
-            # Add transitions from the new final states to new initial state
-            new_final_state = state_map[state]
-            new_final_states.add(new_final_state)
-            new_transitions[new_final_state].setdefault('', set()).add(new_initial_state)
-
-        self._transitions.update(new_transitions)
-        self._final_states = new_final_states
+        self._initial_state = new_initial_state
 
     def option(self):
         """
