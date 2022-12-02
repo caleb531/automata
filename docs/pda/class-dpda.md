@@ -38,15 +38,15 @@ dpda = DPDA(
     stack_symbols={'0', '1'},
     transitions={
         'q0': {
-            'a': {'0': ('q1', ('1', '0'))}  # transition pushes '1' to stack
+            'a': {'0': ('q1', ('1', '0'))}  # push '1' to stack
         },
         'q1': {
-            'a': {'1': ('q1', ('1', '1'))},
-            'b': {'1': ('q2', '')}  # transition pops from stack
+            'a': {'1': ('q1', ('1', '1'))},  # push '1' to stack
+            'b': {'1': ('q2', '')}  # pop from stack
         },
         'q2': {
-            'b': {'1': ('q2', '')},
-            '': {'0': ('q3', ('0',))}  # transition does not change stack
+            'b': {'1': ('q2', '')},  # pop from stack
+            '': {'0': ('q3', ('0',))}  # no change to stack
         }
     },
     initial_state='q0',

@@ -39,16 +39,16 @@ npda = NPDA(
                 '#': {('q2', '#')},  # no change to stack
             },
             'a': {
-                '#': {('q0', ('A', '#'))},  # replace top of stack with 'A#'
+                '#': {('q0', ('A', '#'))},  # push 'A' to stack
                 'A': {
                     ('q0', ('A', 'A')),  # push 'A' to stack
                     ('q1', ''),  # pop from stack
                 },
-                'B': {('q0', ('A', 'B'))},  # push 'B' to stack
+                'B': {('q0', ('A', 'B'))},  # push 'A' to stack
             },
             'b': {
-                '#': {('q0', ('B', '#'))},  # replace top of stack with 'B#'
-                'A': {('q0', ('B', 'A'))},  # replace top of stack with 'BA'
+                '#': {('q0', ('B', '#'))},  # push 'B' to stack
+                'A': {('q0', ('B', 'A'))},  # push 'B' to stack
                 'B': {
                     ('q0', ('B', 'B')),  # push 'B' to stack
                     ('q1', ''),  # pop from stack
