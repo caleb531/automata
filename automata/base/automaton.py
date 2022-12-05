@@ -15,7 +15,8 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def __init__(self, **kwargs):
         for attr_name, attr_value in kwargs.items():
-            object.__setattr__(self, attr_name, freezeValue(attr_value))
+            value = freezeValue(attr_value) if global_config.ensure_frozen_values else attr_value
+            object.__setattr__(self, attr_name, value)
         self.__post_init__()
 
     def __post_init__(self):

@@ -10,17 +10,18 @@ def freezeValue(value):
     immutable one by recursively processing said structure and any of its
     members, freezing them as well
     """
-    if isinstance(value, list):
-        return tuple(freezeValue(element) for element in value)
+    if isinstance(value, (str, int)):
+        return value
     if isinstance(value, set):
         return frozenset(freezeValue(element) for element in value)
-    elif isinstance(value, dict):
+    if isinstance(value, dict):
         return frozendict({
             dict_key: freezeValue(dict_value)
             for dict_key, dict_value in value.items()
         })
-    else:
-        return value
+    if isinstance(value, list):
+        return tuple(freezeValue(element) for element in value)
+    return value
 
 
 class PartitionRefinement:
