@@ -10,7 +10,7 @@ from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     parse_postfix_tokens, tokens_to_postfix,
                                     validate_tokens)
 
-RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.'})
+RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '@'})
 
 
 class NFARegexBuilder:
@@ -216,6 +216,44 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.add(new_initial_state)
 
+    def shuffle(self, other):
+        """
+        Apply the shuffle operation to the NFA represented by this builder and other.
+        No need for BFS since all states are acessible.
+        """
+        new_state_name_dict = dict()
+
+        def get_state_name(state_name):
+            return new_state_name_dict.setdefault(state_name, self.__get_next_state_name())
+
+        self._initial_state = get_state_name((self._initial_state, other._initial_state))
+
+        new_final_states = set()
+        new_transitions = dict()
+
+        for curr_state in product(self._transitions, other._transitions):
+            curr_state_name = get_state_name(curr_state)
+            state_dict = new_transitions.setdefault(curr_state_name, dict())
+            q_a, q_b = curr_state
+
+            if q_a in self._final_states and q_b in other._final_states:
+                new_final_states.add(curr_state_name)
+
+            transitions_a = self._transitions.get(q_a, dict())
+            for symbol, end_states in transitions_a.items():
+                state_dict.setdefault(symbol, set()).update(
+                    map(get_state_name, product(end_states, [q_b]))
+                )
+
+            transitions_b = other._transitions.get(q_b, dict())
+            for symbol, end_states in transitions_b.items():
+                state_dict.setdefault(symbol, set()).update(
+                    map(get_state_name, product([q_a], end_states))
+                )
+
+        self._final_states = new_final_states
+        self._transitions = new_transitions
+
     @classmethod
     def __get_next_state_name(cls):
         return next(cls._state_name_counter)
@@ -242,6 +280,15 @@ class IntersectionToken(InfixOperator):
         left.intersection(right)
         return left
 
+class ShuffleToken(InfixOperator):
+    """Subclass of infix operator defining the shuffle operator."""
+
+    def get_precedence(self):
+        return 1
+
+    def op(self, left, right):
+        left.shuffle(right)
+        return left
 
 class KleeneStarToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene star operator."""
@@ -340,6 +387,7 @@ def get_regex_lexer(input_symbols):
     lexer.register_token(StringToken, r'[A-Za-z0-9]')
     lexer.register_token(UnionToken, r'\|')
     lexer.register_token(IntersectionToken, r'\&')
+    lexer.register_token(ShuffleToken, r'\@')
     lexer.register_token(KleeneStarToken, r'\*')
     lexer.register_token(KleenePlusToken, r'\+')
     lexer.register_token(OptionToken, r'\?')

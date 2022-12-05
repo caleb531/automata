@@ -116,6 +116,19 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.issubset('a.b', '...', input_symbols=input_symbols))
         self.assertTrue(re.issuperset('.', 'a|b', input_symbols=input_symbols))
 
+    def test_shuffle(self):
+        """Should correctly check shuffle"""
+
+        input_symbols = {'a', 'b', 'c', 'd'}
+
+        self.assertTrue(re.isequal('a@b', 'ab|ba', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('ab@cd', 'abcd | acbd | cabd | acdb | cadb | cdab', input_symbols=input_symbols))
+        #self.assertTrue(re.isequal('(abc)|(aac)|(acc)', 'a.c', input_symbols=input_symbols))
+        #self.assertTrue(re.isequal('a&.', 'a', input_symbols=input_symbols))
+
+        #self.assertTrue(re.issubset('a.b', '...', input_symbols=input_symbols))
+        #self.assertTrue(re.issuperset('.', 'a|b', input_symbols=input_symbols))
+
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""
         with self.assertRaises(exceptions.InvalidSymbolError):
