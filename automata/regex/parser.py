@@ -104,8 +104,7 @@ class NFARegexBuilder:
 
         new_initial_state_name = get_state_name(new_initial_state)
         new_input_symbols = tuple(set(chain.from_iterable(
-            transition_dict.keys()
-            for transition_dict in chain(self._transitions.values(), other._transitions.values())
+            map(dict.keys, chain(self._transitions.values(), other._transitions.values()))
         )) - {''})
 
         queue = deque()
