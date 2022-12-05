@@ -215,10 +215,10 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.add(new_initial_state)
 
-    def shuffle(self, other):
+    def shuffle_product(self, other):
         """
         Apply the shuffle operation to the NFA represented by this builder and other.
-        No need for BFS since all states are acessible.
+        No need for BFS since all states are accessible.
         """
         new_state_name_dict = dict()
 
@@ -229,9 +229,8 @@ class NFARegexBuilder:
 
         new_transitions = dict()
 
-        for (q_a, transitions_a), (q_b, transitions_b) in product(
-            self._transitions.items(), other._transitions.items()
-        ):
+        transition_product = product(self._transitions.items(), other._transitions.items())
+        for (q_a, transitions_a), (q_b, transitions_b) in transition_product:
             state_dict = new_transitions.setdefault(get_state_name((q_a, q_b)), dict())
 
             for symbol, end_states in transitions_a.items():
@@ -281,7 +280,7 @@ class ShuffleToken(InfixOperator):
         return 1
 
     def op(self, left, right):
-        left.shuffle(right)
+        left.shuffle_product(right)
         return left
 
 
