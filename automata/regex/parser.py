@@ -44,7 +44,7 @@ class NFARegexBuilder:
                 end_states.add(start_state+1)
 
         final_state = cls.__get_next_state_name()
-        transitions[final_state] = dict()
+        transitions[final_state] = {}
 
         return cls(
             transitions=transitions,
@@ -63,7 +63,7 @@ class NFARegexBuilder:
 
         transitions = {
             initial_state: {symbol: {final_state} for symbol in input_symbols},
-            final_state: dict()
+            final_state: {}
         }
 
         return cls(
@@ -93,13 +93,13 @@ class NFARegexBuilder:
         Apply the intersection operation to the NFA represented by this builder and other.
         Use BFS to only traverse reachable part (keeps number of states down).
         """
-        new_state_name_dict = dict()
+        new_state_name_dict = {}
 
         def get_state_name(state_name):
             return new_state_name_dict.setdefault(state_name, self.__get_next_state_name())
 
         new_final_states = set()
-        new_transitions = dict()
+        new_transitions = {}
         new_initial_state = (self._initial_state, other._initial_state)
 
         new_initial_state_name = get_state_name(new_initial_state)
@@ -110,7 +110,7 @@ class NFARegexBuilder:
         queue = deque()
 
         queue.append(new_initial_state)
-        new_transitions[new_initial_state_name] = dict()
+        new_transitions[new_initial_state_name] = {}
 
         while queue:
             curr_state = queue.popleft()
@@ -128,7 +128,7 @@ class NFARegexBuilder:
             # Add epsilon transitions for first set of transitions
             epsilon_transitions_a = transitions_a.get('')
             if epsilon_transitions_a is not None:
-                state_dict = new_transitions.setdefault(curr_state_name, dict())
+                state_dict = new_transitions.setdefault(curr_state_name, {})
                 state_dict.setdefault('', set()).update(
                     map(get_state_name, product(epsilon_transitions_a, [q_b]))
                 )
@@ -139,7 +139,7 @@ class NFARegexBuilder:
             # Add epsilon transitions for second set of transitions
             epsilon_transitions_b = transitions_b.get('')
             if epsilon_transitions_b is not None:
-                state_dict = new_transitions.setdefault(curr_state_name, dict())
+                state_dict = new_transitions.setdefault(curr_state_name, {})
                 state_dict.setdefault('', set()).update(
                     map(get_state_name, product([q_a], epsilon_transitions_b))
                 )
@@ -151,7 +151,7 @@ class NFARegexBuilder:
                 end_states_b = transitions_b.get(symbol)
 
                 if end_states_a is not None and end_states_b is not None:
-                    state_dict = new_transitions.setdefault(curr_state_name, dict())
+                    state_dict = new_transitions.setdefault(curr_state_name, {})
                     state_dict.setdefault(symbol, set()).update(
                         map(get_state_name, product(end_states_a, end_states_b))
                     )
@@ -161,7 +161,7 @@ class NFARegexBuilder:
             for product_state in chain.from_iterable(next_states_iterables):
                 product_state_name = get_state_name(product_state)
                 if product_state_name not in new_transitions:
-                    new_transitions[product_state_name] = dict()
+                    new_transitions[product_state_name] = {}
                     queue.append(product_state)
 
         self._final_states = new_final_states
@@ -220,18 +220,18 @@ class NFARegexBuilder:
         Apply the shuffle operation to the NFA represented by this builder and other.
         No need for BFS since all states are accessible.
         """
-        new_state_name_dict = dict()
+        new_state_name_dict = {}
 
         def get_state_name(state_name):
             return new_state_name_dict.setdefault(state_name, self.__get_next_state_name())
 
         self._initial_state = get_state_name((self._initial_state, other._initial_state))
 
-        new_transitions = dict()
+        new_transitions = {}
 
         transition_product = product(self._transitions.items(), other._transitions.items())
         for (q_a, transitions_a), (q_b, transitions_b) in transition_product:
-            state_dict = new_transitions.setdefault(get_state_name((q_a, q_b)), dict())
+            state_dict = new_transitions.setdefault(get_state_name((q_a, q_b)), {})
 
             for symbol, end_states in transitions_a.items():
                 state_dict.setdefault(symbol, set()).update(
