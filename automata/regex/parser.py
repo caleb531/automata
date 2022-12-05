@@ -131,7 +131,7 @@ class NFARegexBuilder:
             if epsilon_transitions_a is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, dict())
                 state_dict.setdefault('', set()).update(
-                    get_state_name(state) for state in product(epsilon_transitions_a, [q_b])
+                    map(get_state_name, product(epsilon_transitions_a, [q_b]))
                 )
                 next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
 
@@ -142,7 +142,7 @@ class NFARegexBuilder:
             if epsilon_transitions_b is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, dict())
                 state_dict.setdefault('', set()).update(
-                    get_state_name(state) for state in product([q_a], epsilon_transitions_b)
+                    map(get_state_name, product([q_a], epsilon_transitions_b))
                 )
                 next_states_iterables.append(product([q_a], epsilon_transitions_b))
 
@@ -154,7 +154,7 @@ class NFARegexBuilder:
                 if end_states_a is not None and end_states_b is not None:
                     state_dict = new_transitions.setdefault(curr_state_name, dict())
                     state_dict.setdefault(symbol, set()).update(
-                        get_state_name(state) for state in product(end_states_a, end_states_b)
+                        map(get_state_name, product(end_states_a, end_states_b))
                     )
                     next_states_iterables.append(product(end_states_a, end_states_b))
 
@@ -233,8 +233,7 @@ class NFARegexBuilder:
         for (q_a, transitions_a), (q_b, transitions_b) in product(
             self._transitions.items(), other._transitions.items()
         ):
-            curr_state_name = get_state_name((q_a, q_b))
-            state_dict = new_transitions.setdefault(curr_state_name, dict())
+            state_dict = new_transitions.setdefault(get_state_name((q_a, q_b)), dict())
 
             for symbol, end_states in transitions_a.items():
                 state_dict.setdefault(symbol, set()).update(
