@@ -58,7 +58,7 @@ the automatas are never modified, otherwise correct behavior cannot be ensured.
 ```python
 import automata.base.config as global_config
 
-global_config.ensure_frozen_values = False
+global_config.allow_mutable_automata = False
 # The rest of your code...
 ```
 

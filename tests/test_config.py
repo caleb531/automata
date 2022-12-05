@@ -14,11 +14,11 @@ class TestConfig(unittest.TestCase):
 
     def setUp(self):
         self.orig_should_validate = global_config.should_validate_automata
-        self.orig_ensure_frozen_values = global_config.ensure_frozen_values
+        self.orig_allow_mutable_automata = global_config.allow_mutable_automata
 
     def tearDown(self):
         global_config.should_validate_automata = self.orig_should_validate
-        global_config.ensure_frozen_values = self.orig_ensure_frozen_values
+        global_config.allow_mutable_automata = self.orig_allow_mutable_automata
 
     @patch('automata.fa.dfa.DFA.validate')
     def test_disable_validation(self, validate):
@@ -30,7 +30,7 @@ class TestConfig(unittest.TestCase):
     @patch('automata.base.utils.freezeValue')
     def test_disable_ensure_values_are_frozen(self, validate):
         """Should disable the call to freezeValue"""
-        global_config.ensure_frozen_values = False
+        global_config.allow_mutable_automata = True
         dfa = DFA(
             states=frozenset(['s1']),
             input_symbols=frozenset('a'),
@@ -53,7 +53,7 @@ class TestConfig(unittest.TestCase):
     def test_values_are_frozen(self):
         """Should freeze the values"""
         automata.base.utils.freezeValue = MagicMock(wraps=automata.base.utils.freezeValue)
-        global_config.ensure_frozen_values = True
+        global_config.allow_mutable_automata = False
         dfa = DFA(
             states={'s1'},
             input_symbols={'a'},
