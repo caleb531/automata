@@ -230,7 +230,9 @@ class NFARegexBuilder:
 
         new_transitions = dict()
 
-        for (q_a, transitions_a), (q_b, transitions_b) in product(self._transitions.items(), other._transitions.items()):
+        for (q_a, transitions_a), (q_b, transitions_b) in product(
+            self._transitions.items(), other._transitions.items()
+        ):
             curr_state_name = get_state_name((q_a, q_b))
             state_dict = new_transitions.setdefault(curr_state_name, dict())
 
@@ -273,6 +275,7 @@ class IntersectionToken(InfixOperator):
         left.intersection(right)
         return left
 
+
 class ShuffleToken(InfixOperator):
     """Subclass of infix operator defining the shuffle operator."""
 
@@ -282,6 +285,7 @@ class ShuffleToken(InfixOperator):
     def op(self, left, right):
         left.shuffle(right)
         return left
+
 
 class KleeneStarToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene star operator."""
