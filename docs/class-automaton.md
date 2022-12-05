@@ -50,6 +50,18 @@ params['final_states'] = {'q2'}
 dfa2 = DFA(**params)
 ```
 
+#### Enabling mutable automata
+
+It's possible to enable mutable automata, but in this case the user must ensure that 
+the automatas are never modified, otherwise correct behavior cannot be ensured.
+
+```python
+import automata.base.config as global_config
+
+global_config.ensure_frozen_values = False
+# The rest of your code...
+```
+
 ### Automaton instances are validated by default
 
 By default, all Automaton instances are checked for common inconsistencies when

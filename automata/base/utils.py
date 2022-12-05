@@ -12,13 +12,13 @@ def freezeValue(value):
     """
     if isinstance(value, (str, int)):
         return value
-    if isinstance(value, set):
-        return frozenset(freezeValue(element) for element in value)
     if isinstance(value, dict):
         return frozendict({
             dict_key: freezeValue(dict_value)
             for dict_key, dict_value in value.items()
         })
+    if isinstance(value, set):
+        return frozenset(freezeValue(element) for element in value)
     if isinstance(value, list):
         return tuple(freezeValue(element) for element in value)
     return value
