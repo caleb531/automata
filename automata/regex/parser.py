@@ -228,16 +228,12 @@ class NFARegexBuilder:
 
         self._initial_state = get_state_name((self._initial_state, other._initial_state))
 
-        new_final_states = set()
         new_transitions = dict()
 
         for curr_state in product(self._transitions, other._transitions):
             curr_state_name = get_state_name(curr_state)
             state_dict = new_transitions.setdefault(curr_state_name, dict())
             q_a, q_b = curr_state
-
-            if q_a in self._final_states and q_b in other._final_states:
-                new_final_states.add(curr_state_name)
 
             transitions_a = self._transitions.get(q_a, dict())
             for symbol, end_states in transitions_a.items():
@@ -251,7 +247,7 @@ class NFARegexBuilder:
                     map(get_state_name, product([q_a], end_states))
                 )
 
-        self._final_states = new_final_states
+        self._final_states = set(map(get_state_name, product(self._final_states, other._final_states)))
         self._transitions = new_transitions
 
     @classmethod
