@@ -230,18 +230,15 @@ class NFARegexBuilder:
 
         new_transitions = dict()
 
-        for curr_state in product(self._transitions, other._transitions):
-            curr_state_name = get_state_name(curr_state)
+        for (q_a, transitions_a), (q_b, transitions_b) in product(self._transitions.items(), other._transitions.items()):
+            curr_state_name = get_state_name((q_a, q_b))
             state_dict = new_transitions.setdefault(curr_state_name, dict())
-            q_a, q_b = curr_state
 
-            transitions_a = self._transitions.get(q_a, dict())
             for symbol, end_states in transitions_a.items():
                 state_dict.setdefault(symbol, set()).update(
                     map(get_state_name, product(end_states, [q_b]))
                 )
 
-            transitions_b = other._transitions.get(q_b, dict())
             for symbol, end_states in transitions_b.items():
                 state_dict.setdefault(symbol, set()).update(
                     map(get_state_name, product([q_a], end_states))
