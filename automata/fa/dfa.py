@@ -535,7 +535,7 @@ class DFA(fa.FA):
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        product_transitions = dict() if state_search_fn is None else None
+        product_transitions = {} if state_search_fn is None else None
 
         visited_set = set()
         queue = deque()
@@ -550,11 +550,10 @@ class DFA(fa.FA):
 
             # Add state to the transition dict
             if state_search_fn is None:
-                state_transitions = product_transitions.setdefault(curr_state, dict())
+                state_transitions = product_transitions.setdefault(curr_state, {})
             # If in search mode, then see whether predicate function is satisifed
             elif state_search_fn(curr_state):
                 return True
-
 
             # Unpack state and get transitions
             q_a, q_b = curr_state
@@ -882,7 +881,7 @@ class DFA(fa.FA):
         If contains is set to False then the complement is constructed instead.
         If must_be_suffix is set to True, then the substring must be a suffix instead.
         """
-        transitions = {i: dict() for i in range(len(substring))}
+        transitions = {i: {} for i in range(len(substring))}
         transitions[len(substring)] = {
             symbol: len(substring) for symbol in input_symbols
         }
@@ -906,7 +905,7 @@ class DFA(fa.FA):
 
         limit = len(substring)+1 if must_be_suffix else len(substring)
         for i in range(limit):
-            prefix_dict = transitions.setdefault(i, dict())
+            prefix_dict = transitions.setdefault(i, {})
             for symbol in input_symbols:
                 # Look for next state after reading in the given input symbol
                 candidate = i if i < len(substring) else kmp_table[i]
@@ -1096,10 +1095,10 @@ class DFA(fa.FA):
         if not language:
             return DFA.empty_language(input_symbols)
 
-        transitions = dict()
+        transitions = {}
         back_map = {'': set()}
         final_states = set()
-        signatures_dict = dict()
+        signatures_dict = {}
 
         def compute_signature(state):
             """Computes signature for input state"""
@@ -1120,14 +1119,14 @@ class DFA(fa.FA):
                 next_prefix = prefix + chr
 
                 # Extend the trie only if necessary
-                prefix_dict = transitions.setdefault(prefix, dict())
+                prefix_dict = transitions.setdefault(prefix, {})
                 prefix_dict.setdefault(chr, next_prefix)
                 back_map.setdefault(next_prefix, set()).add(prefix)
 
                 prefix = next_prefix
 
             # Mark the finished prefix as a final state
-            transitions[prefix] = dict()
+            transitions[prefix] = {}
             final_states.add(prefix)
 
         def compress(word, next_word):
@@ -1194,7 +1193,7 @@ class DFA(fa.FA):
     def from_nfa(cls, target_nfa, *, retain_names=False, minify=True):
         """Initialize this DFA as one equivalent to the given NFA."""
         # Data structures for state renaming
-        new_state_name_dict = dict()
+        new_state_name_dict = {}
         state_name_counter = count(0)
 
         def get_name_renamed(states):
