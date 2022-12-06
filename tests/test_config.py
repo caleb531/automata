@@ -2,11 +2,11 @@
 """Functions for testing the global Automata configuration."""
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 from frozendict import frozendict
 
 import automata.base.config as global_config
-import automata.base.utils
 from automata.fa.dfa import DFA
 
 
@@ -31,7 +31,7 @@ class TestConfig(unittest.TestCase):
     def test_disable_ensure_values_are_frozen(self, freeze_value):
         """Should enable automaton mutability"""
         global_config.allow_mutable_automata = True
-        dfa = DFA(
+        DFA(
             states=frozenset(['s1']),
             input_symbols=frozenset('a'),
             transitions=frozendict({'s1': frozendict({'a': 's1'})}),
@@ -41,7 +41,7 @@ class TestConfig(unittest.TestCase):
         freeze_value.assert_not_called()
 
         # Also this should not call freeze_value nor throw any error
-        dfa = DFA(
+        DFA(
             states={'s1'},
             input_symbols={'a'},
             transitions={'s1': {'a': 's1'}},
