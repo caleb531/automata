@@ -384,8 +384,12 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = \
-            self._cross_product(other, union_function, should_construct_dfa=True, retain_names=retain_names)
+        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+            other,
+            union_function,
+            should_construct_dfa=True,
+            retain_names=retain_names
+        )
 
         if minify:
             return self._minify(
@@ -415,8 +419,12 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = \
-            self._cross_product(other, intersection_function, should_construct_dfa=True, retain_names=retain_names)
+        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+            other,
+            intersection_function,
+            should_construct_dfa=True,
+            retain_names=retain_names
+        )
 
         if minify:
             return self._minify(
@@ -446,8 +454,12 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = \
-            self._cross_product(other, difference_function, should_construct_dfa=True, retain_names=retain_names)
+        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+            other,
+            difference_function,
+            should_construct_dfa=True,
+            retain_names=retain_names
+        )
 
         if minify:
             return self._minify(
@@ -477,9 +489,12 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-
-        new_states, new_transitions, new_initial_state, new_final_states = \
-            self._cross_product(other, symmetric_difference_function, should_construct_dfa=True, retain_names=retain_names)
+        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+            other,
+            symmetric_difference_function,
+            should_construct_dfa=True,
+            retain_names=retain_names
+        )
 
         if minify:
             return self._minify(
@@ -565,7 +580,7 @@ class DFA(fa.FA):
             # Get next state in BFS queue
             curr_state = queue.popleft()
 
-            # Add state to the transition dict
+            # Add state to the transition dict if constructing DFA
             if should_construct_dfa:
                 curr_state_name = get_name(curr_state)
                 state_transitions = product_transitions.setdefault(curr_state_name, {})
@@ -573,6 +588,7 @@ class DFA(fa.FA):
                 if state_target_fn(curr_state):
                     final_states.add(curr_state_name)
 
+            # Otherwise, just check the target function
             elif state_target_fn(curr_state):
                 return True
 
