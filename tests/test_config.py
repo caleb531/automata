@@ -27,7 +27,7 @@ class TestConfig(unittest.TestCase):
         DFA.universal_language({0, 1})
         validate.assert_not_called()
 
-    @patch('automata.base.utils.freezeValue')
+    @patch('automata.base.utils.freeze_value')
     def test_disable_ensure_values_are_frozen(self, freeze_value):
         """Should enable automaton mutability"""
         global_config.allow_mutable_automata = True
@@ -40,7 +40,7 @@ class TestConfig(unittest.TestCase):
         )
         freeze_value.assert_not_called()
 
-        # Also this should not call freezeValue nor throw any error
+        # Also this should not call freeze_value nor throw any error
         dfa = DFA(
             states={'s1'},
             input_symbols={'a'},

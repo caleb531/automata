@@ -7,7 +7,7 @@ from frozendict import frozendict
 
 import automata.base.config as global_config
 import automata.base.exceptions as exceptions
-from automata.base.utils import freezeValue
+from automata.base.utils import freeze_value
 
 
 class Automaton(metaclass=abc.ABCMeta):
@@ -16,7 +16,7 @@ class Automaton(metaclass=abc.ABCMeta):
     def __init__(self, **kwargs):
         if not global_config.allow_mutable_automata:
             for attr_name, attr_value in kwargs.items():
-                object.__setattr__(self, attr_name, freezeValue(attr_value))
+                object.__setattr__(self, attr_name, freeze_value(attr_value))
         else:
             for attr_name, attr_value in kwargs.items():
                 object.__setattr__(self, attr_name, attr_value)

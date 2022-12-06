@@ -2,6 +2,6 @@
 
 
 should_validate_automata = True
-# When set to True, it disables the freezeValue step
+# When set to True, it disables the freeze_value step
 #   -> You must guarantee that your code does not modify the automata
 allow_mutable_automata = False
