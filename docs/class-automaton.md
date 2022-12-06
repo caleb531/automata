@@ -50,6 +50,23 @@ params['final_states'] = {'q2'}
 dfa2 = DFA(**params)
 ```
 
+#### Enabling mutable automata
+
+Automaton immutability is enforced via a "freeze" step during object initialization that 
+turns mutable parameters (such as sets or dicts) into their immutable counterparts (frozensets/frozendicts).
+This extra step becomes a bottleneck when creating multiple copies of the same automaton.
+
+It is possible to disable this checking via the `enable_mutable_automata` global configuration feature. 
+In this case, the user must ensure that the automaton instances are never modified, 
+otherwise correct behavior cannot be ensured.
+
+```python
+import automata.base.config as global_config
+
+global_config.allow_mutable_automata = True
+# The rest of your code...
+```
+
 ### Automaton instances are validated by default
 
 By default, all Automaton instances are checked for common inconsistencies when
