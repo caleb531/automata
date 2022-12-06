@@ -399,6 +399,9 @@ class TestDFA(test_fa.TestFA):
             ('q4', 'p0'), ('q4', 'p1'), ('q4', 'p2')
         })
 
+        # Test retain names logic without minify
+        self.assertEqual(dfa1.union(dfa2, retain_names=False, minify=False), new_dfa)
+
     def test_intersection(self):
         """Should compute the intersection between two DFAs"""
         # This DFA accepts all words which contain at least four
@@ -457,6 +460,9 @@ class TestDFA(test_fa.TestFA):
             ('q4', 'p0'), ('q4', 'p1'),
         })
 
+        # Test retain names logic without minify
+        self.assertEqual(dfa1.intersection(dfa2, retain_names=False, minify=False), new_dfa)
+
     def test_difference(self):
         """Should compute the difference between two DFAs"""
         # This DFA accepts all words which contain at least four
@@ -514,6 +520,9 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(new_dfa.final_states, {
              ('q4', 'p2')
         })
+
+        # Test retain names logic without minify
+        self.assertEqual(dfa1.difference(dfa2, retain_names=False, minify=False), new_dfa)
 
     def test_symmetric_difference(self):
         """Should compute the symmetric difference between two DFAs"""
@@ -576,6 +585,9 @@ class TestDFA(test_fa.TestFA):
             ('q3', 'p0'), ('q3', 'p1'),
             ('q4', 'p2')
         })
+
+        # Test retain names logic without minify
+        self.assertEqual(dfa1.symmetric_difference(dfa2, retain_names=False, minify=False), new_dfa)
 
     def test_issubset(self):
         """Should test if one DFA is a subset of another"""
