@@ -52,13 +52,14 @@ dfa2 = DFA(**params)
 
 #### Enabling mutable automata
 
-Automaton immutability is enforced via a "freeze" step during object initialization that 
-turns mutable parameters (such as sets or dicts) into their immutable counterparts (frozensets/frozendicts).
-This extra step becomes a bottleneck when creating multiple copies of the same automaton.
+Automaton immutability is enforced via a "freeze" step during object
+initialization that turns mutable parameters (such as sets or dicts) into their
+immutable counterparts (frozensets/frozendicts).
 
-It is possible to disable this checking via the `enable_mutable_automata` global configuration feature. 
-In this case, the user must ensure that the automaton instances are never modified, 
-otherwise correct behavior cannot be ensured.
+If your application requires maximum performance, you can disable this
+conversion via the `enable_mutable_automata` global configuration option. If
+enabled, the user must ensure that their automaton instances are never modified,
+otherwise correct behavior cannot be guaranteed.
 
 ```python
 import automata.base.config as global_config
