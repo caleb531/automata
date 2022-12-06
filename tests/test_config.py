@@ -28,8 +28,8 @@ class TestConfig(unittest.TestCase):
         validate.assert_not_called()
 
     @patch('automata.base.utils.freezeValue')
-    def test_disable_ensure_values_are_frozen(self, validate):
-        """Should disable the call to freezeValue"""
+    def test_disable_ensure_values_are_frozen(self, freeze_value):
+        """Should enable automaton mutability"""
         global_config.allow_mutable_automata = True
         dfa = DFA(
             states=frozenset(['s1']),
@@ -38,9 +38,9 @@ class TestConfig(unittest.TestCase):
             initial_state='s1',
             final_states=frozenset(['s1']),
         )
-        validate.assert_not_called()
+        freeze_value.assert_not_called()
 
-        # Also this should not call ensure freeze nor throw any error
+        # Also this should not call freezeValue nor throw any error
         dfa = DFA(
             states={'s1'},
             input_symbols={'a'},
@@ -48,17 +48,4 @@ class TestConfig(unittest.TestCase):
             initial_state='s1',
             final_states={'s1'}
         )
-        validate.assert_not_called()
-
-    def test_values_are_frozen(self):
-        """Should freeze the values"""
-        automata.base.utils.freezeValue = MagicMock(wraps=automata.base.utils.freezeValue)
-        global_config.allow_mutable_automata = False
-        dfa = DFA(
-            states={'s1'},
-            input_symbols={'a'},
-            transitions={'s1': {'a': 's1'}},
-            initial_state='s1',
-            final_states={'s1'}
-        )
-        automata.base.utils.freezeValue.assert_called()
+        freeze_value.assert_not_called()

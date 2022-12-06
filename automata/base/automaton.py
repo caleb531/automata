@@ -14,10 +14,12 @@ class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
 
     def __init__(self, **kwargs):
-        for attr_name, attr_value in kwargs.items():
-            value = freezeValue(attr_value) \
-                if not global_config.allow_mutable_automata else attr_value
-            object.__setattr__(self, attr_name, value)
+        if not global_config.allow_mutable_automata:
+            for attr_name, attr_value in kwargs.items():
+                object.__setattr__(self, attr_name, freezeValue(attr_value))
+        else:
+            for attr_name, attr_value in kwargs.items():
+                object.__setattr__(self, attr_name, attr_value)
         self.__post_init__()
 
     def __post_init__(self):
