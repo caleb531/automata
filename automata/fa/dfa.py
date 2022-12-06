@@ -1225,8 +1225,8 @@ class DFA(fa.FA):
         """Initialize this DFA as one equivalent to the given NFA."""
         # Data structures for state renaming
 
-        def get_name_original(state):
-            return state
+        def get_name_original(states):
+            return states
 
         get_name = get_name_original if retain_names else get_renaming_function(count(0))
 
