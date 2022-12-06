@@ -10,7 +10,7 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-from automata.base.utils import PartitionRefinement
+from automata.base.utils import get_renaming_function, PartitionRefinement
 
 
 class DFA(fa.FA):
@@ -552,17 +552,10 @@ class DFA(fa.FA):
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        new_state_name_dict = {}
-        state_name_counter = count(0)
-
-        def get_name_renamed(state):
-            nonlocal state_name_counter, new_state_name_dict
-            return new_state_name_dict.setdefault(state, next(state_name_counter))
-
         def get_name_original(state):
             return state
 
-        get_name = get_name_original if retain_names else get_name_renamed
+        get_name = get_name_original if retain_names else get_renaming_function(count(0))
 
         product_transitions = {} if should_construct_dfa else None
         final_states = set() if should_construct_dfa else None
@@ -1231,17 +1224,11 @@ class DFA(fa.FA):
     def from_nfa(cls, target_nfa, *, retain_names=False, minify=True):
         """Initialize this DFA as one equivalent to the given NFA."""
         # Data structures for state renaming
-        new_state_name_dict = {}
-        state_name_counter = count(0)
 
-        def get_name_renamed(states):
-            nonlocal state_name_counter, new_state_name_dict
-            return new_state_name_dict.setdefault(states, next(state_name_counter))
+        def get_name_original(state):
+            return state
 
-        def get_name_original(states):
-            return states
-
-        get_name = get_name_original if retain_names else get_name_renamed
+        get_name = get_name_original if retain_names else get_renaming_function(count(0))
 
         # equivalent DFA states states
         nfa_initial_states = frozenset(target_nfa._lambda_closures[target_nfa.initial_state])
