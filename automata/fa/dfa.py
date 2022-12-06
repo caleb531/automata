@@ -535,7 +535,8 @@ class DFA(fa.FA):
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        product_transitions = {} if state_search_fn is None else None
+        should_construct_dfa = state_search_fn is None
+        product_transitions = {} if should_construct_dfa else None
 
         visited_set = set()
         queue = deque()
@@ -549,7 +550,7 @@ class DFA(fa.FA):
             curr_state = queue.popleft()
 
             # Add state to the transition dict
-            if state_search_fn is None:
+            if should_construct_dfa:
                 state_transitions = product_transitions.setdefault(curr_state, {})
             # If in search mode, then see whether predicate function is satisifed
             elif state_search_fn(curr_state):
@@ -563,7 +564,7 @@ class DFA(fa.FA):
             for chr in self.input_symbols:
                 product_state = (transitions_a[chr], transitions_b[chr])
 
-                if state_search_fn is None:
+                if should_construct_dfa:
                     state_transitions[chr] = product_state
 
                 # If next state is new, add to queue
@@ -571,7 +572,7 @@ class DFA(fa.FA):
                     visited_set.add(product_state)
                     queue.append(product_state)
 
-        if state_search_fn is None:
+        if should_construct_dfa:
             return visited_set, product_transitions, product_initial_state
 
         return False
