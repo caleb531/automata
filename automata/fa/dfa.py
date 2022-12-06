@@ -380,13 +380,18 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other, None)
+        def union_function(state_pair):
+            q_a, q_b = state_pair
+            return q_a in self.final_states or q_b in other.final_states
 
-        new_final_states = frozenset(
-            (state_a, state_b)
-            for state_a, state_b in new_states
-            if state_a in self.final_states or state_b in other.final_states
-        )
+        new_states, new_transitions, new_initial_state, new_final_states = \
+            self._cross_product(other, union_function, should_construct_dfa=True)
+
+        #new_final_states = frozenset(
+        #    (state_a, state_b)
+        #    for state_a, state_b in new_states
+        #    if state_a in self.final_states or state_b in other.final_states
+        #)
 
         if minify:
             return self._minify(
@@ -412,13 +417,18 @@ class DFA(fa.FA):
         Returns a DFA which accepts the intersection of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other, None)
+        def intersection_function(state_pair):
+            q_a, q_b = state_pair
+            return q_a in self.final_states and q_b in other.final_states
 
-        new_final_states = frozenset(
-            (state_a, state_b)
-            for state_a, state_b in new_states
-            if state_a in self.final_states and state_b in other.final_states
-        )
+        new_states, new_transitions, new_initial_state, new_final_states = \
+            self._cross_product(other, intersection_function, should_construct_dfa=True)
+
+        #new_final_states = frozenset(
+        #    (state_a, state_b)
+        #    for state_a, state_b in new_states
+        #    if state_a in self.final_states and state_b in other.final_states
+        #)
 
         if minify:
             return self._minify(
@@ -444,13 +454,18 @@ class DFA(fa.FA):
         Returns a DFA which accepts the difference of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other, None)
+        def difference_function(state_pair):
+            q_a, q_b = state_pair
+            return q_a in self.final_states and q_b not in other.final_states
 
-        new_final_states = frozenset(
-            (state_a, state_b)
-            for state_a, state_b in new_states
-            if state_a in self.final_states and state_b not in other.final_states
-        )
+        new_states, new_transitions, new_initial_state, new_final_states = \
+            self._cross_product(other, difference_function, should_construct_dfa=True)
+
+        #new_final_states = frozenset(
+        #    (state_a, state_b)
+        #    for state_a, state_b in new_states
+        #    if state_a in self.final_states and state_b not in other.final_states
+        #)
 
         if minify:
             return self._minify(
@@ -476,13 +491,19 @@ class DFA(fa.FA):
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other, None)
+        def symmetric_difference_function(state_pair):
+            q_a, q_b = state_pair
+            return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        new_final_states = frozenset(
-            (state_a, state_b)
-            for state_a, state_b in new_states
-            if (state_a in self.final_states) ^ (state_b in other.final_states)
-        )
+
+        new_states, new_transitions, new_initial_state, new_final_states = \
+            self._cross_product(other, symmetric_difference_function, should_construct_dfa=True)
+
+        #new_final_states = frozenset(
+        #    (state_a, state_b)
+        #    for state_a, state_b in new_states
+        #    if (state_a in self.final_states) ^ (state_b in other.final_states)
+        #)
 
         if minify:
             return self._minify(
@@ -525,18 +546,23 @@ class DFA(fa.FA):
             allow_partial=self.allow_partial
         )
 
-    def _cross_product(self, other, state_search_fn):
+    def _cross_product(self, other, state_target_fn, *, should_construct_dfa, retain_names=False):
         """
         Search reachable states corresponding to product graph between self and other.
-        If state_search_fn is None, returns cross product DFA information. Otherwise,
-        returns True or False depending on whether the state_search_fn is satisfied
-        for any reachable state in the cross product.
+
+        The function state_target_fn should return True for states that should be
+        final (when the new DFA is being constructed explicitly) or for states that
+        are being searched for (if the DFA is not being constructed).
+
+        If should_construct_dfa is False, then this function returns a boolean corresponding
+        to whether any target states are reachable. Otherwise, constructs the given DFA. If
+        retain_names is set to False, states are renamed.
         """
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        should_construct_dfa = state_search_fn is None
         product_transitions = {} if should_construct_dfa else None
+        final_states = set() if should_construct_dfa else None
 
         visited_set = set()
         queue = deque()
@@ -552,8 +578,11 @@ class DFA(fa.FA):
             # Add state to the transition dict
             if should_construct_dfa:
                 state_transitions = product_transitions.setdefault(curr_state, {})
-            # If in search mode, then see whether predicate function is satisifed
-            elif state_search_fn(curr_state):
+
+                if state_target_fn(curr_state):
+                    final_states.add(curr_state)
+
+            elif state_target_fn(curr_state):
                 return True
 
             # Unpack state and get transitions
@@ -573,7 +602,7 @@ class DFA(fa.FA):
                     queue.append(product_state)
 
         if should_construct_dfa:
-            return visited_set, product_transitions, product_initial_state
+            return visited_set, product_transitions, product_initial_state, final_states
 
         return False
 
@@ -585,7 +614,7 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        return not self._cross_product(other, subset_state_fn)
+        return not self._cross_product(other, subset_state_fn, should_construct_dfa=False)
 
     def issuperset(self, other):
         """Return True if this DFA is a superset of another DFA."""
@@ -599,7 +628,7 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        return not self._cross_product(other, disjoint_state_fn)
+        return not self._cross_product(other, disjoint_state_fn, should_construct_dfa=False)
 
     def isempty(self):
         """Return True if this DFA is completely empty."""
