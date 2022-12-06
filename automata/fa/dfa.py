@@ -385,13 +385,7 @@ class DFA(fa.FA):
             return q_a in self.final_states or q_b in other.final_states
 
         new_states, new_transitions, new_initial_state, new_final_states = \
-            self._cross_product(other, union_function, should_construct_dfa=True)
-
-        #new_final_states = frozenset(
-        #    (state_a, state_b)
-        #    for state_a, state_b in new_states
-        #    if state_a in self.final_states or state_b in other.final_states
-        #)
+            self._cross_product(other, union_function, should_construct_dfa=True, retain_names=retain_names)
 
         if minify:
             return self._minify(
@@ -422,13 +416,7 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b in other.final_states
 
         new_states, new_transitions, new_initial_state, new_final_states = \
-            self._cross_product(other, intersection_function, should_construct_dfa=True)
-
-        #new_final_states = frozenset(
-        #    (state_a, state_b)
-        #    for state_a, state_b in new_states
-        #    if state_a in self.final_states and state_b in other.final_states
-        #)
+            self._cross_product(other, intersection_function, should_construct_dfa=True, retain_names=retain_names)
 
         if minify:
             return self._minify(
@@ -459,13 +447,7 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b not in other.final_states
 
         new_states, new_transitions, new_initial_state, new_final_states = \
-            self._cross_product(other, difference_function, should_construct_dfa=True)
-
-        #new_final_states = frozenset(
-        #    (state_a, state_b)
-        #    for state_a, state_b in new_states
-        #    if state_a in self.final_states and state_b not in other.final_states
-        #)
+            self._cross_product(other, difference_function, should_construct_dfa=True, retain_names=retain_names)
 
         if minify:
             return self._minify(
@@ -497,13 +479,7 @@ class DFA(fa.FA):
 
 
         new_states, new_transitions, new_initial_state, new_final_states = \
-            self._cross_product(other, symmetric_difference_function, should_construct_dfa=True)
-
-        #new_final_states = frozenset(
-        #    (state_a, state_b)
-        #    for state_a, state_b in new_states
-        #    if (state_a in self.final_states) ^ (state_b in other.final_states)
-        #)
+            self._cross_product(other, symmetric_difference_function, should_construct_dfa=True, retain_names=retain_names)
 
         if minify:
             return self._minify(
@@ -561,6 +537,18 @@ class DFA(fa.FA):
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
+        new_state_name_dict = {}
+        state_name_counter = count(0)
+
+        def get_name_renamed(state):
+            nonlocal state_name_counter, new_state_name_dict
+            return new_state_name_dict.setdefault(state, next(state_name_counter))
+
+        def get_name_original(state):
+            return state
+
+        get_name = get_name_original if retain_names else get_name_renamed
+
         product_transitions = {} if should_construct_dfa else None
         final_states = set() if should_construct_dfa else None
 
@@ -568,8 +556,10 @@ class DFA(fa.FA):
         queue = deque()
 
         product_initial_state = (self.initial_state, other.initial_state)
+        product_initial_state_name = get_name(product_initial_state)
+
         queue.append(product_initial_state)
-        visited_set.add(product_initial_state)
+        visited_set.add(product_initial_state_name)
 
         while queue:
             # Get next state in BFS queue
@@ -577,10 +567,11 @@ class DFA(fa.FA):
 
             # Add state to the transition dict
             if should_construct_dfa:
-                state_transitions = product_transitions.setdefault(curr_state, {})
+                curr_state_name = get_name(curr_state)
+                state_transitions = product_transitions.setdefault(curr_state_name, {})
 
                 if state_target_fn(curr_state):
-                    final_states.add(curr_state)
+                    final_states.add(curr_state_name)
 
             elif state_target_fn(curr_state):
                 return True
@@ -592,17 +583,18 @@ class DFA(fa.FA):
 
             for chr in self.input_symbols:
                 product_state = (transitions_a[chr], transitions_b[chr])
+                product_state_name = get_name(product_state)
 
                 if should_construct_dfa:
-                    state_transitions[chr] = product_state
+                    state_transitions[chr] = product_state_name
 
                 # If next state is new, add to queue
-                if product_state not in visited_set:
-                    visited_set.add(product_state)
+                if product_state_name not in visited_set:
+                    visited_set.add(product_state_name)
                     queue.append(product_state)
 
         if should_construct_dfa:
-            return visited_set, product_transitions, product_initial_state, final_states
+            return visited_set, product_transitions, product_initial_state_name, final_states
 
         return False
 
