@@ -10,7 +10,7 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
-from automata.base.utils import get_renaming_function, PartitionRefinement
+from automata.base.utils import PartitionRefinement, get_renaming_function
 
 
 class DFA(fa.FA):

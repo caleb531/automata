@@ -23,6 +23,7 @@ def freeze_value(value):
         return tuple(freeze_value(element) for element in value)
     return value
 
+
 def get_renaming_function(counter):
     """
     A helper function that returns a renaming function to be used in the creation of
@@ -41,7 +42,6 @@ def get_renaming_function(counter):
         return new_state_name_dict.setdefault(item, next(counter))
 
     return renaming_function
-
 
 
 class PartitionRefinement:

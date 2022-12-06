@@ -4,12 +4,12 @@
 from collections import deque
 from itertools import chain, count, product, zip_longest
 
+from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer
 from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     PostfixOperator, RightParen,
                                     parse_postfix_tokens, tokens_to_postfix,
                                     validate_tokens)
-from automata.base.utils import get_renaming_function
 
 RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^'})
 
