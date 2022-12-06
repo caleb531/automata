@@ -24,6 +24,25 @@ def freeze_value(value):
     return value
 
 
+def get_renaming_function(counter):
+    """
+    A helper function that returns a renaming function to be used in the creation of
+    other automata. The parameter counter should be an itertools count.
+    This helper function will return the same distinct output taken from counter
+    for each distinct input.
+    """
+
+    new_state_name_dict = {}
+
+    def renaming_function(item):
+        if item in new_state_name_dict:
+            return new_state_name_dict[item]
+
+        return new_state_name_dict.setdefault(item, next(counter))
+
+    return renaming_function
+
+
 class PartitionRefinement:
     """Maintain and refine a partition of a set of items into subsets.
     Space usage for a partition of n items is O(n), and each refine

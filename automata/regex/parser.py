@@ -4,6 +4,7 @@
 from collections import deque
 from itertools import chain, count, product, zip_longest
 
+from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer
 from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     PostfixOperator, RightParen,
@@ -93,10 +94,8 @@ class NFARegexBuilder:
         Apply the intersection operation to the NFA represented by this builder and other.
         Use BFS to only traverse reachable part (keeps number of states down).
         """
-        new_state_name_dict = {}
 
-        def get_state_name(state_name):
-            return new_state_name_dict.setdefault(state_name, self.__get_next_state_name())
+        get_state_name = get_renaming_function(self._state_name_counter)
 
         new_final_states = set()
         new_transitions = {}
@@ -220,10 +219,8 @@ class NFARegexBuilder:
         Apply the shuffle operation to the NFA represented by this builder and other.
         No need for BFS since all states are accessible.
         """
-        new_state_name_dict = {}
 
-        def get_state_name(state_name):
-            return new_state_name_dict.setdefault(state_name, self.__get_next_state_name())
+        get_state_name = get_renaming_function(self._state_name_counter)
 
         self._initial_state = get_state_name((self._initial_state, other._initial_state))
 
