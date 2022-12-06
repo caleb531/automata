@@ -380,7 +380,7 @@ class DFA(fa.FA):
         Returns a DFA which accepts the union of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, None)
 
         new_final_states = frozenset(
             (state_a, state_b)
@@ -412,7 +412,7 @@ class DFA(fa.FA):
         Returns a DFA which accepts the intersection of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, None)
 
         new_final_states = frozenset(
             (state_a, state_b)
@@ -444,7 +444,7 @@ class DFA(fa.FA):
         Returns a DFA which accepts the difference of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, None)
 
         new_final_states = frozenset(
             (state_a, state_b)
@@ -476,7 +476,7 @@ class DFA(fa.FA):
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
 
-        new_states, new_transitions, new_initial_state = self._cross_product(other, False)
+        new_states, new_transitions, new_initial_state = self._cross_product(other, None)
 
         new_final_states = frozenset(
             (state_a, state_b)
@@ -525,16 +525,18 @@ class DFA(fa.FA):
             allow_partial=self.allow_partial
         )
 
-    def _cross_product(self, other, states_only):
+    def _cross_product(self, other, state_search_fn):
         """
-        Get reachable states corresponding to product graph between self and other.
-        If states_only is True, only returns states. Otherwise, constructs corresponding
-        transitions to the reachable states and new initial state.
+        Search reachable states corresponding to product graph between self and other.
+        If state_search_fn is None, returns cross product DFA information. Otherwise,
+        returns True or False depending on whether the state_search_fn is satisfied
+        for any reachable state in the cross product.
         """
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
 
-        product_transitions = dict() if not states_only else None
+        should_construct_dfa = state_search_fn is None
+        product_transitions = {} if should_construct_dfa else None
 
         visited_set = set()
         queue = deque()
@@ -548,8 +550,11 @@ class DFA(fa.FA):
             curr_state = queue.popleft()
 
             # Add state to the transition dict
-            if not states_only:
-                state_transitions = product_transitions.setdefault(curr_state, dict())
+            if should_construct_dfa:
+                state_transitions = product_transitions.setdefault(curr_state, {})
+            # If in search mode, then see whether predicate function is satisifed
+            elif state_search_fn(curr_state):
+                return True
 
             # Unpack state and get transitions
             q_a, q_b = curr_state
@@ -559,7 +564,7 @@ class DFA(fa.FA):
             for chr in self.input_symbols:
                 product_state = (transitions_a[chr], transitions_b[chr])
 
-                if not states_only:
+                if should_construct_dfa:
                     state_transitions[chr] = product_state
 
                 # If next state is new, add to queue
@@ -567,19 +572,20 @@ class DFA(fa.FA):
                     visited_set.add(product_state)
                     queue.append(product_state)
 
-        if not states_only:
+        if should_construct_dfa:
             return visited_set, product_transitions, product_initial_state
 
-        return visited_set
+        return False
 
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
-        for (state_a, state_b) in self._cross_product(other, True):
-            # Check for reachable state that is counterexample to subset
-            if state_a in self.final_states and state_b not in other.final_states:
-                return False
 
-        return True
+        def subset_state_fn(state_pair):
+            """Check for reachable state that is counterexample to subset"""
+            q_a, q_b = state_pair
+            return q_a in self.final_states and q_b not in other.final_states
+
+        return not self._cross_product(other, subset_state_fn)
 
     def issuperset(self, other):
         """Return True if this DFA is a superset of another DFA."""
@@ -587,12 +593,13 @@ class DFA(fa.FA):
 
     def isdisjoint(self, other):
         """Return True if this DFA has no common elements with another DFA."""
-        for (state_a, state_b) in self._cross_product(other, True):
-            # Check for reachable state that is counterexample to disjointness
-            if state_a in self.final_states and state_b in other.final_states:
-                return False
 
-        return True
+        def disjoint_state_fn(state_pair):
+            """Check for reachable state that is counterexample to disjointness"""
+            q_a, q_b = state_pair
+            return q_a in self.final_states and q_b in other.final_states
+
+        return not self._cross_product(other, disjoint_state_fn)
 
     def isempty(self):
         """Return True if this DFA is completely empty."""
@@ -875,7 +882,7 @@ class DFA(fa.FA):
         If contains is set to False then the complement is constructed instead.
         If must_be_suffix is set to True, then the substring must be a suffix instead.
         """
-        transitions = {i: dict() for i in range(len(substring))}
+        transitions = {i: {} for i in range(len(substring))}
         transitions[len(substring)] = {
             symbol: len(substring) for symbol in input_symbols
         }
@@ -899,7 +906,7 @@ class DFA(fa.FA):
 
         limit = len(substring)+1 if must_be_suffix else len(substring)
         for i in range(limit):
-            prefix_dict = transitions.setdefault(i, dict())
+            prefix_dict = transitions.setdefault(i, {})
             for symbol in input_symbols:
                 # Look for next state after reading in the given input symbol
                 candidate = i if i < len(substring) else kmp_table[i]
@@ -1089,10 +1096,10 @@ class DFA(fa.FA):
         if not language:
             return DFA.empty_language(input_symbols)
 
-        transitions = dict()
+        transitions = {}
         back_map = {'': set()}
         final_states = set()
-        signatures_dict = dict()
+        signatures_dict = {}
 
         def compute_signature(state):
             """Computes signature for input state"""
@@ -1113,14 +1120,14 @@ class DFA(fa.FA):
                 next_prefix = prefix + chr
 
                 # Extend the trie only if necessary
-                prefix_dict = transitions.setdefault(prefix, dict())
+                prefix_dict = transitions.setdefault(prefix, {})
                 prefix_dict.setdefault(chr, next_prefix)
                 back_map.setdefault(next_prefix, set()).add(prefix)
 
                 prefix = next_prefix
 
             # Mark the finished prefix as a final state
-            transitions[prefix] = dict()
+            transitions[prefix] = {}
             final_states.add(prefix)
 
         def compress(word, next_word):
@@ -1187,7 +1194,7 @@ class DFA(fa.FA):
     def from_nfa(cls, target_nfa, *, retain_names=False, minify=True):
         """Initialize this DFA as one equivalent to the given NFA."""
         # Data structures for state renaming
-        new_state_name_dict = dict()
+        new_state_name_dict = {}
         state_name_counter = count(0)
 
         def get_name_renamed(states):

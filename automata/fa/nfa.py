@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 from collections import deque
-from itertools import chain, product
+from itertools import chain, count, product
 
 import networkx as nx
 from frozendict import frozendict
@@ -219,7 +219,7 @@ class NFA(fa.FA):
 
                 # Don't do anything if no new current states
                 if next_current_states:
-                    state_transition_dict = new_transitions.setdefault(state, dict())
+                    state_transition_dict = new_transitions.setdefault(state, {})
 
                     if input_symbol in state_transition_dict:
                         state_transition_dict[input_symbol].update(next_current_states)
@@ -284,15 +284,10 @@ class NFA(fa.FA):
         to be a union of the state sets of component FAs.
         """
 
-        state_map_a = {
-            state: i
-            for i, state in enumerate(state_set_a, start=start)
-        }
+        state_name_counter = count(start)
 
-        state_map_b = {
-            state: i
-            for i, state in enumerate(state_set_b, start=max(state_map_a.values())+1)
-        }
+        state_map_a = dict(zip(state_set_a, state_name_counter))
+        state_map_b = dict(zip(state_set_b, state_name_counter))
 
         return (state_map_a, state_map_b)
 
@@ -307,7 +302,7 @@ class NFA(fa.FA):
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
 
         new_states = frozenset(chain(state_map_a.values(), state_map_b.values(), [0]))
-        new_transitions = {state: dict() for state in new_states}
+        new_transitions = {state: {} for state in new_states}
 
         # Connect new initial state to both branch
         new_transitions[0] = {'': {state_map_a[self.initial_state], state_map_b[other.initial_state]}}
@@ -341,7 +336,7 @@ class NFA(fa.FA):
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states)
 
         new_states = frozenset(chain(state_map_a.values(), state_map_b.values()))
-        new_transitions = {state: dict() for state in new_states}
+        new_transitions = {state: {} for state in new_states}
 
         # Transitions of self
         NFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
@@ -383,7 +378,7 @@ class NFA(fa.FA):
         # For each final state in original NFA we add epsilon
         # transition to the old initial state
         for state in self.final_states:
-            new_transitions[state] = dict(new_transitions.get(state, dict()))
+            new_transitions[state] = dict(new_transitions.get(state, {}))
             transition = new_transitions[state]
             transition[''] = set(transition.get('', set()))
             transition[''].add(self.initial_state)
@@ -431,7 +426,7 @@ class NFA(fa.FA):
 
         # Transitions are the same except reversed
         new_transitions = {
-            state: dict() for state in new_states
+            state: {} for state in new_states
         }
 
         for state_a, transitions in self.transitions.items():
@@ -461,7 +456,7 @@ class NFA(fa.FA):
 
         new_states = set()
         new_input_symbols = self.input_symbols | other.input_symbols
-        new_transitions = dict()
+        new_transitions = {}
         new_initial_state = (self.initial_state, other.initial_state)
 
         queue = deque()
@@ -481,7 +476,7 @@ class NFA(fa.FA):
             # Add epsilon transitions for first set of transitions
             epsilon_transitions_a = transitions_a.get('')
             if epsilon_transitions_a is not None:
-                state_dict = new_transitions.setdefault(curr_state, dict())
+                state_dict = new_transitions.setdefault(curr_state, {})
                 state_dict.setdefault('', set()).update(product(epsilon_transitions_a, [q_b]))
                 next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
 
@@ -490,7 +485,7 @@ class NFA(fa.FA):
             # Add epsilon transitions for second set of transitions
             epsilon_transitions_b = transitions_b.get('')
             if epsilon_transitions_b is not None:
-                state_dict = new_transitions.setdefault(curr_state, dict())
+                state_dict = new_transitions.setdefault(curr_state, {})
                 state_dict.setdefault('', set()).update(product([q_a], epsilon_transitions_b))
                 next_states_iterables.append(product([q_a], epsilon_transitions_b))
 
@@ -500,7 +495,7 @@ class NFA(fa.FA):
                 end_states_b = transitions_b.get(symbol)
 
                 if end_states_a is not None and end_states_b is not None:
-                    state_dict = new_transitions.setdefault(curr_state, dict())
+                    state_dict = new_transitions.setdefault(curr_state, {})
                     state_dict.setdefault(symbol, set()).update(product(end_states_a, end_states_b))
                     next_states_iterables.append(product(end_states_a, end_states_b))
 
@@ -537,17 +532,17 @@ class NFA(fa.FA):
         new_initial_state = (self.initial_state, other.initial_state)
         new_states = frozenset(product(self.states, other.states))
 
-        new_transitions = dict()
+        new_transitions = {}
 
         for curr_state in new_states:
-            state_dict = new_transitions.setdefault(curr_state, dict())
+            state_dict = new_transitions.setdefault(curr_state, {})
             q_a, q_b = curr_state
 
-            transitions_a = self.transitions.get(q_a, dict())
+            transitions_a = self.transitions.get(q_a, {})
             for symbol, end_states in transitions_a.items():
                 state_dict.setdefault(symbol, set()).update(product(end_states, [q_b]))
 
-            transitions_b = other.transitions.get(q_b, dict())
+            transitions_b = other.transitions.get(q_b, {})
             for symbol, end_states in transitions_b.items():
                 state_dict.setdefault(symbol, set()).update(product([q_a], end_states))
 
@@ -584,12 +579,12 @@ class NFA(fa.FA):
             product(self_reachable_states, other_reachable_states, [True])
         ))
 
-        new_transitions = dict()
+        new_transitions = {}
 
         # Populate transitions for before reading the suffix
         for state in self_reachable_states:
             new_state = (state, other.initial_state, False)
-            new_state_dict = new_transitions.setdefault(new_state, dict())
+            new_state_dict = new_transitions.setdefault(new_state, {})
             old_transitions_dict = self_new_transitions.get(state)
 
             if old_transitions_dict:
@@ -614,7 +609,7 @@ class NFA(fa.FA):
                 end_states_b = transitions_b.get(symbol)
 
                 if end_states_a is not None and end_states_b is not None:
-                    state_dict = new_transitions.setdefault(curr_state, dict())
+                    state_dict = new_transitions.setdefault(curr_state, {})
                     state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, [True]))
 
         return self.__class__(
@@ -650,7 +645,7 @@ class NFA(fa.FA):
             product(self_reachable_states, other_reachable_final_states, [True])
         ))
 
-        new_transitions = dict()
+        new_transitions = {}
 
         # Start reading the prefix
         for q_a, q_b in product(self_reachable_states, other_reachable_states):
@@ -665,18 +660,18 @@ class NFA(fa.FA):
                 end_states_b = transitions_b.get(symbol)
 
                 if end_states_a is not None and end_states_b is not None:
-                    state_dict = new_transitions.setdefault(curr_state, dict())
+                    state_dict = new_transitions.setdefault(curr_state, {})
                     state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, [False]))
 
             # Add lambda transition from final state, flipping third entry to true
             if q_b in other_reachable_final_states:
-                state_dict = new_transitions.setdefault(curr_state, dict())
+                state_dict = new_transitions.setdefault(curr_state, {})
                 state_dict.setdefault('', set()).update({(q_a, q_b, True)})
 
         # Populate transitions for after reading the prefix
         for state_a, state_b in product(self_reachable_states, other_reachable_final_states):
             new_state = (state_a, state_b, True)
-            new_state_dict = new_transitions.setdefault(new_state, dict())
+            new_state_dict = new_transitions.setdefault(new_state, {})
             old_transitions_dict = self_new_transitions.get(state_a)
 
             if old_transitions_dict:
@@ -846,41 +841,39 @@ class NFA(fa.FA):
 
         states = frozenset(product(range(len(reference_str)+1), range(max_edit_distance+1)))
 
-        transitions = dict()
+        transitions = {}
         final_states = set()
 
         def add_transition(start_state_dict, end_state, symbol):
             """Add transition between start and end state on symbol"""
-            char_transitions = start_state_dict.setdefault(symbol, set())
-            char_transitions.add(end_state)
+            start_state_dict.setdefault(symbol, set()).add(end_state)
 
         def add_any_transition(start_state_dict, end_state):
             """Add transition on all symbols between start and end state"""
             for symbol in input_symbols:
                 add_transition(start_state_dict, end_state, symbol)
 
-        for i, chr in enumerate(reference_str):
-            for e in range(max_edit_distance + 1):
-                state_transition_dict = transitions.setdefault((i, e), dict())
+        for (i, chr), e in product(enumerate(reference_str), range(max_edit_distance + 1)):
+            state_transition_dict = transitions.setdefault((i, e), {})
 
-                # Correct character
-                add_transition(state_transition_dict, (i + 1, e), chr)
-                if e < max_edit_distance:
-                    if insertion:
-                        # Insertion
-                        add_any_transition(state_transition_dict, (i, e + 1))
+            # Correct character
+            add_transition(state_transition_dict, (i + 1, e), chr)
+            if e < max_edit_distance:
+                if insertion:
+                    # Insertion
+                    add_any_transition(state_transition_dict, (i, e + 1))
 
-                    if deletion:
-                        # Deletion
-                        add_transition(state_transition_dict, (i + 1, e + 1), '')
+                if deletion:
+                    # Deletion
+                    add_transition(state_transition_dict, (i + 1, e + 1), '')
 
-                    if substitution:
-                        # Substitution
-                        add_any_transition(state_transition_dict, (i + 1, e + 1))
+                if substitution:
+                    # Substitution
+                    add_any_transition(state_transition_dict, (i + 1, e + 1))
 
         for e in range(max_edit_distance + 1):
-            state_transition_dict = transitions.setdefault((len(reference_str), e), dict())
-            if e < max_edit_distance and insertion:
+            state_transition_dict = transitions.setdefault((len(reference_str), e), {})
+            if insertion and e < max_edit_distance:
                 add_any_transition(state_transition_dict, (len(reference_str), e + 1))
 
             final_states.add((len(reference_str), e))
