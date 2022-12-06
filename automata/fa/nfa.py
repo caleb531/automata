@@ -666,7 +666,7 @@ class NFA(fa.FA):
             # Add lambda transition from final state, flipping third entry to true
             if q_b in other_reachable_final_states:
                 state_dict = new_transitions.setdefault(curr_state, {})
-                state_dict.setdefault('', set()).update({(q_a, q_b, True)})
+                state_dict.setdefault('', set()).add((q_a, q_b, True))
 
         # Populate transitions for after reading the prefix
         for state_a, state_b in product(self_reachable_states, other_reachable_final_states):
