@@ -15,7 +15,7 @@ A regular expression with the following operations only are supported in this li
 - `|`: Union. Ex: `a|b`
 - `&`: Intersection. Ex: `a&b`
 - `.`: Wildcard. Ex: `a.b`
-- `@`: Shuffle. Ex: `a@b`
+- `~`: Shuffle. Ex: `a~b`
 - `()`: Grouping.
 
 This is similar to the python RE module but this library does not support any other
