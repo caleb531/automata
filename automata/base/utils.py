@@ -35,7 +35,6 @@ def get_renaming_function(counter):
     new_state_name_dict = {}
 
     def renaming_function(item):
-        nonlocal new_state_name_dict
         if item in new_state_name_dict:
             return new_state_name_dict[item]
 
