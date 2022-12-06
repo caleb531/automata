@@ -10,7 +10,7 @@ from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     parse_postfix_tokens, tokens_to_postfix,
                                     validate_tokens)
 
-RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '~'})
+RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^'})
 
 
 class NFARegexBuilder:
@@ -381,7 +381,7 @@ def get_regex_lexer(input_symbols):
     lexer.register_token(StringToken, r'[A-Za-z0-9]')
     lexer.register_token(UnionToken, r'\|')
     lexer.register_token(IntersectionToken, r'\&')
-    lexer.register_token(ShuffleToken, r'\~')
+    lexer.register_token(ShuffleToken, r'\^')
     lexer.register_token(KleeneStarToken, r'\*')
     lexer.register_token(KleenePlusToken, r'\+')
     lexer.register_token(OptionToken, r'\?')
