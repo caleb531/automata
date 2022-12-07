@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Miscellaneous utility functions and classes."""
 
+from collections import defaultdict
+
 from frozendict import frozendict
 
 
@@ -32,13 +34,10 @@ def get_renaming_function(counter):
     for each distinct input.
     """
 
-    new_state_name_dict = {}
+    new_state_name_dict = defaultdict(lambda: next(counter))
 
     def renaming_function(item):
-        if item in new_state_name_dict:
-            return new_state_name_dict[item]
-
-        return new_state_name_dict.setdefault(item, next(counter))
+        return new_state_name_dict[item]
 
     return renaming_function
 
