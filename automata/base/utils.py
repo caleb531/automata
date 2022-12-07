@@ -81,12 +81,11 @@ class PartitionRefinement:
         Not a generator because we need to perform the partition
         even if the caller doesn't iterate through the results.
         """
-        hit = {}
+        hit = defaultdict(lambda: set())
         output = []
 
         for x in S:
-            Aid = self._partition[x]
-            hit.setdefault(Aid, set()).add(x)
+            hit[self._partition[x]].add(x)
 
         for Aid, AS in hit.items():
             A = self._sets[Aid]
