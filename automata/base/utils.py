@@ -90,7 +90,7 @@ class PartitionRefinement:
         for Aid, AintS in hit.items():
             A = self._sets[Aid]
 
-            # Only need to check lengths, we already know AS is a subset of A by construction
+            # Only need to check lengths, we already know AintS is a subset of A by construction
             if len(AintS) < len(A):
                 self._sets[id(AintS)] = AintS
                 for x in AintS:
