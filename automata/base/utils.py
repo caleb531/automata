@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Miscellaneous utility functions and classes."""
 
+from collections import defaultdict
+
 from frozendict import frozendict
 
 
@@ -32,13 +34,10 @@ def get_renaming_function(counter):
     for each distinct input.
     """
 
-    new_state_name_dict = {}
+    new_state_name_dict = defaultdict(lambda: next(counter))
 
     def renaming_function(item):
-        if item in new_state_name_dict:
-            return new_state_name_dict[item]
-
-        return new_state_name_dict.setdefault(item, next(counter))
+        return new_state_name_dict[item]
 
     return renaming_function
 
@@ -82,20 +81,21 @@ class PartitionRefinement:
         Not a generator because we need to perform the partition
         even if the caller doesn't iterate through the results.
         """
-        hit = {}
+        hit = defaultdict(lambda: set())
         output = []
 
         for x in S:
-            Aid = self._partition[x]
-            hit.setdefault(Aid, set()).add(x)
+            hit[self._partition[x]].add(x)
 
-        for Aid, AS in hit.items():
+        for Aid, AintS in hit.items():
             A = self._sets[Aid]
-            if AS != A:
-                self._sets[id(AS)] = AS
-                for x in AS:
-                    self._partition[x] = id(AS)
-                A -= AS
-                output.append((id(AS), Aid))
+
+            # Only need to check lengths, we already know AintS is a subset of A by construction
+            if len(AintS) < len(A):
+                self._sets[id(AintS)] = AintS
+                for x in AintS:
+                    self._partition[x] = id(AintS)
+                A -= AintS
+                output.append((id(AintS), Aid))
 
         return output
