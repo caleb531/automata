@@ -87,13 +87,15 @@ class PartitionRefinement:
         for x in S:
             hit[self._partition[x]].add(x)
 
-        for Aid, AS in hit.items():
+        for Aid, AintS in hit.items():
             A = self._sets[Aid]
-            if AS != A:
-                self._sets[id(AS)] = AS
-                for x in AS:
-                    self._partition[x] = id(AS)
-                A -= AS
-                output.append((id(AS), Aid))
+
+            # Only need to check lengths, we already know AS is a subset of A by construction
+            if len(AintS) < len(A):
+                self._sets[id(AintS)] = AintS
+                for x in AintS:
+                    self._partition[x] = id(AintS)
+                A -= AintS
+                output.append((id(AintS), Aid))
 
         return output
