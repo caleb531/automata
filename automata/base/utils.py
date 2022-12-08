@@ -92,10 +92,14 @@ class PartitionRefinement:
 
             # Only need to check lengths, we already know AintS is a subset of A by construction
             if len(AintS) < len(A):
-                self._sets[id(AintS)] = AintS
-                for x in AintS:
-                    self._partition[x] = id(AintS)
+                # Store id to avoid repeated function calls
+                AintS_id = id(AintS)
+
+                self._sets[AintS_id] = AintS
+                self._partition.update(
+                    dict.fromkeys(AintS, AintS_id)
+                )
                 A -= AintS
-                output.append((id(AintS), Aid))
+                output.append((AintS_id, Aid))
 
         return output
