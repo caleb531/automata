@@ -106,24 +106,6 @@ class NFA(fa.FA):
                         start_state, input_symbol))
 
     @classmethod
-    def _from_symbol(cls, symbol, input_symbols=None):
-        """Generate NFA from single symbol, `input symbols` may be passed to initialize input_symbols for NFA"""
-        states = {0, 1}
-        initial_state = 0
-        if input_symbols is None:
-            input_symbols = {symbol}
-        transitions = {0: {symbol: {1}}}
-        final_states = {1}
-
-        return cls(
-            states=states,
-            input_symbols=input_symbols,
-            initial_state=initial_state,
-            transitions=transitions,
-            final_states=final_states
-        )
-
-    @classmethod
     def from_regex(cls, regex, *, input_symbols=None):
         """Initialize this NFA as one equivalent to the given regular expression"""
 

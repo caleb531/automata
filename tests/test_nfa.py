@@ -577,44 +577,6 @@ class TestNFA(test_fa.TestFA):
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'a(*)')
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, 'ab(|)')
 
-    def test_from_symbol(self):
-        """Should generate NFA from single transition symbol"""
-
-        nfa1 = NFA._from_symbol('a')
-
-        nfa2 = NFA(
-            states={0, 1},
-            input_symbols={'a'},
-            initial_state=0,
-            transitions={0: {'a': {1}}},
-            final_states={1}
-        )
-
-        self.assertEqual(nfa1.states, nfa2.states)
-        self.assertEqual(nfa1.initial_state, nfa2.initial_state)
-        self.assertEqual(nfa1.transitions, nfa2.transitions)
-        self.assertEqual(nfa1.final_states, nfa2.final_states)
-        self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
-
-    def test_from_symbol_input_symbols(self):
-        """Should generate NFA from single transition symbol"""
-
-        nfa1 = NFA._from_symbol('a', input_symbols={'a', 'b'})
-
-        nfa2 = NFA(
-            states={0, 1},
-            input_symbols={'a', 'b'},
-            initial_state=0,
-            transitions={0: {'a': {1}}},
-            final_states={1}
-        )
-
-        self.assertEqual(nfa1.states, nfa2.states)
-        self.assertEqual(nfa1.initial_state, nfa2.initial_state)
-        self.assertEqual(nfa1.transitions, nfa2.transitions)
-        self.assertEqual(nfa1.final_states, nfa2.final_states)
-        self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
-
     def test_show_diagram_initial_final_same(self):
         """
         Should construct the diagram for a NFA whose initial state
