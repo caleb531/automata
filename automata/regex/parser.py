@@ -2,7 +2,7 @@
 """Classes and methods for parsing regexes into NFAs."""
 
 from collections import deque
-from itertools import chain, count, product, pairwise, repeat
+from itertools import chain, count, pairwise, product, repeat
 
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer
