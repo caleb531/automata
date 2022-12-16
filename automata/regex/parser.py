@@ -232,12 +232,12 @@ class NFARegexBuilder:
 
             for symbol, end_states in transitions_a.items():
                 state_dict.setdefault(symbol, set()).update(
-                    map(get_state_name, product(end_states, [q_b]))
+                    map(get_state_name, zip(end_states, repeat(q_b)))
                 )
 
             for symbol, end_states in transitions_b.items():
                 state_dict.setdefault(symbol, set()).update(
-                    map(get_state_name, product([q_a], end_states))
+                    map(get_state_name, zip(repeat(q_a), end_states))
                 )
 
         self._final_states = set(map(get_state_name, product(self._final_states, other._final_states)))
