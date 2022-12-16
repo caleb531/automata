@@ -361,7 +361,7 @@ def add_concat_tokens(token_list):
     for curr_token, next_token in pairwise(chain(token_list, repeat(None, 1))):
         final_token_list.append(curr_token)
 
-        if next_token:
+        if next_token is not None:
             for firstClass, secondClass in concat_pairs:
                 if isinstance(curr_token, firstClass) and isinstance(next_token, secondClass):
                     final_token_list.append(ConcatToken(''))
