@@ -573,10 +573,7 @@ class NFA(fa.FA):
 
             if old_transitions_dict:
                 for symbol, end_states in old_transitions_dict.items():
-                    new_state_dict[symbol] = {
-                        (end_state, other.initial_state, False)
-                        for end_state in end_states
-                    }
+                    new_state_dict[symbol] = set(zip(end_states, repeat(other.initial_state), repeat(False)))
 
             new_state_dict[''] = {(state, other.initial_state, True)}
 
@@ -662,10 +659,7 @@ class NFA(fa.FA):
 
             if old_transitions_dict:
                 for symbol, end_states in old_transitions_dict.items():
-                    new_state_dict[symbol] = {
-                        (end_state, state_b, True)
-                        for end_state in end_states
-                    }
+                    new_state_dict[symbol] = set(zip(end_states, repeat(state_b), repeat(True)))
 
         return self.__class__(
             states=new_states,
