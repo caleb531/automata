@@ -2,7 +2,7 @@
 """Classes and methods for parsing regexes into NFAs."""
 
 from collections import deque
-from itertools import chain, count, product, zip_longest
+from itertools import chain, count, product, zip_longest, pairwise, repeat
 
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer
@@ -129,9 +129,9 @@ class NFARegexBuilder:
             if epsilon_transitions_a is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, {})
                 state_dict.setdefault('', set()).update(
-                    map(get_state_name, product(epsilon_transitions_a, [q_b]))
+                    map(get_state_name, zip(epsilon_transitions_a, repeat(q_b)))
                 )
-                next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
+                next_states_iterables.append(zip(epsilon_transitions_a, repeat(q_b)))
 
             # Get transition dict for states in other
             transitions_b = other._transitions.get(q_b, {})
@@ -140,9 +140,9 @@ class NFARegexBuilder:
             if epsilon_transitions_b is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, {})
                 state_dict.setdefault('', set()).update(
-                    map(get_state_name, product([q_a], epsilon_transitions_b))
+                    map(get_state_name, zip(repeat(q_a), epsilon_transitions_b))
                 )
-                next_states_iterables.append(product([q_a], epsilon_transitions_b))
+                next_states_iterables.append(zip(repeat(q_a), epsilon_transitions_b))
 
             # Add all transitions moving over same input symbols
             for symbol in new_input_symbols:
@@ -358,7 +358,7 @@ def add_concat_tokens(token_list):
         (PostfixOperator, LeftParen)
     ]
 
-    for curr_token, next_token in zip_longest(token_list, token_list[1:]):
+    for curr_token, next_token in pairwise(chain(token_list, repeat(None, 1))):
         final_token_list.append(curr_token)
 
         if next_token:
