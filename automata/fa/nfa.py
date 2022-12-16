@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 from collections import deque
-from itertools import chain, count, product
+from itertools import chain, count, product, repeat
 
 import networkx as nx
 from frozendict import frozendict
@@ -459,8 +459,8 @@ class NFA(fa.FA):
             epsilon_transitions_a = transitions_a.get('')
             if epsilon_transitions_a is not None:
                 state_dict = new_transitions.setdefault(curr_state, {})
-                state_dict.setdefault('', set()).update(product(epsilon_transitions_a, [q_b]))
-                next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
+                state_dict.setdefault('', set()).update(zip(epsilon_transitions_a, repeat(q_b)))
+                next_states_iterables.append(zip(epsilon_transitions_a, repeat(q_b)))
 
             # Get transition dict for states in other
             transitions_b = other.transitions.get(q_b, {})
@@ -468,8 +468,8 @@ class NFA(fa.FA):
             epsilon_transitions_b = transitions_b.get('')
             if epsilon_transitions_b is not None:
                 state_dict = new_transitions.setdefault(curr_state, {})
-                state_dict.setdefault('', set()).update(product([q_a], epsilon_transitions_b))
-                next_states_iterables.append(product([q_a], epsilon_transitions_b))
+                state_dict.setdefault('', set()).update(zip(repeat(q_a), epsilon_transitions_b))
+                next_states_iterables.append(zip(repeat(q_a), epsilon_transitions_b))
 
             # Add all transitions moving over same input symbols
             for symbol in new_input_symbols:
@@ -522,11 +522,11 @@ class NFA(fa.FA):
 
             transitions_a = self.transitions.get(q_a, {})
             for symbol, end_states in transitions_a.items():
-                state_dict.setdefault(symbol, set()).update(product(end_states, [q_b]))
+                state_dict.setdefault(symbol, set()).update(zip(end_states, repeat(q_b)))
 
             transitions_b = other.transitions.get(q_b, {})
             for symbol, end_states in transitions_b.items():
-                state_dict.setdefault(symbol, set()).update(product([q_a], end_states))
+                state_dict.setdefault(symbol, set()).update(zip(repeat(q_a), end_states))
 
         return self.__class__(
             states=new_states,
@@ -555,10 +555,12 @@ class NFA(fa.FA):
 
         new_input_symbols = self.input_symbols | other.input_symbols
         new_initial_state = (self.initial_state, other.initial_state, False)
-        new_final_states = frozenset(product(self_reachable_final_states, other_reachable_final_states, [True]))
+        new_final_states = frozenset(
+            product(self_reachable_final_states, other_reachable_final_states, repeat(True, 1))
+        )
         new_states = frozenset(chain(
-            product(self_reachable_states, [other.initial_state], [False]),
-            product(self_reachable_states, other_reachable_states, [True])
+            product(self_reachable_states, repeat(other.initial_state, 1), repeat(False, 1)),
+            product(self_reachable_states, other_reachable_states, repeat(True, 1))
         ))
 
         new_transitions = {}
@@ -592,7 +594,7 @@ class NFA(fa.FA):
 
                 if end_states_a is not None and end_states_b is not None:
                     state_dict = new_transitions.setdefault(curr_state, {})
-                    state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, [True]))
+                    state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, repeat(True, 1)))
 
         return self.__class__(
             states=new_states,
@@ -621,10 +623,12 @@ class NFA(fa.FA):
 
         new_input_symbols = self.input_symbols | other.input_symbols
         new_initial_state = (self.initial_state, other.initial_state, False)
-        new_final_states = frozenset(product(self_reachable_final_states, other_reachable_final_states, [True]))
+        new_final_states = frozenset(
+            product(self_reachable_final_states, other_reachable_final_states, repeat(True, 1))
+        )
         new_states = frozenset(chain(
-            product(self_reachable_states, other_reachable_states, [False]),
-            product(self_reachable_states, other_reachable_final_states, [True])
+            product(self_reachable_states, other_reachable_states, repeat(False, 1)),
+            product(self_reachable_states, other_reachable_final_states, repeat(True, 1))
         ))
 
         new_transitions = {}
@@ -643,7 +647,7 @@ class NFA(fa.FA):
 
                 if end_states_a is not None and end_states_b is not None:
                     state_dict = new_transitions.setdefault(curr_state, {})
-                    state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, [False]))
+                    state_dict.setdefault('', set()).update(product(end_states_a, end_states_b, repeat(False, 1)))
 
             # Add lambda transition from final state, flipping third entry to true
             if q_b in other_reachable_final_states:
