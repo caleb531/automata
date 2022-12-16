@@ -559,7 +559,7 @@ class NFA(fa.FA):
             product(self_reachable_final_states, other_reachable_final_states, repeat(True, 1))
         )
         new_states = frozenset(chain(
-            product(self_reachable_states, repeat(other.initial_state, 1), repeat(False, 1)),
+            zip(self_reachable_states, repeat(other.initial_state), repeat(False)),
             product(self_reachable_states, other_reachable_states, repeat(True, 1))
         ))
 
