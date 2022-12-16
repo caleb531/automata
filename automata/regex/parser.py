@@ -2,7 +2,7 @@
 """Classes and methods for parsing regexes into NFAs."""
 
 from collections import deque
-from itertools import chain, count, pairwise, product, repeat
+from itertools import chain, count, zip_longest, product, repeat
 
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer
@@ -358,7 +358,7 @@ def add_concat_tokens(token_list):
         (PostfixOperator, LeftParen)
     ]
 
-    for curr_token, next_token in pairwise(chain(token_list, repeat(None, 1))):
+    for curr_token, next_token in zip_longest(token_list, token_list[1:]):
         final_token_list.append(curr_token)
 
         if next_token is not None:
