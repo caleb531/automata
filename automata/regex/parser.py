@@ -129,7 +129,7 @@ class NFARegexBuilder:
             if epsilon_transitions_a is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, {})
                 state_dict.setdefault('', set()).update(
-                     map(get_state_name, product(epsilon_transitions_a, [q_b]))
+                    map(get_state_name, product(epsilon_transitions_a, [q_b]))
                 )
                 next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
 
@@ -140,7 +140,7 @@ class NFARegexBuilder:
             if epsilon_transitions_b is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, {})
                 state_dict.setdefault('', set()).update(
-                     map(get_state_name, product([q_a], epsilon_transitions_b))
+                    map(get_state_name, product([q_a], epsilon_transitions_b))
                 )
                 next_states_iterables.append(product([q_a], epsilon_transitions_b))
 
