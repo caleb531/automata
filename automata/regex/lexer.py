@@ -109,7 +109,7 @@ class Lexer():
             if token_match is not None:
                 token_factory_fn, match = token_match
                 res.append(token_factory_fn(match))
-                pos += len(match.group(0))
+                pos += len(match.group())
             elif text[pos] in self.blank_chars:
                 pos += 1
             else:
