@@ -356,15 +356,10 @@ class KleenePlusToken(PostfixOperator):
 class FiniteQuantifierToken(PostfixOperator):
     """Subclass of postfix operator for repeating an expression a fixed number of times."""
 
-    #TODO check if the constructor is really the best way of doing this? Could just use a factory function
-    def __init__(self, match):
-        super().__init__(match)
-
-        lower_bound_str = match.group(1)
-        upper_bound_str = match.group(2)
-
-        self.lower_bound = None if not lower_bound_str else int(lower_bound_str)
-        self.upper_bound = None if not upper_bound_str else int(upper_bound_str)
+    def __init__(self, text, lower_bound, upper_bound):
+        super().__init__(text)
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
 
     def get_precedence(self):
         return 3
@@ -438,6 +433,15 @@ def add_concat_tokens(token_list):
 
     return final_token_list
 
+#TODO maybe organize this differently?
+def quantifier_factory(match):
+    lower_bound_str = match.group(1)
+    upper_bound_str = match.group(2)
+
+    lower_bound = None if not lower_bound_str else int(lower_bound_str)
+    upper_bound = None if not upper_bound_str else int(upper_bound_str)
+
+    return FiniteQuantifierToken(match.group(), lower_bound, upper_bound)
 
 def get_regex_lexer(input_symbols):
     """Get lexer for parsing regular expressions."""
@@ -452,7 +456,7 @@ def get_regex_lexer(input_symbols):
     lexer.register_token(get_token_factory(KleeneStarToken), r'\*')
     lexer.register_token(get_token_factory(KleenePlusToken), r'\+')
     lexer.register_token(get_token_factory(OptionToken), r'\?')
-    lexer.register_token(FiniteQuantifierToken, r'\{(.*),(.*)\}')
+    lexer.register_token(quantifier_factory, r'\{(.*),(.*)\}')
     lexer.register_token(lambda match: WildcardToken(match.group(), input_symbols), r'\.')
 
     return lexer

@@ -10,6 +10,7 @@ import re
 
 import automata.base.exceptions as exceptions
 
+#TODO maybe this should be a class method??
 def get_token_factory(token_classname):
     """
     Returns a default factory function given a token class.
