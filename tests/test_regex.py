@@ -137,7 +137,7 @@ class TestRegex(unittest.TestCase):
         input_symbols = {'a', 'b', 'c', 'd'}
 
         self.assertTrue(re.isequal('a{1,2}', 'a|aa', input_symbols=input_symbols))
-        self.assertTrue(re.isequal('(h|a){0,2}', '(a?)|h|ah|ha|hh|aa', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(b|a){0,2}', '(a?)|b|ab|ba|bb|aa', input_symbols=input_symbols))
 
 
     def test_invalid_symbols(self):
