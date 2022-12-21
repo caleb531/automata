@@ -17,9 +17,9 @@ class Token(metaclass=abc.ABCMeta):
     __slots__ = ('text',)
 
     def __init__(self, match):
-        # Allow passing in None to explicitly construct tokens that don't need to read text
-        if match is None:
-            self.text = None
+        # Allow passing in strings to explicitly construct tokens that don't need to read text
+        if isinstance(match, str):
+            self.text = match
 
         else:
             self.text = match.group()
