@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 from collections import deque
-from itertools import chain, count, product
+from itertools import chain, count, product, repeat
 
 import networkx as nx
 from frozendict import frozendict
@@ -459,8 +459,8 @@ class NFA(fa.FA):
             epsilon_transitions_a = transitions_a.get('')
             if epsilon_transitions_a is not None:
                 state_dict = new_transitions.setdefault(curr_state, {})
-                state_dict.setdefault('', set()).update(product(epsilon_transitions_a, [q_b]))
-                next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
+                state_dict.setdefault('', set()).update(zip(epsilon_transitions_a, repeat(q_b)))
+                next_states_iterables.append(zip(epsilon_transitions_a, repeat(q_b)))
 
             # Get transition dict for states in other
             transitions_b = other.transitions.get(q_b, {})
@@ -468,8 +468,8 @@ class NFA(fa.FA):
             epsilon_transitions_b = transitions_b.get('')
             if epsilon_transitions_b is not None:
                 state_dict = new_transitions.setdefault(curr_state, {})
-                state_dict.setdefault('', set()).update(product([q_a], epsilon_transitions_b))
-                next_states_iterables.append(product([q_a], epsilon_transitions_b))
+                state_dict.setdefault('', set()).update(zip(repeat(q_a), epsilon_transitions_b))
+                next_states_iterables.append(zip(repeat(q_a), epsilon_transitions_b))
 
             # Add all transitions moving over same input symbols
             for symbol in new_input_symbols:
@@ -522,11 +522,11 @@ class NFA(fa.FA):
 
             transitions_a = self.transitions.get(q_a, {})
             for symbol, end_states in transitions_a.items():
-                state_dict.setdefault(symbol, set()).update(product(end_states, [q_b]))
+                state_dict.setdefault(symbol, set()).update(zip(end_states, repeat(q_b)))
 
             transitions_b = other.transitions.get(q_b, {})
             for symbol, end_states in transitions_b.items():
-                state_dict.setdefault(symbol, set()).update(product([q_a], end_states))
+                state_dict.setdefault(symbol, set()).update(zip(repeat(q_a), end_states))
 
         return self.__class__(
             states=new_states,
@@ -658,10 +658,7 @@ class NFA(fa.FA):
 
             if old_transitions_dict:
                 for symbol, end_states in old_transitions_dict.items():
-                    new_state_dict[symbol] = {
-                        (end_state, state_b, True)
-                        for end_state in end_states
-                    }
+                    new_state_dict[symbol] = set(zip(end_states, repeat(state_b), repeat(True)))
 
         return self.__class__(
             states=new_states,
