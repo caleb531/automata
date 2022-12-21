@@ -179,37 +179,14 @@ class NFARegexBuilder:
 
         self._final_states = other._final_states
 
-    def kleene_star(self):
-        """
-        Apply the kleene star operation to the NFA represented by this builder
-        """
-        self.kleene_plus()
-        self._final_states.add(self._initial_state)
 
-    def kleene_plus(self):
+    def repeat(self, lower_bound, upper_bound):
         """
-        Apply the kleene plus operation to the NFA represented by this builder
-        """
-        new_initial_state = self.__get_next_state_name()
-
-        self._transitions[new_initial_state] = {
-            '': {self._initial_state}
-        }
-
-        for state in self._final_states:
-            self._transitions[state].setdefault('', set()).add(self._initial_state)
-
-        self._initial_state = new_initial_state
-
-    def repeat_parameterized(self, lower_bound, upper_bound):
-        """
-        Apply the repetition operator.
+        Apply the repetition operator. Corresponds to repeating the NFA
+        between lower_bound and upper_bound many times. If upper_bound is None,
+        then the number of repetitions is unbounded.
         """
 
-        # No lower bound is treated as 0
-        lower_bound = lower_bound if lower_bound is not None else 0
-
-        #TODO add tests for no upper/lower bound
         number_of_repetitions = (lower_bound if upper_bound is None else upper_bound)
 
         prev_final_states = self._final_states
@@ -264,18 +241,6 @@ class NFARegexBuilder:
         self._final_states = new_final_states
         self._initial_state = new_initial_state
 
-    def option(self):
-        """
-        Apply the option operation to the NFA represented by this builder
-        """
-        new_initial_state = self.__get_next_state_name()
-
-        self._transitions[new_initial_state] = {
-            '': {self._initial_state}
-        }
-
-        self._initial_state = new_initial_state
-        self._final_states.add(new_initial_state)
 
     def shuffle_product(self, other):
         """
@@ -351,7 +316,7 @@ class KleeneStarToken(PostfixOperator):
         return 3
 
     def op(self, left):
-        left.kleene_star()
+        left.repeat(0, None)
         return left
 
 
@@ -362,10 +327,10 @@ class KleenePlusToken(PostfixOperator):
         return 3
 
     def op(self, left):
-        left.kleene_plus()
+        left.repeat(1, None)
         return left
 
-class FiniteQuantifierToken(PostfixOperator):
+class QuantifierToken(PostfixOperator):
     """Subclass of postfix operator for repeating an expression a fixed number of times."""
 
     def __init__(self, text, lower_bound, upper_bound):
@@ -377,7 +342,7 @@ class FiniteQuantifierToken(PostfixOperator):
         return 3
 
     def op(self, left):
-        left.repeat_parameterized(self.lower_bound, self.upper_bound)
+        left.repeat(self.lower_bound, self.upper_bound)
         return left
 
 class OptionToken(PostfixOperator):
@@ -387,7 +352,7 @@ class OptionToken(PostfixOperator):
         return 3
 
     def op(self, left):
-        left.option()
+        left.repeat(0,1)
         return left
 
 
@@ -450,10 +415,10 @@ def quantifier_factory(match):
     lower_bound_str = match.group(1)
     upper_bound_str = match.group(2)
 
-    lower_bound = None if not lower_bound_str else int(lower_bound_str)
+    lower_bound = 0 if not lower_bound_str else int(lower_bound_str)
     upper_bound = None if not upper_bound_str else int(upper_bound_str)
 
-    return FiniteQuantifierToken(match.group(), lower_bound, upper_bound)
+    return QuantifierToken(match.group(), lower_bound, upper_bound)
 
 def get_regex_lexer(input_symbols):
     """Get lexer for parsing regular expressions."""
