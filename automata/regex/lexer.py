@@ -16,8 +16,13 @@ class Token(metaclass=abc.ABCMeta):
 
     __slots__ = ('text',)
 
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, match):
+        # Allow passing in None to explicitly construct tokens that don't need to read text
+        if match is None:
+            self.text = None
+
+        else:
+            self.text = match.group()
 
     def get_precedence(self):
         raise NotImplementedError
@@ -37,7 +42,7 @@ class TokenRegistry():
     def register(self, token_factory_fn, token_regex):
         """
         Register a token that can be produced by token_factory_fn (a function
-        taking in a string returning the final token) and recognized by the
+        taking in a regex match and returning the final token) and recognized by the
         token_regex pattern.
         """
         self._tokens.append((token_factory_fn, re.compile(token_regex)))
@@ -85,7 +90,7 @@ class Lexer():
     def register_token(self, token_factory_fn, token_regex):
         """
         Register a token class. The token_factory_fn must taken in a
-        string and return an instance of the desired token, and token_regex
+        match object and return an instance of the desired token, and token_regex
         is used by the lexer to match tokens in the input text.
         """
 
@@ -101,9 +106,8 @@ class Lexer():
             token_match = self.tokens.get_token(text, start=pos)
             if token_match is not None:
                 token_factory_fn, match = token_match
-                matched_text = match.group(0)
-                res.append(token_factory_fn(matched_text))
-                pos += len(matched_text)
+                res.append(token_factory_fn(match))
+                pos += len(match.group(0))
             elif text[pos] in self.blank_chars:
                 pos += 1
             else:

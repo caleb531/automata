@@ -364,7 +364,7 @@ def add_concat_tokens(token_list):
         if next_token is not None:
             for firstClass, secondClass in concat_pairs:
                 if isinstance(curr_token, firstClass) and isinstance(next_token, secondClass):
-                    final_token_list.append(ConcatToken(''))
+                    final_token_list.append(ConcatToken(None))
 
     return final_token_list
 
@@ -382,7 +382,7 @@ def get_regex_lexer(input_symbols):
     lexer.register_token(KleeneStarToken, r'\*')
     lexer.register_token(KleenePlusToken, r'\+')
     lexer.register_token(OptionToken, r'\?')
-    lexer.register_token(lambda text: WildcardToken(text, input_symbols), r'\.')
+    lexer.register_token(lambda match: WildcardToken(match, input_symbols), r'\.')
 
     return lexer
 
