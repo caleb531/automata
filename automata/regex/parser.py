@@ -206,6 +206,9 @@ class NFARegexBuilder:
         Apply the repetition operator.
         """
 
+        # No lower bound is treated as 0
+        lower_bound = lower_bound if lower_bound is not None else 0
+
         #TODO add tests for no upper/lower bound
         number_of_repetitions = (lower_bound if upper_bound is None else upper_bound)
 
@@ -224,6 +227,8 @@ class NFARegexBuilder:
         if lower_bound == 0:
             new_final_states.add(self._initial_state)
 
+        prev_initial_state = self._initial_state
+
         for i in range(1, number_of_repetitions):
             # Reset the state renaming function each time
             get_state_name = get_renaming_function(self._state_name_counter)
@@ -241,12 +246,16 @@ class NFARegexBuilder:
                 new_transitions[state].setdefault('', set()).add(get_state_name(self._initial_state))
 
             prev_final_states = set(map(get_state_name, self._final_states))
+            prev_initial_state = get_state_name(self._initial_state)
 
             # Wonky numbering because we start with one copy of states
-            if lower_bound <= i < upper_bound:
+            if lower_bound <= i:
                 new_final_states.update(prev_final_states)
 
-        print(new_transitions, new_final_states)
+        # If no upper bound, make quantifier loop around
+        if upper_bound is None:
+            for state in prev_final_states:
+                new_transitions[state].setdefault('', set()).add(prev_initial_state)
 
         self._transitions = new_transitions
         self._final_states = new_final_states

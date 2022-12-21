@@ -138,7 +138,9 @@ class TestRegex(unittest.TestCase):
 
         self.assertTrue(re.isequal('a{1,2}', 'a|aa', input_symbols=input_symbols))
         self.assertTrue(re.isequal('(b|a){0,2}', '(a?)|b|ab|ba|bb|aa', input_symbols=input_symbols))
-
+        self.assertTrue(re.isequal('(a*b|b*c*){0,1}', '(a*b|b*c*)?', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(aa^bb|ca^cb){0,}', '(aa^bb|ca^cb)*', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(aa|bb^ca|cb){1,}', '(aa|bb^ca|cb)+', input_symbols=input_symbols))
 
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""
