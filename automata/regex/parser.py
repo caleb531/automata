@@ -221,7 +221,10 @@ class NFARegexBuilder:
             '': {self._initial_state}
         }
 
-        new_final_states = copy.copy(self._final_states)
+        new_final_states = set()
+
+        if lower_bound <= 1:
+            new_final_states.update(self._final_states)
 
         # Loop around if lower bound is 0
         if lower_bound == 0:
@@ -229,7 +232,7 @@ class NFARegexBuilder:
 
         prev_initial_state = self._initial_state
 
-        for i in range(1, number_of_repetitions):
+        for i in range(2, number_of_repetitions+1):
             # Reset the state renaming function each time
             get_state_name = get_renaming_function(self._state_name_counter)
 

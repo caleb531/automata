@@ -136,7 +136,15 @@ class TestRegex(unittest.TestCase):
 
         input_symbols = {'a', 'b', 'c', 'd'}
 
-        self.assertTrue(re.isequal('a{1,2}', 'a|aa', input_symbols=input_symbols))
+        # Simple equivalences
+        self.assertTrue(re.isequal('a{1,3}', 'a|aa|aaa', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{5,5}', 'aaaaa', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{1,}', 'a+', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{0,}', 'a*', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{4,}', 'aaaa+', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{,4}', 'a?|aa|aaa|aaaa', input_symbols=input_symbols))
+
+        # More complex equivalences
         self.assertTrue(re.isequal('(b|a){0,2}', '(a?)|b|ab|ba|bb|aa', input_symbols=input_symbols))
         self.assertTrue(re.isequal('(a*b|b*c*){0,1}', '(a*b|b*c*)?', input_symbols=input_symbols))
         self.assertTrue(re.isequal('(aa^bb|ca^cb){0,}', '(aa^bb|ca^cb)*', input_symbols=input_symbols))
