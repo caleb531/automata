@@ -4,7 +4,7 @@ import unittest
 
 import automata.base.exceptions as exceptions
 import automata.regex.postfix as postfix
-from automata.regex.lexer import Lexer
+from automata.regex.lexer import Lexer, get_token_factory
 
 class Integer(postfix.Literal):
     def val(self):
@@ -112,13 +112,13 @@ class TestArithmeticParser(unittest.TestCase):
     def setUp(self):
         self.arithmetic_lexer: Lexer = Lexer()
 
-        self.arithmetic_lexer.register_token(postfix.LeftParen, r'\(')
-        self.arithmetic_lexer.register_token(postfix.RightParen, r'\)')
-        self.arithmetic_lexer.register_token(Integer, r'[0-9]+')
-        self.arithmetic_lexer.register_token(Add, r'\+')
-        self.arithmetic_lexer.register_token(Minus, r'-')
-        self.arithmetic_lexer.register_token(Mult, r'\*')
-        self.arithmetic_lexer.register_token(Divide, r'/')
+        self.arithmetic_lexer.register_token(get_token_factory(postfix.LeftParen), r'\(')
+        self.arithmetic_lexer.register_token(get_token_factory(postfix.RightParen), r'\)')
+        self.arithmetic_lexer.register_token(get_token_factory(Integer), r'[0-9]+')
+        self.arithmetic_lexer.register_token(get_token_factory(Add), r'\+')
+        self.arithmetic_lexer.register_token(get_token_factory(Minus), r'-')
+        self.arithmetic_lexer.register_token(get_token_factory(Mult), r'\*')
+        self.arithmetic_lexer.register_token(get_token_factory(Divide), r'/')
 
     def test_expression_invalid_ordering(self):
         """Check for exception raised when lexing invalid regular expressions."""

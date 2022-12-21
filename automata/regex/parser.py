@@ -5,7 +5,7 @@ from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
 import copy
 from automata.base.utils import get_renaming_function
-from automata.regex.lexer import Lexer
+from automata.regex.lexer import Lexer, get_token_factory
 from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     PostfixOperator, RightParen,
                                     parse_postfix_tokens, tokens_to_postfix,
@@ -206,6 +206,7 @@ class NFARegexBuilder:
         Apply the repetition operator.
         """
 
+        #TODO add tests for no upper/lower bound
         number_of_repetitions = (lower_bound if upper_bound is None else upper_bound)
 
         prev_final_states = self._final_states
@@ -219,7 +220,7 @@ class NFARegexBuilder:
 
         new_final_states = copy.copy(self._final_states)
 
-        # Loop around if
+        # Loop around if lower bound is 0
         if lower_bound == 0:
             new_final_states.add(self._initial_state)
 
@@ -355,6 +356,7 @@ class KleenePlusToken(PostfixOperator):
 class FiniteQuantifierToken(PostfixOperator):
     """Subclass of postfix operator for repeating an expression a fixed number of times."""
 
+    #TODO check if the constructor is really the best way of doing this? Could just use a factory function
     def __init__(self, match):
         super().__init__(match)
 
@@ -441,17 +443,17 @@ def get_regex_lexer(input_symbols):
     """Get lexer for parsing regular expressions."""
     lexer = Lexer()
 
-    lexer.register_token(LeftParen, r'\(')
-    lexer.register_token(RightParen, r'\)')
-    lexer.register_token(StringToken, r'[A-Za-z0-9]')
-    lexer.register_token(UnionToken, r'\|')
-    lexer.register_token(IntersectionToken, r'\&')
-    lexer.register_token(ShuffleToken, r'\^')
-    lexer.register_token(KleeneStarToken, r'\*')
-    lexer.register_token(KleenePlusToken, r'\+')
-    lexer.register_token(OptionToken, r'\?')
+    lexer.register_token(get_token_factory(LeftParen), r'\(')
+    lexer.register_token(get_token_factory(RightParen), r'\)')
+    lexer.register_token(get_token_factory(StringToken), r'[A-Za-z0-9]')
+    lexer.register_token(get_token_factory(UnionToken), r'\|')
+    lexer.register_token(get_token_factory(IntersectionToken), r'\&')
+    lexer.register_token(get_token_factory(ShuffleToken), r'\^')
+    lexer.register_token(get_token_factory(KleeneStarToken), r'\*')
+    lexer.register_token(get_token_factory(KleenePlusToken), r'\+')
+    lexer.register_token(get_token_factory(OptionToken), r'\?')
     lexer.register_token(FiniteQuantifierToken, r'\{(.*),(.*)\}')
-    lexer.register_token(lambda match: WildcardToken(match, input_symbols), r'\.')
+    lexer.register_token(lambda match: WildcardToken(match.group(), input_symbols), r'\.')
 
     return lexer
 

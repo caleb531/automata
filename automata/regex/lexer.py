@@ -10,19 +10,20 @@ import re
 
 import automata.base.exceptions as exceptions
 
+def get_token_factory(token_classname):
+    """
+    Returns a default factory function given a token class.
+    Compatible with default constructor in the Token base class.
+    """
+    return lambda match: token_classname(match.group())
 
 class Token(metaclass=abc.ABCMeta):
     """Base class for tokens."""
 
     __slots__ = ('text',)
 
-    def __init__(self, match):
-        # Allow passing in strings to explicitly construct tokens that don't need to read text
-        if isinstance(match, str):
-            self.text = match
-
-        else:
-            self.text = match.group()
+    def __init__(self, text):
+        self.text = text
 
     def get_precedence(self):
         raise NotImplementedError
