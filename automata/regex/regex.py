@@ -3,6 +3,7 @@
 
 import automata.base.exceptions as exceptions
 from automata.fa.nfa import NFA
+from automata.fa.dfa import DFA
 from automata.regex.parser import (RESERVED_CHARACTERS, get_regex_lexer,
                                    validate_tokens)
 
@@ -33,7 +34,7 @@ def isequal(re1, re2, *, input_symbols=None):
     nfa1 = NFA.from_regex(re1, input_symbols=input_symbols)
     nfa2 = NFA.from_regex(re2, input_symbols=input_symbols)
 
-    return nfa1 == nfa2
+    return DFA.from_nfa(nfa1) == DFA.from_nfa(nfa2)
 
 
 def issubset(re1, re2, *, input_symbols=None):

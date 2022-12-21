@@ -3,7 +3,7 @@
 
 from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
-
+import copy
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer
 from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
@@ -201,6 +201,55 @@ class NFARegexBuilder:
 
         self._initial_state = new_initial_state
 
+    def repeat_parameterized(self, lower_bound, upper_bound):
+        """
+        Apply the repetition operator.
+        """
+
+        number_of_repetitions = (lower_bound if upper_bound is None else upper_bound) - 1
+
+        prev_final_states = self._final_states
+
+        new_initial_state = self.__get_next_state_name()
+        new_transitions = copy.deepcopy(self._transitions)
+
+        new_transitions[new_initial_state] = {
+            '': {self._initial_state}
+        }
+
+        new_final_states = copy.copy(self._final_states)
+
+        if lower_bound == 0:
+            new_final_states.add(self._initial_state)
+
+        for i in range(number_of_repetitions):
+            # Reset the state renaming function each time
+            get_state_name = get_renaming_function(self._state_name_counter)
+
+            # Load next copy of transitions into dict
+            new_transitions.update({
+                get_state_name(start_state): {
+                    char: set(map(get_state_name, dest_states))
+                    for char, dest_states in char_transitions.items()
+                }
+                for start_state, char_transitions in self._transitions.items()
+            })
+
+            for state in prev_final_states:
+                new_transitions[state].setdefault('', set()).add(get_state_name(self._initial_state))
+
+            prev_final_states = set(map(get_state_name, self._final_states))
+
+            # Wonky numbering because we start with one copy of states
+            if lower_bound <= i+1 < upper_bound:
+                new_final_states.update(prev_final_states)
+
+        print(new_transitions, new_final_states)
+
+        self._transitions = new_transitions
+        self._final_states = new_final_states
+        self._initial_state = new_initial_state
+
     def option(self):
         """
         Apply the option operation to the NFA represented by this builder
@@ -302,6 +351,24 @@ class KleenePlusToken(PostfixOperator):
         left.kleene_plus()
         return left
 
+class FiniteQuantifierToken(PostfixOperator):
+    """Subclass of postfix operator for repeating an expression a fixed number of times."""
+
+    def __init__(self, match):
+        super().__init__(match)
+
+        lower_bound_str = match.group(1)
+        upper_bound_str = match.group(2)
+
+        self.lower_bound = None if not lower_bound_str else int(lower_bound_str)
+        self.upper_bound = None if not upper_bound_str else int(upper_bound_str)
+
+    def get_precedence(self):
+        return 3
+
+    def op(self, left):
+        left.repeat_parameterized(self.lower_bound, self.upper_bound)
+        return left
 
 class OptionToken(PostfixOperator):
     """Subclass of postfix operator defining the option operator."""
@@ -382,6 +449,7 @@ def get_regex_lexer(input_symbols):
     lexer.register_token(KleeneStarToken, r'\*')
     lexer.register_token(KleenePlusToken, r'\+')
     lexer.register_token(OptionToken, r'\?')
+    lexer.register_token(FiniteQuantifierToken, r'\{(.*),(.*)\}')
     lexer.register_token(lambda match: WildcardToken(match, input_symbols), r'\.')
 
     return lexer
