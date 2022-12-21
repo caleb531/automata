@@ -131,6 +131,15 @@ class TestRegex(unittest.TestCase):
         other_nfa = NFA.shuffle_product(NFA.from_regex('a*'), NFA.from_regex('ba'))
         self.assertEqual(reference_nfa, other_nfa)
 
+    def test_quantifier(self):
+        """Should correctly check shuffle"""
+
+        input_symbols = {'a', 'b', 'c', 'd'}
+
+        self.assertTrue(re.isequal('a{1,2}', 'a|aa', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(h|a){0,2}', '(a?)|h|ah|ha|hh|aa', input_symbols=input_symbols))
+
+
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""
         with self.assertRaises(exceptions.InvalidSymbolError):
