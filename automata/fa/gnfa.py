@@ -228,7 +228,7 @@ class GNFA(nfa.NFA):
                     if r2 is None:
                         r2 = ''
                     elif len(r2) == 1:
-                        r2 = f'{r1}*'
+                        r2 = f'{r2}*'
                     else:
                         r2 = f'({r2})*'
 

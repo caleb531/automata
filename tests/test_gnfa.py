@@ -345,16 +345,28 @@ class TestGNFA(test_fa.TestFA):
         then generate NFA from regex (already tested method)
         and check for equivalence of NFA and previous DFA
         """
+        regex_strings = [
+            'a*',
+            'aa*b|bba*|(cc*)(bb+)',
+            'a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?'
+        ]
 
-        nfa = NFA.from_regex('a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?')
-        gnfa = GNFA.from_nfa(nfa)
-        regex = gnfa.to_regex()
-        nfa = NFA.from_regex(regex)
-        dfa2 = DFA.from_nfa(nfa)
+        for regex_str in regex_strings:
+            nfa_1 = NFA.from_regex(regex_str)
+            gnfa_1 = GNFA.from_nfa(nfa_1)
+            regex_1 = gnfa_1.to_regex()
+            nfa_2 = NFA.from_regex(regex_1)
 
-        dfa = DFA.from_nfa(nfa)
+            # Test equality under NFA regex conversion
+            self.assertEqual(nfa_1, nfa_2)
 
-        self.assertEqual(dfa, dfa2)
+            dfa_1 = DFA.from_nfa(nfa_1)
+            gnfa_2 = GNFA.from_dfa(dfa_1)
+            regex_2 = gnfa_2.to_regex()
+            dfa_2 = DFA.from_nfa(NFA.from_regex(regex_2))
+
+            # Test equality through DFA regex conversion
+            self.assertEqual(dfa_1, dfa_2)
 
     def test_read_input_step_not_implemented(self):
         """Should not implement read_input_stepwise() for GNFA."""
