@@ -33,17 +33,17 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def __setattr__(self, name, value):
         """Set custom setattr to make class immutable."""
-        if global_config.allow_mutable_automata:
-            object.__setattr__(self, name, value)
-        else:
-            raise AttributeError(f'This {type(self).__name__} is immutable')
+        raise AttributeError(f'This {type(self).__name__} is immutable')
 
     def __delattr__(self, name):
         """Set custom delattr to make class immutable."""
-        if global_config.allow_mutable_automata:
-            object.__delattr__(self, name)
-        else:
-            raise AttributeError(f'This {type(self).__name__} is immutable')
+        raise AttributeError(f'This {type(self).__name__} is immutable')
+
+    def __getstate__(self):
+        return self.input_parameters
+
+    def __setstate__(self, d):
+        self.__init__(**d)
 
     @abc.abstractmethod
     def read_input_stepwise(self, input_str):
