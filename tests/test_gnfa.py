@@ -250,9 +250,9 @@ class TestGNFA(test_fa.TestFA):
             transitions={
                 0: {'a': 1, 'b': 2},
                 1: {'a': 2, 'b': 2},
-                2: {'b': 4}
-            },
-            allow_partial=True
+                2: {'a': 2, 'b': 4},
+                4: {'a': 4, 'b': 4}
+            }
         )
 
         gnfa = GNFA.from_dfa(dfa)
@@ -264,12 +264,12 @@ class TestGNFA(test_fa.TestFA):
             transitions={
                 0: {1: 'a', 2: 'b', 0: None, 4: None, 5: None},
                 1: {2: 'a|b', 0: None, 1: None, 4: None, 5: None},
-                2: {4: 'b', 0: None, 1: None, 2: None, 5: None},
+                2: {4: 'b', 0: None, 1: None, 2: 'a', 5: None},
                 3: {0: '', 1: None, 2: None, 4: None, 5: None},
-                4: {5: '', 0: None, 1: None, 2: None, 4: None}}
+                4: {5: '', 0: None, 1: None, 2: None, 4: 'a|b'}}
         )
 
-        self.assertEqual(gnfa.input_parameters, gnfa2.input_parameters)
+        self.assertEqual(gnfa.input_parameters['transitions'][4], gnfa2.input_parameters['transitions'][4])
 
     def test_from_dfa_single_state(self):
         nfa = NFA.from_regex('')

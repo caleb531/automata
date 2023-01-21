@@ -49,15 +49,12 @@ class GNFA(nfa.NFA):
 
         for state in dfa.states:
             gnfa_transitions = dict()
-            if state in dfa.transitions:
-                for input_symbol, to_state in dfa.transitions[state].items():
-                    if to_state in gnfa_transitions.keys():
-                        gnfa_transitions[to_state] = f"{gnfa_transitions[to_state]}|{input_symbol}"
-                    else:
-                        gnfa_transitions[to_state] = input_symbol
-                new_gnfa_transitions[state] = gnfa_transitions
-            else:
-                new_gnfa_transitions[state] = dict()
+            for input_symbol, to_state in dfa.transitions[state].items():
+                if to_state in gnfa_transitions.keys():
+                    gnfa_transitions[to_state] = f"{gnfa_transitions[to_state]}|{input_symbol}"
+                else:
+                    gnfa_transitions[to_state] = input_symbol
+            new_gnfa_transitions[state] = gnfa_transitions
 
         new_initial_state = GNFA._add_new_state(gnfa_states)
         new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)

@@ -17,18 +17,17 @@ class DFA(fa.FA):
     """A deterministic finite automaton."""
 
     __slots__ = ('states', 'input_symbols', 'transitions',
-                 'initial_state', 'final_states', 'allow_partial')
+                 'initial_state', 'final_states')
 
     def __init__(self, *, states, input_symbols, transitions,
-                 initial_state, final_states, allow_partial=False):
+                 initial_state, final_states):
         """Initialize a complete DFA."""
         super().__init__(
             states=states,
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=initial_state,
-            final_states=final_states,
-            allow_partial=allow_partial
+            final_states=final_states
         )
         object.__setattr__(self, '_word_cache', [])
         object.__setattr__(self, '_count_cache', [])
@@ -161,8 +160,6 @@ class DFA(fa.FA):
 
     def _validate_transition_missing_symbols(self, start_state, paths):
         """Raise an error if the transition input_symbols are missing."""
-        if self.allow_partial:
-            return
         for input_symbol in self.input_symbols:
             if input_symbol not in paths:
                 raise exceptions.MissingSymbolError(
@@ -179,8 +176,6 @@ class DFA(fa.FA):
 
     def _validate_transition_start_states(self):
         """Raise an error if transition start states are missing."""
-        if self.allow_partial:
-            return
         for state in self.states:
             if state not in self.transitions:
                 raise exceptions.MissingStateError(
@@ -533,8 +528,7 @@ class DFA(fa.FA):
             input_symbols=self.input_symbols,
             transitions=self.transitions,
             initial_state=self.initial_state,
-            final_states=self.states - self.final_states,
-            allow_partial=self.allow_partial
+            final_states=self.states - self.final_states
         )
 
     def _cross_product(self, other, state_target_fn, *, should_construct_dfa, retain_names=False):

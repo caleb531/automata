@@ -1210,26 +1210,6 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.from_nfa(nfa, retain_names=True, minify=False)  # returns an equivalent DFA
         self.assertEqual(dfa.read_input('a'), frozenset(('q1',)))
 
-    def test_partial_dfa(self):
-        """Should allow for partial DFA when flag is set"""
-        dfa = DFA(
-            states={'', 'a', 'b', 'aa', 'bb', 'ab', 'ba'},
-            input_symbols={'a', 'b'},
-            transitions={
-                '': {'a': 'a', 'b': 'b'},
-                'a': {'b': 'ab', 'a': 'aa'},
-                'b': {'b': 'bb'},
-                'aa': {'a': 'aa', 'b': 'ab'},
-                'bb': {'a': 'ba'},
-                'ab': {'b': 'bb'},
-                'ba': {'a': 'aa'}
-            },
-            initial_state='',
-            final_states={'aa'},
-            allow_partial=True
-        )
-        self.assertEqual(dfa.read_input('aa'), 'aa')
-
     def test_show_diagram_initial_final_different(self):
         """
         Should construct the diagram for a DFA whose initial state
@@ -1363,13 +1343,12 @@ class TestDFA(test_fa.TestFA):
                 'q0': {'a': 'q0'}
             },
             initial_state='q0',
-            final_states={'q0'},
-            allow_partial=False
+            final_states={'q0'}
         )
         self.assertEqual(
             repr(dfa),
             "DFA(states={'q0'}, input_symbols={'a'}, transitions={'q0': {'a': 'q0'}}, "
-            "initial_state='q0', final_states={'q0'}, allow_partial=False)")
+            "initial_state='q0', final_states={'q0'})")
 
     def test_iter_finite(self):
         """
@@ -1519,19 +1498,6 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.from_finite_language(input_symbols, language)
         actual = list(dfa.successors(None, key=order.get))
         self.assertListEqual(actual, expected)
-
-    def test_successor_partial(self):
-        binary = {'0', '1'}
-        dfa = DFA(states={0, 1}, input_symbols=binary, transitions={0: {'0': 1}, 1: {'1': 1}},
-                  initial_state=0, final_states={1}, allow_partial=True)
-        self.assertEqual(dfa.successor(None), '0')
-        self.assertEqual(dfa.successor(''), '0')
-        self.assertEqual(dfa.successor('0'), '01')
-        self.assertEqual(dfa.successor('00'), '01')
-        self.assertEqual(dfa.successor('0000101010111'), '01')
-        self.assertEqual(dfa.successor('01'), '011')
-        self.assertEqual(dfa.successor('01000'), '011')
-        self.assertEqual(dfa.successor('1'), None)
 
     def test_count_words_of_length(self):
         """
