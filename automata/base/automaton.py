@@ -40,9 +40,13 @@ class Automaton(metaclass=abc.ABCMeta):
         raise AttributeError(f'This {type(self).__name__} is immutable')
 
     def __getstate__(self):
+        """Return the object's state, described by its input parameters"""
         return self.input_parameters
 
     def __setstate__(self, d):
+        """Restore the object state from its input parameters"""
+        # Notice that the default __setstate__ method won't work
+        #   because __setattr__ is disabled due to immutability
         self.__init__(**d)
 
     @abc.abstractmethod
