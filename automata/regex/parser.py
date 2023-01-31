@@ -36,8 +36,8 @@ class NFARegexBuilder:
         """
 
         transitions = {
-            cls.__get_next_state_name(): {chr: set()}
-            for chr in literal
+            cls.__get_next_state_name(): {symbol: set()}
+            for symbol in literal
         }
 
         for start_state, path in transitions.items():

@@ -835,11 +835,11 @@ class NFA(fa.FA):
             for symbol in input_symbols:
                 add_transition(start_state_dict, end_state, symbol)
 
-        for (i, chr), e in product(enumerate(reference_str), range(max_edit_distance + 1)):
+        for (i, symbol), e in product(enumerate(reference_str), range(max_edit_distance + 1)):
             state_transition_dict = transitions.setdefault((i, e), {})
 
             # Correct character
-            add_transition(state_transition_dict, (i + 1, e), chr)
+            add_transition(state_transition_dict, (i + 1, e), symbol)
             if e < max_edit_distance:
                 if insertion:
                     # Insertion

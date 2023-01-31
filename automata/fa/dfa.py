@@ -590,12 +590,12 @@ class DFA(fa.FA):
             transitions_a = self.transitions[q_a]
             transitions_b = other.transitions[q_b]
 
-            for chr in self.input_symbols:
-                product_state = (transitions_a[chr], transitions_b[chr])
+            for symbol in self.input_symbols:
+                product_state = (transitions_a[symbol], transitions_b[symbol])
                 product_state_name = get_name(product_state)
 
                 if should_construct_dfa:
-                    state_transitions[chr] = product_state_name
+                    state_transitions[symbol] = product_state_name
 
                 # If next state is new, add to queue
                 if product_state_name not in visited_set:
@@ -1137,8 +1137,8 @@ class DFA(fa.FA):
 
         def longest_common_prefix_length(string_1, string_2):
             """Returns length of longest common prefix."""
-            for i, (chr_1, chr_2) in enumerate(zip(string_1, string_2)):
-                if chr_1 != chr_2:
+            for i, (symbol_1, symbol_2) in enumerate(zip(string_1, string_2)):
+                if symbol_1 != symbol_2:
                     return i
 
             return min(len(string_1), len(string_2))
@@ -1146,12 +1146,12 @@ class DFA(fa.FA):
         def add_to_trie(word):
             """Add word to the trie represented by transitions"""
             prefix = ''
-            for chr in word:
-                next_prefix = prefix + chr
+            for symbol in word:
+                next_prefix = prefix + symbol
 
                 # Extend the trie only if necessary
                 prefix_dict = transitions.setdefault(prefix, {})
-                prefix_dict.setdefault(chr, next_prefix)
+                prefix_dict.setdefault(symbol, next_prefix)
                 back_map.setdefault(next_prefix, set()).add(prefix)
 
                 prefix = next_prefix
@@ -1182,9 +1182,9 @@ class DFA(fa.FA):
                     # Change transition for prefix
                     for parent_state in back_map[prefix]:
                         path = transitions[parent_state]
-                        for chr in path:
-                            if path[chr] == prefix:
-                                path[chr] = identical_state
+                        for symbol in path:
+                            if path[symbol] == prefix:
+                                path[symbol] = identical_state
                         back_map[identical_state].add(parent_state)
 
                         # No need to recompute signatures here, since we will
@@ -1206,11 +1206,11 @@ class DFA(fa.FA):
 
         # Add dump state. Always needed since dict is finite
         dump_state = 0
-        transitions[dump_state] = {chr: dump_state for chr in input_symbols}
+        transitions[dump_state] = {symbol: dump_state for symbol in input_symbols}
 
         for path in transitions.values():
-            for chr in input_symbols:
-                path.setdefault(chr, dump_state)
+            for symbol in input_symbols:
+                path.setdefault(symbol, dump_state)
 
         return cls(
             states=frozenset(transitions.keys()),
