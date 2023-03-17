@@ -6,83 +6,12 @@ import pathlib
 import typing
 import uuid
 from collections import defaultdict
-from typing import Any, Iterable
 
 import pydot
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
 FAStateT = AutomatonStateT
-
-
-class IpythonGraph:
-    def __init__(self, graph):
-        self.graph = graph
-
-    def _repr_mimebundle_(
-        self,
-        include: typing.Optional[typing.Iterable[str]] = None,
-        exclude: typing.Optional[typing.Iterable[str]] = None,
-        **_,
-    ) -> typing.Dict[str, typing.Union[bytes, str]]:
-        mime_method = {
-            # 'image/jpeg': self._repr_image_jpeg,
-            # 'image/png': self._repr_image_png,
-            "image/svg+xml": self._repr_image_svg_xml,
-        }
-
-        default_mime_types = {"image/svg+xml"}
-
-        include = set(include) if include is not None else default_mime_types
-        include -= set(exclude or [])
-        return {mimetype: mime_method[mimetype]() for mimetype in include}
-
-    def _repr_image_jpeg(self):
-        """Return the rendered graph as JPEG bytes."""
-        return self.graph.create(format="jpeg")
-
-    def _repr_image_png(self):
-        """Return the rendered graph as PNG bytes."""
-        return self.graph.create(format="png")
-
-    def _repr_image_svg_xml(self):
-        """Return the rendered graph as SVG string."""
-        return self.graph.create(format="svg", encoding="utf-8")
-
-
-class IpythonGraph:
-    def __init__(self, graph):
-        self.graph = graph
-
-    def _repr_mimebundle_(
-        self,
-        include: typing.Optional[typing.Iterable[str]] = None,
-        exclude: typing.Optional[typing.Iterable[str]] = None,
-        **_,
-    ) -> typing.Dict[str, typing.Union[bytes, str]]:
-        mime_method = {
-            # 'image/jpeg': self._repr_image_jpeg,
-            # 'image/png': self._repr_image_png,
-            "image/svg+xml": self._repr_image_svg_xml,
-        }
-
-        default_mime_types = {"image/svg+xml"}
-
-        include = set(include) if include is not None else default_mime_types
-        include -= set(exclude or [])
-        return {mimetype: mime_method[mimetype]() for mimetype in include}
-
-    def _repr_image_jpeg(self):
-        """Return the rendered graph as JPEG bytes."""
-        return self.graph.create(format="jpeg")
-
-    def _repr_image_png(self):
-        """Return the rendered graph as PNG bytes."""
-        return self.graph.create(format="png")
-
-    def _repr_image_svg_xml(self):
-        """Return the rendered graph as SVG string."""
-        return self.graph.create(format="svg").decode()
 
 
 class FA(Automaton, metaclass=abc.ABCMeta):
@@ -204,11 +133,32 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         return graph
 
-    def _ipython_display_(self):
-        """
-        Display the graph associated with this FA in Jupyter notebooks
-        """
-        from IPython.display import display
+    def _repr_mimebundle_(
+        self,
+        include: typing.Optional[typing.Iterable[str]] = None,
+        exclude: typing.Optional[typing.Iterable[str]] = None,
+        **_,
+    ) -> typing.Dict[str, typing.Union[bytes, str]]:
+        mime_method = {
+            "image/jpeg": self._repr_image_jpeg,
+            "image/png": self._repr_image_png,
+            "image/svg+xml": self._repr_image_svg_xml,
+        }
 
-        graph = self.show_diagram()
-        display(IpythonGraph(graph))
+        default_mime_types = {"image/svg+xml"}
+
+        include = set(include) if include is not None else default_mime_types
+        include -= set(exclude or [])
+        return {mimetype: mime_method[mimetype]() for mimetype in include}
+
+    def _repr_image_jpeg(self):
+        """Return the rendered graph as JPEG bytes."""
+        return self.show_diagram().create(format="jpeg")
+
+    def _repr_image_png(self):
+        """Return the rendered graph as PNG bytes."""
+        return self.show_diagram().create(format="png")
+
+    def _repr_image_svg_xml(self):
+        """Return the rendered graph as SVG string."""
+        return self.show_diagram().create(format="svg").decode()
