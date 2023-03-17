@@ -72,7 +72,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         state_nodes = []
         for state in self.iter_states():
             shape = "doublecircle" if self.is_accepted(state) else "circle"
-            node = pydot.Node(self.get_state_name(state), shape=shape)
+            node_label = self.get_state_name(state)
+            node = pydot.Node(node_label, shape=shape)
             # we append the node to a list so that we can add all null nodes to
             # the graph before adding any edges.
             state_nodes.append(node)
@@ -91,7 +92,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                     height="0",
                 )
                 graph.add_node(null_node)
-                graph.add_edge(pydot.Edge(null_node, node))
+                edge_label = "->" + node_label
+                graph.add_edge(pydot.Edge(null_node, node, tooltip=edge_label))
 
         # add all the nodes to the graph
         # we do this after adding all the null nodes so that the null nodes
