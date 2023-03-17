@@ -7,7 +7,6 @@ import pathlib
 import typing
 import uuid
 from collections import defaultdict
-from typing import Iterable
 
 import graphviz
 from coloraide import Color
