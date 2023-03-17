@@ -82,7 +82,7 @@ class IpythonGraph:
 
     def _repr_image_svg_xml(self):
         """Return the rendered graph as SVG string."""
-        return self.graph.create(format="svg", encoding="utf-8")
+        return self.graph.create(format="svg").decode()
 
 
 class FA(Automaton, metaclass=abc.ABCMeta):
