@@ -356,3 +356,19 @@ class GNFA(nfa.NFA):
         if path:
             graph.write_png(path)
         return graph
+
+    def iter_transitions(self):
+        return (
+            (from_, to_, symbol)
+
+            for from_, lookup in self.transitions.items()
+            for to_, symbol in lookup.items()
+
+            if symbol is not None
+        )
+
+    def is_accepted(self, state):
+        return state == self.final_state
+
+    def is_initial(self, state):
+        return state == self.initial_state

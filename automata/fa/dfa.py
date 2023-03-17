@@ -1588,3 +1588,20 @@ class DFA(fa.FA):
         if path:
             graph.write_png(path)
         return graph
+
+    def iter_states(self):
+        return iter(self.states)
+
+    def iter_transitions(self):
+        return (
+            (from_, to_, symbol)
+
+            for from_, lookup in self.transitions.items()
+            for symbol, to_ in lookup.items()
+        )
+
+    def is_accepted(self, state):
+        return state in self.final_states
+
+    def is_initial(self, state):
+        return state == self.initial_state

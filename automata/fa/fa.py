@@ -2,7 +2,7 @@
 """Classes and methods for working with all finite automata."""
 
 import abc
-from typing import Collection, Iterable, Mapping, Set
+from typing import Any, Iterable
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
@@ -26,9 +26,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
             return state_data
 
-        if isinstance(state_data, (Set, list, tuple)):
+        if isinstance(state_data, (set, frozenset, list, tuple)):
             inner = ", ".join(FA.get_state_name(sub_data) for sub_data in state_data)
-            if isinstance(state_data, Set):
+            if isinstance(state_data, (set, frozenset)):
                 return "{" + inner + "}"
 
             if isinstance(state_data, tuple):
@@ -38,3 +38,22 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 return "[" + inner + "]"
 
         return str(state_data)
+
+    @abc.abstractmethod
+    def iter_states(self) -> Iterable[Any]:
+        """Iterate over all states in the automaton."""
+
+    @abc.abstractmethod
+    def iter_transitions(self) -> Iterable[tuple[Any, Any, Any]]:
+        """
+        Iterate over all transitions in the automaton. Each transition is a tuple
+        of the form (from_state, to_state, symbol)
+        """
+
+    @abc.abstractmethod
+    def is_accepted(self, state) -> bool:
+        """Check if a state is an accepting state."""
+
+    @abc.abstractmethod
+    def is_initial(self, state) -> bool:
+        """Check if a state is an initial state."""

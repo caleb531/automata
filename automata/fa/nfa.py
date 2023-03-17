@@ -1024,3 +1024,21 @@ class NFA(fa.FA):
             initial_state=(0, 0),
             final_states=final_states,
         )
+
+    def iter_states(self):
+        return iter(self.states)
+
+    def iter_transitions(self):
+        return (
+            (from_, to_, symbol)
+
+            for from_, lookup in self.transitions.items()
+            for symbol, to_lookup in lookup.items()
+            for to_ in to_lookup
+        )
+
+    def is_accepted(self, state):
+        return state in self.final_states
+
+    def is_initial(self, state):
+        return state == self.initial_state
