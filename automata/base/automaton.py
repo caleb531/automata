@@ -124,29 +124,10 @@ class Automaton(metaclass=abc.ABCMeta):
         """Create a deep copy of the automaton."""
         return self.__class__(**self.input_parameters)
 
-    # Format the given value for string output via repr() or str(); this exists
-    # for the purpose of displaying
-
-    def _get_repr_friendly_value(self, value: Any) -> Any:
-        """
-        A helper function to convert the given value / structure into a fully
-        mutable one by recursively processing said structure and any of its
-        members, unfreezing them along the way
-        """
-        if isinstance(value, frozenset):
-            return {self._get_repr_friendly_value(element) for element in value}
-        elif isinstance(value, frozendict):
-            return {
-                dict_key: self._get_repr_friendly_value(dict_value)
-                for dict_key, dict_value in value.items()
-            }
-        else:
-            return value
-
     def __repr__(self) -> str:
         """Return a string representation of the automaton."""
         values = ", ".join(
-            f"{attr_name}={self._get_repr_friendly_value(attr_value)!r}"
+            f"{attr_name}={attr_value!r}"
             for attr_name, attr_value in self.input_parameters.items()
         )
         return f"{self.__class__.__qualname__}({values})"
