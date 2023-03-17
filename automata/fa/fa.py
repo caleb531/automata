@@ -35,7 +35,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             return state_data
 
         if isinstance(state_data, (set, frozenset, list, tuple)):
-            inner = ", ".join(FA.get_state_label(sub_data) for sub_data in state_data)
+            inner = ", ".join(FA.get_state_name(sub_data) for sub_data in state_data)
             if isinstance(state_data, (set, frozenset)):
                 if state_data:
                     return "{" + inner + "}"
@@ -51,22 +51,22 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         return str(state_data)
 
     @abc.abstractmethod
-    def iter_states(self) -> Iterable[Any]:
+    def iter_states(self) -> Iterable[FAStateT]:
         """Iterate over all states in the automaton."""
 
     @abc.abstractmethod
-    def iter_transitions(self) -> Iterable[tuple[Any, Any, Any]]:
+    def iter_transitions(self) -> Iterable[tuple[FAStateT, FAStateT, Any]]:
         """
         Iterate over all transitions in the automaton. Each transition is a tuple
         of the form (from_state, to_state, symbol)
         """
 
     @abc.abstractmethod
-    def is_accepted(self, state) -> bool:
+    def is_accepted(self, state: FAStateT) -> bool:
         """Check if a state is an accepting state."""
 
     @abc.abstractmethod
-    def is_initial(self, state) -> bool:
+    def is_initial(self, state: FAStateT) -> bool:
         """Check if a state is an initial state."""
 
     def show_diagram(
@@ -141,7 +141,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                     shape="point",
                     fontsize=font_size,
                 )
-                node = self.get_state_label(state)
+                node = self.get_state_name(state)
                 graph.edge(
                     null_node,
                     node,
@@ -151,7 +151,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         for state in self.iter_states():
             shape = "doublecircle" if self.is_accepted(state) else "circle"
-            node = self.get_state_label(state)
+            node = self.get_state_name(state)
             graph.node(node, shape=shape, fontsize=font_size)
 
         is_edge_drawn = defaultdict(lambda: False)
@@ -167,12 +167,12 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 path, start=1
             ):
                 color = interpolation(transition_index / len(path))
-                label = self.get_edge_label(symbol)
+                label = self.get_edge_name(symbol)
 
                 is_edge_drawn[from_state, to_state, symbol] = True
                 graph.edge(
-                    self.get_state_label(from_state),
-                    self.get_state_label(to_state),
+                    self.get_state_name(from_state),
+                    self.get_state_name(to_state),
                     label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
                     arrowsize=arrow_size,
                     fontsize=font_size,
@@ -185,9 +185,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             if is_edge_drawn[from_state, to_state, symbol]:
                 continue
 
-            from_node = self.get_state_label(from_state)
-            to_node = self.get_state_label(to_state)
-            label = self.get_edge_label(symbol)
+            from_node = self.get_state_name(from_state)
+            to_node = self.get_state_name(to_state)
+            label = self.get_edge_name(symbol)
             edge_labels[from_node, to_node].append(label)
 
         for (from_node, to_node), labels in edge_labels.items():
@@ -221,7 +221,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         return graph
 
-    def get_edge_label(self, symbol):
+    def get_edge_name(self, symbol):
         return str(symbol)
 
     def _get_input_path(self, input_str):

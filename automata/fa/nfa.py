@@ -1003,7 +1003,7 @@ class NFA(fa.FA):
     def is_initial(self, state):
         return state == self.initial_state
 
-    def get_edge_label(self, symbol):
+    def get_edge_name(self, symbol):
         return "ε" if symbol == "" else str(symbol)
 
     def _get_input_path(self, input_str):
