@@ -22,7 +22,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     __slots__ = tuple()
 
     @staticmethod
-    def get_state_name(state_data):
+    def get_state_name(state_data) -> str:
         """
         Get an string representation of a state. This is used for displaying and
         uses `str` for any unsupported python data types.
@@ -48,6 +48,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 return "[" + inner + "]"
 
         return str(state_data)
+
+    def get_edge_name(self, symbol) -> str:
+        return str(symbol)
 
     @abc.abstractmethod
     def iter_states(self) -> Iterable[FAStateT]:
@@ -219,9 +222,6 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             graph.render(view=True)
 
         return graph
-
-    def get_edge_name(self, symbol):
-        return str(symbol)
 
     def _get_input_path(self, input_str):
         """Calculate the path taken by input."""
