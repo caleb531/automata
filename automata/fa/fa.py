@@ -2,7 +2,7 @@
 """Classes and methods for working with all finite automata."""
 
 import abc
-from typing import Iterable
+from typing import Collection, Iterable, Mapping, Set
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
@@ -26,19 +26,15 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
             return state_data
 
-        if isinstance(state_data, Iterable):
-            try:
-                state_items = sorted(state_data)
-            except TypeError:
-                state_items = state_data
-
-            inner = ", ".join(FA.get_state_name(sub_data) for sub_data in state_items)
-            if isinstance(state_data, (set, frozenset)):
+        if isinstance(state_data, (Set, list, tuple)):
+            inner = ", ".join(FA.get_state_name(sub_data) for sub_data in state_data)
+            if isinstance(state_data, Set):
                 return "{" + inner + "}"
 
             if isinstance(state_data, tuple):
                 return "(" + inner + ")"
 
-            return "[" + inner + "]"
+            if isinstance(state_data, list):
+                return "[" + inner + "]"
 
         return str(state_data)
