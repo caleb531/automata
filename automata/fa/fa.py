@@ -7,6 +7,7 @@ import pathlib
 import typing
 import uuid
 from collections import defaultdict
+from typing import Iterable
 
 import graphviz
 from coloraide import Color
@@ -22,7 +23,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     __slots__ = tuple()
 
     @staticmethod
-    def get_state_label(state_data):
+    def get_state_name(state_data):
         """
         Get an string representation of a state. This is used for displaying and
         uses `str` for any unsupported python data types.
