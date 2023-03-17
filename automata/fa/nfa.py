@@ -997,7 +997,7 @@ class NFA(fa.FA):
             for to_ in to_lookup
         )
 
-    def is_accepting(self, state):
+    def is_accepted(self, state):
         return state in self.final_states
 
     def is_initial(self, state):

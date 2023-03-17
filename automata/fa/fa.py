@@ -7,6 +7,7 @@ import pathlib
 import typing
 import uuid
 from collections import defaultdict
+from typing import Any, Iterable
 
 import graphviz
 from coloraide import Color
@@ -50,22 +51,22 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         return str(state_data)
 
     @abc.abstractmethod
-    def iter_states(self):
+    def iter_states(self) -> Iterable[Any]:
         """Iterate over all states in the automaton."""
 
     @abc.abstractmethod
-    def iter_transitions(self):
+    def iter_transitions(self) -> Iterable[tuple[Any, Any, Any]]:
         """
         Iterate over all transitions in the automaton. Each transition is a tuple
         of the form (from_state, to_state, symbol)
         """
 
     @abc.abstractmethod
-    def is_accepting(self, state):
+    def is_accepted(self, state) -> bool:
         """Check if a state is an accepting state."""
 
     @abc.abstractmethod
-    def is_initial(self, state):
+    def is_initial(self, state) -> bool:
         """Check if a state is an initial state."""
 
     def show_diagram(
@@ -149,7 +150,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 )
 
         for state in self.iter_states():
-            shape = "doublecircle" if self.is_accepting(state) else "circle"
+            shape = "doublecircle" if self.is_accepted(state) else "circle"
             node = self.get_state_label(state)
             graph.node(node, shape=shape, fontsize=font_size)
 
