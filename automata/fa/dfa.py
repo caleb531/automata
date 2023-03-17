@@ -1553,49 +1553,12 @@ class DFA(fa.FA):
             final_states=dfa_final_states,
         )
 
-    def show_diagram(self, path=None):
-        """
-        Creates the graph associated with this DFA
-        """
-        # Nodes are set of states
-
-        graph = Dot(graph_type="digraph", rankdir="LR")
-        nodes = {}
-        for state in self.states:
-            if state == self.initial_state:
-                # color start state with green
-                if state in self.final_states:
-                    initial_state_node = Node(
-                        state, style="filled", peripheries=2, fillcolor="#66cc33"
-                    )
-                else:
-                    initial_state_node = Node(
-                        state, style="filled", fillcolor="#66cc33"
-                    )
-                nodes[state] = initial_state_node
-                graph.add_node(initial_state_node)
-            else:
-                if state in self.final_states:
-                    state_node = Node(state, peripheries=2)
-                else:
-                    state_node = Node(state)
-                nodes[state] = state_node
-                graph.add_node(state_node)
-        # adding edges
-        for from_state, lookup in self.transitions.items():
-            for to_label, to_state in lookup.items():
-                graph.add_edge(Edge(nodes[from_state], nodes[to_state], label=to_label))
-        if path:
-            graph.write_png(path)
-        return graph
-
     def iter_states(self):
         return iter(self.states)
 
     def iter_transitions(self):
         return (
             (from_, to_, symbol)
-
             for from_, lookup in self.transitions.items()
             for symbol, to_ in lookup.items()
         )

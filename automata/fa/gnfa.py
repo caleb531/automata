@@ -320,50 +320,11 @@ class GNFA(nfa.NFA):
     def reverse(self):
         raise NotImplementedError
 
-    def show_diagram(self, path=None, show_None=True):
-        """
-        Creates the graph associated with this DFA
-        """
-        # Nodes are set of states
-
-        graph = Dot(graph_type="digraph", rankdir="LR")
-        nodes = {}
-        for state in self.states:
-            if state == self.initial_state:
-                # color start state with green
-                initial_state_node = Node(state, style="filled", fillcolor="#66cc33")
-                nodes[state] = initial_state_node
-                graph.add_node(initial_state_node)
-            else:
-                if state == self.final_state:
-                    state_node = Node(state, peripheries=2)
-                else:
-                    state_node = Node(state)
-                nodes[state] = state_node
-                graph.add_node(state_node)
-        # adding edges
-        for from_state, lookup in self.transitions.items():
-            for to_state, to_label in lookup.items():  # pragma: no branch
-                if to_label is None and show_None:
-                    to_label = "ø"
-                    graph.add_edge(
-                        Edge(nodes[from_state], nodes[to_state], label=to_label)
-                    )
-                elif to_label is not None:
-                    graph.add_edge(
-                        Edge(nodes[from_state], nodes[to_state], label=to_label)
-                    )
-        if path:
-            graph.write_png(path)
-        return graph
-
     def iter_transitions(self):
         return (
             (from_, to_, symbol)
-
             for from_, lookup in self.transitions.items()
             for to_, symbol in lookup.items()
-
             if symbol is not None
         )
 
