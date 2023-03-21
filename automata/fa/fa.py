@@ -218,9 +218,6 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 view=view,
             )
 
-        elif view:
-            graph.render(view=True)
-
         return graph
 
     def _get_input_path(self, input_str):
