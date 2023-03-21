@@ -5,7 +5,6 @@ automata."""
 from itertools import product
 
 from frozendict import frozendict
-from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa

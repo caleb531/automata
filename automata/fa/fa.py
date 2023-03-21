@@ -67,7 +67,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         """
         Creates the graph associated with this FA.
         """
-        graph = pydot.Dot(prog=prog, rankdir=rankdir)
+        graph = pydot.Dot(rankdir=rankdir)
 
         state_nodes = []
         for state in self.iter_states():
@@ -131,7 +131,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 if file_format in graph.formats:
                     format = file_format
 
-            graph.write(path, format=format)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            graph.write(path, format=format, prog=prog)
 
         return graph
 

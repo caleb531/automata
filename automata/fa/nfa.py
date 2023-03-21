@@ -23,7 +23,6 @@ from typing import (
 
 import networkx as nx
 from frozendict import frozendict
-from pydot import Dot, Edge, Node
 from typing_extensions import Self
 
 import automata.base.exceptions as exceptions

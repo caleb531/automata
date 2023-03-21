@@ -17,18 +17,15 @@ from typing import (  # noqa Fixes a false positive where flake8 thinks that Lit
     Iterable,
     Iterator,
     List,
-    Literal,
     Mapping,
     Optional,
     Set,
     Tuple,
     Type,
-    TypeVar,
     cast,
 )
 
 import networkx as nx
-from pydot import Dot, Edge, Node
 from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
@@ -332,7 +329,7 @@ class DFA(fa.FA):
         Create a minimal DFA which accepts the same inputs as this DFA.
 
         First, non-reachable states are removed.
-        Then, similiar states are merged using Hopcroft's Algorithm.
+        Then, similar states are merged using Hopcroft's Algorithm.
             retain_names: If True, merged states retain names.
                           If False, new states will be named 0, ..., n-1.
         """
