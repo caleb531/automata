@@ -2,12 +2,15 @@
 """Classes and methods for working with all finite automata."""
 
 import abc
+import itertools
+import os
 import pathlib
 import typing
 import uuid
 from collections import defaultdict
 
-import pydot
+import graphviz
+from coloraide import Color
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
@@ -56,112 +59,188 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def is_accepted(self, state):
+    def is_accepting(self, state):
         """Check if a state is an accepting state."""
 
     @abc.abstractmethod
     def is_initial(self, state):
         """Check if a state is an initial state."""
 
-    def show_diagram(self, path=None, format=None, prog=None, rankdir="LR"):
+    def show(
+        self,
+        input_str: str | None = None,
+        save_path: str | os.PathLike | None = None,
+        *,
+        engine: typing.Optional[str] = None,
+        view=False,
+        cleanup: bool = True,
+        horizontal: bool = True,
+        reverse_orientation: bool = False,
+        fig_size: tuple = (8, 8),
+        font_size: float = 14.0,
+        arrow_size: float = 0.85,
+        state_separation: float = 0.5,
+    ):
         """
-        Creates the graph associated with this FA.
+        Generates the graph associated with the given DFA.
+        Args:
+            input_str (str, optional): String list of input symbols. Defaults to None.
+            save_path (str or os.PathLike, optional): Path to output file. If None, the output will not be saved.
+            path (str, optional): Folder path for output file. Defaults to None.
+            view (bool, optional): Storing and displaying the graph as a pdf. Defaults to False.
+            cleanup (bool, optional): Garbage collection. Defaults to True.
+            horizontal (bool, optional): Direction of node layout. Defaults to True.
+            reverse_orientation (bool, optional): Reverse direction of node layout. Defaults to False.
+            fig_size (tuple, optional): Figure size. Defaults to (8, 8).
+            font_size (float, optional): Font size. Defaults to 14.0.
+            arrow_size (float, optional): Arrow head size. Defaults to 0.85.
+            state_separation (float, optional): Node distance. Defaults to 0.5.
+        Returns:
+            Digraph: The graph in dot format.
         """
-        graph = pydot.Dot(rankdir=rankdir)
+        # Converting to graphviz preferred input type,
+        # keeping the conventional input styles; i.e fig_size(8,8)
+        # TODO why is (8, 8) the "conventional" size?
+        fig_size = ", ".join(map(str, fig_size))
+        font_size = str(font_size)
+        arrow_size = str(arrow_size)
+        state_separation = str(state_separation)
 
-        state_nodes = []
+        # Defining the graph.
+        graph = graphviz.Digraph(strict=False, engine=engine)
+        graph.attr(
+            # size=fig_size, # TODO maybe needed?
+            ranksep=state_separation,
+        )
+        if horizontal:
+            graph.attr(rankdir="LR")
+        if reverse_orientation:
+            if horizontal:
+                graph.attr(rankdir="RL")
+            else:
+                graph.attr(rankdir="BT")
+
         for state in self.iter_states():
-            shape = "doublecircle" if self.is_accepted(state) else "circle"
-            node_label = self.get_state_name(state)
-            node = pydot.Node(node_label, shape=shape)
-            # we append the node to a list so that we can add all null nodes to
-            # the graph before adding any edges.
-            state_nodes.append(node)
-
             # every edge needs an origin node, so we add a null node for every
-            # initial state. This is a hack to make the graph look nicer with
-            # arrows that appear to come from nowhere.
+            # initial state.
             if self.is_initial(state):
                 # we use a random uuid to make sure that the null node has a
                 # unique id to avoid colliding with other states and null_nodes.
-                null_node = pydot.Node(
-                    str(uuid.uuid4()),
+                null_node = str(uuid.uuid4())
+                graph.node(
+                    null_node,
                     label="",
-                    shape="none",
-                    width="0",
-                    height="0",
+                    shape="point",
+                    fontsize=font_size,
                 )
-                graph.add_node(null_node)
-                edge_label = "->" + node_label
-                graph.add_edge(pydot.Edge(null_node, node, tooltip=edge_label))
+                node = self.get_state_name(state)
+                edge_label = "->" + node
+                graph.edge(
+                    null_node,
+                    node,
+                    tooltip=edge_label,
+                    arrowsize=arrow_size,
+                )
 
-        # add all the nodes to the graph
-        # we do this after adding all the null nodes so that the null nodes
-        # appear preferably at left of the diagram, or at any direction that is
-        # specified by the rankdir
-        for node in state_nodes:
-            graph.add_node(node)
+        for state in self.iter_states():
+            shape = "doublecircle" if self.is_accepting(state) else "circle"
+            node = self.get_state_name(state)
+            graph.node(node, shape=shape, fontsize=font_size)
 
-        # there can be multiple transitions between two states, so we need to
-        # group them together and create a single edge with a label that
-        # contains all the symbols.
-        edge_labels = defaultdict(list)
-        for from_state, to_state, symbol in self.iter_transitions():
-            label = "ε" if symbol == "" else str(symbol)
-            from_node = self.get_state_name(from_state)
-            to_node = self.get_state_name(to_state)
-            edge_labels[from_node, to_node].append(label)
+        if input_str is None:
+            edge_labels = defaultdict(list)
+            for from_state, to_state, symbol in self.iter_transitions():
+                # TODO only do this for NFA
+                label = "ε" if symbol == "" else str(symbol)
+                from_node = self.get_state_name(from_state)
+                to_node = self.get_state_name(to_state)
+                edge_labels[from_node, to_node].append(label)
 
-        for (from_node, to_node), labels in edge_labels.items():
-            label = ",".join(labels)
-            edge = pydot.Edge(
-                from_node,
-                to_node,
-                label='"' + label + '"',
+            for (from_node, to_node), labels in edge_labels.items():
+                label = ",".join(sorted(labels))
+                graph.edge(
+                    from_node,
+                    to_node,
+                    label=label,
+                    arrowsize=arrow_size,
+                    fontsize=font_size,
+                )
+        else:
+            # TODO
+            raise NotImplementedError("input_str is not yet supported yet")
+
+            status, taken_transitions_pairs, taken_steps = self.input_check(
+                input_str=input_str, return_result=True
             )
-            graph.add_edge(edge)
+            remaining_transitions_pairs = [
+                x for x in all_transitions_pairs if x not in taken_transitions_pairs
+            ]
 
-        if path is not None:
-            path = pathlib.Path(path)
-            # if the format is not specified, try to infer it from the file extension
-            if format is None:
-                # get the file extension without the leading "."
-                # e.g. ".png" -> "png"
-                file_format = path.suffix.split(".")[-1]
-                if file_format in graph.formats:
-                    format = file_format
+            start_color = Color("#FFFF00")
+            end_color = Color("#00FF00") if status else Color("#FF0000")
 
-            path.parent.mkdir(parents=True, exist_ok=True)
-            graph.write(path, format=format, prog=prog)
+            number_of_colors = len(input_str)
+            interpolation = Color.interpolate([start_color, end_color], space="lch")
+            # TODO why cycle?
+            color_gen = itertools.cycle(
+                interpolation(x / number_of_colors) for x in range(number_of_colors + 1)
+            )
+
+            # Define all transitions in the finite state machine with traversal.
+            counter = 0
+            for pair in taken_transitions_pairs:
+                counter += 1
+                edge_color = next(color_gen)
+                graph.edge(
+                    pair[0],
+                    pair[1],
+                    label=" [{}]\n{} ".format(counter, pair[2]),
+                    arrowsize=arrow_size,
+                    fontsize=font_size,
+                    color=edge_color.to_string(hex=True),
+                    penwidth="2.5",
+                )
+
+            for pair in remaining_transitions_pairs:
+                graph.edge(
+                    pair[0],
+                    pair[1],
+                    label=" {} ".format(pair[2]),
+                    arrowsize=arrow_size,
+                    fontsize=font_size,
+                )
+
+            # TODO find a better way to handle the display of the steps
+            from IPython.display import display
+
+            display(taken_steps)
+
+        # Write diagram to file. PNG, SVG, etc.
+        if save_path is not None:
+            save_path: pathlib.Path = pathlib.Path(save_path)
+
+            directory = save_path.parent
+            directory.mkdir(parents=True, exist_ok=True)
+            filename = save_path.stem
+            format = save_path.suffix.split(".")[1] if save_path.suffix else None
+
+            graph.render(
+                directory=directory,
+                filename=filename,
+                format=format,
+                cleanup=cleanup,
+                view=view,
+            )
+
+        elif view:
+            graph.render(view=True)
 
         return graph
 
-    def _repr_mimebundle_(
-        self,
-        include: typing.Optional[typing.Iterable[str]] = None,
-        exclude: typing.Optional[typing.Iterable[str]] = None,
-        **_,
-    ) -> typing.Dict[str, typing.Union[bytes, str]]:
-        mime_method = {
-            "image/jpeg": self._repr_image_jpeg,
-            "image/png": self._repr_image_png,
-            "image/svg+xml": self._repr_image_svg_xml,
-        }
+    def _ipython_display_(self):
+        # IPython is imported here because this function is only called by
+        # IPython. So if IPython is not installed, this function will not be
+        # called, therefore no need to add ipython as dependency.
+        from IPython.display import display
 
-        default_mime_types = {"image/svg+xml"}
-
-        include = set(include) if include is not None else default_mime_types
-        include -= set(exclude or [])
-        return {mimetype: mime_method[mimetype]() for mimetype in include}
-
-    def _repr_image_jpeg(self):
-        """Return the rendered graph as JPEG bytes."""
-        return self.show_diagram().create(format="jpeg")
-
-    def _repr_image_png(self):
-        """Return the rendered graph as PNG bytes."""
-        return self.show_diagram().create(format="png")
-
-    def _repr_image_svg_xml(self):
-        """Return the rendered graph as SVG string."""
-        return self.show_diagram().create(format="svg").decode()
+        display(self.show())

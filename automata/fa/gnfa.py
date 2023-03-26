@@ -327,7 +327,7 @@ class GNFA(nfa.NFA):
             if symbol is not None
         )
 
-    def is_accepted(self, state):
+    def is_accepting(self, state):
         return state == self.final_state
 
     def is_initial(self, state):

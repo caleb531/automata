@@ -1560,7 +1560,7 @@ class DFA(fa.FA):
             for symbol, to_ in lookup.items()
         )
 
-    def is_accepted(self, state):
+    def is_accepting(self, state):
         return state in self.final_states
 
     def is_initial(self, state):

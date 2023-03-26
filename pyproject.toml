@@ -13,7 +13,9 @@ maintainers = [
     {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
 ]
 dependencies = [
-    "pydot>=1.4.2",
+    "coloraide>=1.8.2",
+    "frozendict>=2.3.4",
+    "graphviz>=0.20.1",
     "networkx>=2.6.2",
     "frozendict>=2.3.4", #TODO I think that typing extensions needs to be in here
 ]
