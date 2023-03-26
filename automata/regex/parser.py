@@ -2,7 +2,7 @@
 """Classes and methods for parsing regexes into NFAs."""
 
 from collections import deque
-from itertools import chain, count, product, zip_longest
+from itertools import chain, count, product, repeat, zip_longest
 
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer
@@ -131,9 +131,9 @@ class NFARegexBuilder:
             if epsilon_transitions_a is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, {})
                 state_dict.setdefault('', set()).update(
-                    map(get_state_name, product(epsilon_transitions_a, [q_b]))
+                    map(get_state_name, zip(epsilon_transitions_a, repeat(q_b)))
                 )
-                next_states_iterables.append(product(epsilon_transitions_a, [q_b]))
+                next_states_iterables.append(zip(epsilon_transitions_a, repeat(q_b)))
 
             # Get transition dict for states in other
             transitions_b = other._transitions.get(q_b, {})
@@ -142,9 +142,9 @@ class NFARegexBuilder:
             if epsilon_transitions_b is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, {})
                 state_dict.setdefault('', set()).update(
-                    map(get_state_name, product([q_a], epsilon_transitions_b))
+                    map(get_state_name, zip(repeat(q_a), epsilon_transitions_b))
                 )
-                next_states_iterables.append(product([q_a], epsilon_transitions_b))
+                next_states_iterables.append(zip(repeat(q_a), epsilon_transitions_b))
 
             # Add all transitions moving over same input symbols
             for symbol in new_input_symbols:
@@ -234,12 +234,12 @@ class NFARegexBuilder:
 
             for symbol, end_states in transitions_a.items():
                 state_dict.setdefault(symbol, set()).update(
-                    map(get_state_name, product(end_states, [q_b]))
+                    map(get_state_name, zip(end_states, repeat(q_b)))
                 )
 
             for symbol, end_states in transitions_b.items():
                 state_dict.setdefault(symbol, set()).update(
-                    map(get_state_name, product([q_a], end_states))
+                    map(get_state_name, zip(repeat(q_a), end_states))
                 )
 
         self._final_states = set(map(get_state_name, product(self._final_states, other._final_states)))
