@@ -633,7 +633,7 @@ class DFA(fa.FA):
 
     def isempty(self):
         """Return True if this DFA is completely empty."""
-        return len(self._compute_reachable_states() & self.final_states) == 0
+        return self._compute_reachable_states().isdisjoint(self.final_states)
 
     def isfinite(self):
         """
@@ -1247,7 +1247,7 @@ class DFA(fa.FA):
 
             # Add NFA states to DFA as it is constructed from NFA.
             dfa_transitions[current_state_name] = {}
-            if (current_states & target_nfa.final_states):
+            if not current_states.isdisjoint(target_nfa.final_states):
                 dfa_final_states.add(current_state_name)
 
             # Enqueue the next set of current states for the generated DFA.
