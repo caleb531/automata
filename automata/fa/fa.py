@@ -64,7 +64,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def is_accepted(self, state: FAStateT) -> bool:
+    def is_accepting(self, state: FAStateT) -> bool:
         """Check if a state is an accepting state."""
 
     @abc.abstractmethod
@@ -152,7 +152,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 )
 
         for state in self.iter_states():
-            shape = "doublecircle" if self.is_accepted(state) else "circle"
+            shape = "doublecircle" if self.is_accepting(state) else "circle"
             node = self.get_state_name(state)
             graph.node(node, shape=shape, fontsize=font_size)
 
