@@ -211,7 +211,7 @@ class NFA(fa.FA):
                     else:
                         state_transition_dict[input_symbol] = next_current_states
 
-            if (new_final_states & lambda_enclosure):
+            if not new_final_states.isdisjoint(lambda_enclosure):
                 new_final_states.add(state)
 
             if state in new_transitions:
@@ -241,7 +241,7 @@ class NFA(fa.FA):
 
     def _check_for_input_rejection(self, current_states):
         """Raise an error if the given config indicates rejected input."""
-        if not (current_states & self.final_states):
+        if current_states.isdisjoint(self.final_states):
             raise exceptions.RejectionException(
                 'the NFA stopped on all non-final states ({})'.format(
                     ', '.join(str(state) for state in current_states)))
@@ -760,7 +760,7 @@ class NFA(fa.FA):
             # If at least one of the current states is a final state, the
             # condition should satisfy
             return any(
-                len(nfa.final_states & nfa._lambda_closures[state]) > 0
+                not nfa.final_states.isdisjoint(nfa._lambda_closures[state])
                 for state in states
             )
 
@@ -835,11 +835,11 @@ class NFA(fa.FA):
             for symbol in input_symbols:
                 add_transition(start_state_dict, end_state, symbol)
 
-        for (i, chr), e in product(enumerate(reference_str), range(max_edit_distance + 1)):
+        for (i, symbol), e in product(enumerate(reference_str), range(max_edit_distance + 1)):
             state_transition_dict = transitions.setdefault((i, e), {})
 
             # Correct character
-            add_transition(state_transition_dict, (i + 1, e), chr)
+            add_transition(state_transition_dict, (i + 1, e), symbol)
             if e < max_edit_distance:
                 if insertion:
                     # Insertion

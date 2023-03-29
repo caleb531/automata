@@ -4,6 +4,7 @@
 from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
 import copy
+
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer, get_token_factory
 from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
@@ -17,10 +18,9 @@ RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '
 class NFARegexBuilder:
     """Builder class designed for speed in parsing regular expressions into NFAs."""
 
-    __slots__ = ('_transitions', '_initial_state', '_final_states')
-    _state_name_counter = count(0)
+    __slots__ = ('_transitions', '_initial_state', '_final_states', '_state_name_counter')
 
-    def __init__(self, *, transitions, initial_state, final_states):
+    def __init__(self, *, transitions, initial_state, final_states, counter):
         """
         Initialize new builder class
         """
@@ -28,39 +28,41 @@ class NFARegexBuilder:
         self._transitions = transitions
         self._initial_state = initial_state
         self._final_states = final_states
+        self._state_name_counter = counter
 
     @classmethod
-    def from_string_literal(cls, literal):
+    def from_string_literal(cls, literal, counter):
         """
         Initialize this builder accepting only the given string literal
         """
 
         transitions = {
-            cls.__get_next_state_name(): {chr: set()}
-            for chr in literal
+            next(counter): {symbol: set()}
+            for symbol in literal
         }
 
         for start_state, path in transitions.items():
             for end_states in path.values():
                 end_states.add(start_state+1)
 
-        final_state = cls.__get_next_state_name()
+        final_state = next(counter)
         transitions[final_state] = {}
 
         return cls(
             transitions=transitions,
             initial_state=min(transitions.keys()),
-            final_states={final_state}
+            final_states={final_state},
+            counter=counter
         )
 
     @classmethod
-    def wildcard(cls, input_symbols):
+    def wildcard(cls, input_symbols, counter):
         """
         Initialize this builder for a wildcard with the given input symbols
         """
 
-        initial_state = cls.__get_next_state_name()
-        final_state = cls.__get_next_state_name()
+        initial_state = next(counter)
+        final_state = next(counter)
 
         transitions = {
             initial_state: {symbol: {final_state} for symbol in input_symbols},
@@ -70,7 +72,8 @@ class NFARegexBuilder:
         return cls(
             transitions=transitions,
             initial_state=initial_state,
-            final_states={final_state}
+            final_states={final_state},
+            counter=counter
         )
 
     def union(self, other):
@@ -79,7 +82,7 @@ class NFARegexBuilder:
         """
         self._transitions.update(other._transitions)
 
-        new_initial_state = self.__get_next_state_name()
+        new_initial_state = next(self._state_name_counter)
 
         # Add epsilon transitions from new start state to old ones
         self._transitions[new_initial_state] = {
@@ -269,10 +272,6 @@ class NFARegexBuilder:
         self._final_states = set(map(get_state_name, product(self._final_states, other._final_states)))
         self._transitions = new_transitions
 
-    @classmethod
-    def __get_next_state_name(cls):
-        return next(cls._state_name_counter)
-
 
 class UnionToken(InfixOperator):
     """Subclass of infix operator defining the union operator."""
@@ -370,19 +369,24 @@ class ConcatToken(InfixOperator):
 class StringToken(Literal):
     """Subclass of literal token defining a string literal."""
 
+    def __init__(self, text, counter):
+        super().__init__(text)
+        self.counter = counter
+
     def val(self):
-        return NFARegexBuilder.from_string_literal(self.text)
+        return NFARegexBuilder.from_string_literal(self.text, self.counter)
 
 
 class WildcardToken(Literal):
     """Subclass of literal token defining a wildcard literal."""
 
-    def __init__(self, text, input_symbols):
+    def __init__(self, text, input_symbols, counter):
         super().__init__(text)
         self.input_symbols = input_symbols
+        self.counter = counter
 
     def val(self):
-        return NFARegexBuilder.wildcard(self.input_symbols)
+        return NFARegexBuilder.wildcard(self.input_symbols, self.counter)
 
 
 def add_concat_tokens(token_list):
@@ -426,6 +430,7 @@ def quantifier_factory(match):
 def get_regex_lexer(input_symbols):
     """Get lexer for parsing regular expressions."""
     lexer = Lexer()
+    state_name_counter = count(0)
 
     lexer.register_token(get_token_factory(LeftParen), r'\(')
     lexer.register_token(get_token_factory(RightParen), r'\)')
@@ -446,7 +451,7 @@ def parse_regex(regexstr, input_symbols):
     """Return an NFARegexBuilder corresponding to regexstr."""
 
     if len(regexstr) == 0:
-        return NFARegexBuilder.from_string_literal(regexstr)
+        return NFARegexBuilder.from_string_literal(regexstr, count(0))
 
     lexer = get_regex_lexer(input_symbols)
     lexed_tokens = lexer.lex(regexstr)
