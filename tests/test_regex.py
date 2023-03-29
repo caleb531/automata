@@ -28,6 +28,9 @@ class TestRegex(unittest.TestCase):
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'ab(bc)*((bbcd)')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a(*)')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a(|)')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{1,0}')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{-1,}')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{-2,-1}')
 
     def test_helper_validate_invalid(self):
         """Should pass validation for valid regular expression"""

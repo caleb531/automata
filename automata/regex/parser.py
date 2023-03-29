@@ -11,6 +11,7 @@ from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     PostfixOperator, RightParen,
                                     parse_postfix_tokens, tokens_to_postfix,
                                     validate_tokens)
+import automata.base.exceptions as exceptions
 
 RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^'})
 
@@ -188,7 +189,6 @@ class NFARegexBuilder:
         between lower_bound and upper_bound many times. If upper_bound is None,
         then the number of repetitions is unbounded.
         """
-
         number_of_repetitions = (lower_bound if upper_bound is None else upper_bound)
 
         prev_final_states = self._final_states
@@ -345,6 +345,14 @@ class QuantifierToken(PostfixOperator):
 
     def __init__(self, text, lower_bound, upper_bound):
         super().__init__(text)
+
+        if lower_bound < 0:
+            raise exceptions.InvalidRegexError(
+                f"Quantifier lower bound must be strictly greater than 0, not {lower_bound}.")
+        elif upper_bound is not None and upper_bound < lower_bound:
+            raise exceptions.InvalidRegexError(
+                f"Quantifier upper bound {upper_bound} inconsistent with lower bound {lower_bound}.")
+
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
@@ -401,6 +409,10 @@ class StringToken(Literal):
         super().__init__(text)
         self.counter = counter
 
+    @classmethod
+    def from_match(cls, match):
+        raise NotImplemented
+
     def val(self):
         return NFARegexBuilder.from_string_literal(self.text, self.counter)
 
@@ -414,6 +426,10 @@ class WildcardToken(Literal):
         super().__init__(text)
         self.input_symbols = input_symbols
         self.counter = counter
+
+    @classmethod
+    def from_match(cls, match):
+        raise NotImplemented
 
     def val(self):
         return NFARegexBuilder.wildcard(self.input_symbols, self.counter)

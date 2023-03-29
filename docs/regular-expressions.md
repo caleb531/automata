@@ -16,10 +16,11 @@ A regular expression with the following operations only are supported in this li
 - `&`: Intersection. Ex: `a&b`
 - `.`: Wildcard. Ex: `a.b`
 - `^`: Shuffle. Ex: `a^b`
+- `{}` : Quantifiers expressing finite repetitions. Ex: `a{1,2}`,`a{3,}`
 - `()`: Grouping.
 
-This is similar to the python RE module but this library does not support any other
-special character than given above. All regular languages can be written with these.
+This is similar to the Python `re` module, but this library does not support any special
+characters other than those given above. All regular languages can be written with these.
 
 Preferably the tools for the same can be imported as:
 
