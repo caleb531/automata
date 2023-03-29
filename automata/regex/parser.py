@@ -403,7 +403,7 @@ class ConcatToken(InfixOperator):
 class StringToken(Literal):
     """Subclass of literal token defining a string literal."""
 
-    __slots__ = ("counter",)
+    __slots__ = ('counter',)
 
     def __init__(self, text, counter):
         super().__init__(text)
@@ -420,7 +420,7 @@ class StringToken(Literal):
 class WildcardToken(Literal):
     """Subclass of literal token defining a wildcard literal."""
 
-    __slots__ = ("input_symbols", "counter")
+    __slots__ = ('input_symbols', 'counter')
 
     def __init__(self, text, input_symbols, counter):
         super().__init__(text)
