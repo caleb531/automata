@@ -11,3 +11,4 @@ pycodestyle==2.9.1
 pydot==1.4.2
 pyflakes==2.5.0
 pyparsing==3.0.9
+typing-extensions==4.5.0
