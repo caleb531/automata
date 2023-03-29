@@ -200,7 +200,7 @@ nfa = NFA.from_dfa(dfa)  # returns an equivalent NFA
 
 Returns a new NFA instance from the given regular expression. The
 parameter `input_symbols` should be a set of the input symbols to use,
-defaults to all non-reserved symbols in the given `regex`.
+defaults to using all supported symbols (`string.digits` and `string.ascii_letters`).
 
 ```python
 from automata.fa.nfa import NFA

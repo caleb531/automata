@@ -385,10 +385,11 @@ class TestNFA(test_fa.TestFA):
 
     def test_from_regex(self):
         """Test if from_regex produces correct NFA"""
-        nfa1 = NFA.from_regex('ab(cd*|dc)|a?')
+        input_symbols = {'a', 'b', 'c', 'd'}
+        nfa1 = NFA.from_regex('ab(cd*|dc)|a?', input_symbols=input_symbols)
         nfa2 = NFA(
             states={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
-            input_symbols={'a', 'b', 'c', 'd'},
+            input_symbols=input_symbols,
             initial_state=0,
             transitions={
                 0: {'': {1, 10}},
@@ -501,14 +502,15 @@ class TestNFA(test_fa.TestFA):
                         not in sum([list(nfa1.transitions[state].values()) for state in nfa1.transitions.keys()], []))
 
     def test_union(self):
-        nfa1 = NFA.from_regex('ab*')
-        nfa2 = NFA.from_regex('ba*')
+        input_symbols={'a', 'b'}
+        nfa1 = NFA.from_regex('ab*', input_symbols=input_symbols)
+        nfa2 = NFA.from_regex('ba*', input_symbols=input_symbols)
 
         nfa3 = nfa1.union(nfa2)
 
         nfa4 = NFA(
             states={0, 1, 2, 3, 4},
-            input_symbols={'a', 'b'},
+            input_symbols=input_symbols,
             transitions={
                 0: {'': {1, 3}},
                 2: {'b': {2}},
@@ -648,9 +650,10 @@ class TestNFA(test_fa.TestFA):
             'DFA and NFA are not equivalent when they should be')
 
     def test_nfa_equality(self):
+        input_symbols = {'0', '1'}
         nfa1 = NFA(
             states={'s', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'},
-            input_symbols={'0', '1'},
+            input_symbols=input_symbols,
             transitions={
                 's': {'0': {'g'}, '1': {'a'}},
                 'a': {'0': {'b'}, '': {'d'}},
@@ -666,11 +669,11 @@ class TestNFA(test_fa.TestFA):
             final_states={'s'}
         )
 
-        self.assertEqual(nfa1, NFA.from_regex('((1(010)*(11)*)|(010))*'))
+        self.assertEqual(nfa1, NFA.from_regex('((1(010)*(11)*)|(010))*', input_symbols=input_symbols))
 
         nfa2 = NFA(
             states={'s', 'a', 'b', 'c', 'd', 'e'},
-            input_symbols={'0', '1'},
+            input_symbols=input_symbols,
             transitions={
                 's': {'0': {'a'}, '1': {'s'}, '': {'b', 'd'}},
                 'a': {'1': {'s'}},
@@ -683,11 +686,11 @@ class TestNFA(test_fa.TestFA):
             final_states={'c'}
         )
 
-        self.assertEqual(nfa2, NFA.from_regex('(((01) | 1)*)((0*1) | (1*0))(((10) | 0)*)'))
+        self.assertEqual(nfa2, NFA.from_regex('(((01) | 1)*)((0*1) | (1*0))(((10) | 0)*)', input_symbols=input_symbols))
 
         nfa3 = NFA(
             states={'s', '0', '1', '00', '01', '10', '11'},
-            input_symbols={'0', '1'},
+            input_symbols=input_symbols,
             transitions={
                 's':  {'0': {'0'},  '1': {'1'}},
                 '0':  {'0': {'00'}, '1': {'01'}},
@@ -701,11 +704,11 @@ class TestNFA(test_fa.TestFA):
             final_states={'00', '11'}
         )
 
-        self.assertEqual(nfa3, NFA.from_regex('(0(0 | 1)*0) | (1(0 | 1)*1)'))
+        self.assertEqual(nfa3, NFA.from_regex('(0(0 | 1)*0) | (1(0 | 1)*1)', input_symbols=input_symbols))
 
         nfa4 = NFA(
             states={'s', '0', '1', '00', '01', '10', '11'},
-            input_symbols={'0', '1'},
+            input_symbols=input_symbols,
             transitions={
                 's':  {'0': {'0'},  '1': {'1'}},
                 '0':  {'0': {'00'}, '1': {'01'}},
@@ -719,11 +722,12 @@ class TestNFA(test_fa.TestFA):
             final_states={'00', '11'}
         )
 
-        self.assertEqual(nfa4, NFA.from_regex('((0 | 1)*00) | ((0 | 1)*11)'))
+        self.assertEqual(nfa4, NFA.from_regex('((0 | 1)*00) | ((0 | 1)*11)', input_symbols=input_symbols))
 
+        input_symbols_2 = {'0', '1', '2'}
         nfa5 = NFA(
             states={'s', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'},
-            input_symbols={'0', '1', '2'},
+            input_symbols=input_symbols_2,
             transitions={
                 's': {'': {'a', 'f', 'g'}, '2': {'c'}},
                 'a': {'0': {'b', 'c'}},
@@ -739,7 +743,7 @@ class TestNFA(test_fa.TestFA):
             final_states={'f', 'h'}
         )
 
-        self.assertEqual(nfa5, NFA.from_regex('((((01)*0) | 2)(100)*1)*(1* | (0*2*))'))
+        self.assertEqual(nfa5, NFA.from_regex('((((01)*0) | 2)(100)*1)*(1* | (0*2*))', input_symbols=input_symbols_2))
 
     def test_nfa_levenshtein_distance(self):
         alphabet = {'f', 'o', 'd', 'a'}
@@ -899,28 +903,28 @@ class TestNFA(test_fa.TestFA):
 
         Test cases based on https://planetmath.org/shuffleoflanguages
         """
-        alphabet = {'a', 'b'}
+        input_symbols = {'a', 'b'}
 
         # Basic finite language test case
-        nfa1 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'aba'}))
-        nfa2 = NFA.from_dfa(DFA.from_finite_language(alphabet, {'bab'}))
+        nfa1 = NFA.from_dfa(DFA.from_finite_language(input_symbols, {'aba'}))
+        nfa2 = NFA.from_dfa(DFA.from_finite_language(input_symbols, {'bab'}))
 
-        nfa3 = NFA.from_dfa(DFA.from_finite_language(alphabet, {
+        nfa3 = NFA.from_dfa(DFA.from_finite_language(input_symbols, {
             'abbaab', 'baabab', 'ababab', 'babaab', 'abbaba', 'baabba', 'ababba', 'bababa'
         }))
 
         self.assertEqual(nfa1.shuffle_product(nfa2), nfa3)
 
         # Regular language test case
-        nfa4 = NFA.from_regex('aa', input_symbols=alphabet)
-        nfa5 = NFA.from_regex('b*', input_symbols=alphabet)
+        nfa4 = NFA.from_regex('aa', input_symbols=input_symbols)
+        nfa5 = NFA.from_regex('b*', input_symbols=input_symbols)
 
-        nfa6 = NFA.from_dfa(DFA.of_length(alphabet, min_length=2, max_length=2, symbols_to_count={'a'}))
+        nfa6 = NFA.from_dfa(DFA.of_length(input_symbols, min_length=2, max_length=2, symbols_to_count={'a'}))
 
         self.assertEqual(nfa4.shuffle_product(nfa5), nfa6)
 
-        nfa7 = NFA.from_regex('a?a?a?')
-        nfa8 = NFA.from_dfa(DFA.of_length(alphabet, max_length=3, symbols_to_count={'a'}))
+        nfa7 = NFA.from_regex('a?a?a?', input_symbols=input_symbols)
+        nfa8 = NFA.from_dfa(DFA.of_length(input_symbols, max_length=3, symbols_to_count={'a'}))
 
         self.assertEqual(nfa5.shuffle_product(nfa7), nfa8)
 
