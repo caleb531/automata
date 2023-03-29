@@ -10,13 +10,16 @@ import re
 
 import automata.base.exceptions as exceptions
 
-#TODO maybe this should be a class method??
+# TODO maybe this should be a class method??
+
+
 def get_token_factory(token_classname):
     """
     Returns a default factory function given a token class.
     Compatible with default constructor in the Token base class.
     """
     return lambda match: token_classname(match.group())
+
 
 class Token(metaclass=abc.ABCMeta):
     """Base class for tokens."""

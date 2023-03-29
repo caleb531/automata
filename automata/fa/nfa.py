@@ -14,6 +14,7 @@ from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
 
 DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
+
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
 

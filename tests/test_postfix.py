@@ -6,6 +6,7 @@ import automata.base.exceptions as exceptions
 import automata.regex.postfix as postfix
 from automata.regex.lexer import Lexer, get_token_factory
 
+
 class Integer(postfix.Literal):
     def val(self):
         """It evaluates to its (integer) value."""

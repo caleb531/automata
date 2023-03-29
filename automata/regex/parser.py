@@ -179,7 +179,6 @@ class NFARegexBuilder:
 
         self._final_states = other._final_states
 
-
     def repeat(self, lower_bound, upper_bound):
         """
         Apply the repetition operator. Corresponds to repeating the NFA
@@ -240,7 +239,6 @@ class NFARegexBuilder:
         self._transitions = new_transitions
         self._final_states = new_final_states
         self._initial_state = new_initial_state
-
 
     def shuffle_product(self, other):
         """
@@ -330,6 +328,7 @@ class KleenePlusToken(PostfixOperator):
         left.repeat(1, None)
         return left
 
+
 class QuantifierToken(PostfixOperator):
     """Subclass of postfix operator for repeating an expression a fixed number of times."""
 
@@ -345,6 +344,7 @@ class QuantifierToken(PostfixOperator):
         left.repeat(self.lower_bound, self.upper_bound)
         return left
 
+
 class OptionToken(PostfixOperator):
     """Subclass of postfix operator defining the option operator."""
 
@@ -352,7 +352,7 @@ class OptionToken(PostfixOperator):
         return 3
 
     def op(self, left):
-        left.repeat(0,1)
+        left.repeat(0, 1)
         return left
 
 
@@ -410,7 +410,9 @@ def add_concat_tokens(token_list):
 
     return final_token_list
 
-#TODO maybe organize this differently?
+# TODO maybe organize this differently?
+
+
 def quantifier_factory(match):
     lower_bound_str = match.group(1)
     upper_bound_str = match.group(2)
@@ -419,6 +421,7 @@ def quantifier_factory(match):
     upper_bound = None if not upper_bound_str else int(upper_bound_str)
 
     return QuantifierToken(match.group(), lower_bound, upper_bound)
+
 
 def get_regex_lexer(input_symbols):
     """Get lexer for parsing regular expressions."""

@@ -502,7 +502,7 @@ class TestNFA(test_fa.TestFA):
                         not in sum([list(nfa1.transitions[state].values()) for state in nfa1.transitions.keys()], []))
 
     def test_union(self):
-        input_symbols={'a', 'b'}
+        input_symbols = {'a', 'b'}
         nfa1 = NFA.from_regex('ab*', input_symbols=input_symbols)
         nfa2 = NFA.from_regex('ba*', input_symbols=input_symbols)
 
