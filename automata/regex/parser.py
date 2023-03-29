@@ -276,6 +276,8 @@ class NFARegexBuilder:
 class UnionToken(InfixOperator):
     """Subclass of infix operator defining the union operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 1
 
@@ -286,6 +288,8 @@ class UnionToken(InfixOperator):
 
 class IntersectionToken(InfixOperator):
     """Subclass of infix operator defining the intersection operator."""
+
+    __slots__ = tuple()
 
     def get_precedence(self):
         return 1
@@ -298,6 +302,8 @@ class IntersectionToken(InfixOperator):
 class ShuffleToken(InfixOperator):
     """Subclass of infix operator defining the shuffle operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 1
 
@@ -309,6 +315,8 @@ class ShuffleToken(InfixOperator):
 class KleeneStarToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene star operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 3
 
@@ -319,6 +327,8 @@ class KleeneStarToken(PostfixOperator):
 
 class KleenePlusToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene plus operator."""
+
+    __slots__ = tuple()
 
     def get_precedence(self):
         return 3
@@ -359,6 +369,8 @@ class QuantifierToken(PostfixOperator):
 class OptionToken(PostfixOperator):
     """Subclass of postfix operator defining the option operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 3
 
@@ -369,6 +381,8 @@ class OptionToken(PostfixOperator):
 
 class ConcatToken(InfixOperator):
     """Subclass of infix operator defining the concatenation operator."""
+
+    __slots__ = tuple()
 
     def get_precedence(self):
         return 2
