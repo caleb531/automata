@@ -4,7 +4,7 @@ import unittest
 
 import automata.base.exceptions as exceptions
 import automata.regex.postfix as postfix
-from automata.regex.lexer import Lexer, get_token_factory
+from automata.regex.lexer import Lexer
 
 
 class Integer(postfix.Literal):
@@ -15,6 +15,7 @@ class Integer(postfix.Literal):
 
 class Add(postfix.InfixOperator):
     """Addition."""
+
     def get_precedence(self):
         return 10  # Precedence: higher than integers, lower than mult
 
@@ -24,6 +25,7 @@ class Add(postfix.InfixOperator):
 
 class Minus(postfix.InfixOperator):
     """Subtraction."""
+
     def get_precedence(self):
         return 10  # Precedence: higher than integers, lower than mult
 
@@ -33,6 +35,7 @@ class Minus(postfix.InfixOperator):
 
 class Mult(postfix.InfixOperator):
     """Multiplication."""
+
     def get_precedence(self):
         return 20  # Higher precedence than addition/substraction.
 
@@ -42,6 +45,7 @@ class Mult(postfix.InfixOperator):
 
 class Divide(postfix.InfixOperator):
     """Division."""
+
     def get_precedence(self):
         return 20  # Same precedence than multiplication
 
@@ -113,13 +117,13 @@ class TestArithmeticParser(unittest.TestCase):
     def setUp(self):
         self.arithmetic_lexer: Lexer = Lexer()
 
-        self.arithmetic_lexer.register_token(get_token_factory(postfix.LeftParen), r'\(')
-        self.arithmetic_lexer.register_token(get_token_factory(postfix.RightParen), r'\)')
-        self.arithmetic_lexer.register_token(get_token_factory(Integer), r'[0-9]+')
-        self.arithmetic_lexer.register_token(get_token_factory(Add), r'\+')
-        self.arithmetic_lexer.register_token(get_token_factory(Minus), r'-')
-        self.arithmetic_lexer.register_token(get_token_factory(Mult), r'\*')
-        self.arithmetic_lexer.register_token(get_token_factory(Divide), r'/')
+        self.arithmetic_lexer.register_token(postfix.LeftParen.from_match, r'\(')
+        self.arithmetic_lexer.register_token(postfix.RightParen.from_match, r'\)')
+        self.arithmetic_lexer.register_token(Integer.from_match, r'[0-9]+')
+        self.arithmetic_lexer.register_token(Add.from_match, r'\+')
+        self.arithmetic_lexer.register_token(Minus.from_match, r'-')
+        self.arithmetic_lexer.register_token(Mult.from_match, r'\*')
+        self.arithmetic_lexer.register_token(Divide.from_match, r'/')
 
     def test_expression_invalid_ordering(self):
         """Check for exception raised when lexing invalid regular expressions."""

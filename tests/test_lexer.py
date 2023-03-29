@@ -3,13 +3,13 @@
 import unittest
 
 import automata.base.exceptions as exceptions
-from automata.regex.lexer import Lexer, TokenRegistry, get_token_factory
+from automata.regex.lexer import Lexer, TokenRegistry
 from automata.regex.postfix import LeftParen, RightParen, Token
 
 
 def register_parens(lexer):
-    lexer.register_token(get_token_factory(LeftParen), r'\(')
-    lexer.register_token(get_token_factory(RightParen), r'\)')
+    lexer.register_token(LeftParen.from_match, r'\(')
+    lexer.register_token(RightParen.from_match, r'\)')
 
 
 class TestTokenRegistryTestCase(unittest.TestCase):

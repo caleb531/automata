@@ -6,7 +6,7 @@ from itertools import chain, count, product, repeat, zip_longest
 import copy
 
 from automata.base.utils import get_renaming_function
-from automata.regex.lexer import Lexer, get_token_factory
+from automata.regex.lexer import Lexer
 from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     PostfixOperator, RightParen,
                                     parse_postfix_tokens, tokens_to_postfix,
@@ -335,6 +335,16 @@ class QuantifierToken(PostfixOperator):
         super().__init__(text)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
+    
+    @classmethod
+    def from_match(cls, match):
+        lower_bound_str = match.group(1)
+        upper_bound_str = match.group(2)
+
+        lower_bound = 0 if not lower_bound_str else int(lower_bound_str)
+        upper_bound = None if not upper_bound_str else int(upper_bound_str)
+
+        return cls(match.group(), lower_bound, upper_bound)
 
     def get_precedence(self):
         return 3
@@ -414,34 +424,21 @@ def add_concat_tokens(token_list):
 
     return final_token_list
 
-# TODO maybe organize this differently?
-
-
-def quantifier_factory(match):
-    lower_bound_str = match.group(1)
-    upper_bound_str = match.group(2)
-
-    lower_bound = 0 if not lower_bound_str else int(lower_bound_str)
-    upper_bound = None if not upper_bound_str else int(upper_bound_str)
-
-    return QuantifierToken(match.group(), lower_bound, upper_bound)
-
-
 def get_regex_lexer(input_symbols):
     """Get lexer for parsing regular expressions."""
     lexer = Lexer()
     state_name_counter = count(0)
 
-    lexer.register_token(get_token_factory(LeftParen), r'\(')
-    lexer.register_token(get_token_factory(RightParen), r'\)')
+    lexer.register_token(LeftParen.from_match, r'\(')
+    lexer.register_token(RightParen.from_match, r'\)')
     lexer.register_token(lambda match: StringToken(match.group(), state_name_counter), r'[A-Za-z0-9]')
-    lexer.register_token(get_token_factory(UnionToken), r'\|')
-    lexer.register_token(get_token_factory(IntersectionToken), r'\&')
-    lexer.register_token(get_token_factory(ShuffleToken), r'\^')
-    lexer.register_token(get_token_factory(KleeneStarToken), r'\*')
-    lexer.register_token(get_token_factory(KleenePlusToken), r'\+')
-    lexer.register_token(get_token_factory(OptionToken), r'\?')
-    lexer.register_token(quantifier_factory, r'\{(.*),(.*)\}')
+    lexer.register_token(UnionToken.from_match, r'\|')
+    lexer.register_token(IntersectionToken.from_match, r'\&')
+    lexer.register_token(ShuffleToken.from_match, r'\^')
+    lexer.register_token(KleeneStarToken.from_match, r'\*')
+    lexer.register_token(KleenePlusToken.from_match, r'\+')
+    lexer.register_token(OptionToken.from_match, r'\?')
+    lexer.register_token(QuantifierToken.from_match, r'\{(.*),(.*)\}')
     lexer.register_token(lambda match: WildcardToken(match.group(), input_symbols, state_name_counter), r'\.')
 
     return lexer
