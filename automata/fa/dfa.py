@@ -12,8 +12,8 @@ import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 from automata.base.utils import PartitionRefinement, get_renaming_function
-from typing import overload, Tuple, cast, Mapping, Any, Dict, Set, AbstractSet, DefaultDict, FrozenSet, Literal, Type, Union, Callable, Iterator, Optional, Deque, Generator, TypeVar, List, Iterable
-
+from typing import overload, Tuple, cast, Mapping, Any, Dict, Set, AbstractSet, DefaultDict, FrozenSet, Type, Union, Callable, Iterator, Optional, Deque, Generator, TypeVar, List, Iterable
+from typing_extensions import Literal
 
 DFAStateT = fa.FAStateT
 
