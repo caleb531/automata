@@ -132,7 +132,7 @@ class TestRegex(unittest.TestCase):
         self.assertEqual(reference_nfa, other_nfa)
 
     def test_quantifier(self):
-        """Should correctly check shuffle"""
+        """Should correctly check quantifier"""
 
         input_symbols = {'a', 'b', 'c', 'd'}
 
