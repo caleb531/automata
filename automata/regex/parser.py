@@ -193,7 +193,7 @@ class NFARegexBuilder:
 
         prev_final_states = self._final_states
 
-        new_initial_state = self.__get_next_state_name()
+        new_initial_state = next(self._state_name_counter)
         new_transitions = copy.deepcopy(self._transitions)
 
         new_transitions[new_initial_state] = {
@@ -434,7 +434,7 @@ def get_regex_lexer(input_symbols):
 
     lexer.register_token(get_token_factory(LeftParen), r'\(')
     lexer.register_token(get_token_factory(RightParen), r'\)')
-    lexer.register_token(get_token_factory(StringToken), r'[A-Za-z0-9]')
+    lexer.register_token(lambda match: StringToken(match.group(), state_name_counter), r'[A-Za-z0-9]')
     lexer.register_token(get_token_factory(UnionToken), r'\|')
     lexer.register_token(get_token_factory(IntersectionToken), r'\&')
     lexer.register_token(get_token_factory(ShuffleToken), r'\^')
@@ -442,7 +442,7 @@ def get_regex_lexer(input_symbols):
     lexer.register_token(get_token_factory(KleenePlusToken), r'\+')
     lexer.register_token(get_token_factory(OptionToken), r'\?')
     lexer.register_token(quantifier_factory, r'\{(.*),(.*)\}')
-    lexer.register_token(lambda match: WildcardToken(match.group(), input_symbols), r'\.')
+    lexer.register_token(lambda match: WildcardToken(match.group(), input_symbols, state_name_counter), r'\.')
 
     return lexer
 
