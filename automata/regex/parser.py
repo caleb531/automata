@@ -331,6 +331,8 @@ class KleenePlusToken(PostfixOperator):
 class QuantifierToken(PostfixOperator):
     """Subclass of postfix operator for repeating an expression a fixed number of times."""
 
+    __slots__ = ('lower_bound', 'upper_bound')
+
     def __init__(self, text, lower_bound, upper_bound):
         super().__init__(text)
         self.lower_bound = lower_bound
@@ -379,6 +381,8 @@ class ConcatToken(InfixOperator):
 class StringToken(Literal):
     """Subclass of literal token defining a string literal."""
 
+    __slots__ = ("counter",)
+
     def __init__(self, text, counter):
         super().__init__(text)
         self.counter = counter
@@ -389,6 +393,8 @@ class StringToken(Literal):
 
 class WildcardToken(Literal):
     """Subclass of literal token defining a wildcard literal."""
+
+    __slots__ = ("input_symbols", "counter")
 
     def __init__(self, text, input_symbols, counter):
         super().__init__(text)
