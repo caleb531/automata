@@ -6,6 +6,8 @@ import unittest
 import automata.base.exceptions as exceptions
 import automata.regex.regex as re
 from automata.fa.nfa import NFA
+from automata.regex.parser import StringToken, WildcardToken
+import re as regex
 
 
 class TestRegex(unittest.TestCase):
@@ -31,6 +33,12 @@ class TestRegex(unittest.TestCase):
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{1,0}')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{-1,}')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{-2,-1}')
+
+    def test_invalid_token_creation(self):
+        """Should raise error for invalid class creation"""
+        match_obj = regex.compile('a').match('a')
+        self.assertRaises(NotImplementedError, StringToken.from_match, match_obj)
+        self.assertRaises(NotImplementedError, WildcardToken.from_match, match_obj)
 
     def test_helper_validate_invalid(self):
         """Should pass validation for valid regular expression"""
