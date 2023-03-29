@@ -8,20 +8,21 @@ from frozendict import frozendict
 import automata.base.config as global_config
 import automata.base.exceptions as exceptions
 from automata.base.utils import freeze_value
-from typing import Any, NoReturn, Dict, Tuple, Union
+from collections.abc import Mapping
+from typing import Any, NoReturn, AbstractSet, Tuple, Dict
 
-FAStateT = Any
-PathT = frozendict[str, Any]
-TransitionT = frozendict[str, PathT]
+AutomatonStateT = Any
+PathT = Mapping[str, Any]
+TransitionT = Mapping[str, PathT]
 
 class Automaton(metaclass=abc.ABCMeta):
     """An abstract base class for all automata, including Turing machines."""
 
     __slots__ : Tuple[str, ...] = tuple()
 
-    initial_state: FAStateT
-    states: Union[frozenset, set]
-    final_states: Union[frozenset, set]
+    initial_state: AutomatonStateT
+    states: AbstractSet[AutomatonStateT]
+    final_states: AbstractSet[AutomatonStateT]
     transitions: TransitionT
 
     def __init__(self, **kwargs: Any) -> None:
@@ -66,7 +67,7 @@ class Automaton(metaclass=abc.ABCMeta):
         """Return a generator that yields each step while reading input."""
         raise NotImplementedError
 
-    def read_input(self, input_str: str) -> FAStateT:
+    def read_input(self, input_str: str) -> AutomatonStateT:
         """
         Check if the given string is accepted by this automaton.
 

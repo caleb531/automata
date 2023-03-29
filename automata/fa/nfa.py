@@ -11,18 +11,31 @@ import string
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
+from typing import Tuple, Dict, Set, AbstractSet, FrozenSet
+from collections.abc import Mapping
+
+NFAStateT = fa.FAStateT
+
+NFAPathT = Mapping[str, AbstractSet[NFAStateT]]
+NFATransitionsT = Mapping[NFAStateT, NFAPathT]
 
 DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
-
 
 class NFA(fa.FA):
     """A nondeterministic finite automaton."""
 
-    __slots__ = ('states', 'input_symbols', 'transitions',
+    __slots__: Tuple[str, ...] = ('states', 'input_symbols', 'transitions',
                  'initial_state', 'final_states')
 
-    def __init__(self, *, states, input_symbols, transitions,
-                 initial_state, final_states):
+    transitions: NFATransitionsT
+
+    def __init__(self,
+                 *,
+                 states: AbstractSet[NFAStateT],
+                 input_symbols: AbstractSet[str],
+                 transitions: NFATransitionsT,
+                 initial_state: NFAStateT,
+                 final_states: AbstractSet[NFAStateT]) -> None:
         """Initialize a complete NFA."""
         super().__init__(
             states=states,
@@ -33,7 +46,7 @@ class NFA(fa.FA):
             _lambda_closures=self._compute_lambda_closures(states, transitions)
         )
 
-    def _compute_lambda_closures(self, states, transitions):
+    def _compute_lambda_closures(self, states: AbstractSet[NFAStateT], transitions: NFATransitionsT) -> Mapping[NFAStateT, FrozenSet[NFAStateT]]:
         """
         Computes a dictionary of the lambda closures for this NFA, where each
         key is the state name and the value is the lambda closure for that
