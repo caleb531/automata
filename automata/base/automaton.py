@@ -9,7 +9,7 @@ import automata.base.config as global_config
 import automata.base.exceptions as exceptions
 from automata.base.utils import freeze_value
 from collections.abc import Mapping
-from typing import Any, NoReturn, AbstractSet, Tuple, Dict
+from typing import Any, NoReturn, AbstractSet, Tuple, Dict, Generator
 
 AutomatonStateT = Any
 PathT = Mapping[str, Any]
@@ -64,7 +64,7 @@ class Automaton(metaclass=abc.ABCMeta):
 
     #TODO add annotation for generator here
     @abc.abstractmethod 
-    def read_input_stepwise(self, input_str: str):
+    def read_input_stepwise(self, input_str: str) -> Generator[AbstractSet[AutomatonStateT], None, None]:
         """Return a generator that yields each step while reading input."""
         raise NotImplementedError
 

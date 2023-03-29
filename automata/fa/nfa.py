@@ -15,7 +15,6 @@ import automata.fa.dfa as dfa
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
 from typing import Tuple, Any, Dict, Set, AbstractSet, FrozenSet, Type, Optional, Deque, Generator, TypeVar, List, Iterable
 from collections.abc import Mapping
-from typing_extensions import Self
 
 NFAStateT = fa.FAStateT
 

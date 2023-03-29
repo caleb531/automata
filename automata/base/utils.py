@@ -73,7 +73,7 @@ class PartitionRefinement(Generic[T]):
         """Return sets corresponding to the internal partition."""
         return self._sets.values()
 
-    def refine(self, S: Set[T]) -> List[Tuple[int, int]]:
+    def refine(self, S: Iterable[T]) -> List[Tuple[int, int]]:
         """Refine each set A in the partition to the two sets
         A & S, A - S.  Return a list of pairs ids (id(A & S), id(A - S))
         for each changed set.  Within each pair, A & S will be
