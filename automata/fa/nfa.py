@@ -13,8 +13,8 @@ import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.dfa as dfa
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
-from typing import Tuple, Any, Dict, Set, AbstractSet, FrozenSet, Type, Optional, Deque, Generator, TypeVar, List, Iterable
-from collections.abc import Mapping
+from typing import Mapping, Tuple, Any, Dict, Set, AbstractSet, FrozenSet, Type, Optional, Deque, Generator, TypeVar, List, Iterable
+
 
 NFAStateT = fa.FAStateT
 

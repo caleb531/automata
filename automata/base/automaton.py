@@ -8,8 +8,7 @@ from frozendict import frozendict
 import automata.base.config as global_config
 import automata.base.exceptions as exceptions
 from automata.base.utils import freeze_value
-from collections.abc import Mapping
-from typing import Any, NoReturn, AbstractSet, Tuple, Dict, Generator
+from typing import Any, Mapping, NoReturn, AbstractSet, Tuple, Dict, Generator
 
 AutomatonStateT = Any
 PathT = Mapping[str, Any]
