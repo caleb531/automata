@@ -411,7 +411,7 @@ class StringToken(Literal):
 
     @classmethod
     def from_match(cls, match):
-        raise NotImplemented
+        raise NotImplementedError
 
     def val(self):
         return NFARegexBuilder.from_string_literal(self.text, self.counter)
@@ -429,7 +429,7 @@ class WildcardToken(Literal):
 
     @classmethod
     def from_match(cls, match):
-        raise NotImplemented
+        raise NotImplementedError
 
     def val(self):
         return NFARegexBuilder.wildcard(self.input_symbols, self.counter)
