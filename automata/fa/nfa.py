@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
+from __future__ import annotations
 from collections import deque
 from itertools import chain, count, product, repeat
 
@@ -10,14 +11,18 @@ import string
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
+import automata.fa.dfa as dfa
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
-from typing import Tuple, Dict, Set, AbstractSet, FrozenSet
+from typing import Tuple, Any, Dict, Set, AbstractSet, FrozenSet, Type, Optional, Deque, Generator, TypeVar, List, Iterable
 from collections.abc import Mapping
+from typing_extensions import Self
 
 NFAStateT = fa.FAStateT
 
 NFAPathT = Mapping[str, AbstractSet[NFAStateT]]
 NFATransitionsT = Mapping[NFAStateT, NFAPathT]
+
+NFAType = TypeVar('NFAType', bound='NFA')
 
 DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
@@ -28,6 +33,7 @@ class NFA(fa.FA):
                  'initial_state', 'final_states')
 
     transitions: NFATransitionsT
+    _lambda_closures: Mapping[NFAStateT, FrozenSet[NFAStateT]]
 
     def __init__(self,
                  *,
@@ -72,33 +78,33 @@ class NFA(fa.FA):
             for state in states
         })
 
-    def __add__(self, other):
+    def __add__(self, other: NFA) -> NFA:
         """Return the concatenation of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.concatenate(other)
         else:
             return NotImplemented
 
-    def __or__(self, other):
+    def __or__(self, other: NFA) -> NFA:
         """Return the union of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.union(other)
         else:
             return NotImplemented
 
-    def __and__(self, other):
+    def __and__(self, other: NFA) -> NFA:
         """Return the union of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.intersection(other)
         else:
             return NotImplemented
 
-    def __reversed__(self):
-        """Return the reversal of this DFA."""
+    def __reversed__(self) -> NFA:
+        """Return the reversal of this NFA."""
         return self.reverse()
 
     @classmethod
-    def from_dfa(cls, dfa):
+    def from_dfa(cls: Type[NFAType], dfa: dfa.DFA) -> NFA:
         """Initialize this NFA as one equivalent to the given DFA."""
         nfa_transitions = {
             start_state: {
@@ -113,7 +119,7 @@ class NFA(fa.FA):
             transitions=nfa_transitions, initial_state=dfa.initial_state,
             final_states=dfa.final_states)
 
-    def _validate_transition_invalid_symbols(self, start_state, paths):
+    def _validate_transition_invalid_symbols(self, start_state: NFAStateT, paths: NFAPathT) -> None:
         """Raise an error if transition symbols are invalid."""
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols and input_symbol != '':
@@ -122,7 +128,7 @@ class NFA(fa.FA):
                         start_state, input_symbol))
 
     @classmethod
-    def from_regex(cls, regex, *, input_symbols=None):
+    def from_regex(cls: Type[NFAType], regex: str, *, input_symbols: Optional[AbstractSet[str]]=None) -> NFA:
         """Initialize this NFA as one equivalent to the given regular expression"""
 
         if input_symbols is None:
@@ -142,7 +148,7 @@ class NFA(fa.FA):
             final_states=nfa_builder._final_states
         )
 
-    def _validate_transition_end_states(self, start_state, paths):
+    def _validate_transition_end_states(self, start_state: NFAStateT, paths: NFAPathT) -> None:
         """Raise an error if transition end states are invalid."""
         for end_states in paths.values():
             for end_state in end_states:
@@ -151,7 +157,8 @@ class NFA(fa.FA):
                         'end state {} for transition on {} is '
                         'not valid'.format(end_state, start_state))
 
-    def validate(self):
+    #TODO remove return type
+    def validate(self) -> bool:
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
@@ -161,9 +168,9 @@ class NFA(fa.FA):
         self._validate_final_states()
         return True
 
-    def _get_next_current_states(self, current_states, input_symbol):
+    def _get_next_current_states(self, current_states: AbstractSet[NFAStateT], input_symbol: str) -> FrozenSet[NFAStateT]:
         """Return the next set of current states given the current set."""
-        next_current_states = set()
+        next_current_states: Set[NFAStateT] = set()
 
         for current_state in current_states:
             if current_state not in self.transitions:
@@ -176,11 +183,11 @@ class NFA(fa.FA):
         return frozenset(next_current_states)
 
     @staticmethod
-    def _compute_reachable_states(initial_state, input_symbols, transitions):
+    def _compute_reachable_states(initial_state: NFAStateT, transitions: NFATransitionsT) -> Set[NFAStateT]:
         """Compute the states which are reachable from the initial state."""
 
-        visited_set = set()
-        queue = deque()
+        visited_set: Set[NFAStateT] = set()
+        queue: Deque[NFAStateT] = deque()
 
         queue.append(initial_state)
         visited_set.add(initial_state)
@@ -197,7 +204,7 @@ class NFA(fa.FA):
 
         return visited_set
 
-    def _eliminate_lambda(self):
+    def _eliminate_lambda(self) -> Tuple[AbstractSet[NFAStateT], NFATransitionsT, AbstractSet[NFAStateT]]:
         """Internal helper function for eliminate lambda. Doesn't create final NFA."""
 
         # Create new transitions and final states for running this algorithm
@@ -213,7 +220,7 @@ class NFA(fa.FA):
         for state in self.states:
             lambda_enclosure = self._lambda_closures[state] - {state}
             for input_symbol in self.input_symbols:
-                next_current_states = self._get_next_current_states(lambda_enclosure, input_symbol)
+                next_current_states = set(self._get_next_current_states(lambda_enclosure, input_symbol))
 
                 # Don't do anything if no new current states
                 if next_current_states:
@@ -231,7 +238,7 @@ class NFA(fa.FA):
                 new_transitions[state].pop('', None)
 
         # Remove unreachable states
-        reachable_states = NFA._compute_reachable_states(self.initial_state, self.input_symbols, new_transitions)
+        reachable_states = NFA._compute_reachable_states(self.initial_state, new_transitions)
         reachable_final_states = reachable_states & new_final_states
 
         for state in self.states - reachable_states:
@@ -239,7 +246,7 @@ class NFA(fa.FA):
 
         return reachable_states, new_transitions, reachable_final_states
 
-    def eliminate_lambda(self):
+    def eliminate_lambda(self) -> NFA:
         """Removes epsilon transitions from the NFA which recognizes the same language."""
 
         reachable_states, new_transitions, reachable_final_states = self._eliminate_lambda()
@@ -252,14 +259,14 @@ class NFA(fa.FA):
             final_states=reachable_final_states
         )
 
-    def _check_for_input_rejection(self, current_states):
+    def _check_for_input_rejection(self, current_states: AbstractSet[NFAStateT]) -> None:
         """Raise an error if the given config indicates rejected input."""
         if current_states.isdisjoint(self.final_states):
             raise exceptions.RejectionException(
                 'the NFA stopped on all non-final states ({})'.format(
                     ', '.join(str(state) for state in current_states)))
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str: str) -> Generator[AbstractSet[NFAStateT], None, None]:
         """
         Check if the given string is accepted by this NFA.
 
@@ -276,7 +283,11 @@ class NFA(fa.FA):
         self._check_for_input_rejection(current_states)
 
     @staticmethod
-    def _get_state_maps(state_set_a, state_set_b, *, start=0):
+    def _get_state_maps(state_set_a: AbstractSet[NFAStateT],
+                        state_set_b: AbstractSet[NFAStateT],
+                        *,
+                        start: int=0
+                    ) -> Tuple[Dict[NFAStateT, int], Dict[NFAStateT, int]]:
         """
         Generate state map dicts from given sets. Useful when the state set has
         to be a union of the state sets of component FAs.
@@ -289,7 +300,7 @@ class NFA(fa.FA):
 
         return (state_map_a, state_map_b)
 
-    def union(self, other):
+    def union(self, other: NFA) -> NFA:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -300,7 +311,7 @@ class NFA(fa.FA):
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states, start=1)
 
         new_states = frozenset(chain(state_map_a.values(), state_map_b.values(), [0]))
-        new_transitions = {state: {} for state in new_states}
+        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {state: {} for state in new_states}
 
         # Connect new initial state to both branch
         new_transitions[0] = {'': {state_map_a[self.initial_state], state_map_b[other.initial_state]}}
@@ -324,7 +335,7 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
-    def concatenate(self, other):
+    def concatenate(self, other: NFA) -> NFA:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -334,7 +345,7 @@ class NFA(fa.FA):
         (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states)
 
         new_states = frozenset(chain(state_map_a.values(), state_map_b.values()))
-        new_transitions = {state: {} for state in new_states}
+        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {state: {} for state in new_states}
 
         # Transitions of self
         NFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
@@ -358,7 +369,7 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
-    def kleene_star(self):
+    def kleene_star(self) -> NFA:
         """
         Given an NFA which accepts the language L returns
         an NFA which accepts L repeated 0 or more times.
@@ -367,7 +378,7 @@ class NFA(fa.FA):
         new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same with a few additions.
-        new_transitions = dict(self.transitions)
+        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = dict(self.transitions)
         # We add epsilon transition from new initial state
         # to old initial state
         new_transitions[new_initial_state] = {
@@ -389,7 +400,7 @@ class NFA(fa.FA):
             final_states=self.final_states | {new_initial_state}
         )
 
-    def option(self):
+    def option(self) -> NFA:
         """
         Given an NFA which accepts the language L returns
         an NFA which accepts L repeated 0 or 1 times. (option - ?)
@@ -414,7 +425,7 @@ class NFA(fa.FA):
             final_states=self.final_states | {new_initial_state}
         )
 
-    def reverse(self):
+    def reverse(self) -> NFA:
         """
         Given an NFA which accepts the language L this function
         returns an NFA which accepts the reverse of L.
@@ -423,7 +434,7 @@ class NFA(fa.FA):
         new_initial_state = NFA._add_new_state(new_states)
 
         # Transitions are the same except reversed
-        new_transitions = {
+        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {
             state: {} for state in new_states
         }
 
@@ -445,7 +456,7 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
-    def intersection(self, other):
+    def intersection(self, other: NFA) -> NFA:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -454,10 +465,10 @@ class NFA(fa.FA):
 
         new_states = set()
         new_input_symbols = self.input_symbols | other.input_symbols
-        new_transitions = {}
+        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {}
         new_initial_state = (self.initial_state, other.initial_state)
 
-        queue = deque()
+        queue: Deque[NFAStateT] = deque()
 
         queue.append(new_initial_state)
         new_states.add(new_initial_state)
@@ -467,7 +478,7 @@ class NFA(fa.FA):
             q_a, q_b = curr_state
 
             # States we will consider adding to the queue
-            next_states_iterables = list()
+            next_states_iterables: List[Iterable[NFAStateT]] = list()
 
             # Get transition dict for states in self
             transitions_a = self.transitions.get(q_a, {})
@@ -517,7 +528,7 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
-    def shuffle_product(self, other):
+    def shuffle_product(self, other: NFA) -> NFA:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -530,7 +541,7 @@ class NFA(fa.FA):
         new_initial_state = (self.initial_state, other.initial_state)
         new_states = frozenset(product(self.states, other.states))
 
-        new_transitions = {}
+        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {}
 
         for curr_state in new_states:
             state_dict = new_transitions.setdefault(curr_state, {})
@@ -552,7 +563,7 @@ class NFA(fa.FA):
             final_states=frozenset(product(self.final_states, other.final_states))
         )
 
-    def right_quotient(self, other):
+    def right_quotient(self, other: NFA) -> NFA:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -577,7 +588,7 @@ class NFA(fa.FA):
             product(self_reachable_states, other_reachable_states, [True])
         ))
 
-        new_transitions = {}
+        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {}
 
         # Populate transitions for before reading the suffix
         for state in self_reachable_states:
@@ -618,7 +629,7 @@ class NFA(fa.FA):
             final_states=new_final_states
         )
 
-    def left_quotient(self, other):
+    def left_quotient(self, other: NFA) -> NFA:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -643,7 +654,7 @@ class NFA(fa.FA):
             product(self_reachable_states, other_reachable_final_states, [True])
         ))
 
-        new_transitions = {}
+        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {}
 
         # Start reading the prefix
         for q_a, q_b in product(self_reachable_states, other_reachable_states):
@@ -727,9 +738,9 @@ class NFA(fa.FA):
         return graph
 
     @staticmethod
-    def _load_new_transition_dict(state_map_dict,
-                                  old_transition_dict,
-                                  new_transition_dict):
+    def _load_new_transition_dict(state_map_dict: Mapping[NFAStateT, NFAStateT],
+                                  old_transition_dict: NFATransitionsT,
+                                  new_transition_dict: Dict[NFAStateT, Dict[str, Set[NFAStateT]]]) -> None:
         """
         Load the new_transition_dict with the old transitions corresponding to
         the given state_map_dict.
@@ -742,7 +753,7 @@ class NFA(fa.FA):
                 }
 
     @staticmethod
-    def _add_new_state(state_set, start=0):
+    def _add_new_state(state_set: Set[NFAStateT], start: int=0) -> int:
         """Adds new state to the state set and returns it"""
         new_state = start
         while new_state in state_set:
@@ -752,12 +763,14 @@ class NFA(fa.FA):
 
         return new_state
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """
         Return True if two NFAs are equivalent. Uses an optimized version of
         the extended Hopcroft-Karp algorithm (HKe). See
         https://arxiv.org/abs/0907.5058
         """
+
+        NFAStatesPairT = Tuple[FrozenSet[NFAStateT], int]
 
         # Must be another NFA and have equal alphabets
         if not isinstance(other, NFA) or self.input_symbols != other.input_symbols:
@@ -767,7 +780,7 @@ class NFA(fa.FA):
         initial_state_a = (self._lambda_closures[self.initial_state], 0)
         initial_state_b = (other._lambda_closures[other.initial_state], 1)
 
-        def is_final_state(states_pair):
+        def is_final_state(states_pair: NFAStatesPairT) -> bool:
             states, operand_index = states_pair
             nfa = operand_nfas[operand_index]
             # If at least one of the current states is a final state, the
@@ -777,7 +790,7 @@ class NFA(fa.FA):
                 for state in states
             )
 
-        def transition(states_pair, symbol):
+        def transition(states_pair: NFAStatesPairT, symbol: str) -> NFAStatesPairT:
             states, operand_index = states_pair
             return (
                 operand_nfas[operand_index]._get_next_current_states(
@@ -787,7 +800,7 @@ class NFA(fa.FA):
 
         # Get data structures
         state_sets = nx.utils.union_find.UnionFind([initial_state_a, initial_state_b])
-        pair_stack = deque()
+        pair_stack: Deque[Tuple[NFAStatesPairT, NFAStatesPairT]] = deque()
 
         # Do union find
         state_sets.union(initial_state_a, initial_state_b)
@@ -810,8 +823,13 @@ class NFA(fa.FA):
         return True
 
     @classmethod
-    def edit_distance(cls, input_symbols, reference_str, max_edit_distance, *,
-                      insertion=True, deletion=True, substitution=True):
+    def edit_distance(cls: Type[NFAType],
+                      input_symbols: AbstractSet[str],
+                      reference_str: str,
+                      max_edit_distance: int, *,
+                      insertion: bool=True,
+                      deletion: bool=True,
+                      substitution: bool=True):
         """
         Constructs the Levenshtein NFA for the given reference_str and
         given Levenshtein distance. This NFA recognizes strings within the given
@@ -836,7 +854,7 @@ class NFA(fa.FA):
 
         states = frozenset(product(range(len(reference_str)+1), range(max_edit_distance+1)))
 
-        transitions = {}
+        transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]]  = {}
         final_states = set()
 
         def add_transition(start_state_dict, end_state, symbol):

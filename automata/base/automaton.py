@@ -24,6 +24,7 @@ class Automaton(metaclass=abc.ABCMeta):
     states: AbstractSet[AutomatonStateT]
     final_states: AbstractSet[AutomatonStateT]
     transitions: TransitionT
+    input_symbols: AbstractSet[str]
 
     def __init__(self, **kwargs: Any) -> None:
         if not global_config.allow_mutable_automata:
@@ -39,7 +40,7 @@ class Automaton(metaclass=abc.ABCMeta):
             self.validate()
 
     @abc.abstractmethod
-    def validate(self) -> None:
+    def validate(self) -> bool:
         """Return True if this automaton is internally consistent."""
         raise NotImplementedError
 

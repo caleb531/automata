@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic finite automata."""
-
+from __future__ import annotations
 from collections import defaultdict, deque
 from itertools import chain, count
 from random import Random
@@ -10,6 +10,7 @@ from pydot import Dot, Edge, Node
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
+import automata.fa.nfa as nfa
 from automata.base.utils import PartitionRefinement, get_renaming_function
 
 
@@ -1221,7 +1222,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def from_nfa(cls, target_nfa, *, retain_names=False, minify=True):
+    def from_nfa(cls, target_nfa: nfa.NFA, *, retain_names: bool=False, minify: bool=True) -> DFA:
         """Initialize this DFA as one equivalent to the given NFA."""
         # Data structures for state renaming
 
