@@ -335,7 +335,7 @@ class QuantifierToken(PostfixOperator):
         super().__init__(text)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
-    
+
     @classmethod
     def from_match(cls, match):
         lower_bound_str = match.group(1)
@@ -423,6 +423,7 @@ def add_concat_tokens(token_list):
                     final_token_list.append(ConcatToken(''))
 
     return final_token_list
+
 
 def get_regex_lexer(input_symbols):
     """Get lexer for parsing regular expressions."""
