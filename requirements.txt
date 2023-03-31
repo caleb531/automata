@@ -1,5 +1,4 @@
 coverage==6.4.4
-flake8-isort==4.2.0
 frozendict==2.3.4
 isort==5.10.1
 mypy==1.1.1
