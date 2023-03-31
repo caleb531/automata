@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "EditorConfig.EditorConfig",
+    "ms-python.black-formatter"
+  ]
+}

@@ -1,16 +1,13 @@
 coverage==6.4.4
-flake8==5.0.4
 flake8-isort==4.2.0
 frozendict==2.3.4
 isort==5.10.1
-mccabe==0.7.0
 mypy==1.1.1
 mypy-extensions==1.0.0
 networkx==2.6.2
 nose2==0.12.0
-pycodestyle==2.9.1
 pydot==1.4.2
-pyflakes==2.5.0
+pyflakes==3.0.1
 pyparsing==3.0.9
 types-frozendict==2.0.9
 typing_extensions==4.5.0
