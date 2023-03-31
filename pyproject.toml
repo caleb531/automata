@@ -34,3 +34,7 @@ module = [
   "pydot.*" # TODO pydot dependency is going to get removed, can delete
 ]
 ignore_missing_imports = true
+
+# Per <https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#profile>
+[tool.isort]
+profile = "black"
