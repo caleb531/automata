@@ -2,13 +2,14 @@
 """Classes for working with all automata, including Turing machines."""
 
 import abc
+from typing import (AbstractSet, Any, Dict, Generator, Mapping, NoReturn, Self,
+                    Tuple)
 
 from frozendict import frozendict
 
 import automata.base.config as global_config
 import automata.base.exceptions as exceptions
 from automata.base.utils import freeze_value
-from typing import Any, Mapping, NoReturn, AbstractSet, Tuple, Dict, Generator, Self
 
 AutomatonStateT = Any
 PathT = Mapping[str, Any]
