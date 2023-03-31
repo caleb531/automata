@@ -8,7 +8,7 @@ from frozendict import frozendict
 import automata.base.config as global_config
 import automata.base.exceptions as exceptions
 from automata.base.utils import freeze_value
-from typing import Any, Mapping, NoReturn, AbstractSet, Tuple, Dict, Generator
+from typing import Any, Mapping, NoReturn, AbstractSet, Tuple, Dict, Generator, Self
 
 AutomatonStateT = Any
 PathT = Mapping[str, Any]
@@ -115,7 +115,7 @@ class Automaton(metaclass=abc.ABCMeta):
                 if not attr_name.startswith('_')}
 
     #TODO add annotation to here?
-    def copy(self):# -> Self:
+    def copy(self) -> Self:
         """Create a deep copy of the automaton."""
         return self.__class__(**self.input_parameters)
 
