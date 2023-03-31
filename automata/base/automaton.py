@@ -115,7 +115,6 @@ class Automaton(metaclass=abc.ABCMeta):
                 for attr_name in self.__slots__
                 if not attr_name.startswith('_')}
 
-    #TODO add annotation to here?
     def copy(self) -> Self:
         """Create a deep copy of the automaton."""
         return self.__class__(**self.input_parameters)
