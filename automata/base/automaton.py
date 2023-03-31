@@ -127,7 +127,8 @@ class Automaton(metaclass=abc.ABCMeta):
         """Create a deep copy of the automaton."""
         return self.__class__(**self.input_parameters)
 
-    # Format the given value for string output via repr() or str(); this exists for the purpose of displaying
+    # Format the given value for string output via repr() or str(); this exists
+    # for the purpose of displaying
 
     def _get_repr_friendly_value(self, value: Any) -> Any:
         """
