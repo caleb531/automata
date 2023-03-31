@@ -2,10 +2,10 @@
 """Classes for working with all automata, including Turing machines."""
 
 import abc
-from typing import (AbstractSet, Any, Dict, Generator, Mapping, NoReturn, Self,
-                    Tuple)
+from typing import AbstractSet, Any, Dict, Generator, Mapping, NoReturn, Tuple
 
 from frozendict import frozendict
+from typing_extensions import Self
 
 import automata.base.config as global_config
 import automata.base.exceptions as exceptions
