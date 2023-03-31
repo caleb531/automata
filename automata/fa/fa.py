@@ -66,7 +66,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     def is_initial(self, state):
         """Check if a state is an initial state."""
 
-    def show(
+    def show_diagram(
         self,
         input_str: str | None = None,
         save_path: str | os.PathLike | None = None,
@@ -99,7 +99,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             Digraph: The graph in dot format.
         """
         # Converting to graphviz preferred input type,
-        # keeping the conventional input styles; i.e fig_size(8,8)
+        # keeping the conventional input styles; i.e fig_size(8, 8)
         # TODO why is (8, 8) the "conventional" size?
         fig_size = ", ".join(map(str, fig_size))
         font_size = str(font_size)
@@ -167,7 +167,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 )
         else:
             # TODO
-            raise NotImplementedError("input_str is not yet supported yet")
+            raise NotImplementedError("input_str is not supported yet")
 
             status, taken_transitions_pairs, taken_steps = self.input_check(
                 input_str=input_str, return_result=True
@@ -243,4 +243,4 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         # called, therefore no need to add ipython as dependency.
         from IPython.display import display
 
-        display(self.show())
+        display(self.show_diagram())
