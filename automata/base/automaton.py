@@ -62,7 +62,7 @@ class Automaton(metaclass=abc.ABCMeta):
         self.__init__(**d) # type: ignore
 
     #TODO add annotation for generator here
-    @abc.abstractmethod 
+    @abc.abstractmethod
     def read_input_stepwise(self, input_str: str) -> Generator[AbstractSet[AutomatonStateT], None, None]:
         """Return a generator that yields each step while reading input."""
         raise NotImplementedError
