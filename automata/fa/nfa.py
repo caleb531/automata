@@ -6,10 +6,13 @@ from itertools import chain, count, product, repeat
 import networkx as nx
 from frozendict import frozendict
 from pydot import Dot, Edge, Node
+import string
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
+
+DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
 
 class NFA(fa.FA):
@@ -110,7 +113,7 @@ class NFA(fa.FA):
         """Initialize this NFA as one equivalent to the given regular expression"""
 
         if input_symbols is None:
-            input_symbols = set(regex) - RESERVED_CHARACTERS
+            input_symbols = DEFAULT_REGEX_SYMBOLS
         else:
             conflicting_symbols = RESERVED_CHARACTERS & input_symbols
             if conflicting_symbols:

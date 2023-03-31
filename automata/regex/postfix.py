@@ -12,6 +12,8 @@ from automata.regex.lexer import Token
 class Operator(Token):
     """Subclass of token defining an operator."""
 
+    __slots__ = tuple()
+
     @abc.abstractmethod
     def get_precedence(self):
         raise NotImplementedError
@@ -19,6 +21,8 @@ class Operator(Token):
 
 class InfixOperator(Operator):
     """Subclass of operator defining an infix operator."""
+
+    __slots__ = tuple()
 
     @abc.abstractmethod
     def op(self, left, right):
@@ -28,6 +32,8 @@ class InfixOperator(Operator):
 class PostfixOperator(Operator):
     """Subclass of operator defining an postfix operator."""
 
+    __slots__ = tuple()
+
     @abc.abstractmethod
     def op(self, left):
         raise NotImplementedError
@@ -35,6 +41,8 @@ class PostfixOperator(Operator):
 
 class Literal(Token):
     """Subclass of token defining a literal."""
+
+    __slots__ = tuple()
 
     @abc.abstractmethod
     def val(self):
@@ -44,12 +52,16 @@ class Literal(Token):
 class RightParen(Token):
     """Subclass of token defining a right parenthesis."""
 
+    __slots__ = tuple()
+
     def __repr__(self):
         return '<)>'
 
 
 class LeftParen(Token):
     """Subclass of token defining a left parenthesis."""
+
+    __slots__ = tuple()
 
     def __repr__(self):
         return '<(>'

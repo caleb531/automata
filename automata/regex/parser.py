@@ -3,6 +3,7 @@
 
 from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
+import copy
 
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer
@@ -10,6 +11,7 @@ from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     PostfixOperator, RightParen,
                                     parse_postfix_tokens, tokens_to_postfix,
                                     validate_tokens)
+import automata.base.exceptions as exceptions
 
 RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^'})
 
@@ -181,40 +183,65 @@ class NFARegexBuilder:
 
         self._final_states = other._final_states
 
-    def kleene_star(self):
+    def repeat(self, lower_bound, upper_bound):
         """
-        Apply the kleene star operation to the NFA represented by this builder
+        Apply the repetition operator. Corresponds to repeating the NFA
+        between lower_bound and upper_bound many times. If upper_bound is None,
+        then the number of repetitions is unbounded.
         """
-        self.kleene_plus()
-        self._final_states.add(self._initial_state)
+        number_of_repetitions = (lower_bound if upper_bound is None else upper_bound)
 
-    def kleene_plus(self):
-        """
-        Apply the kleene plus operation to the NFA represented by this builder
-        """
+        prev_final_states = self._final_states
+
         new_initial_state = next(self._state_name_counter)
+        new_transitions = copy.deepcopy(self._transitions)
 
-        self._transitions[new_initial_state] = {
+        new_transitions[new_initial_state] = {
             '': {self._initial_state}
         }
 
-        for state in self._final_states:
-            self._transitions[state].setdefault('', set()).add(self._initial_state)
+        new_final_states = set()
 
+        if lower_bound <= 1:
+            new_final_states.update(self._final_states)
+
+        # Loop around if lower bound is 0
+        if lower_bound == 0:
+            new_final_states.add(self._initial_state)
+
+        prev_initial_state = self._initial_state
+
+        for i in range(2, number_of_repetitions+1):
+            # Reset the state renaming function each time
+            get_state_name = get_renaming_function(self._state_name_counter)
+
+            # Load next copy of transitions into dict
+            new_transitions.update({
+                get_state_name(start_state): {
+                    char: set(map(get_state_name, dest_states))
+                    for char, dest_states in char_transitions.items()
+                }
+                for start_state, char_transitions in self._transitions.items()
+            })
+
+            for state in prev_final_states:
+                new_transitions[state].setdefault('', set()).add(get_state_name(self._initial_state))
+
+            prev_final_states = set(map(get_state_name, self._final_states))
+            prev_initial_state = get_state_name(self._initial_state)
+
+            # Wonky numbering because we start with one copy of states
+            if lower_bound <= i:
+                new_final_states.update(prev_final_states)
+
+        # If no upper bound, make quantifier loop around
+        if upper_bound is None:
+            for state in prev_final_states:
+                new_transitions[state].setdefault('', set()).add(prev_initial_state)
+
+        self._transitions = new_transitions
+        self._final_states = new_final_states
         self._initial_state = new_initial_state
-
-    def option(self):
-        """
-        Apply the option operation to the NFA represented by this builder
-        """
-        new_initial_state = next(self._state_name_counter)
-
-        self._transitions[new_initial_state] = {
-            '': {self._initial_state}
-        }
-
-        self._initial_state = new_initial_state
-        self._final_states.add(new_initial_state)
 
     def shuffle_product(self, other):
         """
@@ -249,6 +276,8 @@ class NFARegexBuilder:
 class UnionToken(InfixOperator):
     """Subclass of infix operator defining the union operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 1
 
@@ -259,6 +288,8 @@ class UnionToken(InfixOperator):
 
 class IntersectionToken(InfixOperator):
     """Subclass of infix operator defining the intersection operator."""
+
+    __slots__ = tuple()
 
     def get_precedence(self):
         return 1
@@ -271,6 +302,8 @@ class IntersectionToken(InfixOperator):
 class ShuffleToken(InfixOperator):
     """Subclass of infix operator defining the shuffle operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 1
 
@@ -282,38 +315,82 @@ class ShuffleToken(InfixOperator):
 class KleeneStarToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene star operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 3
 
     def op(self, left):
-        left.kleene_star()
+        left.repeat(0, None)
         return left
 
 
 class KleenePlusToken(PostfixOperator):
     """Subclass of postfix operator defining the kleene plus operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 3
 
     def op(self, left):
-        left.kleene_plus()
+        left.repeat(1, None)
+        return left
+
+
+class QuantifierToken(PostfixOperator):
+    """Subclass of postfix operator for repeating an expression a fixed number of times."""
+
+    __slots__ = ('lower_bound', 'upper_bound')
+
+    def __init__(self, text, lower_bound, upper_bound):
+        super().__init__(text)
+
+        if lower_bound < 0:
+            raise exceptions.InvalidRegexError(
+                f"Quantifier lower bound must be strictly greater than 0, not {lower_bound}.")
+        elif upper_bound is not None and upper_bound < lower_bound:
+            raise exceptions.InvalidRegexError(
+                f"Quantifier upper bound {upper_bound} inconsistent with lower bound {lower_bound}.")
+
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+
+    @classmethod
+    def from_match(cls, match):
+        lower_bound_str = match.group(1)
+        upper_bound_str = match.group(2)
+
+        lower_bound = 0 if not lower_bound_str else int(lower_bound_str)
+        upper_bound = None if not upper_bound_str else int(upper_bound_str)
+
+        return cls(match.group(), lower_bound, upper_bound)
+
+    def get_precedence(self):
+        return 3
+
+    def op(self, left):
+        left.repeat(self.lower_bound, self.upper_bound)
         return left
 
 
 class OptionToken(PostfixOperator):
     """Subclass of postfix operator defining the option operator."""
 
+    __slots__ = tuple()
+
     def get_precedence(self):
         return 3
 
     def op(self, left):
-        left.option()
+        left.repeat(0, 1)
         return left
 
 
 class ConcatToken(InfixOperator):
     """Subclass of infix operator defining the concatenation operator."""
+
+    __slots__ = tuple()
 
     def get_precedence(self):
         return 2
@@ -326,9 +403,15 @@ class ConcatToken(InfixOperator):
 class StringToken(Literal):
     """Subclass of literal token defining a string literal."""
 
+    __slots__ = ('counter',)
+
     def __init__(self, text, counter):
         super().__init__(text)
         self.counter = counter
+
+    @classmethod
+    def from_match(cls, match):
+        raise NotImplementedError
 
     def val(self):
         return NFARegexBuilder.from_string_literal(self.text, self.counter)
@@ -337,10 +420,16 @@ class StringToken(Literal):
 class WildcardToken(Literal):
     """Subclass of literal token defining a wildcard literal."""
 
+    __slots__ = ('input_symbols', 'counter')
+
     def __init__(self, text, input_symbols, counter):
         super().__init__(text)
         self.input_symbols = input_symbols
         self.counter = counter
+
+    @classmethod
+    def from_match(cls, match):
+        raise NotImplementedError
 
     def val(self):
         return NFARegexBuilder.wildcard(self.input_symbols, self.counter)
@@ -364,7 +453,7 @@ def add_concat_tokens(token_list):
     for curr_token, next_token in zip_longest(token_list, token_list[1:]):
         final_token_list.append(curr_token)
 
-        if next_token:
+        if next_token is not None:
             for firstClass, secondClass in concat_pairs:
                 if isinstance(curr_token, firstClass) and isinstance(next_token, secondClass):
                     final_token_list.append(ConcatToken(''))
@@ -377,16 +466,17 @@ def get_regex_lexer(input_symbols):
     lexer = Lexer()
     state_name_counter = count(0)
 
-    lexer.register_token(LeftParen, r'\(')
-    lexer.register_token(RightParen, r'\)')
-    lexer.register_token(lambda text: StringToken(text, state_name_counter), r'[A-Za-z0-9]')
-    lexer.register_token(UnionToken, r'\|')
-    lexer.register_token(IntersectionToken, r'\&')
-    lexer.register_token(ShuffleToken, r'\^')
-    lexer.register_token(KleeneStarToken, r'\*')
-    lexer.register_token(KleenePlusToken, r'\+')
-    lexer.register_token(OptionToken, r'\?')
-    lexer.register_token(lambda text: WildcardToken(text, input_symbols, state_name_counter), r'\.')
+    lexer.register_token(LeftParen.from_match, r'\(')
+    lexer.register_token(RightParen.from_match, r'\)')
+    lexer.register_token(lambda match: StringToken(match.group(), state_name_counter), r'[A-Za-z0-9]')
+    lexer.register_token(UnionToken.from_match, r'\|')
+    lexer.register_token(IntersectionToken.from_match, r'\&')
+    lexer.register_token(ShuffleToken.from_match, r'\^')
+    lexer.register_token(KleeneStarToken.from_match, r'\*')
+    lexer.register_token(KleenePlusToken.from_match, r'\+')
+    lexer.register_token(OptionToken.from_match, r'\?')
+    lexer.register_token(QuantifierToken.from_match, r'\{(.*),(.*)\}')
+    lexer.register_token(lambda match: WildcardToken(match.group(), input_symbols, state_name_counter), r'\.')
 
     return lexer
 

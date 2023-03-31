@@ -6,6 +6,8 @@ import unittest
 import automata.base.exceptions as exceptions
 import automata.regex.regex as re
 from automata.fa.nfa import NFA
+from automata.regex.parser import StringToken, WildcardToken
+import re as regex
 
 
 class TestRegex(unittest.TestCase):
@@ -28,6 +30,15 @@ class TestRegex(unittest.TestCase):
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'ab(bc)*((bbcd)')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a(*)')
         self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a(|)')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{1,0}')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{-1,}')
+        self.assertRaises(exceptions.InvalidRegexError, re.validate, 'a{-2,-1}')
+
+    def test_invalid_token_creation(self):
+        """Should raise error for invalid class creation"""
+        match_obj = regex.compile('a').match('a')
+        self.assertRaises(NotImplementedError, StringToken.from_match, match_obj)
+        self.assertRaises(NotImplementedError, WildcardToken.from_match, match_obj)
 
     def test_helper_validate_invalid(self):
         """Should pass validation for valid regular expression"""
@@ -130,6 +141,26 @@ class TestRegex(unittest.TestCase):
         reference_nfa = NFA.from_regex('a*^ba')
         other_nfa = NFA.shuffle_product(NFA.from_regex('a*'), NFA.from_regex('ba'))
         self.assertEqual(reference_nfa, other_nfa)
+
+    def test_quantifier(self):
+        """Should correctly check quantifier"""
+
+        input_symbols = {'a', 'b', 'c', 'd'}
+
+        # Simple equivalences
+        self.assertTrue(re.isequal('a{1,3}', 'a|aa|aaa', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{5,5}', 'aaaaa', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{1,}', 'a+', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{0,}', 'a*', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{4,}', 'aaaa+', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('a{,4}', 'a?|aa|aaa|aaaa', input_symbols=input_symbols))
+
+        # More complex equivalences
+        self.assertTrue(re.isequal('ba{,1}', 'ba?', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(b|a){0,2}', '(a?)|b|ab|ba|bb|aa', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(a*b|b*c*){0,1}', '(a*b|b*c*)?', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(aa^bb|ca^cb){0,}', '(aa^bb|ca^cb)*', input_symbols=input_symbols))
+        self.assertTrue(re.isequal('(aa|bb^ca|cb){1,}', '(aa|bb^ca|cb)+', input_symbols=input_symbols))
 
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""

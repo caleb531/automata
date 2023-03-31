@@ -8,8 +8,8 @@ from automata.regex.postfix import LeftParen, RightParen, Token
 
 
 def register_parens(lexer):
-    lexer.register_token(LeftParen, r'\(')
-    lexer.register_token(RightParen, r'\)')
+    lexer.register_token(LeftParen.from_match, r'\(')
+    lexer.register_token(RightParen.from_match, r'\)')
 
 
 class TestTokenRegistryTestCase(unittest.TestCase):
@@ -162,7 +162,7 @@ class TestGetTokenTestCase(unittest.TestCase):
         self.assertIsNotNone(match)
         token_factory_fn, re_match = match
 
-        self.assertTrue(isinstance(token_factory_fn('('), LeftParen))
+        self.assertTrue(isinstance(token_factory_fn(re_match), LeftParen))
         self.assertIsNotNone(re_match)
 
     def test_get_token_picks_first(self):
@@ -182,7 +182,7 @@ class TestGetTokenTestCase(unittest.TestCase):
         self.assertIsNotNone(match)
         token_factory_fn, re_match = match
 
-        self.assertTrue(isinstance(token_factory_fn(')'), RightParen))
+        self.assertTrue(isinstance(token_factory_fn(re_match), RightParen))
         self.assertIsNotNone(re_match)
 
     def test_longest_match(self):
