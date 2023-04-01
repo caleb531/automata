@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic pushdown automata."""
 
-from typing import AbstractSet, Generator, Mapping, Optional
+from typing import AbstractSet, Generator, Mapping, Optional, Tuple
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -13,7 +13,7 @@ DPDAStateT = pda.PDAStateT
 
 DPDAPathT = Mapping[
     str,
-    tuple[DPDAStateT, tuple[str]],
+    Tuple[DPDAStateT, Tuple[str]],
 ]
 DPDATransitionsT = Mapping[DPDAStateT, DPDAPathT]
 
