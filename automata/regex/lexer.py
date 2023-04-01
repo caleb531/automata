@@ -7,20 +7,21 @@ Adapted from code in the tdparser library: https://github.com/rbarrois/tdparser
 
 import abc
 import re
+from typing import (
+    AbstractSet,
+    Callable,
+    FrozenSet,
+    Generator,
+    Generic,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+)
+
+from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
-from typing import (
-    TypeVar,
-    Generic,
-    Callable,
-    Tuple,
-    List,
-    Generator,
-    Optional,
-    AbstractSet,
-    FrozenSet,
-)
-from typing_extensions import Self
 
 ResultT = TypeVar("ResultT")
 
@@ -141,7 +142,7 @@ class Lexer(Generic[ResultT]):
                 pos += 1
             else:
                 raise exceptions.LexerError(
-                    f'Invalid character "{text[pos]}" in "{text}"', position=pos
+                    f"Invalid character '{text[pos]}' in '{text}'", position=pos
                 )
 
         return res

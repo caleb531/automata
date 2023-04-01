@@ -4,10 +4,10 @@
 import abc
 from collections import deque
 from itertools import zip_longest
+from typing import Any, Deque, List, Optional, Tuple, TypeVar
 
 import automata.base.exceptions as exceptions
 from automata.regex.lexer import Token
-from typing import TypeVar, Tuple, List, Optional, Deque, Any
 
 ExpressionResultT = TypeVar("ExpressionResultT")
 
@@ -88,7 +88,8 @@ def validate_tokens(token_list: List[Token]) -> None:
                 f"'{curr_token}' cannot appear at the start of a statement."
             )
 
-        # No postfix operators at the end of a statement or right before another operator or right paren
+        # No postfix operators at the end of a statement or right before another
+        # operator or right paren
         elif isinstance(prev_token, InfixOperator):
             if curr_token is None:
                 raise exceptions.InvalidRegexError(
@@ -99,7 +100,8 @@ def validate_tokens(token_list: List[Token]) -> None:
                     f"'{prev_token}' cannot appear immediately before '{curr_token}'."
                 )
 
-        # No left parens right before infix or postfix operators, or right before a right paren
+        # No left parens right before infix or postfix operators, or right
+        # before a right paren
         elif isinstance(prev_token, LeftParen):
             if isinstance(curr_token, (InfixOperator, PostfixOperator, RightParen)):
                 raise exceptions.InvalidRegexError(

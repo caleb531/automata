@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Methods for working with regular expressions"""
 
+from typing import AbstractSet, Literal, Optional
+
 import automata.base.exceptions as exceptions
 from automata.fa.nfa import NFA
 from automata.regex.parser import RESERVED_CHARACTERS, get_regex_lexer, validate_tokens
-from typing import Literal, Optional, AbstractSet
 
 
 def _validate(regex: str) -> bool:

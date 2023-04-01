@@ -11,8 +11,7 @@ class TestPDAConfiguration(test_pda.TestPDA):
 
     def test_config_repr(self):
         """Should create proper string representation of PDA stack."""
-        config = PDAConfiguration('q0', 'ab', PDAStack(['a', 'b']))
+        config = PDAConfiguration("q0", "ab", PDAStack(["a", "b"]))
         self.assertEqual(
-            repr(config),
-            'PDAConfiguration(\'q0\', \'ab\', PDAStack(\'a\', \'b\'))'
+            repr(config), "PDAConfiguration('q0', 'ab', PDAStack('a', 'b'))"
         )

@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Classes and methods for parsing regexes into NFAs."""
 from __future__ import annotations
+
+import copy
+import re
 from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
-import copy
+from typing import AbstractSet, Deque, Dict, Iterable, List, Optional, Set, Tuple, Type
 
+import automata.base.exceptions as exceptions
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer, Token
 from automata.regex.postfix import (
@@ -17,9 +21,6 @@ from automata.regex.postfix import (
     tokens_to_postfix,
     validate_tokens,
 )
-import automata.base.exceptions as exceptions
-from typing import Tuple, Dict, Set, Type, Deque, List, Iterable, AbstractSet, Optional
-import re
 
 BuilderTransitionsT = Dict[int, Dict[str, Set[int]]]
 
@@ -127,8 +128,9 @@ class NFARegexBuilder:
 
     def intersection(self, other: NFARegexBuilder) -> None:
         """
-        Apply the intersection operation to the NFA represented by this builder and other.
-        Use BFS to only traverse reachable part (keeps number of states down).
+        Apply the intersection operation to the NFA represented by this builder
+        and other. Use BFS to only traverse reachable part (keeps number of
+        states down).
         """
 
         get_state_name = get_renaming_function(self._state_name_counter)
@@ -387,7 +389,8 @@ class KleenePlusToken(PostfixOperator[NFARegexBuilder]):
 
 
 class QuantifierToken(PostfixOperator[NFARegexBuilder]):
-    """Subclass of postfix operator for repeating an expression a fixed number of times."""
+    """Subclass of postfix operator for repeating an expression a fixed number
+    of times."""
 
     __slots__: Tuple[str, ...] = ("lower_bound", "upper_bound")
 
@@ -396,11 +399,13 @@ class QuantifierToken(PostfixOperator[NFARegexBuilder]):
 
         if lower_bound < 0:
             raise exceptions.InvalidRegexError(
-                f"Quantifier lower bound must be strictly greater than 0, not {lower_bound}."
+                f"Quantifier lower bound must be strictly greater than 0, not "
+                f"{lower_bound}."
             )
         elif upper_bound is not None and upper_bound < lower_bound:
             raise exceptions.InvalidRegexError(
-                f"Quantifier upper bound {upper_bound} inconsistent with lower bound {lower_bound}."
+                f"Quantifier upper bound {upper_bound} inconsistent with lower "
+                f"bound {lower_bound}."
             )
 
         self.lower_bound = lower_bound

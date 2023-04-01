@@ -1,34 +1,35 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
 from __future__ import annotations
+
+import string
 from collections import deque
 from itertools import chain, count, product, repeat
+from typing import (
+    AbstractSet,
+    Any,
+    Deque,
+    Dict,
+    FrozenSet,
+    Generator,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+)
 
 import networkx as nx
 from frozendict import frozendict
 from pydot import Dot, Edge, Node
-import string
+from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
-import automata.fa.fa as fa
 import automata.fa.dfa as dfa
+import automata.fa.fa as fa
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
-from typing import (
-    Mapping,
-    Tuple,
-    Any,
-    Dict,
-    Set,
-    AbstractSet,
-    FrozenSet,
-    Type,
-    Optional,
-    Deque,
-    Generator,
-    List,
-    Iterable,
-)
-from typing_extensions import Self
 
 NFAStateT = fa.FAStateT
 
@@ -938,21 +939,23 @@ class NFA(fa.FA):
         substitution: bool = True,
     ):
         """
-        Constructs the Levenshtein NFA for the given reference_str and
-        given Levenshtein distance. This NFA recognizes strings within the given
-        Levenshtein distance (commonly called edit distance) of the reference_str.
-        Parameters control which error types the NFA will recognize (insertions,
-        deletions, or substitutions). At least one error type must be set.
+        Constructs the Levenshtein NFA for the given reference_str and given
+        Levenshtein distance. This NFA recognizes strings within the given
+        Levenshtein distance (commonly called edit distance) of the
+        reference_str. Parameters control which error types the NFA will
+        recognize (insertions, deletions, or substitutions). At least one error
+        type must be set.
 
-        If insertion and deletion are False and substitution is True,
-        then this is the same as Hamming distance.
+        If insertion and deletion are False and substitution is True, then this
+        is the same as Hamming distance.
 
-        If insertion and deletion are True and substitution is False,
-        then this is the same as LCS distance.
+        If insertion and deletion are True and substitution is False, then this
+        is the same as LCS distance.
 
         insertion, deletion, and substitution all default to True.
 
-        Code adapted from: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
+        Code adapted from:
+        http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
         """
         if max_edit_distance < 0:
             raise ValueError("max_edit_distance must be greater than zero")

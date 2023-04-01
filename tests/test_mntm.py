@@ -26,15 +26,15 @@ class TestMNTM(test_tm.TestTM):
         """Should raise an error if formal MNTM parameters are missing."""
         with self.assertRaises(TypeError):
             MNTM(
-                states={'q0', 'q1', 'q2', 'q3', 'q4'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', 'x', 'y', '.'},
-                initial_state='q0',
-                blank_symbol='.',
-                final_states={'q4'}
+                states={"q0", "q1", "q2", "q3", "q4"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "x", "y", "."},
+                initial_state="q0",
+                blank_symbol=".",
+                final_states={"q4"},
             )
 
-    @patch('automata.tm.mntm.MNTM.validate')
+    @patch("automata.tm.mntm.MNTM.validate")
     def test_init_validation(self, validate):
         """Should validate MNTM when initialized."""
         self.mntm1.copy()
@@ -58,223 +58,224 @@ class TestMNTM(test_tm.TestTM):
         self.assertIsInstance(hash(frozendict(self.mntm1.input_parameters)), int)
 
     def test_validate_input_symbol_subset(self):
-        """Should raise error if input symbols are not a strict superset of tape symbols."""
+        """Should raise error if input symbols are not a strict superset of tape
+        symbols."""
         with self.assertRaises(exceptions.MissingSymbolError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_invalid_transition_state(self):
         """Should raise error if a transition state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q5': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q5": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_invalid_transition_symbol(self):
         """Should raise error if a transition symbol is invalid."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('5', '#'): [('q1', (('#', 'R'), ('#', 'R')))],
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("5", "#"): [("q1", (("#", "R"), ("#", "R")))],
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_invalid_transition_result_state(self):
         """Should raise error if a transition result state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q5', (('#', 'L'), ('#', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q5", (("#", "L"), ("#", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_invalid_transition_result_symbol(self):
         """Should raise error if a transition result symbol is invalid."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q1', (('.', 'L'), ('#', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q1", ((".", "L"), ("#", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_invalid_transition_result_direction(self):
         """Should raise error if a transition result direction is invalid."""
         with self.assertRaises(tm_exceptions.InvalidDirectionError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q1', (('#', 'U'), ('#', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q1", (("#", "U"), ("#", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q5',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q5",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_initial_state_transitions(self):
         """Should raise error if the initial state has no transitions."""
         with self.assertRaises(exceptions.MissingStateError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q1': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q1": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_nonfinal_initial_state(self):
         """Should raise error if the initial state is a final state."""
         with self.assertRaises(exceptions.InitialStateError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q0', 'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q0", "q1"},
             )
 
     def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q5'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q5"},
             )
 
     def test_validate_invalid_final_state_non_str(self):
         """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
+                initial_state="q0",
+                blank_symbol="#",
                 final_states={5},
             )
 
@@ -282,144 +283,148 @@ class TestMNTM(test_tm.TestTM):
         """Should raise error if a final state has any transitions."""
         with self.assertRaises(exceptions.FinalStateError):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     },
-                    'q1': {
-                        ('0', '#'): [('q0', (('0', 'L'), ('0', 'R')))]
-                    }
+                    "q1": {("0", "#"): [("q0", (("0", "L"), ("0", "R")))]},
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_tapes_consistency_too_few_specified(self):
         with self.assertRaises(tm_exceptions.InconsistentTapesException):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=3,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_validate_tapes_consistency_too_many_specified(self):
         with self.assertRaises(tm_exceptions.InconsistentTapesException):
             MNTM(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                tape_symbols={'0', '1', '#'},
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                tape_symbols={"0", "1", "#"},
                 n_tapes=2,
                 transitions={
-                    'q0': {
-                        ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
-                        ('0', '#'): [("q0", (("0", "R"), ("#", "N"), ("#", "R")))],
-                        ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                    "q0": {
+                        ("1", "#"): [("q0", (("1", "R"), ("1", "R")))],
+                        ("0", "#"): [("q0", (("0", "R"), ("#", "N"), ("#", "R")))],
+                        ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
                 },
-                initial_state='q0',
-                blank_symbol='#',
-                final_states={'q1'},
+                initial_state="q0",
+                blank_symbol="#",
+                final_states={"q1"},
             )
 
     def test_read_extended_tape(self):
-        self.assertEqual(self.mntm1._read_extended_tape(
-            '10^10_1^00_00#^_', '^'), ('0', '1', '#'))
-        self.assertEqual(self.mntm1._read_extended_tape(
-            '1.10_1.00_0.#_', '.'), ('1', '1', '0'))
-        self.assertEqual(self.mntm1._read_extended_tape(
-            '10#^_00#^_00^_', '^'), ('#', '#', '0'))
+        self.assertEqual(
+            self.mntm1._read_extended_tape("10^10_1^00_00#^_", "^"), ("0", "1", "#")
+        )
+        self.assertEqual(
+            self.mntm1._read_extended_tape("1.10_1.00_0.#_", "."), ("1", "1", "0")
+        )
+        self.assertEqual(
+            self.mntm1._read_extended_tape("10#^_00#^_00^_", "^"), ("#", "#", "0")
+        )
 
-        with self.assertRaisesRegex(tm_exceptions.MalformedExtendedTapeError,
-                                    "head symbol was found on leftmost " +
-                                    "end of the extended tape"):
-            self.assertEqual(self.mntm1._read_extended_tape(
-                '^10#_1^010#_00^', '^'), ('', '1', '0'))
+        with self.assertRaisesRegex(
+            tm_exceptions.MalformedExtendedTapeError,
+            "head symbol was found on leftmost " + "end of the extended tape",
+        ):
+            self.assertEqual(
+                self.mntm1._read_extended_tape("^10#_1^010#_00^", "^"), ("", "1", "0")
+            )
 
-        with self.assertRaisesRegex(tm_exceptions.MalformedExtendedTapeError,
-                                    "no head symbol found on one of the " +
-                                    "virtual tapes"):
-            self.assertEqual(self.mntm1._read_extended_tape(
-                '0^10#_1010#_00^_', '^'), ('0', '', '0'))
+        with self.assertRaisesRegex(
+            tm_exceptions.MalformedExtendedTapeError,
+            "no head symbol found on one of the " + "virtual tapes",
+        ):
+            self.assertEqual(
+                self.mntm1._read_extended_tape("0^10#_1010#_00^_", "^"), ("0", "", "0")
+            )
 
-        with self.assertRaisesRegex(tm_exceptions.MalformedExtendedTapeError,
-                                    "there must be 1 virtual head for " +
-                                    "every tape separator symbol"):
-            self.assertEqual(self.mntm1._read_extended_tape(
-                '0^1010^10#^', '^'), ('0', '0', '#'))
+        with self.assertRaisesRegex(
+            tm_exceptions.MalformedExtendedTapeError,
+            "there must be 1 virtual head for " + "every tape separator symbol",
+        ):
+            self.assertEqual(
+                self.mntm1._read_extended_tape("0^1010^10#^", "^"), ("0", "0", "#")
+            )
 
-        with self.assertRaisesRegex(tm_exceptions.MalformedExtendedTapeError,
-                                    "more than one head symbol found on " +
-                                    "one of the virtual tapes"):
-            self.assertEqual(self.mntm1._read_extended_tape(
-                '0^101010^_#^_', '^'), ('0', '0', '#'))
+        with self.assertRaisesRegex(
+            tm_exceptions.MalformedExtendedTapeError,
+            "more than one head symbol found on " + "one of the virtual tapes",
+        ):
+            self.assertEqual(
+                self.mntm1._read_extended_tape("0^101010^_#^_", "^"), ("0", "0", "#")
+            )
 
     def test_read_input_as_ntm(self):
-        validation_generator = self.mntm2.read_input_as_ntm('#0000')
+        validation_generator = self.mntm2.read_input_as_ntm("#0000")
         configs = list(validation_generator)
         first_config = configs[0].pop()
-        self.assertEqual(first_config[0], 'q-1')
-        self.assertEqual(str(first_config[1]), 'TMTape(\'#^0000_#^_#^_\', 0)')
+        self.assertEqual(first_config[0], "q-1")
+        self.assertEqual(str(first_config[1]), "TMTape('#^0000_#^_#^_', 0)")
         last_config = configs[-1].pop()
-        self.assertEqual(last_config[0], 'qf')
-        self.assertEqual(str(last_config[1]),
-                         'TMTape(\'#0000#^_#0000#^_#XYYY#^_\', 23)')
+        self.assertEqual(last_config[0], "qf")
+        self.assertEqual(str(last_config[1]), "TMTape('#0000#^_#0000#^_#XYYY#^_', 23)")
 
         with self.assertRaises(exceptions.RejectionException):
-            for _ in self.mntm2.read_input_as_ntm('#00'):
+            for _ in self.mntm2.read_input_as_ntm("#00"):
                 pass
 
     def test_read_input_accepted(self):
         """Should return correct state if acceptable TM input is given."""
-        final_config = self.mntm1.read_input('0101101011').pop()
-        self.assertEqual(final_config[0], 'q1')
-        self.assertEqual(
-            str(final_config[1][0]),
-            'TMTape(\'0101101011#\', 10)')
-        self.assertEqual(str(final_config[1][1]), 'TMTape(\'111111#\', 6)')
+        final_config = self.mntm1.read_input("0101101011").pop()
+        self.assertEqual(final_config[0], "q1")
+        self.assertEqual(str(final_config[1][0]), "TMTape('0101101011#', 10)")
+        self.assertEqual(str(final_config[1][1]), "TMTape('111111#', 6)")
 
     def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""
-        validation_generator = self.mntm1.read_input_stepwise('0010101111')
+        validation_generator = self.mntm1.read_input_stepwise("0010101111")
         self.assertIsInstance(validation_generator, types.GeneratorType)
         configs = list(validation_generator)
         first_config = configs[0].pop()
-        self.assertEqual(first_config[0], 'q0')
-        self.assertEqual(str(first_config[1][0]), 'TMTape(\'0010101111\', 0)')
-        self.assertEqual(str(first_config[1][1]), 'TMTape(\'#\', 0)')
+        self.assertEqual(first_config[0], "q0")
+        self.assertEqual(str(first_config[1][0]), "TMTape('0010101111', 0)")
+        self.assertEqual(str(first_config[1][1]), "TMTape('#', 0)")
         last_config = configs[-1].pop()
-        self.assertEqual(last_config[0], 'q1')
-        self.assertEqual(
-            str(last_config[1][0]),
-            'TMTape(\'0010101111#\', 10)')
-        self.assertEqual(str(last_config[1][1]), 'TMTape(\'111111#\', 6)')
+        self.assertEqual(last_config[0], "q1")
+        self.assertEqual(str(last_config[1][0]), "TMTape('0010101111#', 10)")
+        self.assertEqual(str(last_config[1][1]), "TMTape('111111#', 6)")
 
     def test_read_input_rejection(self):
         """Should raise error if the machine halts."""
         with self.assertRaises(exceptions.RejectionException):
-            self.mntm1.read_input('2')
+            self.mntm1.read_input("2")
 
     def test_read_input_rejection_invalid_symbol(self):
         """Should raise error if an invalid symbol is read."""
         with self.assertRaises(exceptions.RejectionException):
-            self.mntm2.read_input('1')
+            self.mntm2.read_input("1")
 
     def test_accepts_input_true(self):
         """Should return False if MNTM input is not accepted."""
@@ -440,8 +445,9 @@ class TestMNTM(test_tm.TestTM):
             self.assertTrue(self.mntm3.accepts_input(input_str_3))
 
             # Should not accept because this would not be of the form ww
-            self.assertFalse(self.mntm3.accepts_input(
-                input_str_3 + str(random.randint(0, 1))))
+            self.assertFalse(
+                self.mntm3.accepts_input(input_str_3 + str(random.randint(0, 1)))
+            )
 
             # Should accept only if input string's length is a perfect square
             if self.is_perfect_square(len(input_str_2) - 1):
@@ -451,8 +457,8 @@ class TestMNTM(test_tm.TestTM):
 
     def test_accepts_input_false(self):
         """Should return False if MNTM input is rejected."""
-        self.assertFalse(self.mntm1.accepts_input('000012'))
-        self.assertFalse(self.mntm2.accepts_input('#00000'))
+        self.assertFalse(self.mntm1.accepts_input("000012"))
+        self.assertFalse(self.mntm2.accepts_input("#00000"))
 
     @staticmethod
     def is_perfect_square(number: int):

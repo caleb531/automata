@@ -11,7 +11,6 @@ from automata.fa.dfa import DFA
 
 
 class TestConfig(unittest.TestCase):
-
     def setUp(self):
         self.orig_should_validate = global_config.should_validate_automata
         self.orig_allow_mutable_automata = global_config.allow_mutable_automata
@@ -20,32 +19,32 @@ class TestConfig(unittest.TestCase):
         global_config.should_validate_automata = self.orig_should_validate
         global_config.allow_mutable_automata = self.orig_allow_mutable_automata
 
-    @patch('automata.fa.dfa.DFA.validate')
+    @patch("automata.fa.dfa.DFA.validate")
     def test_disable_validation(self, validate):
         """Should disable automaton validation"""
         global_config.should_validate_automata = False
         DFA.universal_language({0, 1})
         validate.assert_not_called()
 
-    @patch('automata.base.utils.freeze_value')
+    @patch("automata.base.utils.freeze_value")
     def test_disable_ensure_values_are_frozen(self, freeze_value):
         """Should enable automaton mutability"""
         global_config.allow_mutable_automata = True
         DFA(
-            states=frozenset(['s1']),
-            input_symbols=frozenset('a'),
-            transitions=frozendict({'s1': frozendict({'a': 's1'})}),
-            initial_state='s1',
-            final_states=frozenset(['s1']),
+            states=frozenset(["s1"]),
+            input_symbols=frozenset("a"),
+            transitions=frozendict({"s1": frozendict({"a": "s1"})}),
+            initial_state="s1",
+            final_states=frozenset(["s1"]),
         )
         freeze_value.assert_not_called()
 
         # Also this should not call freeze_value nor throw any error
         DFA(
-            states={'s1'},
-            input_symbols={'a'},
-            transitions={'s1': {'a': 's1'}},
-            initial_state='s1',
-            final_states={'s1'}
+            states={"s1"},
+            input_symbols={"a"},
+            transitions={"s1": {"a": "s1"}},
+            initial_state="s1",
+            final_states={"s1"},
         )
         freeze_value.assert_not_called()

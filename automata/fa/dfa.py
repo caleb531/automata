@@ -1,40 +1,41 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic finite automata."""
 from __future__ import annotations
+
 from collections import defaultdict, deque
 from itertools import chain, count
 from random import Random
+from typing import (
+    AbstractSet,
+    Any,
+    Callable,
+    DefaultDict,
+    Deque,
+    Dict,
+    FrozenSet,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 import networkx as nx
 from pydot import Dot, Edge, Node
+from typing_extensions import Literal
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 from automata.base.utils import PartitionRefinement, get_renaming_function
-from typing import (
-    overload,
-    Tuple,
-    cast,
-    Mapping,
-    Any,
-    Dict,
-    Set,
-    AbstractSet,
-    DefaultDict,
-    FrozenSet,
-    Type,
-    Union,
-    Callable,
-    Iterator,
-    Optional,
-    Deque,
-    Generator,
-    TypeVar,
-    List,
-    Iterable,
-)
-from typing_extensions import Literal
 
 DFAStateT = fa.FAStateT
 
@@ -197,8 +198,9 @@ class DFA(fa.FA):
 
     def __iter__(self) -> Iterator[str]:
         """
-        Iterates through all words in the language represented by the DFA.
-        The words are ordered first by length and then by the order of the input symbol set.
+        Iterates through all words in the language represented by the DFA. The
+        words are ordered first by length and then by the order of the input
+        symbol set.
         """
         i = self.minimum_word_length()
         limit = self.maximum_word_length()
@@ -683,15 +685,18 @@ class DFA(fa.FA):
         retain_names: bool = False,
     ) -> Union[bool, DFADataTupleT]:
         """
-        Search reachable states corresponding to product graph between self and other.
+        Search reachable states corresponding to product graph between self and
+        other.
 
-        The function state_target_fn should return True for states that should be
-        final (when the new DFA is being constructed explicitly) or for states that
-        are being searched for (if the DFA is not being constructed).
+        The function state_target_fn should return True for states that should
+        be final (when the new DFA is being constructed explicitly) or for
+        states that are being searched for (if the DFA is not being
+        constructed).
 
-        If should_construct_dfa is False, then this function returns a boolean corresponding
-        to whether any target states are reachable. Otherwise, constructs the given DFA. If
-        retain_names is set to False, states are renamed.
+        If should_construct_dfa is False, then this function returns a boolean
+        corresponding to whether any target states are reachable. Otherwise,
+        constructs the given DFA. If retain_names is set to False, states are
+        renamed.
         """
         if self.input_symbols != other.input_symbols:
             raise exceptions.SymbolMismatchError(
@@ -890,15 +895,15 @@ class DFA(fa.FA):
         reverse: bool = False,
     ) -> Iterable[str]:
         """
-        Generates all strings that come after the input string
-        in lexicographical order.
-        Passing in None will generate all words.
-        If strict is set to False and input_str is accepted by the DFA then
-        it will be included in the output.
-        If reverse is set to True then predecessors will be generated instead. See the DFA.predecessors method.
-        The value of key can be set to define a custom lexicographical ordering.
+        Generates all strings that come after the input string in
+        lexicographical order. Passing in None will generate all words. If
+        strict is set to False and input_str is accepted by the DFA then it will
+        be included in the output. If reverse is set to True then predecessors
+        will be generated instead. See the DFA.predecessors method. The value of
+        key can be set to define a custom lexicographical ordering.
         """
-        # A predecessor for a finite string may be infinite but a successor for a finite string is always finite
+        # A predecessor for a finite string may be infinite but a successor for
+        # a finite string is always finite
         if reverse and not self.isfinite():
             raise exceptions.InfiniteLanguageException(
                 "Predecessors cannot be computed for infinite languages"
@@ -926,10 +931,12 @@ class DFA(fa.FA):
         first_symbol = sorted_symbols[0]
         # For predecessors we need to special case the input string None
         candidate = None if reverse and input_str is not None else first_symbol
-        # If input_str is None then we yield on first value found no matter the value of include_input
+        # If input_str is None then we yield on first value found no matter the
+        # value of include_input
         should_yield = include_input or input_str is None
 
-        # Iterative preorder/postorder (depends on reverse) traversal that yields on final states
+        # Iterative preorder/postorder (depends on reverse) traversal that
+        # yields on final states
         while char_stack or candidate is not None:
             state = state_stack[-1]
             # Successors yield here
@@ -959,7 +966,8 @@ class DFA(fa.FA):
                     and state in self.final_states
                 ):
                     yield "".join(char_stack)
-                # Candidate is None means no more children to explore, so traverse to parent
+                # Candidate is None means no more children to explore, so
+                # traverse to parent
                 if candidate is None:
                     state = state_stack.pop()
                     candidate = char_stack.pop()
@@ -1246,9 +1254,9 @@ class DFA(fa.FA):
         symbols_to_count: Optional[AbstractSet[str]] = None,
     ) -> DFA:
         """
-        Directly computes the minimal DFA recognizing strings whose length
-        is between `min_length` and `max_length`, inclusive.
-        To allow infinitely long words the value `None` can be passed in for `max_length`.
+        Directly computes the minimal DFA recognizing strings whose length is
+        between `min_length` and `max_length`, inclusive. To allow infinitely
+        long words the value `None` can be passed in for `max_length`.
         """
         if symbols_to_count is None:
             symbols_to_count = input_symbols
@@ -1386,11 +1394,12 @@ class DFA(fa.FA):
             )
         if len(input_symbols) == 1:
             return cls.of_length(input_symbols, min_length=n)
-        # Consider the states to be labelled with bitstrings of size n
-        # The bitstring represents how the current suffix in this state matches our desired symbol
-        # A 1 means the character at this position is the desired symbol and a 0 means it is not
-        # For transitions this is effectively doubling the label value and then adding 1 if the desired symbol is read
-        # Finally we trim the label to n bits with a modulo operation.
+        # Consider the states to be labelled with bitstrings of size n The
+        # bitstring represents how the current suffix in this state matches our
+        # desired symbol A 1 means the character at this position is the desired
+        # symbol and a 0 means it is not For transitions this is effectively
+        # doubling the label value and then adding 1 if the desired symbol is
+        # read Finally we trim the label to n bits with a modulo operation.
         state_count = 2**n
 
         return cls(

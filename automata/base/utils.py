@@ -2,21 +2,21 @@
 """Miscellaneous utility functions and classes."""
 
 from collections import defaultdict
-
-from frozendict import frozendict
+from itertools import count
 from typing import (
     Any,
     Callable,
-    Tuple,
-    Iterable,
-    Generic,
-    TypeVar,
-    Set,
-    Dict,
-    List,
     DefaultDict,
+    Dict,
+    Generic,
+    Iterable,
+    List,
+    Set,
+    Tuple,
+    TypeVar,
 )
-from itertools import count
+
+from frozendict import frozendict
 
 
 def freeze_value(value: Any) -> Any:
@@ -62,10 +62,11 @@ T = TypeVar("T")
 
 class PartitionRefinement(Generic[T]):
     """Maintain and refine a partition of a set of items into subsets.
-    Space usage for a partition of n items is O(n), and each refine
-    operation takes time proportional to the size of its argument.
+    Space usage for a partition of n items is O(n), and each refine operation
+    takes time proportional to the size of its argument.
 
-    Adapted from code by D. Eppstein: https://www.ics.uci.edu/~eppstein/PADS/PartitionRefinement.py
+    Adapted from code by D. Eppstein:
+    https://www.ics.uci.edu/~eppstein/PADS/PartitionRefinement.py
     """
 
     __slots__: Tuple[str, ...] = ("_sets", "_partition")
@@ -108,7 +109,8 @@ class PartitionRefinement(Generic[T]):
         for Aid, AintS in hit.items():
             A = self._sets[Aid]
 
-            # Only need to check lengths, we already know AintS is a subset of A by construction
+            # Only need to check lengths, we already know AintS is a subset of A
+            # by construction
             if len(AintS) < len(A):
                 self._sets[id(AintS)] = AintS
                 for x in AintS:

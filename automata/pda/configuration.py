@@ -2,6 +2,7 @@
 """Classes and methods for working with PDA configurations."""
 
 from typing import Any, List, NamedTuple
+
 from automata.pda.stack import PDAStack
 
 
