@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic pushdown automata."""
 
-from typing import AbstractSet, Generator, Mapping, Optional, Tuple
+from typing import AbstractSet, Generator, Mapping, Optional, Set, Tuple
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -118,7 +118,7 @@ class DPDA(pda.PDA):
 
     def _get_next_configuration(self, old_config: PDAConfiguration) -> PDAConfiguration:
         """Advance to the next configuration."""
-        transitions: set[Optional[DPDAPathT]] = set()
+        transitions: Set[Optional[DPDAPathT]] = set()
         if old_config.remaining_input:
             transitions.add(
                 self._get_transition(

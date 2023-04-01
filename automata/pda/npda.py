@@ -86,7 +86,7 @@ class NPDA(pda.PDA):
         self, old_config: PDAConfiguration
     ) -> Set[PDAConfiguration]:
         """Advance to the next configurations."""
-        transitions: set[Tuple[str, NPDAStateT, str]] = set()
+        transitions: Set[Tuple[str, NPDAStateT, str]] = set()
         if old_config.remaining_input:
             transitions.update(
                 self._get_transitions(
