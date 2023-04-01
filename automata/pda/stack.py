@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Classes and methods for working with PDA stacks."""
 from __future__ import annotations
+
 import collections
-from typing import List, Iterator
+from typing import Iterator, List
 
 
 class PDAStack(collections.namedtuple("PDAStack", ["stack"])):

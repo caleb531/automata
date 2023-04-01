@@ -294,7 +294,8 @@ class NFA(fa.FA):
         return reachable_states, new_transitions, reachable_final_states
 
     def eliminate_lambda(self) -> NFA:
-        """Removes epsilon transitions from the NFA which recognizes the same language."""
+        """Removes epsilon transitions from the NFA which recognizes the same
+        language."""
 
         (
             reachable_states,

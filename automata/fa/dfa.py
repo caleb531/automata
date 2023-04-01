@@ -377,7 +377,8 @@ class DFA(fa.FA):
         reachable_final_states: AbstractSet[DFAStateT],
         retain_names: bool,
     ):
-        """Minify helper function. DFA data passed in must have no unreachable states."""
+        """Minify helper function. DFA data passed in must have no unreachable
+        states."""
 
         # First, assemble backmap and equivalence class data structure
         eq_classes = PartitionRefinement(reachable_states)
