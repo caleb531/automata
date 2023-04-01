@@ -84,7 +84,7 @@ class TokenRegistry():
         return len(self._tokens)
 
 
-class Lexer():
+class Lexer(Generic[ResultT]):
     """
     The core lexer. First, tokens are registered with their factory functions and regex
     patterns. The lexer can then take in a string and splits it into a list of token
