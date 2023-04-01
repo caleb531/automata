@@ -1,5 +1,10 @@
 # Automata Migration Guide
 
+## Backwards-incompatible changes from v7 to v8
+
+Python 3.7 support has been dropped. Please upgrade to Python 3.8 or later to
+use Automata v8.
+
 ## Backwards-incompatible changes from v6 to v7
 
 ### Immutable instances
