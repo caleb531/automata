@@ -4,10 +4,9 @@
 import collections
 
 
-class TMTape(collections.namedtuple(
-    'TMTape',
-    ['tape', 'blank_symbol', 'current_position']
-)):
+class TMTape(
+    collections.namedtuple("TMTape", ["tape", "blank_symbol", "current_position"])
+):
     """A Turing machine tape."""
 
     def __new__(cls, tape, *, blank_symbol, current_position=0):
@@ -17,9 +16,7 @@ class TMTape(collections.namedtuple(
         while len(tape) <= current_position:
             tape.append(blank_symbol)
         tape = tuple(tape)
-        return super(TMTape, cls).__new__(
-            cls, tape, blank_symbol, current_position
-        )
+        return super(TMTape, cls).__new__(cls, tape, blank_symbol, current_position)
 
     def read_symbol(self):
         """Read the symbol at the current position in the tape."""
@@ -32,7 +29,7 @@ class TMTape(collections.namedtuple(
         return TMTape(
             tape_elements,
             blank_symbol=self.blank_symbol,
-            current_position=self.current_position
+            current_position=self.current_position,
         )
 
     def move(self, direction):
@@ -40,11 +37,11 @@ class TMTape(collections.namedtuple(
         # Copy stuff.
         new_tape = list(self.tape)
         new_position = self.current_position
-        if direction == 'R':
+        if direction == "R":
             new_position += 1
-        elif direction == 'N':
+        elif direction == "N":
             pass
-        elif direction == 'L':  # pragma: no branch
+        elif direction == "L":  # pragma: no branch
             new_position -= 1
         # Make sure that the cursor doesn't run off the end of the tape.
         if new_position == -1:
@@ -53,15 +50,15 @@ class TMTape(collections.namedtuple(
         if new_position == len(new_tape):
             new_tape.append(self.blank_symbol)
         return TMTape(
-            new_tape,
-            blank_symbol=self.blank_symbol,
-            current_position=new_position
+            new_tape, blank_symbol=self.blank_symbol, current_position=new_position
         )
 
     def copy(self):
-        return TMTape(list(self.tape).copy(),
-                      blank_symbol=self.blank_symbol,
-                      current_position=self.current_position)
+        return TMTape(
+            list(self.tape).copy(),
+            blank_symbol=self.blank_symbol,
+            current_position=self.current_position,
+        )
 
     def get_symbols_as_str(self):
         return "".join(self.tape)
@@ -76,6 +73,6 @@ class TMTape(collections.namedtuple(
 
     def __repr__(self):
         """Return a string representation of the tape."""
-        return '{}(\'{}\', {})'.format(
-            self.__class__.__name__, ''.join(self.tape), self.current_position
+        return "{}('{}', {})".format(
+            self.__class__.__name__, "".join(self.tape), self.current_position
         )

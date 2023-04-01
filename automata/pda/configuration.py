@@ -4,10 +4,9 @@
 import collections
 
 
-class PDAConfiguration(collections.namedtuple(
-    'PDAConfiguration',
-    ['state', 'remaining_input', 'stack']
-)):
+class PDAConfiguration(
+    collections.namedtuple("PDAConfiguration", ["state", "remaining_input", "stack"])
+):
     """
     A configuration is a triple of current state, remaining input and stack.
 
@@ -17,9 +16,6 @@ class PDAConfiguration(collections.namedtuple(
 
     def __repr__(self):
         """Return a string representation of the configuration."""
-        return '{}(\'{}\', \'{}\', {})'.format(
-            self.__class__.__name__,
-            self.state,
-            self.remaining_input,
-            self.stack
+        return "{}('{}', '{}', {})".format(
+            self.__class__.__name__, self.state, self.remaining_input, self.stack
         )

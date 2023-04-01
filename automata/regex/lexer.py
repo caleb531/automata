@@ -14,7 +14,7 @@ import automata.base.exceptions as exceptions
 class Token(metaclass=abc.ABCMeta):
     """Base class for tokens."""
 
-    __slots__ = ('text',)
+    __slots__ = ("text",)
 
     def __init__(self, text):
         self.text = text
@@ -30,10 +30,10 @@ class Token(metaclass=abc.ABCMeta):
         return f"<{self.__class__.__name__}: {self.text}>"
 
 
-class TokenRegistry():
+class TokenRegistry:
     """Registry holding token rules."""
 
-    __slots__ = ('_tokens',)
+    __slots__ = ("_tokens",)
 
     def __init__(self):
         self._tokens = []
@@ -73,16 +73,16 @@ class TokenRegistry():
         return len(self._tokens)
 
 
-class Lexer():
+class Lexer:
     """
     The core lexer. First, tokens are registered with their factory functions and regex
     patterns. The lexer can then take in a string and splits it into a list of token
     classes (in infix ordering) matching the regex patterns.
     """
 
-    __slots__ = ('tokens', 'blank_chars')
+    __slots__ = ("tokens", "blank_chars")
 
-    def __init__(self, blank_chars={' ', '\t'}):
+    def __init__(self, blank_chars={" ", "\t"}):
         self.tokens = TokenRegistry()
         self.blank_chars = blank_chars
 
@@ -110,6 +110,8 @@ class Lexer():
             elif text[pos] in self.blank_chars:
                 pos += 1
             else:
-                raise exceptions.LexerError(f"Invalid character '{text[pos]}' in '{text}'", position=pos)
+                raise exceptions.LexerError(
+                    f"Invalid character '{text[pos]}' in '{text}'", position=pos
+                )
 
         return res

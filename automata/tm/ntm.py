@@ -11,12 +11,27 @@ from automata.tm.tape import TMTape
 class NTM(tm.TM):
     """A nondeterministic Turing machine."""
 
-    __slots__ = ('states', 'input_symbols', 'tape_symbols', 'transitions',
-                 'initial_state', 'blank_symbol', 'final_states')
+    __slots__ = (
+        "states",
+        "input_symbols",
+        "tape_symbols",
+        "transitions",
+        "initial_state",
+        "blank_symbol",
+        "final_states",
+    )
 
     def __init__(
-            self, *, states, input_symbols, tape_symbols, transitions,
-            initial_state, blank_symbol, final_states):
+        self,
+        *,
+        states,
+        input_symbols,
+        tape_symbols,
+        transitions,
+        initial_state,
+        blank_symbol,
+        final_states,
+    ):
         """Initialize a complete Turing machine."""
         super().__init__(
             states=states,
@@ -25,20 +40,20 @@ class NTM(tm.TM):
             transitions=transitions,
             initial_state=initial_state,
             blank_symbol=blank_symbol,
-            final_states=final_states
+            final_states=final_states,
         )
 
     def _validate_transition_state(self, transition_state):
         if transition_state not in self.states:
             raise exceptions.InvalidStateError(
-                'transition state is not valid ({})'.format(transition_state)
+                "transition state is not valid ({})".format(transition_state)
             )
 
     def _validate_transition_symbols(self, state, paths):
         for tape_symbol in paths.keys():
             if tape_symbol not in self.tape_symbols:
                 raise exceptions.InvalidSymbolError(
-                    'transition symbol {} for state {} is not valid'.format(
+                    "transition symbol {} for state {} is not valid".format(
                         tape_symbol, state
                     )
                 )
@@ -46,18 +61,18 @@ class NTM(tm.TM):
     def _validate_transition_result_direction(self, result_direction):
         if result_direction not in ("L", "N", "R"):
             raise tm_exceptions.InvalidDirectionError(
-                'result direction is not valid ({})'.format(result_direction)
+                "result direction is not valid ({})".format(result_direction)
             )
 
     def _validate_transition_result(self, result):
         result_state, result_symbol, result_direction = result
         if result_state not in self.states:
             raise exceptions.InvalidStateError(
-                'result state is not valid ({})'.format(result_state)
+                "result state is not valid ({})".format(result_state)
             )
         if result_symbol not in self.tape_symbols:
             raise exceptions.InvalidSymbolError(
-                'result symbol is not valid ({})'.format(result_symbol)
+                "result symbol is not valid ({})".format(result_symbol)
             )
         self._validate_transition_result_direction(result_direction)
 
@@ -76,8 +91,8 @@ class NTM(tm.TM):
         for final_state in self.final_states:
             if final_state in self.transitions:
                 raise exceptions.FinalStateError(
-                    'final state {} has transitions defined'.format(
-                        final_state))
+                    "final state {} has transitions defined".format(final_state)
+                )
 
     def validate(self):
         """Return True if this NTM is internally consistent."""
@@ -93,8 +108,7 @@ class NTM(tm.TM):
 
     def _get_transitions(self, state, tape_symbol):
         """Get the transition tuples for the given state and tape symbol."""
-        if state in self.transitions and tape_symbol in self.transitions[
-                state]:
+        if state in self.transitions and tape_symbol in self.transitions[state]:
             return self.transitions[state][tape_symbol]
         else:
             return set()
@@ -124,10 +138,9 @@ class NTM(tm.TM):
         """
         current_configurations = {
             TMConfiguration(
-                self.initial_state,
-                TMTape(
-                    input_str,
-                    blank_symbol=self.blank_symbol))}
+                self.initial_state, TMTape(input_str, blank_symbol=self.blank_symbol)
+            )
+        }
         yield current_configurations
 
         # The initial state cannot be a final state for a NTM, so the first
@@ -138,8 +151,7 @@ class NTM(tm.TM):
                 if self._has_accepted(config):
                     # One accepting configuration is enough.
                     return
-                new_configurations.update(
-                    self._get_next_configurations(config))
+                new_configurations.update(self._get_next_configurations(config))
             current_configurations = new_configurations
             yield current_configurations
 

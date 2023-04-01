@@ -33,11 +33,11 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def __setattr__(self, name, value):
         """Set custom setattr to make class immutable."""
-        raise AttributeError(f'This {type(self).__name__} is immutable')
+        raise AttributeError(f"This {type(self).__name__} is immutable")
 
     def __delattr__(self, name):
         """Set custom delattr to make class immutable."""
-        raise AttributeError(f'This {type(self).__name__} is immutable')
+        raise AttributeError(f"This {type(self).__name__} is immutable")
 
     def __getstate__(self):
         """Return the object's state, described by its input parameters"""
@@ -77,35 +77,41 @@ class Automaton(metaclass=abc.ABCMeta):
         """Raise an error if the initial state is invalid."""
         if self.initial_state not in self.states:
             raise exceptions.InvalidStateError(
-                '{} is not a valid initial state'.format(self.initial_state))
+                "{} is not a valid initial state".format(self.initial_state)
+            )
 
     def _validate_initial_state_transitions(self):
         """Raise an error if the initial state has no transitions defined."""
         if self.initial_state not in self.transitions and len(self.states) > 1:
             raise exceptions.MissingStateError(
-                'initial state {} has no transitions defined'.format(
-                    self.initial_state))
+                "initial state {} has no transitions defined".format(self.initial_state)
+            )
 
     def _validate_final_states(self):
         """Raise an error if any final states are invalid."""
         invalid_states = self.final_states - self.states
         if invalid_states:
             raise exceptions.InvalidStateError(
-                'final states are not valid ({})'.format(
-                    ', '.join(str(state) for state in invalid_states)))
+                "final states are not valid ({})".format(
+                    ", ".join(str(state) for state in invalid_states)
+                )
+            )
 
     @property
     def input_parameters(self):
         """Return the public attributes for this automaton."""
-        return {attr_name: getattr(self, attr_name)
-                for attr_name in self.__slots__
-                if not attr_name.startswith('_')}
+        return {
+            attr_name: getattr(self, attr_name)
+            for attr_name in self.__slots__
+            if not attr_name.startswith("_")
+        }
 
     def copy(self):
         """Create a deep copy of the automaton."""
         return self.__class__(**self.input_parameters)
 
-    # Format the given value for string output via repr() or str(); this exists for the purpose of displaying
+    # Format the given value for string output via repr() or str(); this exists
+    # for the purpose of displaying
 
     def _get_repr_friendly_value(self, value):
         """
@@ -114,8 +120,7 @@ class Automaton(metaclass=abc.ABCMeta):
         members, unfreezing them along the way
         """
         if isinstance(value, frozenset):
-            return {self._get_repr_friendly_value(element)
-                    for element in value}
+            return {self._get_repr_friendly_value(element) for element in value}
         elif isinstance(value, frozendict):
             return {
                 dict_key: self._get_repr_friendly_value(dict_value)
@@ -126,10 +131,11 @@ class Automaton(metaclass=abc.ABCMeta):
 
     def __repr__(self):
         """Return a string representation of the automaton."""
-        values = ', '.join(
-            f'{attr_name}={self._get_repr_friendly_value(attr_value)!r}'
-            for attr_name, attr_value in self.input_parameters.items())
-        return f'{self.__class__.__qualname__}({values})'
+        values = ", ".join(
+            f"{attr_name}={self._get_repr_friendly_value(attr_value)!r}"
+            for attr_name, attr_value in self.input_parameters.items()
+        )
+        return f"{self.__class__.__qualname__}({values})"
 
     def __contains__(self, input_str):
         """Returns whether the word is accepted by the automaton."""

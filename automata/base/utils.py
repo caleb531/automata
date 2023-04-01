@@ -15,10 +15,12 @@ def freeze_value(value):
     if isinstance(value, (str, int)):
         return value
     if isinstance(value, dict):
-        return frozendict({
-            dict_key: freeze_value(dict_value)
-            for dict_key, dict_value in value.items()
-        })
+        return frozendict(
+            {
+                dict_key: freeze_value(dict_value)
+                for dict_key, dict_value in value.items()
+            }
+        )
     if isinstance(value, set):
         return frozenset(freeze_value(element) for element in value)
     if isinstance(value, list):
@@ -44,13 +46,14 @@ def get_renaming_function(counter):
 
 class PartitionRefinement:
     """Maintain and refine a partition of a set of items into subsets.
-    Space usage for a partition of n items is O(n), and each refine
-    operation takes time proportional to the size of its argument.
+    Space usage for a partition of n items is O(n), and each refine operation
+    takes time proportional to the size of its argument.
 
-    Adapted from code by D. Eppstein: https://www.ics.uci.edu/~eppstein/PADS/PartitionRefinement.py
+    Adapted from code by D. Eppstein:
+    https://www.ics.uci.edu/~eppstein/PADS/PartitionRefinement.py
     """
 
-    __slots__ = ('_sets', '_partition')
+    __slots__ = ("_sets", "_partition")
 
     def __init__(self, items):
         """Create a new partition refinement data structure for the given
@@ -90,7 +93,8 @@ class PartitionRefinement:
         for Aid, AintS in hit.items():
             A = self._sets[Aid]
 
-            # Only need to check lengths, we already know AintS is a subset of A by construction
+            # Only need to check lengths, we already know AintS is a subset of A
+            # by construction
             if len(AintS) < len(A):
                 self._sets[id(AintS)] = AintS
                 for x in AintS:

@@ -4,7 +4,7 @@
 import collections
 
 
-class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
+class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
     """A PDA stack."""
 
     def __new__(cls, elements):
@@ -16,7 +16,7 @@ class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
         if self.stack:
             return self.stack[-1]
         else:
-            return ''
+            return ""
 
     def pop(self):
         """
@@ -50,4 +50,4 @@ class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
 
     def __repr__(self):
         """Return a string representation of the stack."""
-        return '{}{}'.format(self.__class__.__name__, self.stack)
+        return "{}{}".format(self.__class__.__name__, self.stack)
