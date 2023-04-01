@@ -12,34 +12,66 @@ import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 from automata.base.utils import PartitionRefinement, get_renaming_function
-from typing import overload, Tuple, cast, Mapping, Any, Dict, Set, AbstractSet, DefaultDict, FrozenSet, Type, Union, Callable, Iterator, Optional, Deque, Generator, TypeVar, List, Iterable
+from typing import (
+    overload,
+    Tuple,
+    cast,
+    Mapping,
+    Any,
+    Dict,
+    Set,
+    AbstractSet,
+    DefaultDict,
+    FrozenSet,
+    Type,
+    Union,
+    Callable,
+    Iterator,
+    Optional,
+    Deque,
+    Generator,
+    TypeVar,
+    List,
+    Iterable,
+)
 from typing_extensions import Literal
 
 DFAStateT = fa.FAStateT
 
-DFAType = TypeVar('DFAType', bound='DFA')
+DFAType = TypeVar("DFAType", bound="DFA")
 DFAPathT = Mapping[str, DFAStateT]
 DFATransitionsT = Mapping[DFAStateT, DFAPathT]
+
 
 class DFA(fa.FA):
     """A deterministic finite automaton."""
 
-    #TODO allow 
-    __slots__ = ('states', 'input_symbols', 'transitions',
-                 'initial_state', 'final_states', 'allow_partial', '_count_cache', '_word_cache')
+    # TODO allow
+    __slots__ = (
+        "states",
+        "input_symbols",
+        "transitions",
+        "initial_state",
+        "final_states",
+        "allow_partial",
+        "_count_cache",
+        "_word_cache",
+    )
 
     allow_partial: bool
     _word_cache: List[DefaultDict[DFAStateT, List[str]]]
     _count_cache: List[DefaultDict[DFAStateT, int]]
 
-    def __init__(self,
-                 *,
-                 states: AbstractSet[DFAStateT],
-                 input_symbols: AbstractSet[str],
-                 transitions: DFATransitionsT,
-                 initial_state: DFAStateT,
-                 final_states: AbstractSet[DFAStateT],
-                 allow_partial:bool=False):
+    def __init__(
+        self,
+        *,
+        states: AbstractSet[DFAStateT],
+        input_symbols: AbstractSet[str],
+        transitions: DFATransitionsT,
+        initial_state: DFAStateT,
+        final_states: AbstractSet[DFAStateT],
+        allow_partial: bool = False,
+    ):
         """Initialize a complete DFA."""
         super().__init__(
             states=states,
@@ -47,10 +79,10 @@ class DFA(fa.FA):
             transitions=transitions,
             initial_state=initial_state,
             final_states=final_states,
-            allow_partial=allow_partial
+            allow_partial=allow_partial,
         )
-        object.__setattr__(self, '_word_cache', [])
-        object.__setattr__(self, '_count_cache', [])
+        object.__setattr__(self, "_word_cache", [])
+        object.__setattr__(self, "_count_cache", [])
 
     def __eq__(self, other: Any) -> bool:
         """
@@ -75,9 +107,8 @@ class DFA(fa.FA):
         def transition(state_pair: DFAStatePairT, symbol: str) -> DFAStatePairT:
             state, operand_index = state_pair
             return (
-                operand_dfas[operand_index]._get_next_current_state(
-                    state, symbol),
-                operand_index
+                operand_dfas[operand_index]._get_next_current_state(state, symbol),
+                operand_index,
             )
 
         # Get data structures
@@ -95,7 +126,6 @@ class DFA(fa.FA):
                 return False
 
             for symbol in self.input_symbols:
-
                 r_1 = state_sets[transition(q_a, symbol)]
                 r_2 = state_sets[transition(q_b, symbol)]
 
@@ -180,23 +210,31 @@ class DFA(fa.FA):
         """Returns the cardinality of the language represented by the DFA."""
         return self.cardinality()
 
-    def _validate_transition_missing_symbols(self, start_state: DFAStateT, paths: DFAPathT) -> None:
+    def _validate_transition_missing_symbols(
+        self, start_state: DFAStateT, paths: DFAPathT
+    ) -> None:
         """Raise an error if the transition input_symbols are missing."""
         if self.allow_partial:
             return
         for input_symbol in self.input_symbols:
             if input_symbol not in paths:
                 raise exceptions.MissingSymbolError(
-                    'state {} is missing transitions for symbol {}'.format(
-                        start_state, input_symbol))
+                    "state {} is missing transitions for symbol {}".format(
+                        start_state, input_symbol
+                    )
+                )
 
-    def _validate_transition_invalid_symbols(self, start_state: DFAStateT, paths: DFAPathT) -> None:
+    def _validate_transition_invalid_symbols(
+        self, start_state: DFAStateT, paths: DFAPathT
+    ) -> None:
         """Raise an error if transition input symbols are invalid."""
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols:
                 raise exceptions.InvalidSymbolError(
-                    'state {} has invalid transition symbol {}'.format(
-                        start_state, input_symbol))
+                    "state {} has invalid transition symbol {}".format(
+                        start_state, input_symbol
+                    )
+                )
 
     def _validate_transition_start_states(self) -> None:
         """Raise an error if transition start states are missing."""
@@ -205,16 +243,20 @@ class DFA(fa.FA):
         for state in self.states:
             if state not in self.transitions:
                 raise exceptions.MissingStateError(
-                    'transition start state {} is missing'.format(
-                        state))
+                    "transition start state {} is missing".format(state)
+                )
 
-    def _validate_transition_end_states(self, start_state: DFAStateT, paths: DFAPathT) -> None:
+    def _validate_transition_end_states(
+        self, start_state: DFAStateT, paths: DFAPathT
+    ) -> None:
         """Raise an error if transition end states are invalid."""
         for end_state in paths.values():
             if end_state not in self.states:
                 raise exceptions.InvalidStateError(
-                    'end state {} for transition on {} is not valid'.format(
-                        end_state, start_state))
+                    "end state {} for transition on {} is not valid".format(
+                        end_state, start_state
+                    )
+                )
 
     def _validate_transitions(self, start_state: DFAStateT, paths: DFAPathT) -> None:
         """Raise an error if transitions are missing or invalid."""
@@ -231,13 +273,18 @@ class DFA(fa.FA):
         self._validate_final_states()
         return True
 
-    def _get_next_current_state(self, current_state: DFAStateT, input_symbol: str) -> Optional[DFAStateT]:
+    def _get_next_current_state(
+        self, current_state: DFAStateT, input_symbol: str
+    ) -> Optional[DFAStateT]:
         """
         Follow the transition for the given input symbol on the current state.
 
         Return None if transition does not exist.
         """
-        if current_state is not None and input_symbol in self.transitions[current_state]:
+        if (
+            current_state is not None
+            and input_symbol in self.transitions[current_state]
+        ):
             return self.transitions[current_state][input_symbol]
         return None
 
@@ -245,10 +292,12 @@ class DFA(fa.FA):
         """Raise an error if the given config indicates rejected input."""
         if current_state not in self.final_states:
             raise exceptions.RejectionException(
-                'the DFA stopped on a non-final state ({})'.format(
-                    current_state))
+                "the DFA stopped on a non-final state ({})".format(current_state)
+            )
 
-    def read_input_stepwise(self, input_str: str, ignore_rejection:bool=False) -> Generator[AbstractSet[DFAStateT], None, None]:
+    def read_input_stepwise(
+        self, input_str: str, ignore_rejection: bool = False
+    ) -> Generator[AbstractSet[DFAStateT], None, None]:
         """
         Check if the given string is accepted by this DFA.
 
@@ -258,8 +307,7 @@ class DFA(fa.FA):
 
         yield current_state
         for input_symbol in input_str:
-            current_state = self._get_next_current_state(
-                current_state, input_symbol)
+            current_state = self._get_next_current_state(current_state, input_symbol)
             yield current_state
 
         if not ignore_rejection:
@@ -267,11 +315,13 @@ class DFA(fa.FA):
 
     def _get_digraph(self) -> nx.DiGraph:
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
-        return nx.DiGraph([
-            (start_state, end_state)
-            for start_state, transition in self.transitions.items()
-            for end_state in transition.values()
-        ])
+        return nx.DiGraph(
+            [
+                (start_state, end_state)
+                for start_state, transition in self.transitions.items()
+                for end_state in transition.values()
+            ]
+        )
 
     def _compute_reachable_states(self) -> Set[DFAStateT]:
         """Compute the states which are reachable from the initial state."""
@@ -291,7 +341,7 @@ class DFA(fa.FA):
 
         return visited_set
 
-    def minify(self, retain_names:bool=False) -> DFA:
+    def minify(self, retain_names: bool = False) -> DFA:
         """
         Create a minimal DFA which accepts the same inputs as this DFA.
 
@@ -311,30 +361,32 @@ class DFA(fa.FA):
             transitions=self.transitions,
             initial_state=self.initial_state,
             reachable_final_states=reachable_final_states,
-            retain_names=retain_names)
+            retain_names=retain_names,
+        )
 
     @classmethod
-    def _minify(cls: Type[DFAType],
-                *,
-                reachable_states: AbstractSet[DFAStateT],
-                input_symbols: AbstractSet[str],
-                transitions: DFATransitionsT,
-                initial_state: DFAStateT,
-                reachable_final_states: AbstractSet[DFAStateT],
-                retain_names: bool):
+    def _minify(
+        cls: Type[DFAType],
+        *,
+        reachable_states: AbstractSet[DFAStateT],
+        input_symbols: AbstractSet[str],
+        transitions: DFATransitionsT,
+        initial_state: DFAStateT,
+        reachable_final_states: AbstractSet[DFAStateT],
+        retain_names: bool,
+    ):
         """Minify helper function. DFA data passed in must have no unreachable states."""
 
         # First, assemble backmap and equivalence class data structure
         eq_classes = PartitionRefinement(reachable_states)
         refinement = eq_classes.refine(reachable_final_states)
 
-        final_states_id = refinement[0][0] if refinement else next(iter(eq_classes.get_set_ids()))
+        final_states_id = (
+            refinement[0][0] if refinement else next(iter(eq_classes.get_set_ids()))
+        )
 
         transition_back_map: Dict[str, Dict[DFAStateT, List[DFAStateT]]] = {
-            symbol: {
-                end_state: list()
-                for end_state in reachable_states
-            }
+            symbol: {end_state: list() for end_state in reachable_states}
             for symbol in input_symbols
         }
 
@@ -355,30 +407,31 @@ class DFA(fa.FA):
                 )
 
                 # Refine set partition by states moving into current active one
-                new_eq_class_pairs = eq_classes.refine(states_that_move_into_active_state)
+                new_eq_class_pairs = eq_classes.refine(
+                    states_that_move_into_active_state
+                )
 
-                for (YintX_id, YdiffX_id) in new_eq_class_pairs:
+                for YintX_id, YdiffX_id in new_eq_class_pairs:
                     # Only adding one id to processing, since the other is already there
                     if YdiffX_id in processing:
                         processing.add(YintX_id)
                     else:
-                        if len(eq_classes.get_set_by_id(YintX_id)) <= len(eq_classes.get_set_by_id(YdiffX_id)):
+                        if len(eq_classes.get_set_by_id(YintX_id)) <= len(
+                            eq_classes.get_set_by_id(YdiffX_id)
+                        ):
                             processing.add(YintX_id)
                         else:
                             processing.add(YdiffX_id)
 
         # now eq_classes are good to go, make them a list for ordering
         eq_class_name_pairs: List[Tuple[DFAStateT, Set[DFAStateT]]] = (
-            [(frozenset(eq), eq) for eq in eq_classes.get_sets()] if retain_names else
-            list(enumerate(eq_classes.get_sets()))
+            [(frozenset(eq), eq) for eq in eq_classes.get_sets()]
+            if retain_names
+            else list(enumerate(eq_classes.get_sets()))
         )
 
         # need a backmap to prevent constant calls to index
-        back_map = {
-            state: name
-            for name, eq in eq_class_name_pairs
-            for state in eq
-        }
+        back_map = {state: name for name, eq in eq_class_name_pairs for state in eq}
 
         new_input_symbols = input_symbols
         new_states = frozenset(back_map.values())
@@ -400,7 +453,9 @@ class DFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def union(self, other: DFA, *, retain_names:bool=False, minify:bool=True)->DFA:
+    def union(
+        self, other: DFA, *, retain_names: bool = False, minify: bool = True
+    ) -> DFA:
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -411,11 +466,13 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
-            other,
-            union_function,
-            should_construct_dfa=True,
-            retain_names=retain_names
+        (
+            new_states,
+            new_transitions,
+            new_initial_state,
+            new_final_states,
+        ) = self._cross_product(
+            other, union_function, should_construct_dfa=True, retain_names=retain_names
         )
 
         if minify:
@@ -425,17 +482,20 @@ class DFA(fa.FA):
                 transitions=new_transitions,
                 initial_state=new_initial_state,
                 reachable_final_states=new_final_states,
-                retain_names=retain_names)
+                retain_names=retain_names,
+            )
 
         return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=new_final_states
+            final_states=new_final_states,
         )
 
-    def intersection(self, other:DFA, *, retain_names:bool=False, minify:bool=True)->DFA:
+    def intersection(
+        self, other: DFA, *, retain_names: bool = False, minify: bool = True
+    ) -> DFA:
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -446,11 +506,16 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+        (
+            new_states,
+            new_transitions,
+            new_initial_state,
+            new_final_states,
+        ) = self._cross_product(
             other,
             intersection_function,
             should_construct_dfa=True,
-            retain_names=retain_names
+            retain_names=retain_names,
         )
 
         if minify:
@@ -460,17 +525,20 @@ class DFA(fa.FA):
                 transitions=new_transitions,
                 initial_state=new_initial_state,
                 reachable_final_states=new_final_states,
-                retain_names=retain_names)
+                retain_names=retain_names,
+            )
 
         return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=new_final_states
+            final_states=new_final_states,
         )
 
-    def difference(self, other:DFA, *, retain_names:bool=False, minify:bool=True)->DFA:
+    def difference(
+        self, other: DFA, *, retain_names: bool = False, minify: bool = True
+    ) -> DFA:
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -481,11 +549,16 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+        (
+            new_states,
+            new_transitions,
+            new_initial_state,
+            new_final_states,
+        ) = self._cross_product(
             other,
             difference_function,
             should_construct_dfa=True,
-            retain_names=retain_names
+            retain_names=retain_names,
         )
 
         if minify:
@@ -495,32 +568,42 @@ class DFA(fa.FA):
                 transitions=new_transitions,
                 initial_state=new_initial_state,
                 reachable_final_states=new_final_states,
-                retain_names=retain_names)
+                retain_names=retain_names,
+            )
 
         return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=new_final_states
+            final_states=new_final_states,
         )
 
-    def symmetric_difference(self, other:DFA, *, retain_names:bool=False, minify:bool=True)->DFA:
+    def symmetric_difference(
+        self, other: DFA, *, retain_names: bool = False, minify: bool = True
+    ) -> DFA:
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the symmetric difference of L1 and L2.
         """
 
-        def symmetric_difference_function(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
+        def symmetric_difference_function(
+            state_pair: Tuple[DFAStateT, DFAStateT]
+        ) -> bool:
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+        (
+            new_states,
+            new_transitions,
+            new_initial_state,
+            new_final_states,
+        ) = self._cross_product(
             other,
             symmetric_difference_function,
             should_construct_dfa=True,
-            retain_names=retain_names
+            retain_names=retain_names,
         )
 
         if minify:
@@ -530,17 +613,18 @@ class DFA(fa.FA):
                 transitions=new_transitions,
                 initial_state=new_initial_state,
                 reachable_final_states=new_final_states,
-                retain_names=retain_names)
+                retain_names=retain_names,
+            )
 
         return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
-            final_states=new_final_states
+            final_states=new_final_states,
         )
 
-    def complement(self, *, retain_names:bool=False, minify:bool=True)->DFA:
+    def complement(self, *, retain_names: bool = False, minify: bool = True) -> DFA:
         """Return the complement of this DFA."""
 
         if minify:
@@ -553,7 +637,8 @@ class DFA(fa.FA):
                 transitions=self.transitions,
                 initial_state=self.initial_state,
                 reachable_final_states=reachable_states - reachable_final_states,
-                retain_names=retain_names)
+                retain_names=retain_names,
+            )
 
         return self.__class__(
             states=self.states,
@@ -561,34 +646,42 @@ class DFA(fa.FA):
             transitions=self.transitions,
             initial_state=self.initial_state,
             final_states=self.states - self.final_states,
-            allow_partial=self.allow_partial
+            allow_partial=self.allow_partial,
         )
 
-    #visited_set, product_transitions, product_initial_state_name, final_states
+    # visited_set, product_transitions, product_initial_state_name, final_states
     DFADataTupleT = Tuple[Set[DFAStateT], DFATransitionsT, DFAStateT, Set[DFAStateT]]
 
     @overload
-    def _cross_product(self,
-                       other: DFA,
-                       state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
-                       *,
-                       should_construct_dfa:Literal[True],
-                       retain_names:bool=False) -> DFADataTupleT: ...
+    def _cross_product(
+        self,
+        other: DFA,
+        state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
+        *,
+        should_construct_dfa: Literal[True],
+        retain_names: bool = False,
+    ) -> DFADataTupleT:
+        ...
 
     @overload
-    def _cross_product(self,
-                       other: DFA,
-                       state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
-                       *,
-                       should_construct_dfa:Literal[False],
-                       retain_names:bool=False) -> bool: ...
+    def _cross_product(
+        self,
+        other: DFA,
+        state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
+        *,
+        should_construct_dfa: Literal[False],
+        retain_names: bool = False,
+    ) -> bool:
+        ...
 
-    def _cross_product(self,
-                       other: DFA,
-                       state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
-                       *,
-                       should_construct_dfa:Literal[True, False],
-                       retain_names:bool=False) -> Union[bool, DFADataTupleT]:
+    def _cross_product(
+        self,
+        other: DFA,
+        state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
+        *,
+        should_construct_dfa: Literal[True, False],
+        retain_names: bool = False,
+    ) -> Union[bool, DFADataTupleT]:
         """
         Search reachable states corresponding to product graph between self and other.
 
@@ -601,12 +694,16 @@ class DFA(fa.FA):
         retain_names is set to False, states are renamed.
         """
         if self.input_symbols != other.input_symbols:
-            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
+            raise exceptions.SymbolMismatchError(
+                "The input symbols between the two given DFAs do not match"
+            )
 
         def get_name_original(state):
             return state
 
-        get_name = get_name_original if retain_names else get_renaming_function(count(0))
+        get_name = (
+            get_name_original if retain_names else get_renaming_function(count(0))
+        )
 
         product_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
         final_states = set()
@@ -654,7 +751,12 @@ class DFA(fa.FA):
                     queue.append(product_state)
 
         if should_construct_dfa:
-            return visited_set, product_transitions, product_initial_state_name, final_states
+            return (
+                visited_set,
+                product_transitions,
+                product_initial_state_name,
+                final_states,
+            )
 
         return False
 
@@ -666,7 +768,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        return not self._cross_product(other, subset_state_fn, should_construct_dfa=False)
+        return not self._cross_product(
+            other, subset_state_fn, should_construct_dfa=False
+        )
 
     def issuperset(self, other: DFA) -> bool:
         """Return True if this DFA is a superset of another DFA."""
@@ -680,7 +784,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        return not self._cross_product(other, disjoint_state_fn, should_construct_dfa=False)
+        return not self._cross_product(
+            other, disjoint_state_fn, should_construct_dfa=False
+        )
 
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
@@ -695,7 +801,7 @@ class DFA(fa.FA):
         except exceptions.EmptyLanguageException:
             return True
 
-    def random_word(self, k: int, *, seed:Optional[int]=None) -> str:
+    def random_word(self, k: int, *, seed: Optional[int] = None) -> str:
         self._populate_count_cache_up_to_len(k)
         state = self.initial_state
         if self._count_cache[k][state] == 0:
@@ -705,8 +811,10 @@ class DFA(fa.FA):
         rng = Random(seed)
         for remaining in range(k, 0, -1):
             total = self._count_cache[remaining][state]
-            choice = rng.randint(0, total-1)
-            for symbol, next_state in self.transitions[state].items():  # pragma: no branch
+            choice = rng.randint(0, total - 1)
+            for symbol, next_state in self.transitions[
+                state
+            ].items():  # pragma: no branch
                 next_state_count = self._count_cache[remaining - 1][next_state]
                 if choice < next_state_count:
                     result.append(symbol)
@@ -715,14 +823,15 @@ class DFA(fa.FA):
                 choice -= next_state_count
 
         assert state in self.final_states
-        return ''.join(result)
+        return "".join(result)
 
-    def predecessor(self,
-                    input_str: str,
-                    *,
-                    strict: bool=True,
-                    key:Optional[Callable[[Any], Any]]=None
-                ) -> Optional[str]:
+    def predecessor(
+        self,
+        input_str: str,
+        *,
+        strict: bool = True,
+        key: Optional[Callable[[Any], Any]] = None,
+    ) -> Optional[str]:
         """
         Returns the first string accepted by the DFA that comes before
         the input string in lexicographical order.
@@ -735,12 +844,13 @@ class DFA(fa.FA):
             return word
         return None
 
-    def predecessors(self,
-                     input_str:str,
-                     *,
-                     strict:bool=True,
-                     key:Optional[Callable[[Any], Any]]=None
-                ) -> Iterable[str]:
+    def predecessors(
+        self,
+        input_str: str,
+        *,
+        strict: bool = True,
+        key: Optional[Callable[[Any], Any]] = None,
+    ) -> Iterable[str]:
         """
         Generates all strings that come before the input string
         in lexicographical order.
@@ -752,12 +862,13 @@ class DFA(fa.FA):
         """
         yield from self.successors(input_str, strict=strict, reverse=True, key=key)
 
-    def successor(self,
-                    input_str: str,
-                    *,
-                    strict: bool=True,
-                    key:Optional[Callable[[Any], Any]]=None
-                ) -> Optional[str]:
+    def successor(
+        self,
+        input_str: str,
+        *,
+        strict: bool = True,
+        key: Optional[Callable[[Any], Any]] = None,
+    ) -> Optional[str]:
         """
         Returns the first string accepted by the DFA that comes after
         the input string in lexicographical order.
@@ -770,13 +881,14 @@ class DFA(fa.FA):
             return word
         return None
 
-    def successors(self,
-                     input_str:str,
-                     *,
-                     strict:bool=True,
-                     key:Optional[Callable[[Any], Any]]=None,
-                     reverse:bool=False
-                ) -> Iterable[str]:
+    def successors(
+        self,
+        input_str: str,
+        *,
+        strict: bool = True,
+        key: Optional[Callable[[Any], Any]] = None,
+        reverse: bool = False,
+    ) -> Iterable[str]:
         """
         Generates all strings that come after the input string
         in lexicographical order.
@@ -788,23 +900,28 @@ class DFA(fa.FA):
         """
         # A predecessor for a finite string may be infinite but a successor for a finite string is always finite
         if reverse and not self.isfinite():
-            raise exceptions.InfiniteLanguageException('Predecessors cannot be computed for infinite languages')
+            raise exceptions.InfiniteLanguageException(
+                "Predecessors cannot be computed for infinite languages"
+            )
         graph = self._get_digraph()
-        coaccessible_nodes = set(self.final_states).union(*(
-            nx.ancestors(graph, state)
-            for state in self.final_states
-        ))
+        coaccessible_nodes = set(self.final_states).union(
+            *(nx.ancestors(graph, state) for state in self.final_states)
+        )
 
         # Precomputations and setup
         include_input = not strict
         sorted_symbols = sorted(self.input_symbols, reverse=reverse, key=key)
-        symbol_succ: Dict[str, Optional[str]] = {symbol_a: symbol_b
-                       for symbol_a, symbol_b in zip(sorted_symbols, sorted_symbols[1:])}
+        symbol_succ: Dict[str, Optional[str]] = {
+            symbol_a: symbol_b
+            for symbol_a, symbol_b in zip(sorted_symbols, sorted_symbols[1:])
+        }
         symbol_succ[sorted_symbols[-1]] = None
         # Special case for None
-        state_stack: Deque[Optional[DFAStateT]] = deque([self.initial_state]
-                            if input_str is None
-                            else self.read_input_stepwise(input_str, ignore_rejection=True))
+        state_stack: Deque[Optional[DFAStateT]] = deque(
+            [self.initial_state]
+            if input_str is None
+            else self.read_input_stepwise(input_str, ignore_rejection=True)
+        )
         char_stack: List[str] = [] if input_str is None else list(input_str)
         first_symbol = sorted_symbols[0]
         # For predecessors we need to special case the input string None
@@ -816,9 +933,18 @@ class DFA(fa.FA):
         while char_stack or candidate is not None:
             state = state_stack[-1]
             # Successors yield here
-            if not reverse and should_yield and candidate == first_symbol and state in self.final_states:
-                yield ''.join(char_stack)
-            candidate_state = None if candidate is None else self._get_next_current_state(state, candidate)
+            if (
+                not reverse
+                and should_yield
+                and candidate == first_symbol
+                and state in self.final_states
+            ):
+                yield "".join(char_stack)
+            candidate_state = (
+                None
+                if candidate is None
+                else self._get_next_current_state(state, candidate)
+            )
             # Traverse to child if candidate is viable
             if candidate_state in coaccessible_nodes:
                 state_stack.append(cast(str, candidate_state))
@@ -826,8 +952,13 @@ class DFA(fa.FA):
                 candidate = first_symbol
             else:
                 # Predecessors yield here
-                if reverse and should_yield and candidate is None and state in self.final_states:
-                    yield ''.join(char_stack)
+                if (
+                    reverse
+                    and should_yield
+                    and candidate is None
+                    and state in self.final_states
+                ):
+                    yield "".join(char_stack)
                 # Candidate is None means no more children to explore, so traverse to parent
                 if candidate is None:
                     state = state_stack.pop()
@@ -835,8 +966,13 @@ class DFA(fa.FA):
                 candidate = symbol_succ[candidate]
             should_yield = True
         # Predecessor yields here for empty string
-        if reverse and should_yield and candidate is None and state in self.final_states:
-            yield ''.join(char_stack)
+        if (
+            reverse
+            and should_yield
+            and candidate is None
+            and state in self.final_states
+        ):
+            yield "".join(char_stack)
 
     def count_words_of_length(self, k: int) -> int:
         """
@@ -856,11 +992,16 @@ class DFA(fa.FA):
             if i == 0:
                 level.update({state: 1 for state in self.final_states})
             else:
-                prev_level = self._count_cache[i-1]
-                level.update({
-                    state: sum(prev_level[suffix_state] for suffix_state in self.transitions[state].values())
-                    for state in self.states
-                })
+                prev_level = self._count_cache[i - 1]
+                level.update(
+                    {
+                        state: sum(
+                            prev_level[suffix_state]
+                            for suffix_state in self.transitions[state].values()
+                        )
+                        for state in self.states
+                    }
+                )
 
     def words_of_length(self, k: int) -> Generator[str, None, None]:
         """
@@ -880,15 +1021,19 @@ class DFA(fa.FA):
             self._word_cache.append(defaultdict(list))
             level = self._word_cache[i]
             if i == 0:
-                level.update({state: [''] for state in self.final_states})
+                level.update({state: [""] for state in self.final_states})
             else:
-                prev_level = self._word_cache[i-1]
-                level.update({
-                    state: [symbol+word
+                prev_level = self._word_cache[i - 1]
+                level.update(
+                    {
+                        state: [
+                            symbol + word
                             for symbol in sorted_symbols
-                            for word in prev_level[self.transitions[state][symbol]]]
-                    for state in self.states
-                })
+                            for word in prev_level[self.transitions[state][symbol]]
+                        ]
+                        for state in self.states
+                    }
+                )
 
     def cardinality(self) -> int:
         """Returns the cardinality of the language represented by the DFA."""
@@ -898,8 +1043,10 @@ class DFA(fa.FA):
             return 0
         limit = self.maximum_word_length()
         if limit is None:
-            raise exceptions.InfiniteLanguageException("The language represented by the DFA is infinite.")
-        return sum(self.count_words_of_length(j) for j in range(i, limit+1))
+            raise exceptions.InfiniteLanguageException(
+                "The language represented by the DFA is infinite."
+            )
+        return sum(self.count_words_of_length(j) for j in range(i, limit + 1))
 
     def minimum_word_length(self) -> int:
         """
@@ -917,7 +1064,9 @@ class DFA(fa.FA):
                 if next_state not in distances:
                     distances[next_state] = distances[state] + 1
                     queue.append(next_state)
-        raise exceptions.EmptyLanguageException('The language represented by the DFA is empty')
+        raise exceptions.EmptyLanguageException(
+            "The language represented by the DFA is empty"
+        )
 
     def maximum_word_length(self) -> Optional[int]:
         """
@@ -925,15 +1074,18 @@ class DFA(fa.FA):
         In the case of infinite languages, `None` is returned
         """
         if self.isempty():
-            raise exceptions.EmptyLanguageException('The language represented by the DFA is empty')
+            raise exceptions.EmptyLanguageException(
+                "The language represented by the DFA is empty"
+            )
         graph = self._get_digraph()
 
-        accessible_nodes = nx.descendants(graph, self.initial_state) | {self.initial_state}
+        accessible_nodes = nx.descendants(graph, self.initial_state) | {
+            self.initial_state
+        }
 
-        coaccessible_nodes = set(self.final_states).union(*(
-            nx.ancestors(graph, state)
-            for state in self.final_states
-        ))
+        coaccessible_nodes = set(self.final_states).union(
+            *(nx.ancestors(graph, state) for state in self.final_states)
+        )
 
         important_nodes = accessible_nodes.intersection(coaccessible_nodes)
         subgraph = graph.subgraph(important_nodes)
@@ -943,11 +1095,13 @@ class DFA(fa.FA):
             return None
 
     @classmethod
-    def from_prefix(cls: Type[DFAType],
-                    input_symbols: AbstractSet[str],
-                    prefix: str,
-                    *,
-                    contains:bool=True) -> DFA:
+    def from_prefix(
+        cls: Type[DFAType],
+        input_symbols: AbstractSet[str],
+        prefix: str,
+        *,
+        contains: bool = True,
+    ) -> DFA:
         """
         Directly computes the minimal DFA recognizing strings with the
         given prefix.
@@ -955,9 +1109,13 @@ class DFA(fa.FA):
         """
         err_state = -1
         last_state = len(prefix)
-        transitions = {i: {symbol: i+1 if symbol == char else err_state
-                           for symbol in input_symbols}
-                       for i, char in enumerate(prefix)}
+        transitions = {
+            i: {
+                symbol: i + 1 if symbol == char else err_state
+                for symbol in input_symbols
+            }
+            for i, char in enumerate(prefix)
+        }
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
         transitions[err_state] = {symbol: err_state for symbol in input_symbols}
 
@@ -968,36 +1126,44 @@ class DFA(fa.FA):
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
-            final_states=final_states if contains else states - final_states
+            final_states=final_states if contains else states - final_states,
         )
 
     @classmethod
-    def from_suffix(cls: Type[DFAType],
-                    input_symbols: AbstractSet[str],
-                    suffix: str,
-                    *,
-                    contains: bool=True) -> DFA:
+    def from_suffix(
+        cls: Type[DFAType],
+        input_symbols: AbstractSet[str],
+        suffix: str,
+        *,
+        contains: bool = True,
+    ) -> DFA:
         """
         Directly computes the minimal DFA recognizing strings with the
         given prefix.
         If contains is set to False then the complement is constructed instead.
         """
-        return cls.from_substring(input_symbols, suffix, contains=contains, must_be_suffix=True)
+        return cls.from_substring(
+            input_symbols, suffix, contains=contains, must_be_suffix=True
+        )
 
     @classmethod
-    def from_substring(cls: Type[DFAType],
-                       input_symbols: AbstractSet[str],
-                       substring: str,
-                       *,
-                       contains: bool=True,
-                       must_be_suffix:bool=False) -> DFA:
+    def from_substring(
+        cls: Type[DFAType],
+        input_symbols: AbstractSet[str],
+        substring: str,
+        *,
+        contains: bool = True,
+        must_be_suffix: bool = False,
+    ) -> DFA:
         """
         Directly computes the minimal DFA recognizing strings containing the
         given substring.
         If contains is set to False then the complement is constructed instead.
         If must_be_suffix is set to True, then the substring must be a suffix instead.
         """
-        transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {i: {} for i in range(len(substring))}
+        transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {
+            i: {} for i in range(len(substring))
+        }
         transitions[len(substring)] = {
             symbol: len(substring) for symbol in input_symbols
         }
@@ -1019,7 +1185,7 @@ class DFA(fa.FA):
             candidate += 1
         kmp_table.append(candidate)
 
-        limit = len(substring)+1 if must_be_suffix else len(substring)
+        limit = len(substring) + 1 if must_be_suffix else len(substring)
         for i in range(limit):
             prefix_dict = transitions.setdefault(i, {})
             for symbol in input_symbols:
@@ -1041,11 +1207,13 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def from_subsequence(cls: Type[DFAType],
-                         input_symbols: AbstractSet[str],
-                         subsequence: str,
-                         *,
-                         contains: bool=True) -> DFA:
+    def from_subsequence(
+        cls: Type[DFAType],
+        input_symbols: AbstractSet[str],
+        subsequence: str,
+        *,
+        contains: bool = True,
+    ) -> DFA:
         """
         Directly computes the minimal DFA recognizing strings containing the
         given subsequence.
@@ -1069,12 +1237,14 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def of_length(cls: Type[DFAType],
-                  input_symbols: AbstractSet[str],
-                  *,
-                  min_length:int=0,
-                  max_length:Optional[int]=None,
-                  symbols_to_count:Optional[AbstractSet[str]]=None) -> DFA:
+    def of_length(
+        cls: Type[DFAType],
+        input_symbols: AbstractSet[str],
+        *,
+        min_length: int = 0,
+        max_length: Optional[int] = None,
+        symbols_to_count: Optional[AbstractSet[str]] = None,
+    ) -> DFA:
         """
         Directly computes the minimal DFA recognizing strings whose length
         is between `min_length` and `max_length`, inclusive.
@@ -1084,7 +1254,9 @@ class DFA(fa.FA):
             symbols_to_count = input_symbols
 
         transitions = {}
-        length_range = range(min_length) if max_length is None else range(max_length+1)
+        length_range = (
+            range(min_length) if max_length is None else range(max_length + 1)
+        )
         for prev_state in length_range:
             next_state = prev_state + 1
             transitions[prev_state] = {
@@ -1093,7 +1265,11 @@ class DFA(fa.FA):
             }
         last_state = len(transitions)
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
-        final_states = frozenset((last_state,)) if max_length is None else frozenset(range(min_length, max_length+1))
+        final_states = (
+            frozenset((last_state,))
+            if max_length is None
+            else frozenset(range(min_length, max_length + 1))
+        )
 
         return cls(
             states=frozenset(transitions.keys()),
@@ -1104,12 +1280,14 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def count_mod(cls: Type[DFAType],
-                  input_symbols: AbstractSet[str],
-                  k: int,
-                  *,
-                  remainders:Optional[AbstractSet[int]]=None,
-                  symbols_to_count:Optional[AbstractSet[str]]=None):
+    def count_mod(
+        cls: Type[DFAType],
+        input_symbols: AbstractSet[str],
+        k: int,
+        *,
+        remainders: Optional[AbstractSet[int]] = None,
+        symbols_to_count: Optional[AbstractSet[str]] = None,
+    ):
         """
         Directly computes a DFA that counts given symbols and accepts all strings where
         the remainder of division by k is in the set of remainders given.
@@ -1121,16 +1299,20 @@ class DFA(fa.FA):
             symbols_to_count = input_symbols
         if remainders is None:
             remainders = {0}
-        transitions = {i: {symbol: (i + 1) % k if symbol in symbols_to_count else i
-                           for symbol in input_symbols}
-                       for i in range(k)}
+        transitions = {
+            i: {
+                symbol: (i + 1) % k if symbol in symbols_to_count else i
+                for symbol in input_symbols
+            }
+            for i in range(k)
+        }
 
         return cls(
             states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
-            final_states=remainders
+            final_states=remainders,
         )
 
     @classmethod
@@ -1143,7 +1325,7 @@ class DFA(fa.FA):
             input_symbols=input_symbols,
             transitions={0: {symbol: 0 for symbol in input_symbols}},
             initial_state=0,
-            final_states={0}
+            final_states={0},
         )
 
     @classmethod
@@ -1156,11 +1338,13 @@ class DFA(fa.FA):
             input_symbols=input_symbols,
             transitions={0: {symbol: 0 for symbol in input_symbols}},
             initial_state=0,
-            final_states=frozenset()
+            final_states=frozenset(),
         )
 
     @classmethod
-    def nth_from_start(cls: Type[DFAType], input_symbols: AbstractSet[str], symbol: str, n: int) -> DFA:
+    def nth_from_start(
+        cls: Type[DFAType], input_symbols: AbstractSet[str], symbol: str, n: int
+    ) -> DFA:
         """
         Directly computes the minimal DFA which accepts all words whose `n`-th
         character from the start is `symbol`, where `n` is a positive integer.
@@ -1168,24 +1352,28 @@ class DFA(fa.FA):
         if n < 1:
             raise ValueError("Integer must be positive")
         if symbol not in input_symbols:
-            raise exceptions.InvalidSymbolError("Desired symbol is not in the set of input symbols")
+            raise exceptions.InvalidSymbolError(
+                "Desired symbol is not in the set of input symbols"
+            )
         if len(input_symbols) == 1:
             return cls.of_length(input_symbols, min_length=n)
-        transitions = {i: {symbol: i+1 for symbol in input_symbols} for i in range(n)}
-        transitions[n-1][symbol] = n+1
+        transitions = {i: {symbol: i + 1 for symbol in input_symbols} for i in range(n)}
+        transitions[n - 1][symbol] = n + 1
         transitions[n] = {symbol: n for symbol in input_symbols}
-        transitions[n+1] = {symbol: n+1 for symbol in input_symbols}
+        transitions[n + 1] = {symbol: n + 1 for symbol in input_symbols}
 
         return cls(
             states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
-            final_states={n+1}
+            final_states={n + 1},
         )
 
     @classmethod
-    def nth_from_end(cls: Type[DFAType], input_symbols: AbstractSet[str], symbol: str, n: int) -> DFA:
+    def nth_from_end(
+        cls: Type[DFAType], input_symbols: AbstractSet[str], symbol: str, n: int
+    ) -> DFA:
         """
         Directly computes the minimal DFA which accepts all words whose `n`-th
         character from the end is `symbol`, where `n` is a positive integer.
@@ -1193,7 +1381,9 @@ class DFA(fa.FA):
         if n < 1:
             raise ValueError("Integer must be positive")
         if symbol not in input_symbols:
-            raise exceptions.InvalidSymbolError("Desired symbol is not in the set of input symbols")
+            raise exceptions.InvalidSymbolError(
+                "Desired symbol is not in the set of input symbols"
+            )
         if len(input_symbols) == 1:
             return cls.of_length(input_symbols, min_length=n)
         # Consider the states to be labelled with bitstrings of size n
@@ -1206,16 +1396,23 @@ class DFA(fa.FA):
         return cls(
             states=frozenset(range(state_count)),
             input_symbols=input_symbols,
-            transitions={state: {sym: (2 * state + 1) % state_count
-                                 if symbol == sym else (2 * state) % state_count
-                                 for sym in input_symbols}
-                         for state in range(state_count)},
+            transitions={
+                state: {
+                    sym: (2 * state + 1) % state_count
+                    if symbol == sym
+                    else (2 * state) % state_count
+                    for sym in input_symbols
+                }
+                for state in range(state_count)
+            },
             initial_state=0,
-            final_states=frozenset(range(state_count//2, state_count)),
+            final_states=frozenset(range(state_count // 2, state_count)),
         )
 
     @classmethod
-    def from_finite_language(cls: Type[DFAType], input_symbols: AbstractSet[str], language: AbstractSet[str]) -> DFA:
+    def from_finite_language(
+        cls: Type[DFAType], input_symbols: AbstractSet[str], language: AbstractSet[str]
+    ) -> DFA:
         """
         Directly computes the minimal DFA corresponding to a finite language.
         Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
@@ -1228,7 +1425,7 @@ class DFA(fa.FA):
             return DFA.empty_language(input_symbols)
 
         transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
-        back_map: Dict[str, Set[str]] = {'': set()}
+        back_map: Dict[str, Set[str]] = {"": set()}
         final_states: Set[str] = set()
         signatures_dict: Dict[SignatureT, str] = {}
 
@@ -1246,7 +1443,7 @@ class DFA(fa.FA):
 
         def add_to_trie(word: str) -> None:
             """Add word to the trie represented by transitions"""
-            prefix = ''
+            prefix = ""
             for symbol in word:
                 next_prefix = prefix + symbol
 
@@ -1303,7 +1500,7 @@ class DFA(fa.FA):
             add_to_trie(curr_word)
             prev_word = curr_word
 
-        compress(prev_word, '')
+        compress(prev_word, "")
 
         # Add dump state. Always needed since dict is finite
         dump_state = 0
@@ -1317,22 +1514,28 @@ class DFA(fa.FA):
             states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
             transitions=transitions,
-            initial_state='',
+            initial_state="",
             final_states=final_states,
         )
 
     @classmethod
-    def from_nfa(cls, target_nfa: nfa.NFA, *, retain_names: bool=False, minify: bool=True) -> DFA:
+    def from_nfa(
+        cls, target_nfa: nfa.NFA, *, retain_names: bool = False, minify: bool = True
+    ) -> DFA:
         """Initialize this DFA as one equivalent to the given NFA."""
         # Data structures for state renaming
 
         def get_name_original(states: FrozenSet[DFAStateT]) -> DFAStateT:
             return states
 
-        get_name = get_name_original if retain_names else get_renaming_function(count(0))
+        get_name = (
+            get_name_original if retain_names else get_renaming_function(count(0))
+        )
 
         # equivalent DFA states states
-        nfa_initial_states = frozenset(target_nfa._lambda_closures[target_nfa.initial_state])
+        nfa_initial_states = frozenset(
+            target_nfa._lambda_closures[target_nfa.initial_state]
+        )
         dfa_initial_state = get_name(nfa_initial_states)
         dfa_final_states = set()
 
@@ -1354,10 +1557,13 @@ class DFA(fa.FA):
             # Enqueue the next set of current states for the generated DFA.
             for input_symbol in target_nfa.input_symbols:
                 next_current_states = target_nfa._get_next_current_states(
-                    current_states, input_symbol)
+                    current_states, input_symbol
+                )
 
                 next_current_states_name = get_name(next_current_states)
-                dfa_transitions[current_state_name][input_symbol] = next_current_states_name
+                dfa_transitions[current_state_name][
+                    input_symbol
+                ] = next_current_states_name
 
                 # Only enqueue a state if it has not been seen yet.
                 if next_current_states_name not in dfa_states:
@@ -1371,35 +1577,36 @@ class DFA(fa.FA):
                 transitions=dfa_transitions,
                 initial_state=dfa_initial_state,
                 reachable_final_states=dfa_final_states,
-                retain_names=retain_names)
+                retain_names=retain_names,
+            )
 
         return cls(
             states=dfa_states,
             input_symbols=dfa_symbols,
             transitions=dfa_transitions,
             initial_state=dfa_initial_state,
-            final_states=dfa_final_states)
+            final_states=dfa_final_states,
+        )
 
     def show_diagram(self, path=None):
         """
-            Creates the graph associated with this DFA
+        Creates the graph associated with this DFA
         """
         # Nodes are set of states
 
-        graph = Dot(graph_type='digraph', rankdir='LR')
+        graph = Dot(graph_type="digraph", rankdir="LR")
         nodes = {}
         for state in self.states:
             if state == self.initial_state:
                 # color start state with green
                 if state in self.final_states:
                     initial_state_node = Node(
-                        state,
-                        style='filled',
-                        peripheries=2,
-                        fillcolor='#66cc33')
+                        state, style="filled", peripheries=2, fillcolor="#66cc33"
+                    )
                 else:
                     initial_state_node = Node(
-                        state, style='filled', fillcolor='#66cc33')
+                        state, style="filled", fillcolor="#66cc33"
+                    )
                 nodes[state] = initial_state_node
                 graph.add_node(initial_state_node)
             else:
@@ -1412,11 +1619,7 @@ class DFA(fa.FA):
         # adding edges
         for from_state, lookup in self.transitions.items():
             for to_label, to_state in lookup.items():
-                graph.add_edge(Edge(
-                    nodes[from_state],
-                    nodes[to_state],
-                    label=to_label
-                ))
+                graph.add_edge(Edge(nodes[from_state], nodes[to_state], label=to_label))
         if path:
             graph.write_png(path)
         return graph

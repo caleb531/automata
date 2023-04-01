@@ -4,8 +4,20 @@
 from collections import defaultdict
 
 from frozendict import frozendict
-from typing import Any, Callable, Tuple, Iterable, Generic, TypeVar, Set, Dict, List, DefaultDict
+from typing import (
+    Any,
+    Callable,
+    Tuple,
+    Iterable,
+    Generic,
+    TypeVar,
+    Set,
+    Dict,
+    List,
+    DefaultDict,
+)
 from itertools import count
+
 
 def freeze_value(value: Any) -> Any:
     """
@@ -16,10 +28,12 @@ def freeze_value(value: Any) -> Any:
     if isinstance(value, (str, int)):
         return value
     if isinstance(value, dict):
-        return frozendict({
-            dict_key: freeze_value(dict_value)
-            for dict_key, dict_value in value.items()
-        })
+        return frozendict(
+            {
+                dict_key: freeze_value(dict_value)
+                for dict_key, dict_value in value.items()
+            }
+        )
     if isinstance(value, set):
         return frozenset(freeze_value(element) for element in value)
     if isinstance(value, list):
@@ -42,7 +56,10 @@ def get_renaming_function(counter: count) -> Callable[[Any], int]:
 
     return renaming_function
 
-T = TypeVar('T')  
+
+T = TypeVar("T")
+
+
 class PartitionRefinement(Generic[T]):
     """Maintain and refine a partition of a set of items into subsets.
     Space usage for a partition of n items is O(n), and each refine
@@ -51,7 +68,7 @@ class PartitionRefinement(Generic[T]):
     Adapted from code by D. Eppstein: https://www.ics.uci.edu/~eppstein/PADS/PartitionRefinement.py
     """
 
-    __slots__: Tuple[str, ...] = ('_sets', '_partition')
+    __slots__: Tuple[str, ...] = ("_sets", "_partition")
 
     def __init__(self, items: Iterable[T]) -> None:
         """Create a new partition refinement data structure for the given

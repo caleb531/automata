@@ -4,6 +4,7 @@
 from typing import Any, List, NamedTuple
 from automata.pda.stack import PDAStack
 
+
 class PDAConfiguration(NamedTuple):
     """
     A configuration is a triple of current state, remaining input and stack.
@@ -18,9 +19,6 @@ class PDAConfiguration(NamedTuple):
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""
-        return '{}(\'{}\', \'{}\', {})'.format(
-            self.__class__.__name__,
-            self.state,
-            self.remaining_input,
-            self.stack
+        return "{}('{}', '{}', {})".format(
+            self.__class__.__name__, self.state, self.remaining_input, self.stack
         )

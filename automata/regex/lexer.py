@@ -9,15 +9,26 @@ import abc
 import re
 
 import automata.base.exceptions as exceptions
-from typing import TypeVar, Generic, Callable, Tuple, List, Generator, Optional, AbstractSet, FrozenSet
+from typing import (
+    TypeVar,
+    Generic,
+    Callable,
+    Tuple,
+    List,
+    Generator,
+    Optional,
+    AbstractSet,
+    FrozenSet,
+)
 from typing_extensions import Self
 
 ResultT = TypeVar("ResultT")
 
+
 class Token(Generic[ResultT], metaclass=abc.ABCMeta):
     """Base class for tokens."""
 
-    __slots__: Tuple[str, ...] = ('text',)
+    __slots__: Tuple[str, ...] = ("text",)
 
     text: str
 
@@ -37,10 +48,11 @@ class Token(Generic[ResultT], metaclass=abc.ABCMeta):
 
 TokenFactoryT = Callable[[re.Match], Token[ResultT]]
 
+
 class TokenRegistry(Generic[ResultT]):
     """Registry holding token rules."""
 
-    __slots__: Tuple[str, ...] = ('_tokens',)
+    __slots__: Tuple[str, ...] = ("_tokens",)
 
     _tokens: List[Tuple[TokenFactoryT, re.Pattern]]
 
@@ -55,7 +67,9 @@ class TokenRegistry(Generic[ResultT]):
         """
         self._tokens.append((token_factory_fn, re.compile(token_regex)))
 
-    def matching_tokens(self, text: str, start: int) -> Generator[Tuple[TokenFactoryT, re.Match], None, None]:
+    def matching_tokens(
+        self, text: str, start: int
+    ) -> Generator[Tuple[TokenFactoryT, re.Match], None, None]:
         """Retrieve all token definitions matching text starting at start."""
 
         for token_factory_fn, regexp in self._tokens:
@@ -91,14 +105,16 @@ class Lexer(Generic[ResultT]):
     classes (in infix ordering) matching the regex patterns.
     """
 
-    __slots__: Tuple[str, ...] = ('tokens', 'blank_chars')
-    
+    __slots__: Tuple[str, ...] = ("tokens", "blank_chars")
+
     tokens: TokenRegistry[ResultT]
     blank_chars: FrozenSet[str]
 
     def __init__(self, blank_chars: Optional[AbstractSet] = None) -> None:
         self.tokens = TokenRegistry()
-        self.blank_chars = frozenset((' ', '\t')) if blank_chars is None else frozenset(blank_chars)
+        self.blank_chars = (
+            frozenset((" ", "\t")) if blank_chars is None else frozenset(blank_chars)
+        )
 
     def register_token(self, token_factory_fn: TokenFactoryT, token_regex: str) -> None:
         """
@@ -124,6 +140,8 @@ class Lexer(Generic[ResultT]):
             elif text[pos] in self.blank_chars:
                 pos += 1
             else:
-                raise exceptions.LexerError(f'Invalid character "{text[pos]}" in "{text}"', position=pos)
+                raise exceptions.LexerError(
+                    f'Invalid character "{text[pos]}" in "{text}"', position=pos
+                )
 
         return res

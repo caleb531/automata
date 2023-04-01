@@ -5,12 +5,12 @@ import collections
 from typing import List, Iterator
 
 
-class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
+class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
     """A PDA stack."""
 
     stack: List[str]
 
-    #TODO can we get rid of this? Kinda weird inheritance here
+    # TODO can we get rid of this? Kinda weird inheritance here
     def __new__(cls, elements):
         """Create the new PDA stack."""
         return super(PDAStack, cls).__new__(cls, tuple(elements))
@@ -20,7 +20,7 @@ class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
         if self.stack:
             return self.stack[-1]
         else:
-            return ''
+            return ""
 
     def pop(self) -> PDAStack:
         """
@@ -54,4 +54,4 @@ class PDAStack(collections.namedtuple('PDAStack', ['stack'])):
 
     def __repr__(self) -> str:
         """Return a string representation of the stack."""
-        return '{}{}'.format(self.__class__.__name__, self.stack)
+        return "{}{}".format(self.__class__.__name__, self.stack)

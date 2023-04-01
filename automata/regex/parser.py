@@ -7,22 +7,36 @@ import copy
 
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer, Token
-from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
-                                    PostfixOperator, RightParen,
-                                    parse_postfix_tokens, tokens_to_postfix,
-                                    validate_tokens)
+from automata.regex.postfix import (
+    InfixOperator,
+    LeftParen,
+    Literal,
+    PostfixOperator,
+    RightParen,
+    parse_postfix_tokens,
+    tokens_to_postfix,
+    validate_tokens,
+)
 import automata.base.exceptions as exceptions
 from typing import Tuple, Dict, Set, Type, Deque, List, Iterable, AbstractSet, Optional
 import re
 
 BuilderTransitionsT = Dict[int, Dict[str, Set[int]]]
 
-RESERVED_CHARACTERS = frozenset(('*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^', '{', '}'))
+RESERVED_CHARACTERS = frozenset(
+    ("*", "|", "(", ")", "?", " ", "\t", "&", "+", ".", "^", "{", "}")
+)
+
 
 class NFARegexBuilder:
     """Builder class designed for speed in parsing regular expressions into NFAs."""
 
-    __slots__: Tuple[str, ...] = ('_transitions', '_initial_state', '_final_states', '_state_name_counter')
+    __slots__: Tuple[str, ...] = (
+        "_transitions",
+        "_initial_state",
+        "_final_states",
+        "_state_name_counter",
+    )
 
     _transitions: BuilderTransitionsT
     _initial_state: int
@@ -47,19 +61,20 @@ class NFARegexBuilder:
         self._state_name_counter = counter
 
     @classmethod
-    def from_string_literal(cls: Type[NFARegexBuilder], literal: str, counter: count) -> NFARegexBuilder:
+    def from_string_literal(
+        cls: Type[NFARegexBuilder], literal: str, counter: count
+    ) -> NFARegexBuilder:
         """
         Initialize this builder accepting only the given string literal
         """
 
         transitions: BuilderTransitionsT = {
-            next(counter): {symbol: set()}
-            for symbol in literal
+            next(counter): {symbol: set()} for symbol in literal
         }
 
         for start_state, path in transitions.items():
             for end_states in path.values():
-                end_states.add(start_state+1)
+                end_states.add(start_state + 1)
 
         final_state = next(counter)
         transitions[final_state] = {}
@@ -68,11 +83,13 @@ class NFARegexBuilder:
             transitions=transitions,
             initial_state=min(transitions.keys()),
             final_states={final_state},
-            counter=counter
+            counter=counter,
         )
 
     @classmethod
-    def wildcard(cls: Type[NFARegexBuilder], input_symbols: AbstractSet[str], counter: count) -> NFARegexBuilder:
+    def wildcard(
+        cls: Type[NFARegexBuilder], input_symbols: AbstractSet[str], counter: count
+    ) -> NFARegexBuilder:
         """
         Initialize this builder for a wildcard with the given input symbols
         """
@@ -82,16 +99,15 @@ class NFARegexBuilder:
 
         transitions: BuilderTransitionsT = {
             initial_state: {symbol: {final_state} for symbol in input_symbols},
-            final_state: {}
+            final_state: {},
         }
 
         return cls(
             transitions=transitions,
             initial_state=initial_state,
             final_states={final_state},
-            counter=counter
+            counter=counter,
         )
-
 
     def union(self, other: NFARegexBuilder) -> None:
         """
@@ -103,7 +119,7 @@ class NFARegexBuilder:
 
         # Add epsilon transitions from new start state to old ones
         self._transitions[new_initial_state] = {
-            '': {self._initial_state, other._initial_state}
+            "": {self._initial_state, other._initial_state}
         }
 
         self._initial_state = new_initial_state
@@ -122,9 +138,17 @@ class NFARegexBuilder:
         new_initial_state = (self._initial_state, other._initial_state)
 
         new_initial_state_name = get_state_name(new_initial_state)
-        new_input_symbols = tuple(set(chain.from_iterable(
-            transition_dict.keys() for transition_dict in chain(self._transitions.values(), other._transitions.values())
-        )) - {''})
+        new_input_symbols = tuple(
+            set(
+                chain.from_iterable(
+                    transition_dict.keys()
+                    for transition_dict in chain(
+                        self._transitions.values(), other._transitions.values()
+                    )
+                )
+            )
+            - {""}
+        )
 
         queue: Deque[Tuple[int, int]] = deque()
 
@@ -145,10 +169,10 @@ class NFARegexBuilder:
             # Get transition dict for states in self
             transitions_a = self._transitions.get(q_a, {})
             # Add epsilon transitions for first set of transitions
-            epsilon_transitions_a = transitions_a.get('')
+            epsilon_transitions_a = transitions_a.get("")
             if epsilon_transitions_a is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, {})
-                state_dict.setdefault('', set()).update(
+                state_dict.setdefault("", set()).update(
                     map(get_state_name, zip(epsilon_transitions_a, repeat(q_b)))
                 )
                 next_states_iterables.append(zip(epsilon_transitions_a, repeat(q_b)))
@@ -156,10 +180,10 @@ class NFARegexBuilder:
             # Get transition dict for states in other
             transitions_b = other._transitions.get(q_b, {})
             # Add epsilon transitions for second set of transitions
-            epsilon_transitions_b = transitions_b.get('')
+            epsilon_transitions_b = transitions_b.get("")
             if epsilon_transitions_b is not None:
                 state_dict = new_transitions.setdefault(curr_state_name, {})
-                state_dict.setdefault('', set()).update(
+                state_dict.setdefault("", set()).update(
                     map(get_state_name, zip(repeat(q_a), epsilon_transitions_b))
                 )
                 next_states_iterables.append(zip(repeat(q_a), epsilon_transitions_b))
@@ -195,7 +219,7 @@ class NFARegexBuilder:
         self._transitions.update(other._transitions)
 
         for state in self._final_states:
-            self._transitions[state].setdefault('', set()).add(other._initial_state)
+            self._transitions[state].setdefault("", set()).add(other._initial_state)
 
         self._final_states = other._final_states
 
@@ -205,16 +229,14 @@ class NFARegexBuilder:
         between lower_bound and upper_bound many times. If upper_bound is None,
         then the number of repetitions is unbounded.
         """
-        number_of_repetitions = (lower_bound if upper_bound is None else upper_bound)
+        number_of_repetitions = lower_bound if upper_bound is None else upper_bound
 
         prev_final_states = self._final_states
 
         new_initial_state = next(self._state_name_counter)
         new_transitions = copy.deepcopy(self._transitions)
 
-        new_transitions[new_initial_state] = {
-            '': {self._initial_state}
-        }
+        new_transitions[new_initial_state] = {"": {self._initial_state}}
 
         new_final_states = set()
 
@@ -227,21 +249,25 @@ class NFARegexBuilder:
 
         prev_initial_state = self._initial_state
 
-        for i in range(2, number_of_repetitions+1):
+        for i in range(2, number_of_repetitions + 1):
             # Reset the state renaming function each time
             get_state_name = get_renaming_function(self._state_name_counter)
 
             # Load next copy of transitions into dict
-            new_transitions.update({
-                get_state_name(start_state): {
-                    char: set(map(get_state_name, dest_states))
-                    for char, dest_states in char_transitions.items()
+            new_transitions.update(
+                {
+                    get_state_name(start_state): {
+                        char: set(map(get_state_name, dest_states))
+                        for char, dest_states in char_transitions.items()
+                    }
+                    for start_state, char_transitions in self._transitions.items()
                 }
-                for start_state, char_transitions in self._transitions.items()
-            })
+            )
 
             for state in prev_final_states:
-                new_transitions[state].setdefault('', set()).add(get_state_name(self._initial_state))
+                new_transitions[state].setdefault("", set()).add(
+                    get_state_name(self._initial_state)
+                )
 
             prev_final_states = set(map(get_state_name, self._final_states))
             prev_initial_state = get_state_name(self._initial_state)
@@ -253,7 +279,7 @@ class NFARegexBuilder:
         # If no upper bound, make quantifier loop around
         if upper_bound is None:
             for state in prev_final_states:
-                new_transitions[state].setdefault('', set()).add(prev_initial_state)
+                new_transitions[state].setdefault("", set()).add(prev_initial_state)
 
         self._transitions = new_transitions
         self._final_states = new_final_states
@@ -267,11 +293,15 @@ class NFARegexBuilder:
 
         get_state_name = get_renaming_function(self._state_name_counter)
 
-        self._initial_state = get_state_name((self._initial_state, other._initial_state))
+        self._initial_state = get_state_name(
+            (self._initial_state, other._initial_state)
+        )
 
         new_transitions: BuilderTransitionsT = {}
 
-        transition_product = product(self._transitions.items(), other._transitions.items())
+        transition_product = product(
+            self._transitions.items(), other._transitions.items()
+        )
         for (q_a, transitions_a), (q_b, transitions_b) in transition_product:
             state_dict = new_transitions.setdefault(get_state_name((q_a, q_b)), {})
 
@@ -285,7 +315,9 @@ class NFARegexBuilder:
                     map(get_state_name, zip(repeat(q_a), end_states))
                 )
 
-        self._final_states = set(map(get_state_name, product(self._final_states, other._final_states)))
+        self._final_states = set(
+            map(get_state_name, product(self._final_states, other._final_states))
+        )
         self._transitions = new_transitions
 
 
@@ -357,17 +389,19 @@ class KleenePlusToken(PostfixOperator[NFARegexBuilder]):
 class QuantifierToken(PostfixOperator[NFARegexBuilder]):
     """Subclass of postfix operator for repeating an expression a fixed number of times."""
 
-    __slots__: Tuple[str, ...] = ('lower_bound', 'upper_bound')
+    __slots__: Tuple[str, ...] = ("lower_bound", "upper_bound")
 
     def __init__(self, text: str, lower_bound: int, upper_bound: Optional[int]) -> None:
         super().__init__(text)
 
         if lower_bound < 0:
             raise exceptions.InvalidRegexError(
-                f"Quantifier lower bound must be strictly greater than 0, not {lower_bound}.")
+                f"Quantifier lower bound must be strictly greater than 0, not {lower_bound}."
+            )
         elif upper_bound is not None and upper_bound < lower_bound:
             raise exceptions.InvalidRegexError(
-                f"Quantifier upper bound {upper_bound} inconsistent with lower bound {lower_bound}.")
+                f"Quantifier upper bound {upper_bound} inconsistent with lower bound {lower_bound}."
+            )
 
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
@@ -419,7 +453,7 @@ class ConcatToken(InfixOperator[NFARegexBuilder]):
 class StringToken(Literal[NFARegexBuilder]):
     """Subclass of literal token defining a string literal."""
 
-    __slots__: Tuple[str, ...] = ('counter',)
+    __slots__: Tuple[str, ...] = ("counter",)
 
     def __init__(self, text: str, counter: count) -> None:
         super().__init__(text)
@@ -436,9 +470,11 @@ class StringToken(Literal[NFARegexBuilder]):
 class WildcardToken(Literal[NFARegexBuilder]):
     """Subclass of literal token defining a wildcard literal."""
 
-    __slots__: Tuple[str, ...] = ('input_symbols', 'counter')
+    __slots__: Tuple[str, ...] = ("input_symbols", "counter")
 
-    def __init__(self, text: str, input_symbols: AbstractSet[str], counter: count) -> None:
+    def __init__(
+        self, text: str, input_symbols: AbstractSet[str], counter: count
+    ) -> None:
         super().__init__(text)
         self.input_symbols = input_symbols
         self.counter = counter
@@ -465,7 +501,7 @@ def add_concat_tokens(
         (RightParen, Literal),
         (Literal, LeftParen),
         (PostfixOperator, Literal),
-        (PostfixOperator, LeftParen)
+        (PostfixOperator, LeftParen),
     ]
 
     for curr_token, next_token in zip_longest(token_list, token_list[1:]):
@@ -473,8 +509,10 @@ def add_concat_tokens(
 
         if next_token is not None:
             for firstClass, secondClass in concat_pairs:
-                if isinstance(curr_token, firstClass) and isinstance(next_token, secondClass):
-                    final_token_list.append(ConcatToken(''))
+                if isinstance(curr_token, firstClass) and isinstance(
+                    next_token, secondClass
+                ):
+                    final_token_list.append(ConcatToken(""))
 
     return final_token_list
 
@@ -484,17 +522,22 @@ def get_regex_lexer(input_symbols: AbstractSet[str]) -> Lexer[NFARegexBuilder]:
     lexer: Lexer[NFARegexBuilder] = Lexer()
     state_name_counter = count(0)
 
-    lexer.register_token(LeftParen.from_match, r'\(')
-    lexer.register_token(RightParen.from_match, r'\)')
-    lexer.register_token(lambda match: StringToken(match.group(), state_name_counter), r'[A-Za-z0-9]')
-    lexer.register_token(UnionToken.from_match, r'\|')
-    lexer.register_token(IntersectionToken.from_match, r'\&')
-    lexer.register_token(ShuffleToken.from_match, r'\^')
-    lexer.register_token(KleeneStarToken.from_match, r'\*')
-    lexer.register_token(KleenePlusToken.from_match, r'\+')
-    lexer.register_token(OptionToken.from_match, r'\?')
-    lexer.register_token(QuantifierToken.from_match, r'\{(.*),(.*)\}')
-    lexer.register_token(lambda match: WildcardToken(match.group(), input_symbols, state_name_counter), r'\.')
+    lexer.register_token(LeftParen.from_match, r"\(")
+    lexer.register_token(RightParen.from_match, r"\)")
+    lexer.register_token(
+        lambda match: StringToken(match.group(), state_name_counter), r"[A-Za-z0-9]"
+    )
+    lexer.register_token(UnionToken.from_match, r"\|")
+    lexer.register_token(IntersectionToken.from_match, r"\&")
+    lexer.register_token(ShuffleToken.from_match, r"\^")
+    lexer.register_token(KleeneStarToken.from_match, r"\*")
+    lexer.register_token(KleenePlusToken.from_match, r"\+")
+    lexer.register_token(OptionToken.from_match, r"\?")
+    lexer.register_token(QuantifierToken.from_match, r"\{(.*),(.*)\}")
+    lexer.register_token(
+        lambda match: WildcardToken(match.group(), input_symbols, state_name_counter),
+        r"\.",
+    )
 
     return lexer
 

@@ -7,6 +7,7 @@ from automata.base.automaton import Automaton, AutomatonStateT
 
 FAStateT = AutomatonStateT
 
+
 class FA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for finite automata."""
 
