@@ -1,8 +1,8 @@
 {
-  "editor.formatOnSave": true,
   "python.analysis.extraPaths": [".virtualenv"],
   "python.formatting.provider": "black",
   "[python]": {
+    "editor.formatOnSave": true,
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.codeActionsOnSave": {
       "source.organizeImports": true
