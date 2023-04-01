@@ -818,9 +818,8 @@ class DFA(fa.FA):
         for remaining in range(k, 0, -1):
             total = self._count_cache[remaining][state]
             choice = rng.randint(0, total - 1)
-            for symbol, next_state in self.transitions[
-                state
-            ].items():  # pragma: no branch
+            transition = self.transitions[state]
+            for symbol, next_state in transition.items():  # pragma: no branch
                 next_state_count = self._count_cache[remaining - 1][next_state]
                 if choice < next_state_count:
                     result.append(symbol)
