@@ -7,11 +7,10 @@ name: publish
 
 on:
   push:
-    tags: [ "*" ]
+    tags: ["*"]
 
 jobs:
   publish:
-
     runs-on: ubuntu-latest
 
     steps:
