@@ -4,7 +4,6 @@
 import abc
 from typing import AbstractSet, Any, Dict, Generator, Mapping, NoReturn, Tuple
 
-from frozendict import frozendict
 from typing_extensions import Self
 
 import automata.base.config as global_config

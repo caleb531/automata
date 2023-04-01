@@ -85,16 +85,22 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         Generates the graph associated with the given DFA.
         Args:
             input_str (str, optional): String list of input symbols. Defaults to None.
-            save_path (str or os.PathLike, optional): Path to output file. If None, the output will not be saved.
-            path (str, optional): Folder path for output file. Defaults to None.
-            view (bool, optional): Storing and displaying the graph as a pdf. Defaults to False.
-            cleanup (bool, optional): Garbage collection. Defaults to True.
-            horizontal (bool, optional): Direction of node layout. Defaults to True.
-            reverse_orientation (bool, optional): Reverse direction of node layout. Defaults to False.
-            fig_size (tuple, optional): Figure size. Defaults to (8, 8).
-            font_size (float, optional): Font size. Defaults to 14.0.
-            arrow_size (float, optional): Arrow head size. Defaults to 0.85.
-            state_separation (float, optional): Node distance. Defaults to 0.5.
+            - save_path (str or os.PathLike, optional): Path to output file. If
+              None, the output will not be saved.
+            - path (str, optional): Folder path for output file. Defaults to
+              None.
+            - view (bool, optional): Storing and displaying the graph as a pdf.
+              Defaults to False.
+            - cleanup (bool, optional): Garbage collection. Defaults to True.
+              horizontal (bool, optional): Direction of node layout. Defaults
+              to True.
+            - reverse_orientation (bool, optional): Reverse direction of node
+              layout. Defaults to False.
+            - fig_size (tuple, optional): Figure size. Defaults to (8, 8).
+            - font_size (float, optional): Font size. Defaults to 14.0.
+            - arrow_size (float, optional): Arrow head size. Defaults to 0.85.
+            - state_separation (float, optional): Node distance. Defaults to 0
+              5.
         Returns:
             Digraph: The graph in dot format.
         """
@@ -173,7 +179,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 input_str=input_str, return_result=True
             )
             remaining_transitions_pairs = [
-                x for x in all_transitions_pairs if x not in taken_transitions_pairs
+                x
+                for x in all_transitions_pairs  # noqa
+                if x not in taken_transitions_pairs
             ]
 
             start_color = Color("#FFFF00")
