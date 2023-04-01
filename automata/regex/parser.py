@@ -17,7 +17,7 @@ import re
 
 BuilderTransitionsT = Dict[int, Dict[str, Set[int]]]
 
-RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^', '{', '}'})
+RESERVED_CHARACTERS = frozenset(('*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^', '{', '}'))
 
 class NFARegexBuilder:
     """Builder class designed for speed in parsing regular expressions into NFAs."""

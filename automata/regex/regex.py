@@ -5,9 +5,9 @@ import automata.base.exceptions as exceptions
 from automata.fa.nfa import NFA
 from automata.regex.parser import (RESERVED_CHARACTERS, get_regex_lexer,
                                    validate_tokens)
+from typing import Literal, Optional, AbstractSet
 
-
-def _validate(regex):
+def _validate(regex: str) -> bool:
     """Return True if the regular expression is valid"""
 
     try:
@@ -18,7 +18,7 @@ def _validate(regex):
     return True
 
 
-def validate(regex):
+def validate(regex: str) -> Literal[True]:
     """Raise an error if the regular expression is invalid"""
     input_symbols = set(regex) - RESERVED_CHARACTERS
 
@@ -27,7 +27,7 @@ def validate(regex):
     return True
 
 
-def isequal(re1, re2, *, input_symbols=None):
+def isequal(re1: str, re2: str, *, input_symbols: Optional[AbstractSet[str]]=None) -> bool:
     """Return True if both regular expressions are equivalent"""
 
     nfa1 = NFA.from_regex(re1, input_symbols=input_symbols)
@@ -36,7 +36,7 @@ def isequal(re1, re2, *, input_symbols=None):
     return nfa1 == nfa2
 
 
-def issubset(re1, re2, *, input_symbols=None):
+def issubset(re1: str, re2: str, *, input_symbols: Optional[AbstractSet[str]]=None) -> bool:
     """Return True if re1 is a subset of re2"""
 
     nfa1 = NFA.from_regex(re1, input_symbols=input_symbols)
@@ -45,7 +45,7 @@ def issubset(re1, re2, *, input_symbols=None):
     return nfa1.union(nfa2) == nfa2
 
 
-def issuperset(re1, re2, *, input_symbols=None):
+def issuperset(re1: str, re2: str, *, input_symbols: Optional[AbstractSet[str]]=None) -> bool:
     """Return True if re1 is a subset of re2"""
 
     nfa1 = NFA.from_regex(re1, input_symbols=input_symbols)

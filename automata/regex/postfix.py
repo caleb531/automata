@@ -7,7 +7,7 @@ from itertools import zip_longest
 
 import automata.base.exceptions as exceptions
 from automata.regex.lexer import Token
-from typing import TypeVar, Tuple, List, Optional, Deque
+from typing import TypeVar, Tuple, List, Optional, Deque, Any
 
 ExpressionResultT = TypeVar("ExpressionResultT")
 
@@ -51,7 +51,7 @@ class Literal(Token[ExpressionResultT]):
         raise NotImplementedError
 
 
-class RightParen(Token):
+class RightParen(Token[Any]):
     """Subclass of token defining a right parenthesis."""
 
     __slots__: Tuple[str, ...] = tuple()
@@ -60,7 +60,7 @@ class RightParen(Token):
         return '<)>'
 
 
-class LeftParen(Token):
+class LeftParen(Token[Any]):
     """Subclass of token defining a left parenthesis."""
 
     __slots__: Tuple[str, ...] = tuple()
