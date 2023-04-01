@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for parsing regexes into NFAs."""
-
+from __future__ import annotations
 from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
 import copy
@@ -12,16 +12,30 @@ from automata.regex.postfix import (InfixOperator, LeftParen, Literal,
                                     parse_postfix_tokens, tokens_to_postfix,
                                     validate_tokens)
 import automata.base.exceptions as exceptions
+from typing import Tuple, Dict, Set, Type, Deque, List, Iterable
 
-RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^'})
+BuilderTransitionsT = Dict[int, Dict[str, Set[int]]]
 
+RESERVED_CHARACTERS = frozenset({'*', '|', '(', ')', '?', ' ', '\t', '&', '+', '.', '^', '{', '}'})
 
 class NFARegexBuilder:
     """Builder class designed for speed in parsing regular expressions into NFAs."""
 
-    __slots__ = ('_transitions', '_initial_state', '_final_states', '_state_name_counter')
+    __slots__: Tuple[str, ...] = ('_transitions', '_initial_state', '_final_states', '_state_name_counter')
 
-    def __init__(self, *, transitions, initial_state, final_states, counter):
+    _transitions: BuilderTransitionsT
+    _initial_state: int
+    _final_states: Set[int]
+    _state_name_counter: count
+
+    def __init__(
+        self,
+        *,
+        transitions: BuilderTransitionsT,
+        initial_state: int,
+        final_states: Set[int],
+        counter: count,
+    ) -> None:
         """
         Initialize new builder class
         """
@@ -32,12 +46,12 @@ class NFARegexBuilder:
         self._state_name_counter = counter
 
     @classmethod
-    def from_string_literal(cls, literal, counter):
+    def from_string_literal(cls: Type[NFARegexBuilder], literal: str, counter: count) -> NFARegexBuilder:
         """
         Initialize this builder accepting only the given string literal
         """
 
-        transitions = {
+        transitions: BuilderTransitionsT = {
             next(counter): {symbol: set()}
             for symbol in literal
         }
@@ -57,7 +71,7 @@ class NFARegexBuilder:
         )
 
     @classmethod
-    def wildcard(cls, input_symbols, counter):
+    def wildcard(cls: Type[NFARegexBuilder], input_symbols: Set[str], counter: count) -> NFARegexBuilder:
         """
         Initialize this builder for a wildcard with the given input symbols
         """
@@ -65,7 +79,7 @@ class NFARegexBuilder:
         initial_state = next(counter)
         final_state = next(counter)
 
-        transitions = {
+        transitions: BuilderTransitionsT = {
             initial_state: {symbol: {final_state} for symbol in input_symbols},
             final_state: {}
         }
@@ -77,7 +91,8 @@ class NFARegexBuilder:
             counter=counter
         )
 
-    def union(self, other):
+
+    def union(self, other: NFARegexBuilder) -> None:
         """
         Apply the union operation to the NFA represented by this builder and other
         """
@@ -93,7 +108,7 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.update(other._final_states)
 
-    def intersection(self, other):
+    def intersection(self, other: NFARegexBuilder) -> None:
         """
         Apply the intersection operation to the NFA represented by this builder and other.
         Use BFS to only traverse reachable part (keeps number of states down).
@@ -102,15 +117,15 @@ class NFARegexBuilder:
         get_state_name = get_renaming_function(self._state_name_counter)
 
         new_final_states = set()
-        new_transitions = {}
+        new_transitions: BuilderTransitionsT = {}
         new_initial_state = (self._initial_state, other._initial_state)
 
         new_initial_state_name = get_state_name(new_initial_state)
         new_input_symbols = tuple(set(chain.from_iterable(
-            map(dict.keys, chain(self._transitions.values(), other._transitions.values()))
+            transition_dict.keys() for transition_dict in chain(self._transitions.values(), other._transitions.values())
         )) - {''})
 
-        queue = deque()
+        queue: Deque[Tuple[int, int]] = deque()
 
         queue.append(new_initial_state)
         new_transitions[new_initial_state_name] = {}
@@ -124,7 +139,7 @@ class NFARegexBuilder:
                 new_final_states.add(curr_state_name)
 
             # States we will consider adding to the queue
-            next_states_iterables = list()
+            next_states_iterables: List[Iterable[Tuple[int, int]]] = []
 
             # Get transition dict for states in self
             transitions_a = self._transitions.get(q_a, {})

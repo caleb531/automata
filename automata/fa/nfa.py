@@ -13,14 +13,13 @@ import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.dfa as dfa
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
-from typing import Mapping, Tuple, Any, Dict, Set, AbstractSet, FrozenSet, Type, Optional, Deque, Generator, TypeVar, List, Iterable
+from typing import Mapping, Tuple, Any, Dict, Set, AbstractSet, FrozenSet, Type, Optional, Deque, Generator, List, Iterable
+from typing_extensions import Self
 
 NFAStateT = fa.FAStateT
 
 NFAPathT = Mapping[str, AbstractSet[NFAStateT]]
 NFATransitionsT = Mapping[NFAStateT, NFAPathT]
-
-NFAType = TypeVar('NFAType', bound='NFA')
 
 DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
@@ -102,7 +101,7 @@ class NFA(fa.FA):
         return self.reverse()
 
     @classmethod
-    def from_dfa(cls: Type[NFAType], dfa: dfa.DFA) -> NFA:
+    def from_dfa(cls: Type[Self], dfa: dfa.DFA) -> NFA:
         """Initialize this NFA as one equivalent to the given DFA."""
         nfa_transitions = {
             start_state: {
@@ -126,7 +125,7 @@ class NFA(fa.FA):
                         start_state, input_symbol))
 
     @classmethod
-    def from_regex(cls: Type[NFAType], regex: str, *, input_symbols: Optional[AbstractSet[str]]=None) -> NFA:
+    def from_regex(cls: Type[Self], regex: str, *, input_symbols: Optional[AbstractSet[str]]=None) -> NFA:
         """Initialize this NFA as one equivalent to the given regular expression"""
 
         if input_symbols is None:
@@ -821,10 +820,11 @@ class NFA(fa.FA):
         return True
 
     @classmethod
-    def edit_distance(cls: Type[NFAType],
+    def edit_distance(cls: Type[Self],
                       input_symbols: AbstractSet[str],
                       reference_str: str,
-                      max_edit_distance: int, *,
+                      max_edit_distance: int,
+                      *,
                       insertion: bool=True,
                       deletion: bool=True,
                       substitution: bool=True):
