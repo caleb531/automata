@@ -25,10 +25,10 @@ class TestGNFA(test_fa.TestFA):
         """Should raise an error if formal NFA parameters are missing."""
         with self.assertRaises(TypeError):
             GNFA(
-                states={'q0', 'q1'},
-                input_symbols={'0', '1'},
-                initial_state='q0',
-                final_state='q1'
+                states={"q0", "q1"},
+                input_symbols={"0", "1"},
+                initial_state="q0",
+                final_state="q1",
             )
 
     def test_copy_gnfa(self):
@@ -47,29 +47,36 @@ class TestGNFA(test_fa.TestFA):
     def test_init_dfa(self):
         """Should convert DFA to GNFA if passed into GNFA constructor."""
         gnfa = GNFA.from_dfa(self.dfa)
-        self.assertEqual(gnfa.states, {0, 1, 'q2', 'q0', 'q1'})
-        self.assertEqual(gnfa.input_symbols, {'0', '1'})
-        self.assertEqual(gnfa.transitions, {
-            'q0': {'q0': '0', 'q1': '1', 1: None, 'q2': None},
-            'q1': {'q0': '0', 'q2': '1', 1: '', 'q1': None},
-            'q2': {'q2': '0', 'q1': '1', 1: None, 'q0': None},
-            0: {'q0': '', 1: None, 'q1': None, 'q2': None}
-        })
+        self.assertEqual(gnfa.states, {0, 1, "q2", "q0", "q1"})
+        self.assertEqual(gnfa.input_symbols, {"0", "1"})
+        self.assertEqual(
+            gnfa.transitions,
+            {
+                "q0": {"q0": "0", "q1": "1", 1: None, "q2": None},
+                "q1": {"q0": "0", "q2": "1", 1: "", "q1": None},
+                "q2": {"q2": "0", "q1": "1", 1: None, "q0": None},
+                0: {"q0": "", 1: None, "q1": None, "q2": None},
+            },
+        )
         self.assertEqual(gnfa.initial_state, 0)
 
     def test_init_nfa(self):
         """Should convert NFA to GNFA if passed into GNFA constructor."""
         gnfa = GNFA.from_nfa(self.nfa)
-        self.assertEqual(gnfa.states, {0, 1, 'q0', 'q1', 'q2'})
-        self.assertEqual(gnfa.input_symbols, {'b', 'a'})
-        self.assertEqual(gnfa.transitions, {
-            0: {1: None, 'q0': '', 'q1': None, 'q2': None},
-            'q0': {1: None, 'q0': None, 'q1': 'a', 'q2': None},
-            'q1': {1: '', 'q0': None, 'q1': 'a', 'q2': ''},
-            'q2': {1: None, 'q0': 'b', 'q1': None, 'q2': None}})
+        self.assertEqual(gnfa.states, {0, 1, "q0", "q1", "q2"})
+        self.assertEqual(gnfa.input_symbols, {"b", "a"})
+        self.assertEqual(
+            gnfa.transitions,
+            {
+                0: {1: None, "q0": "", "q1": None, "q2": None},
+                "q0": {1: None, "q0": None, "q1": "a", "q2": None},
+                "q1": {1: "", "q0": None, "q1": "a", "q2": ""},
+                "q2": {1: None, "q0": "b", "q1": None, "q2": None},
+            },
+        )
         self.assertEqual(gnfa.initial_state, 0)
 
-    @patch('automata.fa.gnfa.GNFA.validate')
+    @patch("automata.fa.gnfa.GNFA.validate")
     def test_init_validation(self, validate):
         """Should validate NFA when initialized."""
         self.gnfa.copy()
@@ -79,112 +86,112 @@ class TestGNFA(test_fa.TestFA):
         """Should raise error if a transition references an invalid symbol."""
         with self.assertRaises(exceptions.InvalidRegexError):
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'c', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None}
+                    "q0": {"q1": "c", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None},
                 },
-                initial_state='q_in',
-                final_state='q_f'
+                initial_state="q_in",
+                final_state="q_f",
             )
 
     def test_validate_invalid_state(self):
         """Should raise error if a transition references an invalid state."""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q3': 'a', 'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None}
+                    "q0": {"q3": "a", "q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None},
                 },
-                initial_state='q_in',
-                final_state='q_f'
+                initial_state="q_in",
+                final_state="q_f",
             )
 
     def test_validate_invalid_initial_state(self):
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None}
+                    "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None},
                 },
-                initial_state='q3',
-                final_state='q_f'
+                initial_state="q3",
+                final_state="q_f",
             )
 
     def test_validate_initial_state_transitions(self):
         """Should raise error if the initial state has no transitions."""
         with self.assertRaises(exceptions.MissingStateError):
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None}
+                    "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
                 },
-                initial_state='q_in',
-                final_state='q_f'
+                initial_state="q_in",
+                final_state="q_f",
             )
 
     def test_validate_invalid_final_state(self):
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None}
+                    "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None},
                 },
-                initial_state='q_in',
-                final_state='q3'
+                initial_state="q_in",
+                final_state="q3",
             )
 
     def test_validate_final_state_transition(self):
         """Should raise error if there are transitions from final state"""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_f': {'q0': '', 'q_f': None, 'q2': None, 'q1': None}
+                    "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None},
+                    "q_f": {"q0": "", "q_f": None, "q2": None, "q1": None},
                 },
-                initial_state='q_in',
-                final_state='q_f'
+                initial_state="q_in",
+                final_state="q_f",
             )
 
     def test_validate_missing_state(self):
         """Should raise an error if some transitions are missing."""
         with self.assertRaises(exceptions.MissingStateError):
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None}
+                    "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None},
                 },
-                initial_state='q_in',
-                final_state='q_f'
+                initial_state="q_in",
+                final_state="q_f",
             )
 
     def test_validate_incomplete_transitions(self):
@@ -195,46 +202,46 @@ class TestGNFA(test_fa.TestFA):
         with self.assertRaises(exceptions.MissingStateError):
             # del gnfa.transitions['q1']['q0']
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': ''},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None}
+                    "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": ""},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None},
                 },
-                initial_state='q_in',
-                final_state='q_f'
+                initial_state="q_in",
+                final_state="q_f",
             )
 
         with self.assertRaises(exceptions.MissingStateError):
             # del gnfa.transitions['q_in']['q_f']
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q2': None, 'q1': None}
+                    "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q2": None, "q1": None},
                 },
-                initial_state='q_in',
-                final_state='q_f'
+                initial_state="q_in",
+                final_state="q_f",
             )
 
         with self.assertRaises(exceptions.InvalidStateError):
             # gnfa.transitions['q_in']['q5'] = {}
             GNFA(
-                states={'q_in', 'q_f', 'q0', 'q1', 'q2'},
-                input_symbols={'a', 'b'},
+                states={"q_in", "q_f", "q0", "q1", "q2"},
+                input_symbols={"a", "b"},
                 transitions={
-                    'q0': {'q1': 'a', 'q_f': None, 'q2': None, 'q0': None},
-                    'q1': {'q1': 'a', 'q2': '', 'q_f': '', 'q0': None},
-                    'q2': {'q0': 'b', 'q_f': None, 'q2': None, 'q1': None},
-                    'q_in': {'q0': '', 'q_f': None, 'q2': None, 'q1': None, 'q5': {}}
+                    "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
+                    "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
+                    "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None, "q5": {}},
                 },
-                initial_state='q_in',
-                final_state='q_f'
+                initial_state="q_in",
+                final_state="q_f",
             )
 
     def test_from_dfa(self):
@@ -244,53 +251,47 @@ class TestGNFA(test_fa.TestFA):
 
         dfa = DFA(
             states={0, 1, 2, 4},
-            input_symbols={'a', 'b'},
+            input_symbols={"a", "b"},
             initial_state=0,
             final_states={4},
-            transitions={
-                0: {'a': 1, 'b': 2},
-                1: {'a': 2, 'b': 2},
-                2: {'b': 4}
-            },
-            allow_partial=True
+            transitions={0: {"a": 1, "b": 2}, 1: {"a": 2, "b": 2}, 2: {"b": 4}},
+            allow_partial=True,
         )
 
         gnfa = GNFA.from_dfa(dfa)
         gnfa2 = GNFA(
             states={0, 1, 2, 3, 4, 5},
-            input_symbols={'a', 'b'},
+            input_symbols={"a", "b"},
             initial_state=3,
             final_state=5,
             transitions={
-                0: {1: 'a', 2: 'b', 0: None, 4: None, 5: None},
-                1: {2: 'a|b', 0: None, 1: None, 4: None, 5: None},
-                2: {4: 'b', 0: None, 1: None, 2: None, 5: None},
-                3: {0: '', 1: None, 2: None, 4: None, 5: None},
-                4: {5: '', 0: None, 1: None, 2: None, 4: None}}
+                0: {1: "a", 2: "b", 0: None, 4: None, 5: None},
+                1: {2: "a|b", 0: None, 1: None, 4: None, 5: None},
+                2: {4: "b", 0: None, 1: None, 2: None, 5: None},
+                3: {0: "", 1: None, 2: None, 4: None, 5: None},
+                4: {5: "", 0: None, 1: None, 2: None, 4: None},
+            },
         )
 
         self.assertEqual(gnfa.input_parameters, gnfa2.input_parameters)
 
     def test_from_dfa_single_state(self):
-        nfa = NFA.from_regex('')
+        nfa = NFA.from_regex("")
         dfa = DFA.from_nfa(nfa)
         gnfa = GNFA.from_dfa(dfa)
 
         gnfa2 = GNFA(
-            states={0, 1, '{0}'},
+            states={0, 1, "{0}"},
             input_symbols=set(),
             initial_state=0,
             final_state=1,
-            transitions={
-                '{0}': {1: '', '{0}': None},
-                0: {'{0}': '', 1: None}
-            }
+            transitions={"{0}": {1: "", "{0}": None}, 0: {"{0}": "", 1: None}},
         )
 
         self.assertEqual(gnfa.to_regex(), gnfa2.to_regex())
 
     def test_from_nfa_single_state(self):
-        nfa = NFA.from_regex('')
+        nfa = NFA.from_regex("")
         gnfa = GNFA.from_nfa(nfa)
 
         gnfa2 = GNFA(
@@ -298,10 +299,7 @@ class TestGNFA(test_fa.TestFA):
             input_symbols=set(),
             initial_state=1,
             final_state=2,
-            transitions={
-                0: {2: '', 0: None},
-                1: {0: '', 2: None}
-            }
+            transitions={0: {2: "", 0: None}, 1: {0: "", 2: None}},
         )
 
         self.assertEqual(gnfa.to_regex(), gnfa2.to_regex())
@@ -311,14 +309,14 @@ class TestGNFA(test_fa.TestFA):
 
         nfa = NFA(
             states={0, 1, 2, 4},
-            input_symbols={'a', 'b'},
+            input_symbols={"a", "b"},
             transitions={
-                0: {'a': {1}, 'b': {1}, '': {1}},
-                1: {'a': {1, 2}, '': {2, 4}},
-                2: {'': {0}, 'b': {0, 4}}
+                0: {"a": {1}, "b": {1}, "": {1}},
+                1: {"a": {1, 2}, "": {2, 4}},
+                2: {"": {0}, "b": {0, 4}},
             },
             initial_state=0,
-            final_states={4}
+            final_states={4},
         )
 
         gnfa = GNFA.from_nfa(nfa)
@@ -327,14 +325,14 @@ class TestGNFA(test_fa.TestFA):
             states={0, 1, 2, 3, 4, 5},
             initial_state=3,
             final_state=5,
-            input_symbols={'a', 'b'},
+            input_symbols={"a", "b"},
             transitions={
-                0: {1: '(a|b)?', 0: None, 2: None, 4: None, 5: None},
-                1: {1: 'a', 2: 'a?', 4: '', 0: None, 5: None},
-                2: {0: 'b?', 4: 'b', 1: None, 2: None, 5: None},
-                4: {5: '', 0: None, 1: None, 2: None, 4: None},
-                3: {0: '', 1: None, 2: None, 4: None, 5: None}
-            }
+                0: {1: "(a|b)?", 0: None, 2: None, 4: None, 5: None},
+                1: {1: "a", 2: "a?", 4: "", 0: None, 5: None},
+                2: {0: "b?", 4: "b", 1: None, 2: None, 5: None},
+                4: {5: "", 0: None, 1: None, 2: None, 4: None},
+                3: {0: "", 1: None, 2: None, 4: None, 5: None},
+            },
         )
 
         self.assertEqual(gnfa.input_parameters, gnfa2.input_parameters)
@@ -346,9 +344,9 @@ class TestGNFA(test_fa.TestFA):
         and check for equivalence of NFA and previous DFA
         """
         regex_strings = [
-            'a*',
-            'aa*b|bba*|(cc*)(bb+)',
-            'a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?'
+            "a*",
+            "aa*b|bba*|(cc*)(bb+)",
+            "a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?",
         ]
 
         for regex_str in regex_strings:
@@ -371,7 +369,7 @@ class TestGNFA(test_fa.TestFA):
     def test_read_input_step_not_implemented(self):
         """Should not implement read_input_stepwise() for GNFA."""
         with self.assertRaises(NotImplementedError):
-            self.gnfa.read_input_stepwise('aaa')
+            self.gnfa.read_input_stepwise("aaa")
 
     def test_union_not_implemented(self):
         """Should not implement union() for GNFA."""
@@ -410,23 +408,24 @@ class TestGNFA(test_fa.TestFA):
         gnfa = self.gnfa
 
         graph = gnfa.show_diagram(show_None=False)
-        self.assertEqual(
-            {node.get_name() for node in graph.get_nodes()},
-            gnfa.states)
-        self.assertEqual(graph.get_node(gnfa.initial_state)[0].get_style(), 'filled')
+        self.assertEqual({node.get_name() for node in graph.get_nodes()}, gnfa.states)
+        self.assertEqual(graph.get_node(gnfa.initial_state)[0].get_style(), "filled")
         self.assertEqual(graph.get_node(gnfa.final_state)[0].get_peripheries(), 2)
-        self.assertEqual(graph.get_node('q2')[0].get_peripheries(), None)
+        self.assertEqual(graph.get_node("q2")[0].get_peripheries(), None)
         self.assertEqual(
-            {(edge.get_source(), edge.get_label(), edge.get_destination())
-             for edge in graph.get_edges()},
             {
-                ('q0', 'a', 'q1'),
-                ('q1', 'a', 'q1'),
-                ('q1', '', 'q2'),
-                ('q1', '', 'q_f'),
-                ('q2', 'b', 'q0'),
-                ('q_in', '', 'q0')
-            })
+                (edge.get_source(), edge.get_label(), edge.get_destination())
+                for edge in graph.get_edges()
+            },
+            {
+                ("q0", "a", "q1"),
+                ("q1", "a", "q1"),
+                ("q1", "", "q2"),
+                ("q1", "", "q_f"),
+                ("q2", "b", "q0"),
+                ("q_in", "", "q0"),
+            },
+        )
 
     def test_show_diagram(self):
         """
@@ -436,40 +435,41 @@ class TestGNFA(test_fa.TestFA):
         gnfa = self.gnfa
 
         graph = gnfa.show_diagram()
-        self.assertEqual(
-            {node.get_name() for node in graph.get_nodes()},
-            gnfa.states)
-        self.assertEqual(graph.get_node(gnfa.initial_state)[0].get_style(), 'filled')
+        self.assertEqual({node.get_name() for node in graph.get_nodes()}, gnfa.states)
+        self.assertEqual(graph.get_node(gnfa.initial_state)[0].get_style(), "filled")
         self.assertEqual(graph.get_node(gnfa.final_state)[0].get_peripheries(), 2)
-        self.assertEqual(graph.get_node('q2')[0].get_peripheries(), None)
+        self.assertEqual(graph.get_node("q2")[0].get_peripheries(), None)
         self.assertEqual(
-            {(edge.get_source(), edge.get_label(), edge.get_destination())
-             for edge in graph.get_edges()},
             {
-                ('q_in', '', 'q0'),
-                ('q0', 'ø', 'q2'),
-                ('q1', '', 'q2'),
-                ('q0', 'ø', 'q_f'),
-                ('q1', '', 'q_f'),
-                ('q_in', 'ø', 'q2'),
-                ('q_in', 'ø', 'q1'),
-                ('q1', 'a', 'q1'),
-                ('q2', 'b', 'q0'),
-                ('q2', 'ø', 'q2'),
-                ('q_in', 'ø', 'q_f'),
-                ('q2', 'ø', 'q1'),
-                ('q0', 'ø', 'q0'),
-                ('q2', 'ø', 'q_f'),
-                ('q0', 'a', 'q1'),
-                ('q1', 'ø', 'q0')
-            })
+                (edge.get_source(), edge.get_label(), edge.get_destination())
+                for edge in graph.get_edges()
+            },
+            {
+                ("q_in", "", "q0"),
+                ("q0", "ø", "q2"),
+                ("q1", "", "q2"),
+                ("q0", "ø", "q_f"),
+                ("q1", "", "q_f"),
+                ("q_in", "ø", "q2"),
+                ("q_in", "ø", "q1"),
+                ("q1", "a", "q1"),
+                ("q2", "b", "q0"),
+                ("q2", "ø", "q2"),
+                ("q_in", "ø", "q_f"),
+                ("q2", "ø", "q1"),
+                ("q0", "ø", "q0"),
+                ("q2", "ø", "q_f"),
+                ("q0", "a", "q1"),
+                ("q1", "ø", "q0"),
+            },
+        )
 
     def test_show_diagram_write_file(self):
         """
         Should construct the diagram for a NFA
         and write it to the specified file.
         """
-        diagram_path = os.path.join(self.temp_dir_path, 'test_gnfa.png')
+        diagram_path = os.path.join(self.temp_dir_path, "test_gnfa.png")
         try:
             os.remove(diagram_path)
         except OSError:

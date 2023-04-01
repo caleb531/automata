@@ -10,9 +10,9 @@ class TestPDAStack(test_pda.TestPDA):
 
     def test_stack_iter(self):
         """Should loop through the PDA stack in some manner."""
-        self.assertEqual(list(PDAStack(['a', 'b'])), ['a', 'b'])
+        self.assertEqual(list(PDAStack(["a", "b"])), ["a", "b"])
 
     def test_stack_repr(self):
         """Should create proper string representation of PDA stack."""
-        stack = PDAStack(['a', 'b'])
-        self.assertEqual(repr(stack), 'PDAStack(\'a\', \'b\')')
+        stack = PDAStack(["a", "b"])
+        self.assertEqual(repr(stack), "PDAStack('a', 'b')")

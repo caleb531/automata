@@ -11,6 +11,6 @@ class TestTMTape(unittest.TestCase):
 
     def test_tape_copy(self):
         """Should copy TMTape."""
-        tape = TMTape('0011', blank_symbol='#', current_position=0)
+        tape = TMTape("0011", blank_symbol="#", current_position=0)
         new_tape = tape.copy()
         self.assertIsNot(new_tape, tape)
