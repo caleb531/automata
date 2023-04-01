@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic pushdown automata."""
 
+from typing import AbstractSet, Generator, Mapping, Set, Tuple
+
 import automata.base.exceptions as exceptions
 import automata.pda.pda as pda
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
+
+NPDAStateT = pda.PDAStateT
+
+NPDAPathT = Mapping[
+    str,
+    AbstractSet[Tuple[NPDAStateT, Tuple[str]]],
+]
+NPDATransitionsT = Mapping[NPDAStateT, NPDAPathT]
 
 
 class NPDA(pda.PDA):
@@ -24,14 +34,14 @@ class NPDA(pda.PDA):
     def __init__(
         self,
         *,
-        states,
-        input_symbols,
-        stack_symbols,
-        transitions,
-        initial_state,
-        initial_stack_symbol,
-        final_states,
-        acceptance_mode="both",
+        states: AbstractSet[NPDAStateT],
+        input_symbols: AbstractSet[str],
+        stack_symbols: AbstractSet[str],
+        transitions: NPDATransitionsT,
+        initial_state: NPDAStateT,
+        initial_stack_symbol: str,
+        final_states: AbstractSet[NPDAStateT],
+        acceptance_mode: pda.PDAAcceptanceModeT = "both"
     ):
         """Initialize a complete NPDA."""
         super().__init__(
@@ -45,7 +55,9 @@ class NPDA(pda.PDA):
             acceptance_mode=acceptance_mode,
         )
 
-    def _validate_transition_invalid_symbols(self, start_state, paths):
+    def _validate_transition_invalid_symbols(
+        self, start_state: NPDAStateT, paths: NPDATransitionsT
+    ) -> None:
         """Raise an error if transition symbols are invalid."""
         for input_symbol, symbol_paths in paths.items():
             self._validate_transition_invalid_input_symbols(start_state, input_symbol)
@@ -54,7 +66,9 @@ class NPDA(pda.PDA):
                     start_state, stack_symbol
                 )
 
-    def _get_transitions(self, state, input_symbol, stack_symbol):
+    def _get_transitions(
+        self, state: NPDAStateT, input_symbol: str, stack_symbol: str
+    ) -> Set[Tuple[str, NPDAStateT, str]]:
         """Get the transition tuples for the given state and symbols."""
         transitions = set()
         if (
@@ -68,9 +82,11 @@ class NPDA(pda.PDA):
                 transitions.add((input_symbol, dest_state, new_stack_top))
         return transitions
 
-    def _get_next_configurations(self, old_config):
+    def _get_next_configurations(
+        self, old_config: PDAConfiguration
+    ) -> Set[PDAConfiguration]:
         """Advance to the next configurations."""
-        transitions = set()
+        transitions: set[Tuple[str, NPDAStateT, str]] = set()
         if old_config.remaining_input:
             transitions.update(
                 self._get_transitions(
@@ -83,7 +99,7 @@ class NPDA(pda.PDA):
             self._get_transitions(old_config.state, "", old_config.stack.top())
         )
         new_configs = set()
-        for input_symbol, new_state, new_stack_top in transitions:
+        for input_symbol, new_state, new_stack_top in transitions:  # type: ignore
             remaining_input = old_config.remaining_input
             if input_symbol:
                 remaining_input = remaining_input[1:]
@@ -95,7 +111,9 @@ class NPDA(pda.PDA):
             new_configs.add(new_config)
         return new_configs
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(
+        self, input_str: str
+    ) -> Generator[Set[PDAConfiguration], None, None]:
         """
         Check if the given string is accepted by this NPDA.
 
