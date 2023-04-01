@@ -12,8 +12,8 @@ import automata.base.exceptions as exceptions
 from automata.base.utils import freeze_value
 
 AutomatonStateT = Any
-PathT = Mapping[str, Any]
-TransitionT = Mapping[str, PathT]
+AutomatonPathT = Mapping[str, Any]
+AutomatonTransitionsT = Mapping[str, AutomatonPathT]
 
 
 class Automaton(metaclass=abc.ABCMeta):
@@ -24,7 +24,7 @@ class Automaton(metaclass=abc.ABCMeta):
     initial_state: AutomatonStateT
     states: AbstractSet[AutomatonStateT]
     final_states: AbstractSet[AutomatonStateT]
-    transitions: TransitionT
+    transitions: AutomatonTransitionsT
     input_symbols: AbstractSet[str]
 
     def __init__(self, **kwargs: Any) -> None:
@@ -63,11 +63,8 @@ class Automaton(metaclass=abc.ABCMeta):
         #   because __setattr__ is disabled due to immutability
         self.__init__(**d)  # type: ignore
 
-    # TODO add annotation for generator here
     @abc.abstractmethod
-    def read_input_stepwise(
-        self, input_str: str
-    ) -> Generator[AbstractSet[AutomatonStateT], None, None]:
+    def read_input_stepwise(self, input_str: str) -> Generator[Any, None, None]:
         """Return a generator that yields each step while reading input."""
         raise NotImplementedError
 

@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic pushdown automata."""
 
+from typing import AbstractSet, Generator, Mapping, Optional
+
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import automata.pda.pda as pda
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
+
+DPDAStateT = pda.PDAStateT
+
+DPDAPathT = Mapping[
+    str,
+    tuple[DPDAStateT, tuple[str]],
+]
+DPDATransitionsT = Mapping[DPDAStateT, DPDAPathT]
 
 
 class DPDA(pda.PDA):
@@ -25,14 +35,14 @@ class DPDA(pda.PDA):
     def __init__(
         self,
         *,
-        states,
-        input_symbols,
-        stack_symbols,
-        transitions,
-        initial_state,
-        initial_stack_symbol,
-        final_states,
-        acceptance_mode="both",
+        states: AbstractSet[DPDAStateT],
+        input_symbols: AbstractSet[str],
+        stack_symbols: AbstractSet[str],
+        transitions: DPDATransitionsT,
+        initial_state: DPDAStateT,
+        initial_stack_symbol: str,
+        final_states: AbstractSet[DPDAStateT],
+        acceptance_mode: pda.PDAAcceptanceModeT = "both"
     ):
         """Initialize a complete DPDA."""
         super().__init__(
@@ -46,7 +56,9 @@ class DPDA(pda.PDA):
             acceptance_mode=acceptance_mode,
         )
 
-    def _validate_transition_invalid_symbols(self, start_state, paths):
+    def _validate_transition_invalid_symbols(
+        self, start_state: DPDAStateT, paths: DPDATransitionsT
+    ) -> None:
         """Raise an error if transition symbols are invalid."""
         for input_symbol, symbol_paths in paths.items():
             self._validate_transition_invalid_input_symbols(start_state, input_symbol)
@@ -58,7 +70,9 @@ class DPDA(pda.PDA):
                     start_state, stack_symbol
                 )
 
-    def _validate_transition_lambda_transition_sibling(self, start_state, sib_path):
+    def _validate_transition_lambda_transition_sibling(
+        self, start_state: DPDAStateT, sib_path: DPDAPathT
+    ) -> None:
         """Check the given sibling path for adjacent lambda transitions."""
         for other_stack_symbol in sib_path:
             if other_stack_symbol in self.transitions[start_state][""]:
@@ -68,8 +82,8 @@ class DPDA(pda.PDA):
                 )
 
     def _validate_transition_isolated_lambda_transitions(
-        self, start_state, input_symbol, stack_symbol
-    ):
+        self, start_state: DPDAStateT, input_symbol: str, stack_symbol: str
+    ) -> None:
         """Raise an error if a lambda transition has no sibling transitions."""
         if input_symbol == "":
             sib_transitions = self.transitions[start_state]
@@ -79,7 +93,9 @@ class DPDA(pda.PDA):
                         start_state, sib_path
                     )
 
-    def _get_transition(self, state, input_symbol, stack_symbol):
+    def _get_transition(
+        self, state: DPDAStateT, input_symbol: str, stack_symbol: str
+    ) -> Optional[DPDAPathT]:
         """Get the transiton tuple for the given state and symbols."""
         if (
             state in self.transitions
@@ -87,8 +103,12 @@ class DPDA(pda.PDA):
             and stack_symbol in self.transitions[state][input_symbol]
         ):
             return (input_symbol,) + self.transitions[state][input_symbol][stack_symbol]
+        else:
+            return None
 
-    def _check_for_input_rejection(self, current_configuration):
+    def _check_for_input_rejection(
+        self, current_configuration: PDAConfiguration
+    ) -> None:
         """Raise an error if the given config indicates rejected input."""
         if not self._has_accepted(current_configuration):
             raise exceptions.RejectionException(
@@ -96,9 +116,9 @@ class DPDA(pda.PDA):
                 "({state}, {stack})".format(**current_configuration._asdict())
             )
 
-    def _get_next_configuration(self, old_config):
+    def _get_next_configuration(self, old_config: PDAConfiguration) -> PDAConfiguration:
         """Advance to the next configuration."""
-        transitions = set()
+        transitions: set[Optional[DPDAPathT]] = set()
         if old_config.remaining_input:
             transitions.add(
                 self._get_transition(
@@ -121,7 +141,7 @@ class DPDA(pda.PDA):
                     old_config.stack.top(),
                 )
             )
-        input_symbol, new_state, new_stack_top = transitions.pop()
+        input_symbol, new_state, new_stack_top = transitions.pop()  # type: ignore
         remaining_input = old_config.remaining_input
         if input_symbol:
             remaining_input = remaining_input[1:]
@@ -132,7 +152,9 @@ class DPDA(pda.PDA):
         )
         return new_config
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(
+        self, input_str: str
+    ) -> Generator[PDAConfiguration, None, None]:
         """
         Check if the given string is accepted by this DPDA.
 

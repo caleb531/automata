@@ -2,17 +2,18 @@
 """Classes and methods for working with all pushdown automata."""
 
 import abc
-from typing import Union
+from typing import AbstractSet, Union
 
 from typing_extensions import Literal
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
-from automata.base.automaton import Automaton, AutomatonStateT
+from automata.base.automaton import Automaton, AutomatonStateT, AutomatonTransitionsT
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
 PDAStateT = AutomatonStateT
+PDATransitionsT = AutomatonTransitionsT
 PDAAcceptanceModeT = Union[
     Literal["final_state"], Literal["empty_stack"], Literal["both"]
 ]
@@ -20,6 +21,10 @@ PDAAcceptanceModeT = Union[
 
 class PDA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for pushdown automata."""
+
+    stack_symbols: AbstractSet[str]
+    initial_stack_symbol: str
+    acceptance_mode: PDAAcceptanceModeT
 
     def _validate_transition_invalid_input_symbols(
         self, start_state: PDAStateT, input_symbol: str
@@ -56,6 +61,12 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
             raise pda_exceptions.InvalidAcceptanceModeError(
                 "acceptance mode {} is invalid".format(self.acceptance_mode)
             )
+
+    @abc.abstractmethod
+    def _validate_transition_invalid_symbols(
+        self, start_state: PDAStateT, paths: PDATransitionsT
+    ) -> None:
+        pass
 
     def validate(self) -> bool:
         """Return True if this PDA is internally consistent."""
