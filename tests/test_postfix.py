@@ -115,7 +115,7 @@ class TestArithmeticParser(unittest.TestCase):
         self.assertEqual((4 + (1 + 2 * 3 * (4 + 5) + 6)) * 7 + 8, res)
 
     def setUp(self):
-        self.arithmetic_lexer: Lexer = Lexer()
+        self.arithmetic_lexer = Lexer()
 
         self.arithmetic_lexer.register_token(postfix.LeftParen.from_match, r"\(")
         self.arithmetic_lexer.register_token(postfix.RightParen.from_match, r"\)")

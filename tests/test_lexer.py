@@ -24,7 +24,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         class BToken(Token):
             pass
 
-        registry: TokenRegistry = TokenRegistry()
+        registry = TokenRegistry()
         self.assertEqual(0, len(registry._tokens))
 
         registry.register(AToken, r"a+")
@@ -35,12 +35,12 @@ class TestTokenRegistryTestCase(unittest.TestCase):
 
     def test_get_matches_no_tokens_notext(self):
         """Test for no matching tokens in registry with empty string."""
-        registry: TokenRegistry = TokenRegistry()
+        registry = TokenRegistry()
         self.assertEqual([], list(registry.matching_tokens("", 0)))
 
     def test_get_matches_no_tokens_text(self):
         """Test for no matching tokens in registry with text."""
-        registry: TokenRegistry = TokenRegistry()
+        registry = TokenRegistry()
         self.assertEqual([], list(registry.matching_tokens("foo", 0)))
 
     def test_get_matches_notext(self):
@@ -49,7 +49,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         class AToken(Token):
             pass
 
-        registry: TokenRegistry = TokenRegistry()
+        registry = TokenRegistry()
         registry.register(AToken, r"a")
         self.assertEqual([], list(registry.matching_tokens("", 0)))
 
@@ -59,7 +59,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         class AToken(Token):
             pass
 
-        registry: TokenRegistry = TokenRegistry()
+        registry = TokenRegistry()
         registry.register(AToken, r"a")
 
         matches = list(registry.matching_tokens("aaa", 0))
@@ -75,7 +75,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         class AAToken(Token):
             pass
 
-        registry: TokenRegistry = TokenRegistry()
+        registry = TokenRegistry()
         registry.register(AToken, r"a")
         registry.register(AAToken, r"aa")
 
@@ -93,7 +93,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         class AAToken(Token):
             pass
 
-        registry: TokenRegistry = TokenRegistry()
+        registry = TokenRegistry()
         registry.register(AToken, r"a")
         registry.register(AAToken, r"aa")
 
@@ -110,7 +110,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
         class AAToken(Token):
             pass
 
-        registry: TokenRegistry = TokenRegistry()
+        registry = TokenRegistry()
         registry.register(AAToken, r"aa")
         registry.register(AToken, r"a")
 
