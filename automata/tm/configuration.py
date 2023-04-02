@@ -10,11 +10,11 @@ class TMConfiguration(collections.namedtuple("TMConfiguration", ["state", "tape"
 
     state: Any
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the configuration."""
         return "{}('{}', {})".format(self.__class__.__name__, self.state, self.tape)
 
-    def print(self):
+    def print(self) -> None:
         """Print the machine's current configuration in a readable form."""
         print(
             "{current_state}: {tape}\n{current_position}".format(
@@ -30,11 +30,11 @@ class TMConfiguration(collections.namedtuple("TMConfiguration", ["state", "tape"
 class MTMConfiguration(collections.namedtuple("MTMConfiguration", ["state", "tapes"])):
     """A Multitape Turing machine configuration."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the configuration."""
         return "{}('{}', {})".format(self.__class__.__name__, self.state, self.tapes)
 
-    def print(self):
+    def print(self) -> None:
         """Print the machine's current configuration in a readable form."""
         description = "{}: \n".format(self.state)
         for i, tape in enumerate(self.tapes):
