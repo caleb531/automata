@@ -9,7 +9,7 @@ from typing import Iterator, Sequence, Tuple
 class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
     """A PDA stack."""
 
-    stack: Tuple[str]
+    stack: Tuple[str, ...]
 
     # TODO can we get rid of this? Kinda weird inheritance here
     def __new__(cls, elements: Sequence[str]):
