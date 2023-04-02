@@ -2,18 +2,12 @@
 """Classes and methods for working with all Turing machines."""
 
 import abc
-from typing import AbstractSet, Union
-
-from typing_extensions import Literal
+from typing import AbstractSet
 
 import automata.base.exceptions as exceptions
-from automata.base.automaton import Automaton, AutomatonStateT, AutomatonTransitionsT
+from automata.base.automaton import Automaton, AutomatonStateT
 
 TMStateT = AutomatonStateT
-PDATransitionsT = AutomatonTransitionsT
-PDAAcceptanceModeT = Union[
-    Literal["final_state"], Literal["empty_stack"], Literal["both"]
-]
 
 
 class TM(Automaton, metaclass=abc.ABCMeta):
