@@ -72,7 +72,7 @@ class DFA(fa.FA):
         initial_state: DFAStateT,
         final_states: AbstractSet[DFAStateT],
         allow_partial: bool = False,
-    ):
+    ) -> None:
         """Initialize a complete DFA."""
         super().__init__(
             states=states,

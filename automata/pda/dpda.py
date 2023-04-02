@@ -43,7 +43,7 @@ class DPDA(pda.PDA):
         initial_stack_symbol: str,
         final_states: AbstractSet[DPDAStateT],
         acceptance_mode: pda.PDAAcceptanceModeT = "both"
-    ):
+    ) -> None:
         """Initialize a complete DPDA."""
         super().__init__(
             states=states,
