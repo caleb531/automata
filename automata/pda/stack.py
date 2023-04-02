@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import collections
-from typing import Iterator, Sequence, Tuple, Union
+from typing import Iterator, Sequence, Tuple
 
 
 class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
     """A PDA stack."""
 
-    stack: Union[Tuple[str], str]
+    stack: Tuple[str]
 
     # TODO can we get rid of this? Kinda weird inheritance here
-    def __new__(cls, elements: Union[Sequence[str], str]):
+    def __new__(cls, elements: Sequence[str]):
         """Create the new PDA stack."""
         return super(PDAStack, cls).__new__(cls, tuple(elements))
 
@@ -33,7 +33,7 @@ class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
         stack_contents.pop()
         return self.__class__(stack_contents)
 
-    def replace(self, symbols: Union[Tuple[str], str]) -> PDAStack:
+    def replace(self, symbols: Sequence[str]) -> PDAStack:
         """
         Replace the top of the stack with the given symbols.
 

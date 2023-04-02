@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with PDA configurations."""
 
-from typing import Any, List, NamedTuple, Union
+from typing import Any, NamedTuple, Sequence
 
 from automata.pda.stack import PDAStack
 
@@ -15,7 +15,7 @@ class PDAConfiguration(NamedTuple):
     """
 
     state: Any
-    remaining_input: Union[List[str], str]
+    remaining_input: Sequence[str]
     stack: PDAStack
 
     def __repr__(self) -> str:
