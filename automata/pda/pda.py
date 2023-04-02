@@ -14,7 +14,8 @@ from automata.pda.stack import PDAStack
 
 PDAStateT = AutomatonStateT
 PDATransitionsT = AutomatonTransitionsT
-PDAAcceptanceModeT = Union[
+PDAAcceptanceModeT = Literal["final_state", "empty_stack", "both"]
+
     Literal["final_state"], Literal["empty_stack"], Literal["both"]
 ]
 
