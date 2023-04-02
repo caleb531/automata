@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Classes and methods for working with Turing machine configurations."""
 
-import collections
-from typing import Any
+from typing import List, NamedTuple
+
+from automata.tm.tape import TMTape
+from automata.tm.tm import TMStateT
 
 
-class TMConfiguration(collections.namedtuple("TMConfiguration", ["state", "tape"])):
+class TMConfiguration(NamedTuple):
     """A Turing machine configuration."""
 
-    state: Any
+    state: TMStateT
+    tape: TMTape
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""
@@ -27,8 +30,11 @@ class TMConfiguration(collections.namedtuple("TMConfiguration", ["state", "tape"
         )
 
 
-class MTMConfiguration(collections.namedtuple("MTMConfiguration", ["state", "tapes"])):
+class MTMConfiguration(NamedTuple):
     """A Multitape Turing machine configuration."""
+
+    state: TMStateT
+    tapes: List[TMTape]
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""
@@ -37,11 +43,11 @@ class MTMConfiguration(collections.namedtuple("MTMConfiguration", ["state", "tap
     def print(self) -> None:
         """Print the machine's current configuration in a readable form."""
         description = "{}: \n".format(self.state)
-        for i, tape in enumerate(self.tapes):
-            title = "> Tape {}: ".format(i + 1)
+        for i, tape in enumerate(self.tapes, start=1):
+            title = "> Tape {}: ".format(i)
             position = tape.current_position + len(title) + 1
             description += "> Tape {j}: {tape}\n{current_position}\n".format(
-                j=i + 1,
+                j=i,
                 tape="".join(tape).ljust(tape.current_position, "#"),
                 current_position="^".rjust(position),
             )
