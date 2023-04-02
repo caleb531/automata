@@ -2,12 +2,13 @@
 """Classes and methods for working with all Turing machines."""
 
 import abc
-from typing import AbstractSet
+from typing import AbstractSet, Literal
 
 import automata.base.exceptions as exceptions
 from automata.base.automaton import Automaton, AutomatonStateT
 
 TMStateT = AutomatonStateT
+TMDirectionT = Literal["L", "R", "N"]
 
 
 class TM(Automaton, metaclass=abc.ABCMeta):

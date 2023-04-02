@@ -2,10 +2,13 @@
 """Classes and methods for working with Turing machine configurations."""
 
 import collections
+from typing import Any
 
 
 class TMConfiguration(collections.namedtuple("TMConfiguration", ["state", "tape"])):
     """A Turing machine configuration."""
+
+    state: Any
 
     def __repr__(self):
         """Return a string representation of the configuration."""

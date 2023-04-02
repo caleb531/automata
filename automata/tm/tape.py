@@ -2,12 +2,17 @@
 """Classes and methods for working with Turing machine tapes."""
 
 import collections
+from typing import Tuple
 
 
 class TMTape(
     collections.namedtuple("TMTape", ["tape", "blank_symbol", "current_position"])
 ):
     """A Turing machine tape."""
+
+    tape: Tuple[str]
+    blank_symbol: str
+    current_position: int
 
     def __new__(cls, tape, *, blank_symbol, current_position=0):
         """Initialize a new Turing machine tape."""
