@@ -2,7 +2,7 @@
 """Classes and methods for working with all pushdown automata."""
 
 import abc
-from typing import AbstractSet, Union
+from typing import AbstractSet
 
 from typing_extensions import Literal
 
@@ -15,9 +15,6 @@ from automata.pda.stack import PDAStack
 PDAStateT = AutomatonStateT
 PDATransitionsT = AutomatonTransitionsT
 PDAAcceptanceModeT = Literal["final_state", "empty_stack", "both"]
-
-    Literal["final_state"], Literal["empty_stack"], Literal["both"]
-]
 
 
 class PDA(Automaton, metaclass=abc.ABCMeta):
