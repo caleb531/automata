@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic Turing machines."""
 
-from typing import AbstractSet, Generator, Mapping, Optional, Set, Tuple
+from typing import AbstractSet, Generator, Mapping, Optional, Tuple
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -116,7 +116,9 @@ class DTM(tm.TM):
         self._validate_final_state_transitions()
         return True
 
-    def _get_transition(self, state: DTMStateT, tape_symbol: str) -> Optional[DTMPathResultT]:
+    def _get_transition(
+        self, state: DTMStateT, tape_symbol: str
+    ) -> Optional[DTMPathResultT]:
         """Get the transiton tuple for the given state and tape symbol."""
         if state in self.transitions and tape_symbol in self.transitions[state]:
             return self.transitions[state][tape_symbol]
@@ -129,7 +131,9 @@ class DTM(tm.TM):
 
     def _get_next_configuration(self, old_config: TMConfiguration) -> TMConfiguration:
         """Advance to the next configuration."""
-        next_transition = self._get_transition(old_config.state, old_config.tape.read_symbol())
+        next_transition = self._get_transition(
+            old_config.state, old_config.tape.read_symbol()
+        )
 
         if next_transition is None:
             raise exceptions.RejectionException(
