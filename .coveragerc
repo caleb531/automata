@@ -16,6 +16,8 @@ exclude_lines =
 
     pass
 
+    ...
+
 # Only check coverage for source files
 include =
     automata/*/*.py

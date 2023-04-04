@@ -2,11 +2,23 @@
 """Miscellaneous utility functions and classes."""
 
 from collections import defaultdict
+from itertools import count
+from typing import (
+    Any,
+    Callable,
+    DefaultDict,
+    Generic,
+    Iterable,
+    List,
+    Set,
+    Tuple,
+    TypeVar,
+)
 
 from frozendict import frozendict
 
 
-def freeze_value(value):
+def freeze_value(value: Any) -> Any:
     """
     A helper function to convert the given value / structure into a fully
     immutable one by recursively processing said structure and any of its
@@ -28,7 +40,7 @@ def freeze_value(value):
     return value
 
 
-def get_renaming_function(counter):
+def get_renaming_function(counter: count) -> Callable[[Any], int]:
     """
     A helper function that returns a renaming function to be used in the creation of
     other automata. The parameter counter should be an itertools count.
@@ -36,15 +48,18 @@ def get_renaming_function(counter):
     for each distinct input.
     """
 
-    new_state_name_dict = defaultdict(lambda: next(counter))
+    new_state_name_dict: DefaultDict[Any, int] = defaultdict(lambda: next(counter))
 
-    def renaming_function(item):
+    def renaming_function(item: Any) -> int:
         return new_state_name_dict[item]
 
     return renaming_function
 
 
-class PartitionRefinement:
+T = TypeVar("T")
+
+
+class PartitionRefinement(Generic[T]):
     """Maintain and refine a partition of a set of items into subsets.
     Space usage for a partition of n items is O(n), and each refine operation
     takes time proportional to the size of its argument.
@@ -53,9 +68,9 @@ class PartitionRefinement:
     https://www.ics.uci.edu/~eppstein/PADS/PartitionRefinement.py
     """
 
-    __slots__ = ("_sets", "_partition")
+    __slots__: Tuple[str, ...] = ("_sets", "_partition")
 
-    def __init__(self, items):
+    def __init__(self, items: Iterable[T]) -> None:
         """Create a new partition refinement data structure for the given
         items. Initially, all items belong to the same subset.
         """
@@ -63,19 +78,19 @@ class PartitionRefinement:
         self._sets = {id(S): S}
         self._partition = {x: id(S) for x in S}
 
-    def get_set_by_id(self, id):
+    def get_set_by_id(self, id: int) -> Set[T]:
         """Return the set in the partition corresponding to id."""
         return self._sets[id]
 
-    def get_set_ids(self):
+    def get_set_ids(self) -> Iterable[int]:
         """Return set ids corresponding to the internal partition."""
         return self._sets.keys()
 
-    def get_sets(self):
+    def get_sets(self) -> Iterable[Set[T]]:
         """Return sets corresponding to the internal partition."""
         return self._sets.values()
 
-    def refine(self, S):
+    def refine(self, S: Iterable[T]) -> List[Tuple[int, int]]:
         """Refine each set A in the partition to the two sets
         A & S, A - S.  Return a list of pairs ids (id(A & S), id(A - S))
         for each changed set.  Within each pair, A & S will be

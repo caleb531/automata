@@ -3,6 +3,7 @@
 machines."""
 
 from collections import deque
+from typing import AbstractSet, List, Mapping, Optional, Sequence, Tuple
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -10,6 +11,11 @@ import automata.tm.ntm as ntm
 import automata.tm.tm as tm
 from automata.tm.configuration import MTMConfiguration, TMConfiguration
 from automata.tm.tape import TMTape
+
+MNTMStateT = ntm.NTMStateT
+MNTMPathResultT = Tuple[str, Tuple[Tuple[str, tm.TMDirectionT], ...]]
+MNTMPathT = Mapping[Tuple[str, ...], Sequence[MNTMPathResultT]]
+MNTMTransitionsT = Mapping[str, MNTMPathT]
 
 
 class MNTM(ntm.NTM):
@@ -26,17 +32,20 @@ class MNTM(ntm.NTM):
         "final_states",
     )
 
+    transitions: MNTMTransitionsT  # type: ignore
+    n_tapes: int
+
     def __init__(
         self,
         *,
-        states,
-        input_symbols,
-        tape_symbols,
-        n_tapes,
-        transitions,
-        initial_state,
-        blank_symbol,
-        final_states,
+        states: AbstractSet[MNTMStateT],
+        input_symbols: AbstractSet[str],
+        tape_symbols: AbstractSet[str],
+        n_tapes: int,
+        transitions: MNTMTransitionsT,
+        initial_state: MNTMStateT,
+        blank_symbol: str,
+        final_states: AbstractSet[MNTMStateT],
     ):
         """Initialize a complete Turing machine."""
         super(tm.TM, self).__init__(
@@ -50,7 +59,7 @@ class MNTM(ntm.NTM):
             n_tapes=n_tapes,
         )
 
-    def _validate_transition_symbols(self, state, paths):
+    def _validate_transition_symbols(self, state: MNTMStateT, paths: Mapping) -> None:
         for tape_symbol in [
             tape_symbol for symbol in paths.keys() for tape_symbol in symbol
         ]:
@@ -61,13 +70,13 @@ class MNTM(ntm.NTM):
                     )
                 )
 
-    def _validate_transition_state(self, transition_state):
+    def _validate_transition_state(self, transition_state: MNTMStateT) -> None:
         if transition_state not in self.states:
             raise exceptions.InvalidStateError(
                 "transition state is not valid ({})".format(transition_state)
             )
 
-    def _validate_transition_results(self, paths):
+    def _validate_transition_results(self, paths: Mapping) -> None:
         for results in paths.values():
             for result in results:
                 state, moves = result
@@ -76,7 +85,7 @@ class MNTM(ntm.NTM):
                     possible_result = (state, symbol, direction)
                     self._validate_transition_result(possible_result)
 
-    def _validate_tapes_consistency(self):
+    def _validate_tapes_consistency(self) -> None:
         for state in self.transitions:
             for read_tape_symbols in self.transitions[state]:
                 if len(read_tape_symbols) != self.n_tapes:
@@ -101,7 +110,7 @@ class MNTM(ntm.NTM):
         self._validate_tapes_consistency()
         return True
 
-    def _get_tapes_for_input_str(self, input_str):
+    def _get_tapes_for_input_str(self, input_str: str) -> List[TMTape]:
         """Produce a new list of tapes based on an input string to be read."""
         return [
             # Input is saved on first tape
@@ -117,12 +126,14 @@ class MNTM(ntm.NTM):
             ),
         ]
 
-    def _read_current_tape_symbols(self, tapes):
+    def _read_current_tape_symbols(self, tapes: Tuple[TMTape, ...]) -> Tuple[str, ...]:
         """Reads the current tape symbols in each of the tapes and their
         corresponding heads."""
         return tuple(tape.read_symbol() for tape in tapes)
 
-    def _get_transition(self, current_state, tapes):
+    def _get_transition(
+        self, current_state: MNTMStateT, tapes: Tuple[TMTape, ...]
+    ) -> Optional[Sequence[MNTMPathResultT]]:
         """Get the transition tuple for the given state and tape symbols in
         each tape."""
         current_tape_symbols = self._read_current_tape_symbols(tapes)

@@ -4,73 +4,78 @@
 import abc
 from collections import deque
 from itertools import zip_longest
+from typing import Deque, List, Optional, Tuple, TypeVar
 
 import automata.base.exceptions as exceptions
 from automata.regex.lexer import Token
 
+ExpressionResultT = TypeVar("ExpressionResultT")
 
-class Operator(Token):
+
+class Operator(Token[ExpressionResultT]):
     """Subclass of token defining an operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
     @abc.abstractmethod
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         raise NotImplementedError
 
 
-class InfixOperator(Operator):
+class InfixOperator(Operator[ExpressionResultT]):
     """Subclass of operator defining an infix operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
     @abc.abstractmethod
-    def op(self, left, right):
+    def op(
+        self, left: ExpressionResultT, right: ExpressionResultT
+    ) -> ExpressionResultT:
         raise NotImplementedError
 
 
-class PostfixOperator(Operator):
+class PostfixOperator(Operator[ExpressionResultT]):
     """Subclass of operator defining an postfix operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
     @abc.abstractmethod
-    def op(self, left):
+    def op(self, left: ExpressionResultT) -> ExpressionResultT:
         raise NotImplementedError
 
 
-class Literal(Token):
+class Literal(Token[ExpressionResultT]):
     """Subclass of token defining a literal."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
     @abc.abstractmethod
-    def val(self):
+    def val(self) -> ExpressionResultT:
         raise NotImplementedError
 
 
 class RightParen(Token):
     """Subclass of token defining a right parenthesis."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<)>"
 
 
 class LeftParen(Token):
     """Subclass of token defining a left parenthesis."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<(>"
 
 
-def validate_tokens(token_list):
+def validate_tokens(token_list: List[Token]) -> None:
     """Validate the inputted tokens list (in infix ordering)."""
 
-    token_list_prev = [None] + token_list
+    token_list_prev: List[Optional[Token]] = [None] + token_list
 
     paren_counter = 0
 
@@ -118,10 +123,13 @@ def validate_tokens(token_list):
         raise exceptions.InvalidRegexError("Token list has unclosed parethesis.")
 
 
-def tokens_to_postfix(tokens):
+def tokens_to_postfix(
+    tokens: List[Token[ExpressionResultT]],
+) -> List[Token[ExpressionResultT]]:
     """Takes in a list of tokens and changes them to postfix ordering."""
-    stack = deque()
-    res = []
+
+    stack: Deque[Token[ExpressionResultT]] = deque()
+    res: List[Token[ExpressionResultT]] = []
 
     def comp_precedence(a, b):
         """Compare precedence of operators (two tokens)."""
@@ -157,10 +165,12 @@ def tokens_to_postfix(tokens):
     return res
 
 
-def parse_postfix_tokens(postfix_tokens):
-    """Parse list of postfix tokens to produce value of expression."""
+def parse_postfix_tokens(
+    postfix_tokens: List[Token[ExpressionResultT]],
+) -> ExpressionResultT:
+    """Parse list of postfix tokens to produce value of expression"""
 
-    stack = deque()
+    stack: Deque[ExpressionResultT] = deque()
 
     for token in postfix_tokens:
         if isinstance(token, InfixOperator):

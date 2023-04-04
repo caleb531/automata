@@ -15,7 +15,7 @@ maintainers = [
 dependencies = [
     "pydot>=1.4.2",
     "networkx>=2.6.2",
-    "frozendict>=2.3.4"
+    "frozendict>=2.3.4", #TODO I think that typing extensions needs to be in here
 ]
 
 [project.urls]
@@ -26,6 +26,14 @@ changelog = "https://github.com/caleb531/automata/releases"
 
 [build-system]
 requires = ["setuptools", "wheel"]
+
+[[tool.mypy.overrides]]
+module = [
+  "setuptools.*",
+  "networkx.*",
+  "pydot.*" # TODO pydot dependency is going to get removed, can delete
+]
+ignore_missing_imports = true
 
 [tool.flake8]
 # Black compatibility

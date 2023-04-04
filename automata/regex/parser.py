@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Classes and methods for parsing regexes into NFAs."""
+from __future__ import annotations
 
 import copy
+import re
 from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
+from typing import AbstractSet, Deque, Dict, Iterable, List, Optional, Set, Tuple, Type
 
 import automata.base.exceptions as exceptions
 from automata.base.utils import get_renaming_function
-from automata.regex.lexer import Lexer
+from automata.regex.lexer import Lexer, Token
 from automata.regex.postfix import (
     InfixOperator,
     LeftParen,
@@ -19,22 +22,36 @@ from automata.regex.postfix import (
     validate_tokens,
 )
 
+BuilderTransitionsT = Dict[int, Dict[str, Set[int]]]
+
 RESERVED_CHARACTERS = frozenset(
-    {"*", "|", "(", ")", "?", " ", "\t", "&", "+", ".", "^"}
+    ("*", "|", "(", ")", "?", " ", "\t", "&", "+", ".", "^", "{", "}")
 )
 
 
 class NFARegexBuilder:
     """Builder class designed for speed in parsing regular expressions into NFAs."""
 
-    __slots__ = (
+    __slots__: Tuple[str, ...] = (
         "_transitions",
         "_initial_state",
         "_final_states",
         "_state_name_counter",
     )
 
-    def __init__(self, *, transitions, initial_state, final_states, counter):
+    _transitions: BuilderTransitionsT
+    _initial_state: int
+    _final_states: Set[int]
+    _state_name_counter: count
+
+    def __init__(
+        self,
+        *,
+        transitions: BuilderTransitionsT,
+        initial_state: int,
+        final_states: Set[int],
+        counter: count,
+    ) -> None:
         """
         Initialize new builder class
         """
@@ -45,12 +62,16 @@ class NFARegexBuilder:
         self._state_name_counter = counter
 
     @classmethod
-    def from_string_literal(cls, literal, counter):
+    def from_string_literal(
+        cls: Type[NFARegexBuilder], literal: str, counter: count
+    ) -> NFARegexBuilder:
         """
         Initialize this builder accepting only the given string literal
         """
 
-        transitions = {next(counter): {symbol: set()} for symbol in literal}
+        transitions: BuilderTransitionsT = {
+            next(counter): {symbol: set()} for symbol in literal
+        }
 
         for start_state, path in transitions.items():
             for end_states in path.values():
@@ -67,7 +88,9 @@ class NFARegexBuilder:
         )
 
     @classmethod
-    def wildcard(cls, input_symbols, counter):
+    def wildcard(
+        cls: Type[NFARegexBuilder], input_symbols: AbstractSet[str], counter: count
+    ) -> NFARegexBuilder:
         """
         Initialize this builder for a wildcard with the given input symbols
         """
@@ -75,7 +98,7 @@ class NFARegexBuilder:
         initial_state = next(counter)
         final_state = next(counter)
 
-        transitions = {
+        transitions: BuilderTransitionsT = {
             initial_state: {symbol: {final_state} for symbol in input_symbols},
             final_state: {},
         }
@@ -87,7 +110,7 @@ class NFARegexBuilder:
             counter=counter,
         )
 
-    def union(self, other):
+    def union(self, other: NFARegexBuilder) -> None:
         """
         Apply the union operation to the NFA represented by this builder and other
         """
@@ -103,7 +126,7 @@ class NFARegexBuilder:
         self._initial_state = new_initial_state
         self._final_states.update(other._final_states)
 
-    def intersection(self, other):
+    def intersection(self, other: NFARegexBuilder) -> None:
         """
         Apply the intersection operation to the NFA represented by this builder
         and other. Use BFS to only traverse reachable part (keeps number of
@@ -113,23 +136,23 @@ class NFARegexBuilder:
         get_state_name = get_renaming_function(self._state_name_counter)
 
         new_final_states = set()
-        new_transitions = {}
+        new_transitions: BuilderTransitionsT = {}
         new_initial_state = (self._initial_state, other._initial_state)
 
         new_initial_state_name = get_state_name(new_initial_state)
         new_input_symbols = tuple(
             set(
                 chain.from_iterable(
-                    map(
-                        dict.keys,
-                        chain(self._transitions.values(), other._transitions.values()),
+                    transition_dict.keys()
+                    for transition_dict in chain(
+                        self._transitions.values(), other._transitions.values()
                     )
                 )
             )
             - {""}
         )
 
-        queue = deque()
+        queue: Deque[Tuple[int, int]] = deque()
 
         queue.append(new_initial_state)
         new_transitions[new_initial_state_name] = {}
@@ -143,7 +166,7 @@ class NFARegexBuilder:
                 new_final_states.add(curr_state_name)
 
             # States we will consider adding to the queue
-            next_states_iterables = list()
+            next_states_iterables: List[Iterable[Tuple[int, int]]] = []
 
             # Get transition dict for states in self
             transitions_a = self._transitions.get(q_a, {})
@@ -190,7 +213,7 @@ class NFARegexBuilder:
         self._transitions = new_transitions
         self._initial_state = new_initial_state_name
 
-    def concatenate(self, other):
+    def concatenate(self, other: NFARegexBuilder) -> None:
         """
         Apply the concatenate operation to the NFA represented by this builder
         and other.
@@ -202,7 +225,7 @@ class NFARegexBuilder:
 
         self._final_states = other._final_states
 
-    def repeat(self, lower_bound, upper_bound):
+    def repeat(self, lower_bound: int, upper_bound: Optional[int]) -> None:
         """
         Apply the repetition operator. Corresponds to repeating the NFA
         between lower_bound and upper_bound many times. If upper_bound is None,
@@ -264,7 +287,7 @@ class NFARegexBuilder:
         self._final_states = new_final_states
         self._initial_state = new_initial_state
 
-    def shuffle_product(self, other):
+    def shuffle_product(self, other: NFARegexBuilder) -> None:
         """
         Apply the shuffle operation to the NFA represented by this builder and other.
         No need for BFS since all states are accessible.
@@ -276,7 +299,7 @@ class NFARegexBuilder:
             (self._initial_state, other._initial_state)
         )
 
-        new_transitions = {}
+        new_transitions: BuilderTransitionsT = {}
 
         transition_product = product(
             self._transitions.items(), other._transitions.items()
@@ -300,96 +323,96 @@ class NFARegexBuilder:
         self._transitions = new_transitions
 
 
-class UnionToken(InfixOperator):
+class UnionToken(InfixOperator[NFARegexBuilder]):
     """Subclass of infix operator defining the union operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         return 1
 
-    def op(self, left, right):
+    def op(self, left: NFARegexBuilder, right: NFARegexBuilder) -> NFARegexBuilder:
         left.union(right)
         return left
 
 
-class IntersectionToken(InfixOperator):
+class IntersectionToken(InfixOperator[NFARegexBuilder]):
     """Subclass of infix operator defining the intersection operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         return 1
 
-    def op(self, left, right):
+    def op(self, left: NFARegexBuilder, right: NFARegexBuilder) -> NFARegexBuilder:
         left.intersection(right)
         return left
 
 
-class ShuffleToken(InfixOperator):
+class ShuffleToken(InfixOperator[NFARegexBuilder]):
     """Subclass of infix operator defining the shuffle operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         return 1
 
-    def op(self, left, right):
+    def op(self, left: NFARegexBuilder, right: NFARegexBuilder) -> NFARegexBuilder:
         left.shuffle_product(right)
         return left
 
 
-class KleeneStarToken(PostfixOperator):
+class KleeneStarToken(PostfixOperator[NFARegexBuilder]):
     """Subclass of postfix operator defining the kleene star operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         return 3
 
-    def op(self, left):
+    def op(self, left: NFARegexBuilder) -> NFARegexBuilder:
         left.repeat(0, None)
         return left
 
 
-class KleenePlusToken(PostfixOperator):
+class KleenePlusToken(PostfixOperator[NFARegexBuilder]):
     """Subclass of postfix operator defining the kleene plus operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         return 3
 
-    def op(self, left):
+    def op(self, left: NFARegexBuilder) -> NFARegexBuilder:
         left.repeat(1, None)
         return left
 
 
-class QuantifierToken(PostfixOperator):
+class QuantifierToken(PostfixOperator[NFARegexBuilder]):
     """Subclass of postfix operator for repeating an expression a fixed number
     of times."""
 
-    __slots__ = ("lower_bound", "upper_bound")
+    __slots__: Tuple[str, ...] = ("lower_bound", "upper_bound")
 
-    def __init__(self, text, lower_bound, upper_bound):
+    def __init__(self, text: str, lower_bound: int, upper_bound: Optional[int]) -> None:
         super().__init__(text)
 
         if lower_bound < 0:
             raise exceptions.InvalidRegexError(
-                f"Quantifier lower bound must be strictly greater than 0, "
-                f"not {lower_bound}."
+                f"Quantifier lower bound must be strictly greater than 0, not "
+                f"{lower_bound}."
             )
         elif upper_bound is not None and upper_bound < lower_bound:
             raise exceptions.InvalidRegexError(
-                f"Quantifier upper bound {upper_bound} inconsistent with "
-                f"lower bound {lower_bound}."
+                f"Quantifier upper bound {upper_bound} inconsistent with lower "
+                f"bound {lower_bound}."
             )
 
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
     @classmethod
-    def from_match(cls, match):
+    def from_match(cls, match: re.Match) -> QuantifierToken:
         lower_bound_str = match.group(1)
         upper_bound_str = match.group(2)
 
@@ -398,76 +421,80 @@ class QuantifierToken(PostfixOperator):
 
         return cls(match.group(), lower_bound, upper_bound)
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         return 3
 
-    def op(self, left):
+    def op(self, left: NFARegexBuilder) -> NFARegexBuilder:
         left.repeat(self.lower_bound, self.upper_bound)
         return left
 
 
-class OptionToken(PostfixOperator):
+class OptionToken(PostfixOperator[NFARegexBuilder]):
     """Subclass of postfix operator defining the option operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         return 3
 
-    def op(self, left):
+    def op(self, left: NFARegexBuilder) -> NFARegexBuilder:
         left.repeat(0, 1)
         return left
 
 
-class ConcatToken(InfixOperator):
+class ConcatToken(InfixOperator[NFARegexBuilder]):
     """Subclass of infix operator defining the concatenation operator."""
 
-    __slots__ = tuple()
+    __slots__: Tuple[str, ...] = tuple()
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         return 2
 
-    def op(self, left, right):
+    def op(self, left: NFARegexBuilder, right: NFARegexBuilder) -> NFARegexBuilder:
         left.concatenate(right)
         return left
 
 
-class StringToken(Literal):
+class StringToken(Literal[NFARegexBuilder]):
     """Subclass of literal token defining a string literal."""
 
-    __slots__ = ("counter",)
+    __slots__: Tuple[str, ...] = ("counter",)
 
-    def __init__(self, text, counter):
+    def __init__(self, text: str, counter: count) -> None:
         super().__init__(text)
         self.counter = counter
 
     @classmethod
-    def from_match(cls, match):
+    def from_match(cls, match: re.Match) -> StringToken:
         raise NotImplementedError
 
-    def val(self):
+    def val(self) -> NFARegexBuilder:
         return NFARegexBuilder.from_string_literal(self.text, self.counter)
 
 
-class WildcardToken(Literal):
+class WildcardToken(Literal[NFARegexBuilder]):
     """Subclass of literal token defining a wildcard literal."""
 
-    __slots__ = ("input_symbols", "counter")
+    __slots__: Tuple[str, ...] = ("input_symbols", "counter")
 
-    def __init__(self, text, input_symbols, counter):
+    def __init__(
+        self, text: str, input_symbols: AbstractSet[str], counter: count
+    ) -> None:
         super().__init__(text)
         self.input_symbols = input_symbols
         self.counter = counter
 
     @classmethod
-    def from_match(cls, match):
+    def from_match(cls, match: re.Match) -> WildcardToken:
         raise NotImplementedError
 
-    def val(self):
+    def val(self) -> NFARegexBuilder:
         return NFARegexBuilder.wildcard(self.input_symbols, self.counter)
 
 
-def add_concat_tokens(token_list):
+def add_concat_tokens(
+    token_list: List[Token[NFARegexBuilder]],
+) -> List[Token[NFARegexBuilder]]:
     """Add concat tokens to list of parsed infix tokens."""
 
     final_token_list = []
@@ -495,9 +522,9 @@ def add_concat_tokens(token_list):
     return final_token_list
 
 
-def get_regex_lexer(input_symbols):
+def get_regex_lexer(input_symbols: AbstractSet[str]) -> Lexer[NFARegexBuilder]:
     """Get lexer for parsing regular expressions."""
-    lexer = Lexer()
+    lexer: Lexer[NFARegexBuilder] = Lexer()
     state_name_counter = count(0)
 
     lexer.register_token(LeftParen.from_match, r"\(")
@@ -520,7 +547,7 @@ def get_regex_lexer(input_symbols):
     return lexer
 
 
-def parse_regex(regexstr, input_symbols):
+def parse_regex(regexstr: str, input_symbols: AbstractSet[str]) -> NFARegexBuilder:
     """Return an NFARegexBuilder corresponding to regexstr."""
 
     if len(regexstr) == 0:

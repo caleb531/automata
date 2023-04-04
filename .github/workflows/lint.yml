@@ -37,4 +37,5 @@ jobs:
 
       - name: Run flake8
         run: |
+          mypy automata/**/*.py tests/*.py setup.py
           flake8 automata/**/*.py tests/*.py setup.py

@@ -7,38 +7,60 @@ Adapted from code in the tdparser library: https://github.com/rbarrois/tdparser
 
 import abc
 import re
+from typing import (
+    AbstractSet,
+    Callable,
+    FrozenSet,
+    Generator,
+    Generic,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+)
+
+from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
 
+ResultT = TypeVar("ResultT")
 
-class Token(metaclass=abc.ABCMeta):
+
+class Token(Generic[ResultT], metaclass=abc.ABCMeta):
     """Base class for tokens."""
 
-    __slots__ = ("text",)
+    __slots__: Tuple[str, ...] = ("text",)
 
-    def __init__(self, text):
+    text: str
+
+    def __init__(self, text: str) -> None:
         self.text = text
 
     @classmethod
-    def from_match(cls, match):
+    def from_match(cls, match: re.Match) -> Self:
         return cls(match.group())
 
-    def get_precedence(self):
+    def get_precedence(self) -> int:
         raise NotImplementedError
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.text}>"
 
 
-class TokenRegistry:
+TokenFactoryT = Callable[[re.Match], Token[ResultT]]
+
+
+class TokenRegistry(Generic[ResultT]):
     """Registry holding token rules."""
 
-    __slots__ = ("_tokens",)
+    __slots__: Tuple[str, ...] = ("_tokens",)
+
+    _tokens: List[Tuple[TokenFactoryT, re.Pattern]]
 
     def __init__(self):
         self._tokens = []
 
-    def register(self, token_factory_fn, token_regex):
+    def register(self, token_factory_fn: TokenFactoryT, token_regex: str) -> None:
         """
         Register a token that can be produced by token_factory_fn (a function
         taking in a regex match and returning the final token) and recognized by the
@@ -46,7 +68,9 @@ class TokenRegistry:
         """
         self._tokens.append((token_factory_fn, re.compile(token_regex)))
 
-    def matching_tokens(self, text, start):
+    def matching_tokens(
+        self, text: str, start: int
+    ) -> Generator[Tuple[TokenFactoryT, re.Match], None, None]:
         """Retrieve all token definitions matching text starting at start."""
 
         for token_factory_fn, regexp in self._tokens:
@@ -54,7 +78,9 @@ class TokenRegistry:
             if match:
                 yield (token_factory_fn, match)
 
-    def get_token(self, text, start=0):
+    def get_token(
+        self, text: str, start: int = 0
+    ) -> Optional[Tuple[TokenFactoryT, re.Match]]:
         """
         Retrieve the next token from some text. Computes the best match by
         length. Returns None if there is no match in the token registry.
@@ -69,24 +95,29 @@ class TokenRegistry:
 
         return best_token_match
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._tokens)
 
 
-class Lexer:
+class Lexer(Generic[ResultT]):
     """
     The core lexer. First, tokens are registered with their factory functions and regex
     patterns. The lexer can then take in a string and splits it into a list of token
     classes (in infix ordering) matching the regex patterns.
     """
 
-    __slots__ = ("tokens", "blank_chars")
+    __slots__: Tuple[str, ...] = ("tokens", "blank_chars")
 
-    def __init__(self, blank_chars={" ", "\t"}):
+    tokens: TokenRegistry[ResultT]
+    blank_chars: FrozenSet[str]
+
+    def __init__(self, blank_chars: Optional[AbstractSet] = None) -> None:
         self.tokens = TokenRegistry()
-        self.blank_chars = blank_chars
+        self.blank_chars = (
+            frozenset((" ", "\t")) if blank_chars is None else frozenset(blank_chars)
+        )
 
-    def register_token(self, token_factory_fn, token_regex):
+    def register_token(self, token_factory_fn: TokenFactoryT, token_regex: str) -> None:
         """
         Register a token class. The token_factory_fn must taken in a
         match object and return an instance of the desired token, and token_regex
@@ -95,7 +126,7 @@ class Lexer:
 
         self.tokens.register(token_factory_fn, token_regex)
 
-    def lex(self, text):
+    def lex(self, text: str) -> List[Token[ResultT]]:
         """Split text into a list of tokens in infix notation."""
 
         pos = 0
