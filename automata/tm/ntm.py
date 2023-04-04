@@ -105,7 +105,7 @@ class NTM(tm.TM):
                     "final state {} has transitions defined".format(final_state)
                 )
 
-    def validate(self) -> bool:
+    def validate(self):
         """Return True if this NTM is internally consistent."""
         self._read_input_symbol_subset()
         self._validate_blank_symbol()

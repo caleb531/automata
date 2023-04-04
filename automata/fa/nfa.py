@@ -196,8 +196,7 @@ class NFA(fa.FA):
                         "not valid".format(end_state, start_state)
                     )
 
-    # TODO remove return type
-    def validate(self) -> bool:
+    def validate(self):
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)

@@ -104,7 +104,7 @@ class MNTM(ntm.NTM):
                         ).format(transition, self.n_tapes, len(moves))
                         raise tm_exceptions.InconsistentTapesException(error)
 
-    def validate(self) -> bool:
+    def validate(self):
         """Return True if this MNTM is internally consistent."""
         super().validate()
         self._validate_tapes_consistency()

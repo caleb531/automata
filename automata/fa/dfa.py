@@ -266,7 +266,7 @@ class DFA(fa.FA):
         self._validate_transition_invalid_symbols(start_state, paths)
         self._validate_transition_end_states(start_state, paths)
 
-    def validate(self) -> bool:
+    def validate(self):
         """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
         for start_state, paths in self.transitions.items():
