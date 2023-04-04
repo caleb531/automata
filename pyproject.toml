@@ -15,7 +15,7 @@ maintainers = [
 dependencies = [
     "pydot>=1.4.2",
     "networkx>=2.6.2",
-    "frozendict>=2.3.4",
+    "frozendict>=2.3.4", #TODO I think that typing extensions needs to be in here
 ]
 
 [project.urls]
