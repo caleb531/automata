@@ -384,21 +384,13 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+        return self._cross_product(
             other,
             union_function,
             should_construct_dfa=True,
-            retain_names=retain_names
+            retain_names=retain_names,
+            minify=minify,
         )
-
-        ret = self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=new_final_states
-        )
-        return ret.minify(retain_names=retain_names) if minify else ret
 
     def intersection(self, other, *, retain_names=False, minify=True):
         """
@@ -411,21 +403,13 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+        return self._cross_product(
             other,
             intersection_function,
             should_construct_dfa=True,
-            retain_names=retain_names
+            retain_names=retain_names,
+            minify=minify
         )
-
-        ret = self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=new_final_states
-        )
-        return ret.minify(retain_names=retain_names) if minify else ret
 
     def difference(self, other, *, retain_names=False, minify=True):
         """
@@ -438,21 +422,13 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+        return self._cross_product(
             other,
             difference_function,
             should_construct_dfa=True,
-            retain_names=retain_names
+            retain_names=retain_names,
+            minify=minify,
         )
-
-        ret = self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=new_final_states
-        )
-        return ret.minify(retain_names=retain_names) if minify else ret
 
     def symmetric_difference(self, other, *, retain_names=False, minify=True):
         """
@@ -465,21 +441,13 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        new_states, new_transitions, new_initial_state, new_final_states = self._cross_product(
+        return self._cross_product(
             other,
             symmetric_difference_function,
             should_construct_dfa=True,
-            retain_names=retain_names
+            retain_names=retain_names,
+            minify=minify,
         )
-
-        ret = self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=new_final_states
-        )
-        return ret.minify(retain_names=retain_names) if minify else ret
 
     def complement(self, *, retain_names=False, minify=True):
         """Return the complement of this DFA."""
@@ -494,75 +462,118 @@ class DFA(fa.FA):
         )
         return ret.minify(retain_names=retain_names) if minify else ret
 
-    def _cross_product(self, other, state_target_fn, *, should_construct_dfa, retain_names=False):
+    @staticmethod
+    def _cross_product_iter(initial_state, expand_state_fn):
         """
-        Search reachable states corresponding to product graph between self and other.
-
-        The function state_target_fn should return True for states that should be
-        final (when the new DFA is being constructed explicitly) or for states that
-        are being searched for (if the DFA is not being constructed).
-
-        If should_construct_dfa is False, then this function returns a boolean corresponding
-        to whether any target states are reachable. Otherwise, constructs the given DFA. If
-        retain_names is set to False, states are renamed.
+        Emits the edges of the cross product (src_state, symbol, tgt_state)
+        Starts from the initial state and proceeds by expanding it via the expand_state function
         """
-        if self.input_symbols != other.input_symbols:
-            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
-
-        def get_name_original(state):
-            return state
-
-        get_name = get_name_original if retain_names else get_renaming_function(count(0))
-
-        product_transitions = {} if should_construct_dfa else None
-        final_states = set() if should_construct_dfa else None
-
-        visited_set = set()
-        queue = deque()
-
-        product_initial_state = (self.initial_state, other.initial_state)
-        product_initial_state_name = get_name(product_initial_state)
-
-        queue.append(product_initial_state)
-        visited_set.add(product_initial_state_name)
+        visited_set = {initial_state}
+        queue = deque([initial_state])
 
         while queue:
             # Get next state in BFS queue
             curr_state = queue.popleft()
 
-            # Add state to the transition dict if constructing DFA
-            if should_construct_dfa:
-                curr_state_name = get_name(curr_state)
-                state_transitions = product_transitions.setdefault(curr_state_name, {})
-
-                if state_target_fn(curr_state):
-                    final_states.add(curr_state_name)
-
-            # Otherwise, just check the target function
-            elif state_target_fn(curr_state):
-                return True
-
             # Unpack state and get transitions
-            q_a, q_b = curr_state
+            for chr, tgt_state in expand_state_fn(curr_state):
+                yield curr_state, chr, tgt_state
+
+                # If next state is new, add to queue
+                if tgt_state not in visited_set:
+                    visited_set.add(tgt_state)
+                    queue.append(tgt_state)
+
+    def _cross_product_dfa(self, other, final_state_fn, expand_state_fn,
+                           retain_names=False, minify=True):
+        """
+        Constructs the DFA corresponding to the cross product of the self and other.
+        The final_state_fn should return True for states that should be
+        final (when the new DFA is being constructed explicitly). The expand_state_fn
+        should return an iterator with the successors of each state in the product.
+
+        If minify is set to True, the returned DFA is minified. If retain_names
+        is set to False, states are renamed.
+        """
+        def get_name_original(state):
+            return state
+
+        # TODO this lookup sounds inefficient
+        get_name = get_name_original if retain_names else get_renaming_function(count(0))
+
+        initial_state = (self.initial_state, other.initial_state)
+        initial_state_name = get_name(initial_state)
+
+        transitions = {initial_state_name: {}}
+        states = {initial_state_name}
+        final_states = {initial_state_name} if final_state_fn(initial_state) else set()
+
+        for cur_state, chr, tgt_state in self._cross_product_iter(initial_state, expand_state_fn):
+            cur_state_name = get_name(cur_state)
+            tgt_state_name = get_name(tgt_state)
+
+            if tgt_state_name not in states:
+                states.add(tgt_state_name)
+                transitions[tgt_state_name] = {}
+
+            transitions[cur_state_name][chr] = tgt_state_name
+
+            if final_state_fn(tgt_state):
+                final_states.add(tgt_state_name)
+
+        if minify:
+            # From the construction, the states/final states are reachable
+            return self._minify(
+                reachable_states=states,
+                input_symbols=self.input_symbols,
+                transitions=transitions,
+                initial_state=initial_state_name,
+                reachable_final_states=final_states,
+                retain_names=retain_names,
+            )
+        return self.__class__(
+            states=states,
+            input_symbols=self.input_symbols,
+            transitions=transitions,
+            initial_state=initial_state_name,
+            final_states=final_states,
+        )
+
+    def _cross_product_target_state(self, other, state_target_fn, expand_state_fn):
+        """
+        Searches for a target state in the product dfa without explicitly constructing
+        it. The final_state_fn function should return True for states that are being
+        searched for. The expand_state_fn should return an iterator with the
+        successors of each state in the product.
+        """
+        initial_state = (self.initial_state, other.initial_state)
+        if state_target_fn(initial_state):
+            return True
+
+        for cur_state, chr, tgt_state in self._cross_product_iter(initial_state, expand_state_fn):
+            if state_target_fn(cur_state):
+                return True
+        return False
+
+    def _cross_product(self, other, state_target_fn, *, should_construct_dfa, retain_names=False,
+                       minify=False):
+        # TODO this is a legacy function
+        if self.input_symbols != other.input_symbols:
+            raise exceptions.SymbolMismatchError('The input symbols between the two given DFAs do not match')
+
+        def expand_states_fn(state):
+            q_a, q_b = state
             transitions_a = self.transitions[q_a]
             transitions_b = other.transitions[q_b]
 
             for chr in self.input_symbols:
-                product_state = (transitions_a[chr], transitions_b[chr])
-                product_state_name = get_name(product_state)
-
-                if should_construct_dfa:
-                    state_transitions[chr] = product_state_name
-
-                # If next state is new, add to queue
-                if product_state_name not in visited_set:
-                    visited_set.add(product_state_name)
-                    queue.append(product_state)
+                yield chr, (transitions_a[chr], transitions_b[chr])
 
         if should_construct_dfa:
-            return visited_set, product_transitions, product_initial_state_name, final_states
-
-        return False
+            return self._cross_product_dfa(other, state_target_fn, expand_states_fn,
+                                           retain_names=retain_names, minify=minify)
+        else:
+            return self._cross_product_target_state(other, state_target_fn, expand_states_fn)
 
     def issubset(self, other):
         """Return True if this DFA is a subset of another DFA."""
