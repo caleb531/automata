@@ -207,6 +207,7 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.isequal("()", ""))
         self.assertTrue(re.isequal("a|()", "a?"))
         self.assertTrue(re.isequal("a()", "a"))
+        self.assertTrue(re.isequal("a()b()()c()", "abc"))
 
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""
