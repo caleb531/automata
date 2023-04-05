@@ -19,7 +19,7 @@ class TestRegex(unittest.TestCase):
             re.validate("a*")
             re.validate("b|a?*")
         except Exception:
-            self.assertTrue(False)
+            self.fail("Regex validation raised an exception when not expected to.")
 
     def test_validate_invalid(self):
         """Should raise error for invalid regular expressions"""
