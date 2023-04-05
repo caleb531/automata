@@ -103,7 +103,7 @@ def validate_tokens(token_list: List[Token]) -> None:
         # No left parens right before infix or postfix operators, or right
         # before a right paren
         elif isinstance(prev_token, LeftParen):
-            if isinstance(curr_token, (InfixOperator, PostfixOperator, RightParen)):
+            if isinstance(curr_token, (InfixOperator, PostfixOperator)):
                 raise exceptions.InvalidRegexError(
                     f"'{prev_token}' cannot appear immediately before '{curr_token}'."
                 )

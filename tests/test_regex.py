@@ -29,7 +29,6 @@ class TestRegex(unittest.TestCase):
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "a||b")
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "((abc*)))((abd)")
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "*")
-        self.assertRaises(exceptions.InvalidRegexError, re.validate, "abcd()")
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "ab(bc)*((bbcd)")
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "a(*)")
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "a(|)")
@@ -205,6 +204,13 @@ class TestRegex(unittest.TestCase):
                 "(aa|bb^ca|cb){1,}", "(aa|bb^ca|cb)+", input_symbols=input_symbols
             )
         )
+
+    def test_blank(self):
+        """Should correctly parse blank"""
+        self.assertTrue(re.isequal("()", ""))
+        self.assertTrue(re.isequal("a|()", "a?"))
+        self.assertTrue(re.isequal("a()", "a"))
+        self.assertTrue(re.isequal("a()b()()c()", "abc"))
 
     def test_invalid_symbols(self):
         """Should throw exception if reserved character is in input symbols"""
