@@ -15,8 +15,8 @@ class TestRegex(unittest.TestCase):
 
     def test_validate_valid(self):
         """Should pass validation for valid regular expression"""
-        self.assertTrue(re.validate("a*"))
-        self.assertTrue(re.validate("b|a?*"))
+        re.validate("a*")
+        re.validate("b|a?*")
 
     def test_validate_invalid(self):
         """Should raise error for invalid regular expressions"""

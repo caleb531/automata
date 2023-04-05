@@ -104,11 +104,10 @@ class MNTM(ntm.NTM):
                         ).format(transition, self.n_tapes, len(moves))
                         raise tm_exceptions.InconsistentTapesException(error)
 
-    def validate(self):
+    def validate(self) -> None:
         """Return True if this MNTM is internally consistent."""
         super().validate()
         self._validate_tapes_consistency()
-        return True
 
     def _get_tapes_for_input_str(self, input_str: str) -> List[TMTape]:
         """Produce a new list of tapes based on an input string to be read."""

@@ -2,7 +2,7 @@
 """Methods for working with regular expressions"""
 
 from itertools import count
-from typing import AbstractSet, Literal, Optional
+from typing import AbstractSet, Optional
 
 import automata.base.exceptions as exceptions
 from automata.fa.nfa import NFA
@@ -20,13 +20,11 @@ def _validate(regex: str) -> bool:
     return True
 
 
-def validate(regex: str) -> Literal[True]:
+def validate(regex: str) -> None:
     """Raise an error if the regular expression is invalid"""
     input_symbols = set(regex) - RESERVED_CHARACTERS
 
     validate_tokens(get_regex_lexer(input_symbols, count(0)).lex(regex))
-
-    return True
 
 
 def isequal(

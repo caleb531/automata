@@ -200,7 +200,7 @@ class GNFA(nfa.NFA):
                 "{} is not a valid final state".format(self.final_state)
             )
 
-    def validate(self):
+    def validate(self) -> None:
         """Return True if this NFA is internally consistent."""
         self._validate_initial_state()
         self._validate_final_state()
@@ -208,7 +208,6 @@ class GNFA(nfa.NFA):
             self._validate_transition_invalid_symbols(start_state, paths)
             self._validate_transition_end_states(start_state, paths)
         self._validate_initial_state_transitions()
-        return True
 
     @staticmethod
     def _isbracket_req(regex):

@@ -64,7 +64,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
     ) -> None:
         pass
 
-    def validate(self):
+    def validate(self) -> None:
         """Return True if this PDA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
@@ -72,7 +72,6 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         self._validate_initial_stack_symbol()
         self._validate_final_states()
         self._validate_acceptance()
-        return True
 
     def _has_lambda_transition(self, state: PDAStateT, stack_symbol: str) -> bool:
         """Return True if the current config has any lambda transitions."""

@@ -41,7 +41,7 @@ class Automaton(metaclass=abc.ABCMeta):
             self.validate()
 
     @abc.abstractmethod
-    def validate(self) -> bool:
+    def validate(self) -> None:
         """Return True if this automaton is internally consistent."""
         raise NotImplementedError
 

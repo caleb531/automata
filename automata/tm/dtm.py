@@ -104,7 +104,7 @@ class DTM(tm.TM):
                     "final state {} has transitions defined".format(final_state)
                 )
 
-    def validate(self):
+    def validate(self) -> None:
         """Return True if this DTM is internally consistent."""
         self._read_input_symbol_subset()
         self._validate_blank_symbol()
@@ -114,7 +114,6 @@ class DTM(tm.TM):
         self._validate_nonfinal_initial_state()
         self._validate_final_states()
         self._validate_final_state_transitions()
-        return True
 
     def _get_transition(
         self, state: DTMStateT, tape_symbol: str
