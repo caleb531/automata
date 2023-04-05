@@ -196,7 +196,7 @@ class NFA(fa.FA):
                         "not valid".format(end_state, start_state)
                     )
 
-    def validate(self):
+    def validate(self) -> None:
         """Return True if this NFA is internally consistent."""
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
@@ -204,7 +204,6 @@ class NFA(fa.FA):
         self._validate_initial_state()
         self._validate_initial_state_transitions()
         self._validate_final_states()
-        return True
 
     def _get_next_current_states(
         self, current_states: AbstractSet[NFAStateT], input_symbol: str

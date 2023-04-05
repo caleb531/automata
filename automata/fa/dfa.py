@@ -266,14 +266,13 @@ class DFA(fa.FA):
         self._validate_transition_invalid_symbols(start_state, paths)
         self._validate_transition_end_states(start_state, paths)
 
-    def validate(self):
+    def validate(self) -> None:
         """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
         for start_state, paths in self.transitions.items():
             self._validate_transitions(start_state, paths)
         self._validate_initial_state()
         self._validate_final_states()
-        return True
 
     def _get_next_current_state(
         self, current_state: DFAStateT, input_symbol: str
