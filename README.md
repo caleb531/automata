@@ -12,7 +12,7 @@ requires Python 3.8 or newer.
 
 Huge thanks to [@YtvwlD][YtvwlD], [@dengl11][dengl11], [@Tagl][Tagl],
 [@lewiuberg][lewiuberg], [@CamiloMartinezM][CamiloMartinezM],
-[@abhinavsinha‑adrino][abhinavsinha-adrino], and [@eliotwrobson][eliotwrobson]
+[@abhinavsinha‑adrino][abhinavsinha-adrino], [@eliotwrobson][eliotwrobson], and [@EduardoGoulart1][EduardoGoulart1]
 for their invaluable code contributions to this project! 🎉
 
 [YtvwlD]: https://github.com/YtvwlD
@@ -22,6 +22,7 @@ for their invaluable code contributions to this project! 🎉
 [CamiloMartinezM]: https://github.com/CamiloMartinezM
 [abhinavsinha-adrino]: https://github.com/abhinavsinha-adrino
 [eliotwrobson]: https://github.com/eliotwrobson
+[EduardoGoulart1]: https://github.com/EduardoGoulart1
 
 ## Migrating to v7
 
