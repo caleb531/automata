@@ -17,6 +17,7 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Literal,
     Mapping,
     Optional,
     Set,
@@ -30,7 +31,6 @@ from typing import (
 
 import networkx as nx
 from pydot import Dot, Edge, Node
-from typing_extensions import Literal
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa

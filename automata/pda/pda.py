@@ -2,9 +2,7 @@
 """Classes and methods for working with all pushdown automata."""
 
 import abc
-from typing import AbstractSet
-
-from typing_extensions import Literal
+from typing import AbstractSet, Literal
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
