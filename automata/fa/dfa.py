@@ -338,8 +338,9 @@ class DFA(fa.FA):
         """
 
         # Compute reachable states and final states
-        bfs_states = DFA._bfs_states(self.initial_state,
-                                     lambda state: self.transitions[state].items())
+        bfs_states = DFA._bfs_states(
+            self.initial_state, lambda state: self.transitions[state].items()
+        )
         reachable_states = {*bfs_states}
         reachable_final_states = self.final_states & reachable_states
 
@@ -544,8 +545,9 @@ class DFA(fa.FA):
         """Return the complement of this DFA."""
 
         if minify:
-            bfs_states = DFA._bfs_states(self.initial_state,
-                                         lambda state: self.transitions[state].items())
+            bfs_states = DFA._bfs_states(
+                self.initial_state, lambda state: self.transitions[state].items()
+            )
             reachable_states = {*bfs_states}
             reachable_final_states = self.final_states & reachable_states
 
@@ -573,8 +575,8 @@ class DFA(fa.FA):
         expand_state_fn: ExpandStateFn,
     ) -> Iterable[Tuple[DFAStateT, DFASymbolT, DFAStateT]]:
         """
-        Emits the edges (src_state, label, tgt_state) visited by BFS from the initial_state.
-        Computes subsequent states using the function expand_state_fn.
+        Emits the edges (src_state, label, tgt_state) visited by BFS from the
+        initial_state. Computes subsequent states using the function expand_state_fn.
         """
         visited_set = {initial_state}
         queue: Deque[Tuple[DFAStateT, DFAStateT]] = deque([initial_state])
@@ -591,8 +593,7 @@ class DFA(fa.FA):
 
     @staticmethod
     def _bfs_states(
-        initial_state: DFAStateT,
-        expand_state_fn: ExpandStateFn
+        initial_state: DFAStateT, expand_state_fn: ExpandStateFn
     ) -> Iterable[DFAStateT]:
         """
         Emits the states visited by BFS from the initial_state.
@@ -618,7 +619,7 @@ class DFA(fa.FA):
         expand_state_fn: ExpandStateFn,
         input_symbols: AbstractSet[DFASymbolT],
         retain_names: bool = False,
-        minify: bool = True
+        minify: bool = True,
     ) -> DFA:
         """
         Constructs the DFA by expanding from the initial_state using the expand_state_fn
@@ -629,10 +630,14 @@ class DFA(fa.FA):
         If minify is set to True, the returned DFA is minified. If retain_names
         is set to False, states are renamed.
         """
+
         def get_name_original(state):
             return state
 
-        get_name = get_name_original if retain_names else get_renaming_function(count(0))
+        if retain_names:
+            get_name = get_name_original
+        else:
+            get_name = get_renaming_function(count(0))
 
         initial_state_name = get_name(initial_state)
 
@@ -675,7 +680,7 @@ class DFA(fa.FA):
     def _find_state(
         target_state_fn: TargetStateFn,
         initial_state: DFAStateT,
-        expand_state_fn: ExpandStateFn
+        expand_state_fn: ExpandStateFn,
     ) -> bool:
         """
         Searches for a target state in the DFA without explicitly constructing
@@ -688,7 +693,7 @@ class DFA(fa.FA):
 
     @staticmethod
     def _cross_product(lhs: DFA, rhs: DFA) -> Tuple[DFAStateT, ExpandStateFn]:
-        """ Builds the cross product between the two DFAs """
+        """Builds the cross product between the two DFAs"""
         if lhs.input_symbols != rhs.input_symbols:
             raise exceptions.SymbolMismatchError(
                 "The input symbols between the two given DFAs do not match"
@@ -733,9 +738,11 @@ class DFA(fa.FA):
 
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
-        return not DFA._find_state(lambda state: state in self.final_states,
-                                   self.initial_state,
-                                   lambda state: self.transitions[state].items())
+        return not DFA._find_state(
+            lambda state: state in self.final_states,
+            self.initial_state,
+            lambda state: self.transitions[state].items(),
+        )
 
     def isfinite(self) -> bool:
         """
