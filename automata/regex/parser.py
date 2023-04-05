@@ -492,8 +492,9 @@ class WildcardToken(Literal[NFARegexBuilder]):
         return NFARegexBuilder.wildcard(self.input_symbols, self.counter)
 
 
-def add_concat_tokens(
+def add_concat_and_empty_string_tokens(
     token_list: List[Token[NFARegexBuilder]],
+    state_name_counter: count,
 ) -> List[Token[NFARegexBuilder]]:
     """Add concat tokens to list of parsed infix tokens."""
 
@@ -509,6 +510,9 @@ def add_concat_tokens(
         (PostfixOperator, LeftParen),
     ]
 
+    # Pairs of tokens to insert empty string literals between
+    empty_string_pairs = [(LeftParen, RightParen)]
+
     for curr_token, next_token in zip_longest(token_list, token_list[1:]):
         final_token_list.append(curr_token)
 
@@ -519,13 +523,20 @@ def add_concat_tokens(
                 ):
                     final_token_list.append(ConcatToken(""))
 
+            for firstClass, secondClass in empty_string_pairs:
+                if isinstance(curr_token, firstClass) and isinstance(
+                    next_token, secondClass
+                ):
+                    final_token_list.append(StringToken("", state_name_counter))
+
     return final_token_list
 
 
-def get_regex_lexer(input_symbols: AbstractSet[str]) -> Lexer[NFARegexBuilder]:
+def get_regex_lexer(
+    input_symbols: AbstractSet[str], state_name_counter: count
+) -> Lexer[NFARegexBuilder]:
     """Get lexer for parsing regular expressions."""
     lexer: Lexer[NFARegexBuilder] = Lexer()
-    state_name_counter = count(0)
 
     lexer.register_token(LeftParen.from_match, r"\(")
     lexer.register_token(RightParen.from_match, r"\)")
@@ -553,10 +564,14 @@ def parse_regex(regexstr: str, input_symbols: AbstractSet[str]) -> NFARegexBuild
     if len(regexstr) == 0:
         return NFARegexBuilder.from_string_literal(regexstr, count(0))
 
-    lexer = get_regex_lexer(input_symbols)
+    state_name_counter = count(0)
+
+    lexer = get_regex_lexer(input_symbols, state_name_counter)
     lexed_tokens = lexer.lex(regexstr)
     validate_tokens(lexed_tokens)
-    tokens_with_concats = add_concat_tokens(lexed_tokens)
+    tokens_with_concats = add_concat_and_empty_string_tokens(
+        lexed_tokens, state_name_counter
+    )
     postfix = tokens_to_postfix(tokens_with_concats)
 
     return parse_postfix_tokens(postfix)
