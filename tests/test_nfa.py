@@ -571,7 +571,6 @@ class TestNFA(test_fa.TestFA):
             exceptions.InvalidRegexError, NFA.from_regex, "((abc*)))((abd)"
         )
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "*")
-        self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "abcd()")
         self.assertRaises(
             exceptions.InvalidRegexError, NFA.from_regex, "ab(bc)*((bbcd)"
         )

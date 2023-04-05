@@ -16,8 +16,9 @@ A regular expression with the following operations only are supported in this li
 - `&`: Intersection. Ex: `a&b`
 - `.`: Wildcard. Ex: `a.b`
 - `^`: Shuffle. Ex: `a^b`
-- `{}` : Quantifiers expressing finite repetitions. Ex: `a{1,2}`,`a{3,}`
-- `()`: Grouping.
+- `{}`: Quantifiers expressing finite repetitions. Ex: `a{1,2}`,`a{3,}`
+- `()`: The empty string.
+- `(...)`: Grouping.
 
 This is similar to the Python `re` module, but this library does not support any special
 characters other than those given above. All regular languages can be written with these.
