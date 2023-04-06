@@ -41,6 +41,10 @@ DFASymbolT = str
 DFAPathT = Mapping[DFASymbolT, DFAStateT]
 DFATransitionsT = Mapping[DFAStateT, DFAPathT]
 
+ExpandStateFn = Callable[[DFAStateT], Iterator[Tuple[DFASymbolT, DFAStateT]]]
+IsFinalStateFn = Callable[[DFAStateT], bool]
+TargetStateFn = Callable[[DFAStateT], bool]
+
 
 class DFA(fa.FA):
     """A deterministic finite automaton."""
@@ -60,10 +64,6 @@ class DFA(fa.FA):
     allow_partial: bool
     _word_cache: List[DefaultDict[DFAStateT, List[str]]]
     _count_cache: List[DefaultDict[DFAStateT, int]]
-
-    ExpandStateFn = Callable[[DFAStateT], Iterator[Tuple[DFASymbolT, DFAStateT]]]
-    IsFinalStateFn = Callable[[DFAStateT], bool]
-    TargetStateFn = Callable[[DFAStateT], bool]
 
     def __init__(
         self,
