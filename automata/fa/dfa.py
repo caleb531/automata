@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from itertools import chain, count
 from random import Random
-from typing import (
+from typing import (  # noqa Fixes a false positive where flake8 thinks that Literal is imported/unused even though it's not imported at all here
     AbstractSet,
     Any,
     Callable,
