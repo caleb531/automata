@@ -220,9 +220,8 @@ class DFA(fa.FA):
         for input_symbol in self.input_symbols:
             if input_symbol not in paths:
                 raise exceptions.MissingSymbolError(
-                    "state {} is missing transitions for symbol {}".format(
-                        start_state, input_symbol
-                    )
+                    f"state {start_state} is missing transitions "
+                    f"for symbol {input_symbol}"
                 )
 
     def _validate_transition_invalid_symbols(
@@ -232,19 +231,15 @@ class DFA(fa.FA):
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols:
                 raise exceptions.InvalidSymbolError(
-                    "state {} has invalid transition symbol {}".format(
-                        start_state, input_symbol
-                    )
+                    f"state {start_state} has invalid transition symbol {input_symbol}"
                 )
 
     def _validate_transition_start_states(self) -> None:
         """Raise an error if transition start states are missing."""
-        if self.allow_partial:
-            return
         for state in self.states:
             if state not in self.transitions:
                 raise exceptions.MissingStateError(
-                    "transition start state {} is missing".format(state)
+                    f"transition start state {state} is missing"
                 )
 
     def _validate_transition_end_states(
@@ -254,9 +249,8 @@ class DFA(fa.FA):
         for end_state in paths.values():
             if end_state not in self.states:
                 raise exceptions.InvalidStateError(
-                    "end state {} for transition on {} is not valid".format(
-                        end_state, start_state
-                    )
+                    f"end state {end_state} for transition on "
+                    f"{start_state} is not valid"
                 )
 
     def _validate_transitions(self, start_state: DFAStateT, paths: DFAPathT) -> None:
@@ -292,7 +286,7 @@ class DFA(fa.FA):
         """Raise an error if the given config indicates rejected input."""
         if current_state not in self.final_states:
             raise exceptions.RejectionException(
-                "the DFA stopped on a non-final state ({})".format(current_state)
+                f"the DFA stopped on a non-final state ({current_state})"
             )
 
     def read_input_stepwise(
