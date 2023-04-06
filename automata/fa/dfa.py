@@ -573,7 +573,7 @@ class DFA(fa.FA):
     def _bfs_edges(
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
-    ) -> Iterator[Tuple[DFAStateT, DFASymbolT, DFAStateT]]:
+    ) -> Generator[Tuple[DFAStateT, DFASymbolT, DFAStateT], None, None]:
         """
         Emits the edges (src_state, label, tgt_state) visited by BFS from the
         initial_state. Computes subsequent states using the function expand_state_fn.
