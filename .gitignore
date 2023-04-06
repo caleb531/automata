@@ -21,3 +21,6 @@ nosetests.xml
 # Required packages
 .virtualenv
 .spyproject
+
+# MyPy
+.mypy_cache
