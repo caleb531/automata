@@ -61,7 +61,9 @@ class DFA(fa.FA):
     _word_cache: List[DefaultDict[DFAStateT, List[str]]]
     _count_cache: List[DefaultDict[DFAStateT, int]]
 
-    ExpandStateFn = Callable[[DFAStateT], Iterable[Tuple[DFASymbolT, DFAStateT]]]
+    ExpandStateFn = Callable[
+        [DFAStateT], Generator[Tuple[DFASymbolT, DFAStateT], None, None]
+    ]
     IsFinalStateFn = Callable[[DFAStateT], bool]
     TargetStateFn = Callable[[DFAStateT], bool]
 
@@ -458,7 +460,7 @@ class DFA(fa.FA):
 
         initial_state, expand_state_fn = DFA._cross_product(self, other)
 
-        return DFA._expand_dfa(
+        return self.__class__._expand_dfa(
             union_function,
             initial_state,
             expand_state_fn,
@@ -482,7 +484,7 @@ class DFA(fa.FA):
 
         initial_state, expand_state_fn = DFA._cross_product(self, other)
 
-        return DFA._expand_dfa(
+        return self.__class__._expand_dfa(
             intersection_function,
             initial_state,
             expand_state_fn,
@@ -506,7 +508,7 @@ class DFA(fa.FA):
 
         initial_state, expand_state_fn = DFA._cross_product(self, other)
 
-        return DFA._expand_dfa(
+        return self.__class__._expand_dfa(
             difference_function,
             initial_state,
             expand_state_fn,
@@ -532,7 +534,7 @@ class DFA(fa.FA):
 
         initial_state, expand_state_fn = DFA._cross_product(self, other)
 
-        return DFA._expand_dfa(
+        return self.__class__._expand_dfa(
             symmetric_difference_function,
             initial_state,
             expand_state_fn,
@@ -551,7 +553,7 @@ class DFA(fa.FA):
             reachable_states = {*bfs_states}
             reachable_final_states = self.final_states & reachable_states
 
-            return DFA._minify(
+            return self.__class__._minify(
                 reachable_states=reachable_states,
                 input_symbols=self.input_symbols,
                 transitions=self.transitions,
@@ -560,7 +562,7 @@ class DFA(fa.FA):
                 retain_names=retain_names,
             )
 
-        return DFA(
+        return self.__class__(
             states=self.states,
             input_symbols=self.input_symbols,
             transitions=self.transitions,
@@ -573,7 +575,7 @@ class DFA(fa.FA):
     def _bfs_edges(
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
-    ) -> Iterable[Tuple[DFAStateT, DFASymbolT, DFAStateT]]:
+    ) -> Generator[Tuple[DFAStateT, DFASymbolT, DFAStateT], None, None]:
         """
         Emits the edges (src_state, label, tgt_state) visited by BFS from the
         initial_state. Computes subsequent states using the function expand_state_fn.
@@ -594,7 +596,7 @@ class DFA(fa.FA):
     @staticmethod
     def _bfs_states(
         initial_state: DFAStateT, expand_state_fn: ExpandStateFn
-    ) -> Iterable[DFAStateT]:
+    ) -> Generator[DFAStateT, None, None]:
         """
         Emits the states visited by BFS from the initial_state.
         Computes subsequent states using the function expand_state_fn.
@@ -1477,6 +1479,7 @@ class DFA(fa.FA):
         cls, target_nfa: nfa.NFA, *, retain_names: bool = False, minify: bool = True
     ) -> DFA:
         """Initialize this DFA as one equivalent to the given NFA."""
+
         # Data structures for state renaming
 
         def get_name_original(states: FrozenSet[DFAStateT]) -> DFAStateT:
