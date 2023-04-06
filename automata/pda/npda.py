@@ -41,7 +41,7 @@ class NPDA(pda.PDA):
         initial_state: NPDAStateT,
         initial_stack_symbol: str,
         final_states: AbstractSet[NPDAStateT],
-        acceptance_mode: pda.PDAAcceptanceModeT = "both",
+        acceptance_mode: pda.PDAAcceptanceModeT = "both"
     ) -> None:
         """Initialize a complete NPDA."""
         super().__init__(
