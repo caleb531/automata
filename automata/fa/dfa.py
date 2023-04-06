@@ -61,9 +61,7 @@ class DFA(fa.FA):
     _word_cache: List[DefaultDict[DFAStateT, List[str]]]
     _count_cache: List[DefaultDict[DFAStateT, int]]
 
-    ExpandStateFn = Callable[
-        [DFAStateT], Generator[Tuple[DFASymbolT, DFAStateT], None, None]
-    ]
+    ExpandStateFn = Callable[[DFAStateT], Iterator[Tuple[DFASymbolT, DFAStateT]]]
     IsFinalStateFn = Callable[[DFAStateT], bool]
     TargetStateFn = Callable[[DFAStateT], bool]
 
@@ -341,7 +339,7 @@ class DFA(fa.FA):
 
         # Compute reachable states and final states
         bfs_states = DFA._bfs_states(
-            self.initial_state, lambda state: self.transitions[state].items()
+            self.initial_state, lambda state: iter(self.transitions[state].items())
         )
         reachable_states = {*bfs_states}
         reachable_final_states = self.final_states & reachable_states
@@ -548,7 +546,7 @@ class DFA(fa.FA):
 
         if minify:
             bfs_states = DFA._bfs_states(
-                self.initial_state, lambda state: self.transitions[state].items()
+                self.initial_state, lambda state: iter(self.transitions[state].items())
             )
             reachable_states = {*bfs_states}
             reachable_final_states = self.final_states & reachable_states
@@ -575,7 +573,7 @@ class DFA(fa.FA):
     def _bfs_edges(
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
-    ) -> Generator[Tuple[DFAStateT, DFASymbolT, DFAStateT], None, None]:
+    ) -> Iterator[Tuple[DFAStateT, DFASymbolT, DFAStateT]]:
         """
         Emits the edges (src_state, label, tgt_state) visited by BFS from the
         initial_state. Computes subsequent states using the function expand_state_fn.
@@ -743,7 +741,7 @@ class DFA(fa.FA):
         return not DFA._find_state(
             lambda state: state in self.final_states,
             self.initial_state,
-            lambda state: self.transitions[state].items(),
+            lambda state: iter(self.transitions[state].items()),
         )
 
     def isfinite(self) -> bool:
