@@ -23,7 +23,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     __slots__ = tuple()
 
     @staticmethod
-    def get_state_name(state_data):
+    def get_state_label(state_data):
         """
         Get an string representation of a state. This is used for displaying and
         uses `str` for any unsupported python data types.
@@ -35,7 +35,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             return state_data
 
         if isinstance(state_data, (set, frozenset, list, tuple)):
-            inner = ", ".join(FA.get_state_name(sub_data) for sub_data in state_data)
+            inner = ", ".join(FA.get_state_label(sub_data) for sub_data in state_data)
             if isinstance(state_data, (set, frozenset)):
                 if state_data:
                     return "{" + inner + "}"
@@ -79,7 +79,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         cleanup: bool = True,
         horizontal: bool = True,
         reverse_orientation: bool = False,
-        fig_size: tuple = (8, 8),
+        fig_size: tuple = None,
         font_size: float = 14.0,
         arrow_size: float = 0.85,
         state_separation: float = 0.5,
@@ -99,7 +99,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
               to True.
             - reverse_orientation (bool, optional): Reverse direction of node
               layout. Defaults to False.
-            - fig_size (tuple, optional): Figure size. Defaults to (8, 8).
+            - fig_size (tuple, optional): Figure size. Defaults to None.
             - font_size (float, optional): Font size. Defaults to 14.0.
             - arrow_size (float, optional): Arrow head size. Defaults to 0.85.
             - state_separation (float, optional): Node distance. Defaults to 0
@@ -107,20 +107,18 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         Returns:
             Digraph: The graph in dot format.
         """
-        # Converting to graphviz preferred input type,
-        # keeping the conventional input styles; i.e fig_size(8, 8)
-        # TODO why is (8, 8) the "conventional" size?
-        fig_size = ", ".join(map(str, fig_size))
-        font_size = str(font_size)
-        arrow_size = str(arrow_size)
-        state_separation = str(state_separation)
 
         # Defining the graph.
         graph = graphviz.Digraph(strict=False, engine=engine)
-        graph.attr(
-            # size=fig_size, # TODO maybe needed?
-            ranksep=state_separation,
-        )
+
+        # TODO test fig_size
+        if fig_size is not None:
+            graph.attr(size=", ".join(map(str, fig_size)))
+
+        graph.attr(ranksep=str(state_separation))
+        font_size = str(font_size)
+        arrow_size = str(arrow_size)
+
         if horizontal:
             graph.attr(rankdir="LR")
         if reverse_orientation:
@@ -139,92 +137,75 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 graph.node(
                     null_node,
                     label="",
+                    tooltip=".",
                     shape="point",
                     fontsize=font_size,
                 )
-                node = self.get_state_name(state)
-                edge_label = "->" + node
+                node = self.get_state_label(state)
                 graph.edge(
                     null_node,
                     node,
-                    tooltip=edge_label,
+                    tooltip="->" + node,
                     arrowsize=arrow_size,
                 )
 
         for state in self.iter_states():
             shape = "doublecircle" if self.is_accepting(state) else "circle"
-            node = self.get_state_name(state)
+            node = self.get_state_label(state)
             graph.node(node, shape=shape, fontsize=font_size)
 
-        if input_str is None:
-            edge_labels = defaultdict(list)
-            for from_state, to_state, symbol in self.iter_transitions():
-                # TODO only do this for NFA
-                label = "ε" if symbol == "" else str(symbol)
-                from_node = self.get_state_name(from_state)
-                to_node = self.get_state_name(to_state)
-                edge_labels[from_node, to_node].append(label)
-
-            for (from_node, to_node), labels in edge_labels.items():
-                label = ",".join(sorted(labels))
-                graph.edge(
-                    from_node,
-                    to_node,
-                    label=label,
-                    arrowsize=arrow_size,
-                    fontsize=font_size,
-                )
-        else:
-            # TODO
-            raise NotImplementedError("input_str is not supported yet")
-
-            status, taken_transitions_pairs, taken_steps = self.input_check(
-                input_str=input_str, return_result=True
-            )
-            remaining_transitions_pairs = [
-                x
-                for x in all_transitions_pairs  # noqa
-                if x not in taken_transitions_pairs
-            ]
+        is_edge_drawn = defaultdict(lambda: False)
+        if input_str is not None:
+            path, is_accepted = self._get_input_path(input_str=input_str)
 
             start_color = Color("#FFFF00")
-            end_color = Color("#00FF00") if status else Color("#FF0000")
+            end_color = Color("#00FF00") if is_accepted else Color("#FF0000")
 
             number_of_colors = len(input_str)
             interpolation = Color.interpolate([start_color, end_color], space="lch")
-            # TODO why cycle?
-            color_gen = itertools.cycle(
+            colors = (
                 interpolation(x / number_of_colors) for x in range(number_of_colors + 1)
             )
 
             # Define all transitions in the finite state machine with traversal.
-            counter = 0
-            for pair in taken_transitions_pairs:
-                counter += 1
-                edge_color = next(color_gen)
-                graph.edge(
-                    pair[0],
-                    pair[1],
-                    label=" [{}]\n{} ".format(counter, pair[2]),
-                    arrowsize=arrow_size,
-                    fontsize=font_size,
-                    color=edge_color.to_string(hex=True),
-                    penwidth="2.5",
-                )
+            for transition_index, (color, transitions) in enumerate(
+                zip(colors, path), start=1
+            ):
+                for from_state, to_state, symbol in transitions:
+                    is_edge_drawn[from_state, to_state, symbol] = True
 
-            for pair in remaining_transitions_pairs:
-                graph.edge(
-                    pair[0],
-                    pair[1],
-                    label=" {} ".format(pair[2]),
-                    arrowsize=arrow_size,
-                    fontsize=font_size,
-                )
+                    from_node = self.get_state_label(from_state)
+                    to_node = self.get_state_label(to_state)
+                    label = self.get_edge_label(symbol)
+                    graph.edge(
+                        from_state,
+                        to_state,
+                        label=" [#{}]\n{} ".format(transition_index, symbol),
+                        arrowsize=arrow_size,
+                        fontsize=font_size,
+                        color=color.to_string(hex=True),
+                        penwidth="2.5",
+                    )
 
-            # TODO find a better way to handle the display of the steps
-            from IPython.display import display
+        edge_labels = defaultdict(list)
+        for from_state, to_state, symbol in self.iter_transitions():
+            if is_edge_drawn[from_state, to_state, symbol]:
+                continue
 
-            display(taken_steps)
+            label = self.get_edge_label(symbol)
+            from_node = self.get_state_label(from_state)
+            to_node = self.get_state_label(to_state)
+            edge_labels[from_node, to_node].append(label)
+
+        for (from_node, to_node), labels in edge_labels.items():
+            label = ",".join(sorted(labels))
+            graph.edge(
+                from_node,
+                to_node,
+                label=label,
+                arrowsize=arrow_size,
+                fontsize=font_size,
+            )
 
         # Write diagram to file. PNG, SVG, etc.
         if save_path is not None:
@@ -247,6 +228,14 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             graph.render(view=True)
 
         return graph
+
+    def get_edge_label(self, symbol):
+        return str(symbol)
+
+    def _get_input_path(self, input_str):
+        raise NotImplementedError(
+            f"_get_input_path is not implemented for {self.__class__}"
+        )
 
     def _ipython_display_(self):
         # IPython is imported here because this function is only called by
