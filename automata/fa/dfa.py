@@ -1566,8 +1566,19 @@ class DFA(fa.FA):
     def is_initial(self, state):
         return state == self.initial_state
 
-    def _get_input_path(self, input_str):
-        """Calculate the path taken by input."""
+    def _get_input_path(self, input_str) -> tuple[list[tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]:
+        """
+        Calculate the path taken by input.
+
+        Args:
+            input_str (str): The input string to run on the DFA.
+
+        Returns:
+            tuple[list[tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]: A list
+            of all transitions taken in each step and a boolean indicating
+            whether the DFA accepted the input.
+
+        """
         state_history = [
             state
             for state in self.read_input_stepwise(input_str, ignore_rejection=True)

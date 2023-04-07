@@ -22,7 +22,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     __slots__ = tuple()
 
     @staticmethod
-    def get_state_name(state_data) -> str:
+    def get_state_name(state_data: FAStateT) -> str:
         """
         Get an string representation of a state. This is used for displaying and
         uses `str` for any unsupported python data types.
