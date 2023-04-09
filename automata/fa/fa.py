@@ -158,8 +158,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         if input_str is not None:
             path, is_accepted = self._get_input_path(input_str=input_str)
 
-            start_color = Color("#FFFF00")
-            end_color = Color("#00FF00") if is_accepted else Color("#FF0000")
+            start_color = Color("#ff0")
+            end_color = Color("#0f0") if is_accepted else Color("#f00")
 
             number_of_colors = len(input_str)
             interpolation = Color.interpolate([start_color, end_color], space="lch")
@@ -178,9 +178,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                     to_node = self.get_state_label(to_state)
                     label = self.get_edge_label(symbol)
                     graph.edge(
-                        from_state,
-                        to_state,
-                        label=" [#{}]\n{} ".format(transition_index, symbol),
+                        from_node,
+                        to_node,
+                        label=f"{label} [#{transition_index}]",
                         arrowsize=arrow_size,
                         fontsize=font_size,
                         color=color.to_string(hex=True),
@@ -192,9 +192,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             if is_edge_drawn[from_state, to_state, symbol]:
                 continue
 
-            label = self.get_edge_label(symbol)
             from_node = self.get_state_label(from_state)
             to_node = self.get_state_label(to_state)
+            label = self.get_edge_label(symbol)
             edge_labels[from_node, to_node].append(label)
 
         for (from_node, to_node), labels in edge_labels.items():
