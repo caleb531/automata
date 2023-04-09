@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "EditorConfig.EditorConfig",
-    "ms-python.black-formatter"
+    "ms-python.black-formatter",
+    "ms-python.isort",
   ]
 }
