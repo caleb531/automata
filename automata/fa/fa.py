@@ -161,10 +161,10 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             start_color = Color("#ff0")
             end_color = Color("#0f0") if is_accepted else Color("#f00")
 
-            number_of_colors = len(input_str)
             interpolation = Color.interpolate([start_color, end_color], space="lch")
+            step_count = len(input_str)
             colors = (
-                interpolation(x / number_of_colors) for x in range(number_of_colors + 1)
+                interpolation((x + 1) / step_count) for x in range(step_count + 1)
             )
 
             # Define all transitions in the finite state machine with traversal.
@@ -180,7 +180,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                     graph.edge(
                         from_node,
                         to_node,
-                        label=f"{label} [#{transition_index}]",
+                        label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
                         arrowsize=arrow_size,
                         fontsize=font_size,
                         color=color.to_string(hex=True),
