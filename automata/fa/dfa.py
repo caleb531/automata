@@ -29,6 +29,7 @@ from typing import (  # noqa Fixes a false positive where flake8 thinks that Lit
 
 import networkx as nx
 from pydot import Dot, Edge, Node
+from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
@@ -37,7 +38,6 @@ from automata.base.utils import PartitionRefinement, get_renaming_function
 
 DFAStateT = fa.FAStateT
 
-DFAType = TypeVar("DFAType", bound="DFA")
 DFASymbolT = str
 DFAPathT = Mapping[DFASymbolT, DFAStateT]
 DFATransitionsT = Mapping[DFAStateT, DFAPathT]
@@ -167,35 +167,35 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    def __sub__(self, other: DFA) -> DFA:
+    def __sub__(self, other: DFA) -> Self:
         """Return a DFA that is the difference of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.difference(other)
         else:
             return NotImplemented
 
-    def __or__(self, other: DFA) -> DFA:
+    def __or__(self, other: DFA) -> Self:
         """Return the union of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.union(other)
         else:
             return NotImplemented
 
-    def __and__(self, other: DFA) -> DFA:
+    def __and__(self, other: DFA) -> Self:
         """Return the intersection of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.intersection(other)
         else:
             return NotImplemented
 
-    def __xor__(self, other: DFA) -> DFA:
+    def __xor__(self, other: DFA) -> Self:
         """Return the symmetric difference of this DFA and another DFA."""
         if isinstance(other, DFA):
             return self.symmetric_difference(other)
         else:
             return NotImplemented
 
-    def __invert__(self) -> DFA:
+    def __invert__(self) -> Self:
         """Return the complement of this DFA and another DFA."""
         return self.complement()
 
@@ -327,7 +327,7 @@ class DFA(fa.FA):
             ]
         )
 
-    def minify(self, retain_names: bool = False) -> DFA:
+    def minify(self, retain_names: bool = False) -> Self:
         """
         Create a minimal DFA which accepts the same inputs as this DFA.
 
@@ -344,7 +344,7 @@ class DFA(fa.FA):
         reachable_states = {*bfs_states}
         reachable_final_states = self.final_states & reachable_states
 
-        return self._minify(
+        return self.__class__._minify(
             reachable_states=reachable_states,
             input_symbols=self.input_symbols,
             transitions=self.transitions,
@@ -355,7 +355,7 @@ class DFA(fa.FA):
 
     @classmethod
     def _minify(
-        cls: Type[DFAType],
+        cls: Type[Self],
         *,
         reachable_states: AbstractSet[DFAStateT],
         input_symbols: AbstractSet[str],
@@ -363,7 +363,7 @@ class DFA(fa.FA):
         initial_state: DFAStateT,
         reachable_final_states: AbstractSet[DFAStateT],
         retain_names: bool,
-    ) -> DFA:
+    ) -> Self:
         """Minify helper function. DFA data passed in must have no unreachable
         states."""
 
@@ -445,7 +445,7 @@ class DFA(fa.FA):
 
     def union(
         self, other: DFA, *, retain_names: bool = False, minify: bool = True
-    ) -> DFA:
+    ) -> Self:
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -469,7 +469,7 @@ class DFA(fa.FA):
 
     def intersection(
         self, other: DFA, *, retain_names: bool = False, minify: bool = True
-    ) -> DFA:
+    ) -> Self:
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -493,7 +493,7 @@ class DFA(fa.FA):
 
     def difference(
         self, other: DFA, *, retain_names: bool = False, minify: bool = True
-    ) -> DFA:
+    ) -> Self:
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -517,7 +517,7 @@ class DFA(fa.FA):
 
     def symmetric_difference(
         self, other: DFA, *, retain_names: bool = False, minify: bool = True
-    ) -> DFA:
+    ) -> Self:
         """
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
@@ -541,7 +541,7 @@ class DFA(fa.FA):
             minify=minify,
         )
 
-    def complement(self, *, retain_names: bool = False, minify: bool = True) -> DFA:
+    def complement(self, *, retain_names: bool = False, minify: bool = True) -> Self:
         """Return the complement of this DFA."""
 
         if minify:
@@ -614,14 +614,14 @@ class DFA(fa.FA):
 
     @classmethod
     def _expand_dfa(
-        cls: Type[DFAType],
+        cls: Type[Self],
         final_state_fn: IsFinalStateFn,
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
         input_symbols: AbstractSet[DFASymbolT],
         retain_names: bool = False,
         minify: bool = True,
-    ) -> DFA:
+    ) -> Self:
         """
         Constructs the DFA by expanding from the initial_state using the expand_state_fn
         function. The function final_state_fn must return True for the final states.
@@ -679,7 +679,7 @@ class DFA(fa.FA):
 
     @classmethod
     def _find_state(
-        cls: Type[DFAType],
+        cls: Type[Self],
         target_state_fn: TargetStateFn,
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
@@ -1055,12 +1055,12 @@ class DFA(fa.FA):
 
     @classmethod
     def from_prefix(
-        cls: Type[DFAType],
+        cls: Type[Self],
         input_symbols: AbstractSet[str],
         prefix: str,
         *,
         contains: bool = True,
-    ) -> DFA:
+    ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings with the
         given prefix.
@@ -1090,12 +1090,12 @@ class DFA(fa.FA):
 
     @classmethod
     def from_suffix(
-        cls: Type[DFAType],
+        cls: Type[Self],
         input_symbols: AbstractSet[str],
         suffix: str,
         *,
         contains: bool = True,
-    ) -> DFA:
+    ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings with the
         given prefix.
@@ -1107,13 +1107,13 @@ class DFA(fa.FA):
 
     @classmethod
     def from_substring(
-        cls: Type[DFAType],
+        cls: Type[Self],
         input_symbols: AbstractSet[str],
         substring: str,
         *,
         contains: bool = True,
         must_be_suffix: bool = False,
-    ) -> DFA:
+    ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings containing the
         given substring.
@@ -1167,12 +1167,12 @@ class DFA(fa.FA):
 
     @classmethod
     def from_subsequence(
-        cls: Type[DFAType],
+        cls: Type[Self],
         input_symbols: AbstractSet[str],
         subsequence: str,
         *,
         contains: bool = True,
-    ) -> DFA:
+    ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings containing the
         given subsequence.
@@ -1197,13 +1197,13 @@ class DFA(fa.FA):
 
     @classmethod
     def of_length(
-        cls: Type[DFAType],
+        cls: Type[Self],
         input_symbols: AbstractSet[str],
         *,
         min_length: int = 0,
         max_length: Optional[int] = None,
         symbols_to_count: Optional[AbstractSet[str]] = None,
-    ) -> DFA:
+    ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings whose length is
         between `min_length` and `max_length`, inclusive. To allow infinitely
@@ -1240,7 +1240,7 @@ class DFA(fa.FA):
 
     @classmethod
     def count_mod(
-        cls: Type[DFAType],
+        cls: Type[Self],
         input_symbols: AbstractSet[str],
         k: int,
         *,
@@ -1275,7 +1275,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def universal_language(cls: Type[DFAType], input_symbols: AbstractSet[str]) -> DFA:
+    def universal_language(cls: Type[Self], input_symbols: AbstractSet[str]) -> Self:
         """
         Directly computes the minimal DFA accepting all strings.
         """
@@ -1288,7 +1288,7 @@ class DFA(fa.FA):
         )
 
     @classmethod
-    def empty_language(cls: Type[DFAType], input_symbols: AbstractSet[str]) -> DFA:
+    def empty_language(cls: Type[Self], input_symbols: AbstractSet[str]) -> Self:
         """
         Directly computes the minimal DFA rejecting all strings.
         """
@@ -1302,8 +1302,8 @@ class DFA(fa.FA):
 
     @classmethod
     def nth_from_start(
-        cls: Type[DFAType], input_symbols: AbstractSet[str], symbol: str, n: int
-    ) -> DFA:
+        cls: Type[Self], input_symbols: AbstractSet[str], symbol: str, n: int
+    ) -> Self:
         """
         Directly computes the minimal DFA which accepts all words whose `n`-th
         character from the start is `symbol`, where `n` is a positive integer.
@@ -1331,8 +1331,8 @@ class DFA(fa.FA):
 
     @classmethod
     def nth_from_end(
-        cls: Type[DFAType], input_symbols: AbstractSet[str], symbol: str, n: int
-    ) -> DFA:
+        cls: Type[Self], input_symbols: AbstractSet[str], symbol: str, n: int
+    ) -> Self:
         """
         Directly computes the minimal DFA which accepts all words whose `n`-th
         character from the end is `symbol`, where `n` is a positive integer.
@@ -1371,8 +1371,8 @@ class DFA(fa.FA):
 
     @classmethod
     def from_finite_language(
-        cls: Type[DFAType], input_symbols: AbstractSet[str], language: AbstractSet[str]
-    ) -> DFA:
+        cls: Type[Self], input_symbols: AbstractSet[str], language: AbstractSet[str]
+    ) -> Self:
         """
         Directly computes the minimal DFA corresponding to a finite language.
         Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
@@ -1480,12 +1480,12 @@ class DFA(fa.FA):
 
     @classmethod
     def from_nfa(
-        cls: Type[DFAType],
+        cls: Type[Self],
         target_nfa: nfa.NFA,
         *,
         retain_names: bool = False,
         minify: bool = True,
-    ) -> DFA:
+    ) -> Self:
         """Initialize this DFA as one equivalent to the given NFA."""
 
         # Data structures for state renaming
