@@ -338,7 +338,7 @@ class DFA(fa.FA):
         """
 
         # Compute reachable states and final states
-        bfs_states = DFA._bfs_states(
+        bfs_states = self.__class__._bfs_states(
             self.initial_state, lambda state: iter(self.transitions[state].items())
         )
         reachable_states = {*bfs_states}
@@ -456,7 +456,7 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        initial_state, expand_state_fn = DFA._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
 
         return self.__class__._expand_dfa(
             union_function,
@@ -480,7 +480,7 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        initial_state, expand_state_fn = DFA._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
 
         return self.__class__._expand_dfa(
             intersection_function,
@@ -504,7 +504,7 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        initial_state, expand_state_fn = DFA._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
 
         return self.__class__._expand_dfa(
             difference_function,
@@ -530,7 +530,7 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        initial_state, expand_state_fn = DFA._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
 
         return self.__class__._expand_dfa(
             symmetric_difference_function,
@@ -545,7 +545,7 @@ class DFA(fa.FA):
         """Return the complement of this DFA."""
 
         if minify:
-            bfs_states = DFA._bfs_states(
+            bfs_states = self.__class__._bfs_states(
                 self.initial_state, lambda state: iter(self.transitions[state].items())
             )
             reachable_states = {*bfs_states}
@@ -612,8 +612,9 @@ class DFA(fa.FA):
                     visited_set.add(tgt_state)
                     queue.append(tgt_state)
 
-    @staticmethod
+    @classmethod
     def _expand_dfa(
+        cls,
         final_state_fn: IsFinalStateFn,
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
@@ -645,7 +646,7 @@ class DFA(fa.FA):
         states = {initial_state_name}
         final_states = {initial_state_name} if final_state_fn(initial_state) else set()
 
-        for cur_state, chr, tgt_state in DFA._bfs_edges(initial_state, expand_state_fn):
+        for cur_state, chr, tgt_state in cls._bfs_edges(initial_state, expand_state_fn):
             cur_state_name = get_name(cur_state)
             tgt_state_name = get_name(tgt_state)
 
@@ -660,7 +661,7 @@ class DFA(fa.FA):
 
         if minify:
             # From the construction, the states/final states are reachable
-            return DFA._minify(
+            return cls._minify(
                 reachable_states=states,
                 input_symbols=input_symbols,
                 transitions=transitions,
@@ -668,7 +669,7 @@ class DFA(fa.FA):
                 reachable_final_states=final_states,
                 retain_names=retain_names,
             )
-        return DFA(
+        return cls(
             states=states,
             input_symbols=input_symbols,
             transitions=transitions,
@@ -676,8 +677,9 @@ class DFA(fa.FA):
             final_states=final_states,
         )
 
-    @staticmethod
+    @classmethod
     def _find_state(
+        cls,
         target_state_fn: TargetStateFn,
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
@@ -688,7 +690,7 @@ class DFA(fa.FA):
         searched for. The expand_state_fn should return an iterator with the
         successors of each state in the product.
         """
-        bfs_states = DFA._bfs_states(initial_state, expand_state_fn)
+        bfs_states = cls._bfs_states(initial_state, expand_state_fn)
         return any(target_state_fn(state) for state in bfs_states)
 
     @staticmethod
@@ -718,8 +720,10 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        initial_state, expand_state_fn = DFA._cross_product(self, other)
-        return not DFA._find_state(subset_state_fn, initial_state, expand_state_fn)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        return not self.__class__._find_state(
+            subset_state_fn, initial_state, expand_state_fn
+        )
 
     def issuperset(self, other: DFA) -> bool:
         """Return True if this DFA is a superset of another DFA."""
@@ -733,12 +737,14 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        initial_state, expand_state_fn = DFA._cross_product(self, other)
-        return not DFA._find_state(disjoint_state_fn, initial_state, expand_state_fn)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        return not self.__class__._find_state(
+            disjoint_state_fn, initial_state, expand_state_fn
+        )
 
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
-        return not DFA._find_state(
+        return not self.__class__._find_state(
             lambda state: state in self.final_states,
             self.initial_state,
             lambda state: iter(self.transitions[state].items()),
@@ -1376,7 +1382,7 @@ class DFA(fa.FA):
         SignatureT = Tuple[bool, FrozenSet[Tuple[str, str]]]
 
         if not language:
-            return DFA.empty_language(input_symbols)
+            return cls.empty_language(input_symbols)
 
         transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
         back_map: Dict[str, Set[str]] = {"": set()}
