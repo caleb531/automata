@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from itertools import chain, count
 from random import Random
-from typing import (
+from typing import (  # noqa Fixes a false positive where flake8 thinks that Literal is imported/unused even though it's not imported at all here
     AbstractSet,
     Any,
     Callable,
@@ -24,9 +24,7 @@ from typing import (
     Tuple,
     Type,
     TypeVar,
-    Union,
     cast,
-    overload,
 )
 
 import networkx as nx
@@ -40,8 +38,13 @@ from automata.base.utils import PartitionRefinement, get_renaming_function
 DFAStateT = fa.FAStateT
 
 DFAType = TypeVar("DFAType", bound="DFA")
-DFAPathT = Mapping[str, DFAStateT]
+DFASymbolT = str
+DFAPathT = Mapping[DFASymbolT, DFAStateT]
 DFATransitionsT = Mapping[DFAStateT, DFAPathT]
+
+ExpandStateFn = Callable[[DFAStateT], Iterator[Tuple[DFASymbolT, DFAStateT]]]
+IsFinalStateFn = Callable[[DFAStateT], bool]
+TargetStateFn = Callable[[DFAStateT], bool]
 
 
 class DFA(fa.FA):
@@ -324,24 +327,6 @@ class DFA(fa.FA):
             ]
         )
 
-    def _compute_reachable_states(self) -> Set[DFAStateT]:
-        """Compute the states which are reachable from the initial state."""
-        visited_set = set()
-        queue: Deque[DFAStateT] = deque()
-
-        queue.append(self.initial_state)
-        visited_set.add(self.initial_state)
-
-        while queue:
-            state = queue.popleft()
-
-            for next_state in self.transitions[state].values():
-                if next_state not in visited_set:
-                    visited_set.add(next_state)
-                    queue.append(next_state)
-
-        return visited_set
-
     def minify(self, retain_names: bool = False) -> DFA:
         """
         Create a minimal DFA which accepts the same inputs as this DFA.
@@ -353,7 +338,10 @@ class DFA(fa.FA):
         """
 
         # Compute reachable states and final states
-        reachable_states = self._compute_reachable_states()
+        bfs_states = self.__class__._bfs_states(
+            self.initial_state, lambda state: iter(self.transitions[state].items())
+        )
+        reachable_states = {*bfs_states}
         reachable_final_states = self.final_states & reachable_states
 
         return self._minify(
@@ -375,7 +363,7 @@ class DFA(fa.FA):
         initial_state: DFAStateT,
         reachable_final_states: AbstractSet[DFAStateT],
         retain_names: bool,
-    ):
+    ) -> DFA:
         """Minify helper function. DFA data passed in must have no unreachable
         states."""
 
@@ -468,31 +456,15 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        (
-            new_states,
-            new_transitions,
-            new_initial_state,
-            new_final_states,
-        ) = self._cross_product(
-            other, union_function, should_construct_dfa=True, retain_names=retain_names
-        )
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
 
-        if minify:
-            return self._minify(
-                reachable_states=new_states,
-                input_symbols=self.input_symbols,
-                transitions=new_transitions,
-                initial_state=new_initial_state,
-                reachable_final_states=new_final_states,
-                retain_names=retain_names,
-            )
-
-        return self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=new_final_states,
+        return self.__class__._expand_dfa(
+            union_function,
+            initial_state,
+            expand_state_fn,
+            self.input_symbols,
+            retain_names=retain_names,
+            minify=minify,
         )
 
     def intersection(
@@ -508,34 +480,15 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        (
-            new_states,
-            new_transitions,
-            new_initial_state,
-            new_final_states,
-        ) = self._cross_product(
-            other,
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+
+        return self.__class__._expand_dfa(
             intersection_function,
-            should_construct_dfa=True,
+            initial_state,
+            expand_state_fn,
+            self.input_symbols,
             retain_names=retain_names,
-        )
-
-        if minify:
-            return self._minify(
-                reachable_states=new_states,
-                input_symbols=self.input_symbols,
-                transitions=new_transitions,
-                initial_state=new_initial_state,
-                reachable_final_states=new_final_states,
-                retain_names=retain_names,
-            )
-
-        return self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=new_final_states,
+            minify=minify,
         )
 
     def difference(
@@ -551,34 +504,15 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        (
-            new_states,
-            new_transitions,
-            new_initial_state,
-            new_final_states,
-        ) = self._cross_product(
-            other,
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+
+        return self.__class__._expand_dfa(
             difference_function,
-            should_construct_dfa=True,
+            initial_state,
+            expand_state_fn,
+            self.input_symbols,
             retain_names=retain_names,
-        )
-
-        if minify:
-            return self._minify(
-                reachable_states=new_states,
-                input_symbols=self.input_symbols,
-                transitions=new_transitions,
-                initial_state=new_initial_state,
-                reachable_final_states=new_final_states,
-                retain_names=retain_names,
-            )
-
-        return self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=new_final_states,
+            minify=minify,
         )
 
     def symmetric_difference(
@@ -596,44 +530,28 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        (
-            new_states,
-            new_transitions,
-            new_initial_state,
-            new_final_states,
-        ) = self._cross_product(
-            other,
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+
+        return self.__class__._expand_dfa(
             symmetric_difference_function,
-            should_construct_dfa=True,
+            initial_state,
+            expand_state_fn,
+            self.input_symbols,
             retain_names=retain_names,
-        )
-
-        if minify:
-            return self._minify(
-                reachable_states=new_states,
-                input_symbols=self.input_symbols,
-                transitions=new_transitions,
-                initial_state=new_initial_state,
-                reachable_final_states=new_final_states,
-                retain_names=retain_names,
-            )
-
-        return self.__class__(
-            states=new_states,
-            input_symbols=self.input_symbols,
-            transitions=new_transitions,
-            initial_state=new_initial_state,
-            final_states=new_final_states,
+            minify=minify,
         )
 
     def complement(self, *, retain_names: bool = False, minify: bool = True) -> DFA:
         """Return the complement of this DFA."""
 
         if minify:
-            reachable_states = self._compute_reachable_states()
+            bfs_states = self.__class__._bfs_states(
+                self.initial_state, lambda state: iter(self.transitions[state].items())
+            )
+            reachable_states = {*bfs_states}
             reachable_final_states = self.final_states & reachable_states
 
-            return self._minify(
+            return self.__class__._minify(
                 reachable_states=reachable_states,
                 input_symbols=self.input_symbols,
                 transitions=self.transitions,
@@ -651,119 +569,148 @@ class DFA(fa.FA):
             allow_partial=self.allow_partial,
         )
 
-    # visited_set, product_transitions, product_initial_state_name, final_states
-    DFADataTupleT = Tuple[Set[DFAStateT], DFATransitionsT, DFAStateT, Set[DFAStateT]]
-
-    @overload
-    def _cross_product(
-        self,
-        other: DFA,
-        state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
-        *,
-        should_construct_dfa: Literal[True],
-        retain_names: bool = False,
-    ) -> DFADataTupleT:
-        ...
-
-    @overload
-    def _cross_product(
-        self,
-        other: DFA,
-        state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
-        *,
-        should_construct_dfa: Literal[False],
-        retain_names: bool = False,
-    ) -> bool:
-        ...
-
-    def _cross_product(
-        self,
-        other: DFA,
-        state_target_fn: Callable[[Tuple[DFAStateT, DFAStateT]], bool],
-        *,
-        should_construct_dfa: Literal[True, False],
-        retain_names: bool = False,
-    ) -> Union[bool, DFADataTupleT]:
+    @staticmethod
+    def _bfs_edges(
+        initial_state: DFAStateT,
+        expand_state_fn: ExpandStateFn,
+    ) -> Generator[Tuple[DFAStateT, DFASymbolT, DFAStateT], None, None]:
         """
-        Search reachable states corresponding to product graph between self and
-        other.
-
-        The function state_target_fn should return True for states that should
-        be final (when the new DFA is being constructed explicitly) or for
-        states that are being searched for (if the DFA is not being
-        constructed).
-
-        If should_construct_dfa is False, then this function returns a boolean
-        corresponding to whether any target states are reachable. Otherwise,
-        constructs the given DFA. If retain_names is set to False, states are
-        renamed.
+        Emits the edges (src_state, label, tgt_state) visited by BFS from the
+        initial_state. Computes subsequent states using the function expand_state_fn.
         """
-        if self.input_symbols != other.input_symbols:
-            raise exceptions.SymbolMismatchError(
-                "The input symbols between the two given DFAs do not match"
-            )
+        visited_set = {initial_state}
+        queue: Deque[Tuple[DFAStateT, DFAStateT]] = deque([initial_state])
+
+        while queue:
+            curr_state = queue.popleft()
+
+            for chr, tgt_state in expand_state_fn(curr_state):
+                yield curr_state, chr, tgt_state
+
+                if tgt_state not in visited_set:
+                    visited_set.add(tgt_state)
+                    queue.append(tgt_state)
+
+    @staticmethod
+    def _bfs_states(
+        initial_state: DFAStateT, expand_state_fn: ExpandStateFn
+    ) -> Generator[DFAStateT, None, None]:
+        """
+        Emits the states visited by BFS from the initial_state.
+        Computes subsequent states using the function expand_state_fn.
+        """
+        yield initial_state
+        visited_set = {initial_state}
+        queue = deque([initial_state])
+
+        while queue:
+            curr_state = queue.popleft()
+
+            for _, tgt_state in expand_state_fn(curr_state):
+                if tgt_state not in visited_set:
+                    yield tgt_state
+                    visited_set.add(tgt_state)
+                    queue.append(tgt_state)
+
+    @classmethod
+    def _expand_dfa(
+        cls,
+        final_state_fn: IsFinalStateFn,
+        initial_state: DFAStateT,
+        expand_state_fn: ExpandStateFn,
+        input_symbols: AbstractSet[DFASymbolT],
+        retain_names: bool = False,
+        minify: bool = True,
+    ) -> DFA:
+        """
+        Constructs the DFA by expanding from the initial_state using the expand_state_fn
+        function. The function final_state_fn must return True for the final states.
+        The function expand_state_fn must return an iterator with the successors
+        of each state in the product.
+
+        If minify is set to True, the returned DFA is minified. If retain_names
+        is set to False, states are renamed.
+        """
 
         def get_name_original(state):
             return state
 
-        get_name = (
-            get_name_original if retain_names else get_renaming_function(count(0))
+        if retain_names:
+            get_name = get_name_original
+        else:
+            get_name = get_renaming_function(count(0))
+
+        initial_state_name = get_name(initial_state)
+
+        transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {initial_state_name: {}}
+        states = {initial_state_name}
+        final_states = {initial_state_name} if final_state_fn(initial_state) else set()
+
+        for cur_state, chr, tgt_state in cls._bfs_edges(initial_state, expand_state_fn):
+            cur_state_name = get_name(cur_state)
+            tgt_state_name = get_name(tgt_state)
+
+            if tgt_state_name not in states:
+                states.add(tgt_state_name)
+                transitions[tgt_state_name] = {}
+
+            transitions[cur_state_name][chr] = tgt_state_name
+
+            if final_state_fn(tgt_state):
+                final_states.add(tgt_state_name)
+
+        if minify:
+            # From the construction, the states/final states are reachable
+            return cls._minify(
+                reachable_states=states,
+                input_symbols=input_symbols,
+                transitions=transitions,
+                initial_state=initial_state_name,
+                reachable_final_states=final_states,
+                retain_names=retain_names,
+            )
+        return cls(
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=initial_state_name,
+            final_states=final_states,
         )
 
-        product_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
-        final_states = set()
+    @classmethod
+    def _find_state(
+        cls,
+        target_state_fn: TargetStateFn,
+        initial_state: DFAStateT,
+        expand_state_fn: ExpandStateFn,
+    ) -> bool:
+        """
+        Searches for a target state in the DFA without explicitly constructing
+        it. The function target_state_fn should return True for states that are being
+        searched for. The expand_state_fn should return an iterator with the
+        successors of each state in the product.
+        """
+        bfs_states = cls._bfs_states(initial_state, expand_state_fn)
+        return any(target_state_fn(state) for state in bfs_states)
 
-        visited_set = set()
-        queue: Deque[Tuple[DFAStateT, DFAStateT]] = deque()
-
-        product_initial_state = (self.initial_state, other.initial_state)
-        product_initial_state_name = get_name(product_initial_state)
-
-        queue.append(product_initial_state)
-        visited_set.add(product_initial_state_name)
-
-        while queue:
-            # Get next state in BFS queue
-            curr_state = queue.popleft()
-
-            # Add state to the transition dict if constructing DFA
-            if should_construct_dfa:
-                curr_state_name = get_name(curr_state)
-                state_transitions = product_transitions.setdefault(curr_state_name, {})
-
-                if state_target_fn(curr_state):
-                    final_states.add(curr_state_name)
-
-            # Otherwise, just check the target function
-            elif state_target_fn(curr_state):
-                return True
-
-            # Unpack state and get transitions
-            q_a, q_b = curr_state
-            transitions_a = self.transitions[q_a]
-            transitions_b = other.transitions[q_b]
-
-            for symbol in self.input_symbols:
-                product_state = (transitions_a[symbol], transitions_b[symbol])
-                product_state_name = get_name(product_state)
-
-                if should_construct_dfa:
-                    state_transitions[symbol] = product_state_name
-
-                # If next state is new, add to queue
-                if product_state_name not in visited_set:
-                    visited_set.add(product_state_name)
-                    queue.append(product_state)
-
-        if should_construct_dfa:
-            return (
-                visited_set,
-                product_transitions,
-                product_initial_state_name,
-                final_states,
+    @staticmethod
+    def _cross_product(lhs: DFA, rhs: DFA) -> Tuple[DFAStateT, ExpandStateFn]:
+        """Builds the cross product between the two DFAs"""
+        if lhs.input_symbols != rhs.input_symbols:
+            raise exceptions.SymbolMismatchError(
+                "The input symbols between the two given DFAs do not match"
             )
 
-        return False
+        def expand_states_fn(state):
+            q_a, q_b = state
+            transitions_a = lhs.transitions[q_a]
+            transitions_b = rhs.transitions[q_b]
+
+            for chr in lhs.input_symbols:
+                yield chr, (transitions_a[chr], transitions_b[chr])
+
+        initial_state = (lhs.initial_state, rhs.initial_state)
+        return initial_state, expand_states_fn
 
     def issubset(self, other: DFA) -> bool:
         """Return True if this DFA is a subset of another DFA."""
@@ -773,8 +720,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        return not self._cross_product(
-            other, subset_state_fn, should_construct_dfa=False
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        return not self.__class__._find_state(
+            subset_state_fn, initial_state, expand_state_fn
         )
 
     def issuperset(self, other: DFA) -> bool:
@@ -789,13 +737,18 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        return not self._cross_product(
-            other, disjoint_state_fn, should_construct_dfa=False
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        return not self.__class__._find_state(
+            disjoint_state_fn, initial_state, expand_state_fn
         )
 
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
-        return self._compute_reachable_states().isdisjoint(self.final_states)
+        return not self.__class__._find_state(
+            lambda state: state in self.final_states,
+            self.initial_state,
+            lambda state: iter(self.transitions[state].items()),
+        )
 
     def isfinite(self) -> bool:
         """
@@ -1060,8 +1013,7 @@ class DFA(fa.FA):
         Returns the length of the shortest word in the language represented by the DFA
         """
         queue: Deque[DFAStateT] = deque()
-        distances: Dict[DFAStateT, int] = {}
-        distances[self.initial_state] = 0
+        distances: Dict[DFAStateT, int] = {self.initial_state: 0}
         queue.append(self.initial_state)
         while queue:
             state = queue.popleft()
@@ -1430,7 +1382,7 @@ class DFA(fa.FA):
         SignatureT = Tuple[bool, FrozenSet[Tuple[str, str]]]
 
         if not language:
-            return DFA.empty_language(input_symbols)
+            return cls.empty_language(input_symbols)
 
         transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
         back_map: Dict[str, Set[str]] = {"": set()}
@@ -1531,6 +1483,7 @@ class DFA(fa.FA):
         cls, target_nfa: nfa.NFA, *, retain_names: bool = False, minify: bool = True
     ) -> DFA:
         """Initialize this DFA as one equivalent to the given NFA."""
+
         # Data structures for state renaming
 
         def get_name_original(states: FrozenSet[DFAStateT]) -> DFAStateT:

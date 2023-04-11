@@ -48,7 +48,7 @@ def get_renaming_function(counter: count) -> Callable[[Any], int]:
     for each distinct input.
     """
 
-    new_state_name_dict: DefaultDict[Any, int] = defaultdict(lambda: next(counter))
+    new_state_name_dict: DefaultDict[Any, int] = defaultdict(counter.__next__)
 
     def renaming_function(item: Any) -> int:
         return new_state_name_dict[item]
