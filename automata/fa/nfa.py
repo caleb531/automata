@@ -104,33 +104,33 @@ class NFA(fa.FA):
             }
         )
 
-    def __add__(self, other: NFA) -> NFA:
+    def __add__(self, other: NFA) -> Self:
         """Return the concatenation of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.concatenate(other)
         else:
             return NotImplemented
 
-    def __or__(self, other: NFA) -> NFA:
+    def __or__(self, other: NFA) -> Self:
         """Return the union of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.union(other)
         else:
             return NotImplemented
 
-    def __and__(self, other: NFA) -> NFA:
+    def __and__(self, other: NFA) -> Self:
         """Return the union of this NFA and another NFA."""
         if isinstance(other, NFA):
             return self.intersection(other)
         else:
             return NotImplemented
 
-    def __reversed__(self) -> NFA:
+    def __reversed__(self) -> Self:
         """Return the reversal of this NFA."""
         return self.reverse()
 
     @classmethod
-    def from_dfa(cls: Type[Self], dfa: dfa.DFA) -> NFA:
+    def from_dfa(cls: Type[Self], dfa: dfa.DFA) -> Self:
         """Initialize this NFA as one equivalent to the given DFA."""
         nfa_transitions = {
             start_state: {
@@ -162,7 +162,7 @@ class NFA(fa.FA):
     @classmethod
     def from_regex(
         cls: Type[Self], regex: str, *, input_symbols: Optional[AbstractSet[str]] = None
-    ) -> NFA:
+    ) -> Self:
         """Initialize this NFA as one equivalent to the given regular expression"""
 
         if input_symbols is None:
@@ -281,7 +281,7 @@ class NFA(fa.FA):
                 new_transitions[state].pop("", None)
 
         # Remove unreachable states
-        reachable_states = NFA._compute_reachable_states(
+        reachable_states = self.__class__._compute_reachable_states(
             self.initial_state, new_transitions
         )
         reachable_final_states = reachable_states & new_final_states
@@ -291,7 +291,7 @@ class NFA(fa.FA):
 
         return reachable_states, new_transitions, reachable_final_states
 
-    def eliminate_lambda(self) -> NFA:
+    def eliminate_lambda(self) -> Self:
         """Removes epsilon transitions from the NFA which recognizes the same
         language."""
 
@@ -356,7 +356,7 @@ class NFA(fa.FA):
 
         return (state_map_a, state_map_b)
 
-    def union(self, other: NFA) -> NFA:
+    def union(self, other: NFA) -> Self:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -364,7 +364,7 @@ class NFA(fa.FA):
         """
 
         # Starting at 1 because 0 is for the initial state
-        (state_map_a, state_map_b) = NFA._get_state_maps(
+        (state_map_a, state_map_b) = self.__class__._get_state_maps(
             self.states, other.states, start=1
         )
 
@@ -379,9 +379,13 @@ class NFA(fa.FA):
         }
 
         # Transitions of self
-        NFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
+        self.__class__._load_new_transition_dict(
+            state_map_a, self.transitions, new_transitions
+        )
         # Transitions of other
-        NFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
+        self.__class__._load_new_transition_dict(
+            state_map_b, other.transitions, new_transitions
+        )
 
         # Final states
         new_final_states = frozenset(
@@ -399,14 +403,16 @@ class NFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def concatenate(self, other: NFA) -> NFA:
+    def concatenate(self, other: NFA) -> Self:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
         the languages L1 concatenated with L2.
         """
 
-        (state_map_a, state_map_b) = NFA._get_state_maps(self.states, other.states)
+        (state_map_a, state_map_b) = self.__class__._get_state_maps(
+            self.states, other.states
+        )
 
         new_states = frozenset(chain(state_map_a.values(), state_map_b.values()))
         new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {
@@ -414,9 +420,13 @@ class NFA(fa.FA):
         }
 
         # Transitions of self
-        NFA._load_new_transition_dict(state_map_a, self.transitions, new_transitions)
+        self.__class__._load_new_transition_dict(
+            state_map_a, self.transitions, new_transitions
+        )
         # Transitions of other
-        NFA._load_new_transition_dict(state_map_b, other.transitions, new_transitions)
+        self.__class__._load_new_transition_dict(
+            state_map_b, other.transitions, new_transitions
+        )
 
         # Transitions from self to other
         for state in self.final_states:
@@ -435,13 +445,13 @@ class NFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def kleene_star(self) -> NFA:
+    def kleene_star(self) -> Self:
         """
         Given an NFA which accepts the language L returns
         an NFA which accepts L repeated 0 or more times.
         """
         new_states = set(self.states)
-        new_initial_state = NFA._add_new_state(new_states)
+        new_initial_state = self.__class__._add_new_state(new_states)
 
         # Transitions are the same with a few additions.
         new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = dict(
@@ -466,14 +476,14 @@ class NFA(fa.FA):
             final_states=self.final_states | {new_initial_state},
         )
 
-    def option(self) -> NFA:
+    def option(self) -> Self:
         """
         Given an NFA which accepts the language L returns
         an NFA which accepts L repeated 0 or 1 times. (option - ?)
         Note: still you cannot pass empty string to the machine.
         """
         new_states = set(self.states)
-        new_initial_state = NFA._add_new_state(new_states)
+        new_initial_state = self.__class__._add_new_state(new_states)
 
         # Transitions are the same with a few additions.
         new_transitions = dict(self.transitions)
@@ -489,13 +499,13 @@ class NFA(fa.FA):
             final_states=self.final_states | {new_initial_state},
         )
 
-    def reverse(self) -> NFA:
+    def reverse(self) -> Self:
         """
         Given an NFA which accepts the language L this function
         returns an NFA which accepts the reverse of L.
         """
         new_states = set(self.states)
-        new_initial_state = NFA._add_new_state(new_states)
+        new_initial_state = self.__class__._add_new_state(new_states)
 
         # Transitions are the same except reversed
         new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {
@@ -520,7 +530,7 @@ class NFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def intersection(self, other: NFA) -> NFA:
+    def intersection(self, other: NFA) -> Self:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -598,7 +608,7 @@ class NFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def shuffle_product(self, other: NFA) -> NFA:
+    def shuffle_product(self, other: NFA) -> Self:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -637,7 +647,7 @@ class NFA(fa.FA):
             final_states=frozenset(product(self.final_states, other.final_states)),
         )
 
-    def right_quotient(self, other: NFA) -> NFA:
+    def right_quotient(self, other: NFA) -> Self:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
@@ -717,7 +727,7 @@ class NFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def left_quotient(self, other: NFA) -> NFA:
+    def left_quotient(self, other: NFA) -> Self:
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
