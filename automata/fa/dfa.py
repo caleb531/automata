@@ -614,7 +614,7 @@ class DFA(fa.FA):
 
     @classmethod
     def _expand_dfa(
-        cls,
+        cls: Type[DFAType],
         final_state_fn: IsFinalStateFn,
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
@@ -679,7 +679,7 @@ class DFA(fa.FA):
 
     @classmethod
     def _find_state(
-        cls,
+        cls: Type[DFAType],
         target_state_fn: TargetStateFn,
         initial_state: DFAStateT,
         expand_state_fn: ExpandStateFn,
@@ -1480,7 +1480,11 @@ class DFA(fa.FA):
 
     @classmethod
     def from_nfa(
-        cls, target_nfa: nfa.NFA, *, retain_names: bool = False, minify: bool = True
+        cls: Type[DFAType],
+        target_nfa: nfa.NFA,
+        *,
+        retain_names: bool = False,
+        minify: bool = True,
     ) -> DFA:
         """Initialize this DFA as one equivalent to the given NFA."""
 
