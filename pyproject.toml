@@ -27,6 +27,9 @@ changelog = "https://github.com/caleb531/automata/releases"
 [build-system]
 requires = ["setuptools", "wheel"]
 
+[tool.mypy]
+exclude = ["build"]
+
 [[tool.mypy.overrides]]
 module = [
   "setuptools.*",
