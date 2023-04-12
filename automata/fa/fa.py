@@ -2,7 +2,6 @@
 """Classes and methods for working with all finite automata."""
 
 import abc
-import itertools
 import os
 import pathlib
 import typing
