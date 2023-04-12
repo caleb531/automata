@@ -2,6 +2,7 @@
 """Classes and methods for working with nondeterministic finite automata."""
 from __future__ import annotations
 
+import functools
 import string
 from collections import deque
 from itertools import chain, count, product, repeat
@@ -1004,3 +1005,45 @@ class NFA(fa.FA):
 
     def get_edge_label(self, symbol):
         return "ε" if symbol == "" else str(symbol)
+
+    def _get_input_path(self, input_str):
+        """Calculate the path taken by input."""
+
+        visiting = set()
+
+        def gen_paths_for(state, step):
+            symbol = input_str[step]
+            transitions = self.transitions.get(state, {})
+            for next_state in transitions.get(symbol, set()):
+                path, accepted, steps = get_path_from(next_state, step + 1)
+                yield [(state, next_state, symbol)] + path, accepted, steps + 1
+
+            for next_state in transitions.get("", set()):
+                path, accepted, steps = get_path_from(next_state, step)
+                yield [(state, next_state, "")] + path, accepted, steps
+
+        @functools.cache
+        def get_path_from(state, step):
+            if step >= len(input_str):
+                return [], state in self.final_states, 0
+
+            if state in visiting:
+                return [], False, 0
+
+            visiting.add(state)
+            shortest_path = []
+            # accepting, max_steps, -min_jumps
+            best_path = (False, 0, 0)
+
+            for path, accepted, steps in gen_paths_for(state, step):
+                new_path = (accepted, steps, -len(path))
+                if new_path > best_path:
+                    shortest_path = path
+                    best_path = new_path
+
+            visiting.remove(state)
+            accepting, max_steps, _ = best_path
+            return shortest_path, accepting, max_steps
+
+        path, accepting, _ = get_path_from(self.initial_state, 0)
+        return path, accepting

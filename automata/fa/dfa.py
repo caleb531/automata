@@ -1567,29 +1567,18 @@ class DFA(fa.FA):
         return state == self.initial_state
 
     def _get_input_path(self, input_str):
-        """
-        Calculate the path taken by input.
-
-        Args:
-            input_str (str): The input string to run on the DFA.
-
-        Returns:
-            tuple[list[list[tuple[str, str, str]], bool]: A 2d list of all
-            transitions taken in each step and a boolean indicating whether the
-            DFA accepted the input.
-
-        """
+        """Calculate the path taken by input."""
         state_history = [
             state
             for state in self.read_input_stepwise(input_str, ignore_rejection=True)
         ]
 
         path = [
-            [transition]
+            transition
             for transition in zip(state_history, state_history[1:], input_str)
         ]
 
         last_state = state_history[-1] if state_history else self.initial_state
-        is_final = last_state in self.final_states
+        accepted = last_state in self.final_states
 
-        return path, is_final
+        return path, accepted

@@ -160,32 +160,25 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
             start_color = Color("#ff0")
             end_color = Color("#0f0") if is_accepted else Color("#f00")
+            interpolation = Color.interpolate([start_color, end_color], space="srgb")
 
-            interpolation = Color.interpolate([start_color, end_color], space="lch")
-            step_count = len(input_str)
-            colors = (
-                interpolation((x + 1) / step_count) for x in range(step_count + 1)
-            )
-
-            # Define all transitions in the finite state machine with traversal.
-            for transition_index, (color, transitions) in enumerate(
-                zip(colors, path), start=1
+            # find all transitions in the finite state machine with traversal.
+            for transition_index, (from_state, to_state, symbol) in enumerate(
+                path, start=1
             ):
-                for from_state, to_state, symbol in transitions:
-                    is_edge_drawn[from_state, to_state, symbol] = True
+                color = interpolation(transition_index / len(path))
+                label = self.get_edge_label(symbol)
 
-                    from_node = self.get_state_label(from_state)
-                    to_node = self.get_state_label(to_state)
-                    label = self.get_edge_label(symbol)
-                    graph.edge(
-                        from_node,
-                        to_node,
-                        label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
-                        arrowsize=arrow_size,
-                        fontsize=font_size,
-                        color=color.to_string(hex=True),
-                        penwidth="2.5",
-                    )
+                is_edge_drawn[from_state, to_state, symbol] = True
+                graph.edge(
+                    self.get_state_label(from_state),
+                    self.get_state_label(to_state),
+                    label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
+                    arrowsize=arrow_size,
+                    fontsize=font_size,
+                    color=color.to_string(hex=True),
+                    penwidth="2.5",
+                )
 
         edge_labels = defaultdict(list)
         for from_state, to_state, symbol in self.iter_transitions():
@@ -198,11 +191,10 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             edge_labels[from_node, to_node].append(label)
 
         for (from_node, to_node), labels in edge_labels.items():
-            label = ",".join(sorted(labels))
             graph.edge(
                 from_node,
                 to_node,
-                label=label,
+                label=",".join(sorted(labels)),
                 arrowsize=arrow_size,
                 fontsize=font_size,
             )
@@ -233,6 +225,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         return str(symbol)
 
     def _get_input_path(self, input_str):
+        """Calculate the path taken by input."""
+
         raise NotImplementedError(
             f"_get_input_path is not implemented for {self.__class__}"
         )
