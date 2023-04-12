@@ -1566,7 +1566,9 @@ class DFA(fa.FA):
     def is_initial(self, state):
         return state == self.initial_state
 
-    def _get_input_path(self, input_str) -> tuple[list[tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]:
+    def _get_input_path(
+        self, input_str
+    ) -> tuple[list[tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]:
         """
         Calculate the path taken by input.
 
