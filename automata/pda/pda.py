@@ -18,6 +18,8 @@ PDAAcceptanceModeT = Literal["final_state", "empty_stack", "both"]
 class PDA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for pushdown automata."""
 
+    __slots__ = tuple()
+
     stack_symbols: AbstractSet[str]
     initial_stack_symbol: str
     acceptance_mode: PDAAcceptanceModeT

@@ -11,4 +11,4 @@ FAStateT = AutomatonStateT
 class FA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for finite automata."""
 
-    pass
+    __slots__ = tuple()

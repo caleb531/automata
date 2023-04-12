@@ -48,6 +48,7 @@ class NFA(fa.FA):
         "transitions",
         "initial_state",
         "final_states",
+        "_lambda_closures",
     )
 
     transitions: NFATransitionsT

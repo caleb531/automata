@@ -3,7 +3,7 @@
 machines."""
 
 from collections import deque
-from typing import AbstractSet, List, Mapping, Optional, Sequence, Tuple
+from typing import AbstractSet, Generator, List, Mapping, Optional, Sequence, Tuple
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -146,7 +146,9 @@ class MNTM(ntm.NTM):
         else:
             return None
 
-    def _get_next_configuration(self, transition, current_tapes):
+    def _get_next_configuration(
+        self, transition: MNTMPathResultT, current_tapes: List[TMTape]
+    ) -> MTMConfiguration:
         """Advances to the next configuration."""
         current_state, moves = transition
         tapes = current_tapes.copy()
@@ -156,9 +158,6 @@ class MNTM(ntm.NTM):
             tapes[i] = tapes[i].move(direction)
 
         return MTMConfiguration(state=current_state, tapes=tapes)
-
-    def _has_accepted(self, current_config):
-        return current_config.state in self.final_states
 
     def read_input_stepwise(self, input_str):
         """Checks if the given string is accepted by this Turing machine,
@@ -175,7 +174,7 @@ class MNTM(ntm.NTM):
                 current_config.state, current_config.tapes
             )
             if possible_transitions is None:
-                if self._has_accepted(current_config):
+                if current_config.state in self.final_states:
                     return {
                         MTMConfiguration(
                             current_config.state, tuple(current_config.tapes)
@@ -202,7 +201,7 @@ class MNTM(ntm.NTM):
     @staticmethod
     def _read_extended_tape(
         tape: str, head_symbol: str = "^", tape_separator_symbol: str = "_"
-    ):
+    ) -> Tuple[str, ...]:
         """Returns a tuple with the symbols extracted from the given
         tape, that are the virtual heads for their corresponding
         virtual tape."""
@@ -239,7 +238,9 @@ class MNTM(ntm.NTM):
 
         return tuple(virtual_heads)
 
-    def read_input_as_ntm(self, input_str):
+    def read_input_as_ntm(
+        self, input_str: str
+    ) -> Generator[AbstractSet[TMConfiguration], None, None]:
         """Simulates the machine as a single-tape Turing machine.
         Yields the configuration at each step."""
         tapes = self._get_tapes_for_input_str(input_str)
