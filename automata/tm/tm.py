@@ -14,6 +14,8 @@ TMDirectionT = Literal["L", "R", "N"]
 class TM(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for Turing machines."""
 
+    __slots__ = tuple()
+
     tape_symbols: AbstractSet[str]
     blank_symbol: str
 
