@@ -38,10 +38,7 @@ class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
         Return a new PDAStack with the new content.
         The first symbol in the given sequence becomes the new stack top.
         """
-        stack_contents = list(self.stack)
-        stack_contents.pop()
-        stack_contents.extend(reversed(symbols))
-        return self.__class__(stack_contents)
+        return self.__class__(self.stack[:-1] + tuple(reversed(symbols)))
 
     def __len__(self) -> int:
         """Return the number of symbols on the stack."""
