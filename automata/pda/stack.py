@@ -29,9 +29,7 @@ class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
 
         Return a new PDAStack with the new content.
         """
-        stack_contents = list(self.stack)
-        stack_contents.pop()
-        return self.__class__(stack_contents)
+        return self.__class__(self.stack[:-1])
 
     def replace(self, symbols: Sequence[str]) -> PDAStack:
         """
