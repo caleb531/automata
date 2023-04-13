@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Classes and methods for working with PDA configurations."""
 
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
+from automata.base.automaton import AutomatonStateT
 from automata.pda.stack import PDAStack
 
 
@@ -14,7 +15,7 @@ class PDAConfiguration(NamedTuple):
     It is hashable and immutable.
     """
 
-    state: Any
+    state: AutomatonStateT
     remaining_input: str
     stack: PDAStack
 
