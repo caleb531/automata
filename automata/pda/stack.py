@@ -14,8 +14,8 @@ class PDAStack:
 
     stack: Tuple[str, ...]
 
-    def __init__(self, elements: Sequence[str]):
-        object.__setattr__(self, "stack", tuple(elements))
+    def __init__(self, stack: Sequence[str]):
+        object.__setattr__(self, "stack", tuple(stack))
 
     def top(self) -> str:
         """Return the symbol at the top of the stack."""
