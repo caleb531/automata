@@ -21,9 +21,3 @@ class PDAConfiguration:
     state: AutomatonStateT
     remaining_input: str
     stack: PDAStack
-
-    def __repr__(self) -> str:
-        """Return a string representation of the configuration."""
-        return "{}(state='{}', remaining_input='{}', stack={})".format(
-            self.__class__.__name__, self.state, self.remaining_input, self.stack
-        )
