@@ -6,9 +6,11 @@ from dataclasses import dataclass
 from typing import Iterator, Sequence, Tuple
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class PDAStack:
     """A PDA stack."""
+
+    __slots__ = ("stack",)
 
     stack: Tuple[str, ...]
 

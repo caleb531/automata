@@ -8,9 +8,11 @@ from automata.tm.tape import TMTape
 from automata.tm.tm import TMStateT
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class TMConfiguration:
     """A Turing machine configuration."""
+
+    __slots__ = ("state", "tape")
 
     state: TMStateT
     tape: TMTape
@@ -32,9 +34,11 @@ class TMConfiguration:
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class MTMConfiguration:
     """A Multitape Turing machine configuration."""
+
+    __slots__ = ("state", "tapes")
 
     state: TMStateT
     tapes: List[TMTape]
