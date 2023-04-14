@@ -113,7 +113,9 @@ class DPDA(pda.PDA):
         if not self._has_accepted(current_configuration):
             raise exceptions.RejectionException(
                 "the DPDA stopped in a non-accepting configuration "
-                "({state}, {stack})".format(**current_configuration._asdict())
+                "({}, {})".format(
+                    current_configuration.state, current_configuration.stack
+                )
             )
 
     def _get_next_configuration(self, old_config: PDAConfiguration) -> PDAConfiguration:

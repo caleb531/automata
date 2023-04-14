@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Classes and methods for working with Turing machine configurations."""
 
-from typing import List, NamedTuple
+from dataclasses import dataclass
+from typing import List
 
 from automata.tm.tape import TMTape
 from automata.tm.tm import TMStateT
 
 
-class TMConfiguration(NamedTuple):
+@dataclass(frozen=True, slots=True)
+class TMConfiguration:
     """A Turing machine configuration."""
 
     state: TMStateT
@@ -30,7 +32,8 @@ class TMConfiguration(NamedTuple):
         )
 
 
-class MTMConfiguration(NamedTuple):
+@dataclass(frozen=True, slots=True)
+class MTMConfiguration:
     """A Multitape Turing machine configuration."""
 
     state: TMStateT

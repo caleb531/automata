@@ -10,8 +10,9 @@ class TestPDAConfiguration(test_pda.TestPDA):
     """A test class for testing configurations of pushdown automata."""
 
     def test_config_repr(self):
-        """Should create proper string representation of PDA stack."""
+        """Should create proper string representation of PDA configuration."""
         config = PDAConfiguration("q0", "ab", PDAStack(["a", "b"]))
         self.assertEqual(
-            repr(config), "PDAConfiguration('q0', 'ab', PDAStack('a', 'b'))"
+            repr(config),
+            "PDAConfiguration(state='q0', remaining_input='ab', stack=PDAStack(('a', 'b')))",  # noqa
         )

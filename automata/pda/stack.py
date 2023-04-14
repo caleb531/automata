@@ -2,19 +2,18 @@
 """Classes and methods for working with PDA stacks."""
 from __future__ import annotations
 
-import collections
+from dataclasses import dataclass
 from typing import Iterator, Sequence, Tuple
 
 
-class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
+@dataclass(frozen=True, slots=True)
+class PDAStack:
     """A PDA stack."""
 
     stack: Tuple[str, ...]
 
-    # TODO can we get rid of this? Kinda weird inheritance here
-    def __new__(cls, elements: Sequence[str]):
-        """Create the new PDA stack."""
-        return super(PDAStack, cls).__new__(cls, tuple(elements))
+    def __init__(self, elements: Sequence[str]):
+        object.__setattr__(self, "stack", tuple(elements))
 
     def top(self) -> str:
         """Return the symbol at the top of the stack."""
@@ -50,4 +49,4 @@ class PDAStack(collections.namedtuple("PDAStack", ["stack"])):
 
     def __repr__(self) -> str:
         """Return a string representation of the stack."""
-        return "{}{}".format(self.__class__.__name__, self.stack)
+        return "{}({})".format(self.__class__.__name__, self.stack)

@@ -250,8 +250,8 @@ class TestNTM(test_tm.TestTM):
     def test_read_input_accepted(self):
         """Should return correct state if acceptable TM input is given."""
         final_config = self.ntm1.read_input("00120001111").pop()
-        self.assertEqual(final_config[0], "q3")
-        self.assertEqual(str(final_config[1]), "TMTape('00120001111.', 11)")
+        self.assertEqual(final_config.state, "q3")
+        self.assertEqual(str(final_config.tape), "TMTape('00120001111.', 11)")
 
     def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""
@@ -259,11 +259,11 @@ class TestNTM(test_tm.TestTM):
         self.assertIsInstance(validation_generator, types.GeneratorType)
         configs = list(validation_generator)
         first_config = configs[0].pop()
-        self.assertEqual(first_config[0], "q0")
-        self.assertEqual(str(first_config[1]), "TMTape('00120001111', 0)")
+        self.assertEqual(first_config.state, "q0")
+        self.assertEqual(str(first_config.tape), "TMTape('00120001111', 0)")
         last_config = configs[-1].pop()
-        self.assertEqual(last_config[0], "q3")
-        self.assertEqual(str(last_config[1]), "TMTape('00120001111.', 11)")
+        self.assertEqual(last_config.state, "q3")
+        self.assertEqual(str(last_config.tape), "TMTape('00120001111.', 11)")
 
     def test_read_input_rejection(self):
         """Should raise error if the machine halts."""

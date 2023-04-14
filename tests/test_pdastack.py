@@ -15,4 +15,4 @@ class TestPDAStack(test_pda.TestPDA):
     def test_stack_repr(self):
         """Should create proper string representation of PDA stack."""
         stack = PDAStack(["a", "b"])
-        self.assertEqual(repr(stack), "PDAStack('a', 'b')")
+        self.assertEqual(repr(stack), "PDAStack(('a', 'b'))")
