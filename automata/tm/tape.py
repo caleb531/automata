@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with Turing machine tapes."""
 
-import collections
+from dataclasses import dataclass
 from typing import Iterator, Sequence, Tuple
 
 from typing_extensions import Self
@@ -9,25 +9,27 @@ from typing_extensions import Self
 from automata.tm.tm import TMDirectionT
 
 
-class TMTape(
-    collections.namedtuple("TMTape", ["tape", "blank_symbol", "current_position"])
-):
+@dataclass(frozen=True)
+class TMTape:
     """A Turing machine tape."""
+
+    __slots__ = ("tape", "blank_symbol", "current_position")
 
     tape: Tuple[str]
     blank_symbol: str
     current_position: int
 
-    def __new__(
-        cls, tape: Sequence[str], *, blank_symbol: str, current_position: int = 0
-    ):
+    def __init__(
+        self, tape: Sequence[str], *, blank_symbol: str, current_position: int = 0
+    ) -> None:
         """Initialize a new Turing machine tape."""
         tape = list(tape)
         # Make sure that there's something under the cursor.
         while len(tape) <= current_position:
             tape.append(blank_symbol)
-        tape = tuple(tape)
-        return super(TMTape, cls).__new__(cls, tape, blank_symbol, current_position)
+        object.__setattr__(self, "tape", tuple(tape))
+        object.__setattr__(self, "blank_symbol", blank_symbol)
+        object.__setattr__(self, "current_position", current_position)
 
     def read_symbol(self) -> str:
         """Read the symbol at the current position in the tape."""
