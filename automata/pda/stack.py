@@ -14,7 +14,7 @@ class PDAStack:
 
     stack: Tuple[str, ...]
 
-    def __init__(self, stack: Sequence[str]):
+    def __init__(self, stack: Sequence[str]) -> None:
         object.__setattr__(self, "stack", tuple(stack))
 
     def top(self) -> str:

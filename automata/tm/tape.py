@@ -21,7 +21,7 @@ class TMTape:
 
     def __init__(
         self, tape: Sequence[str], *, blank_symbol: str, current_position: int = 0
-    ):
+    ) -> None:
         """Initialize a new Turing machine tape."""
         tape = list(tape)
         # Make sure that there's something under the cursor.
