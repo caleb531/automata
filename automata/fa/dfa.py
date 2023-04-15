@@ -1550,21 +1550,12 @@ class DFA(fa.FA):
             final_states=dfa_final_states,
         )
 
-    def iter_states(self):
-        return iter(self.states)
-
     def iter_transitions(self):
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()
             for symbol, to_ in lookup.items()
         )
-
-    def is_accepting(self, state):
-        return state in self.final_states
-
-    def is_initial(self, state):
-        return state == self.initial_state
 
     def _get_input_path(
         self, input_str

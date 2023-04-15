@@ -7,7 +7,6 @@ import string
 from collections import deque
 from itertools import chain, count, product, repeat
 from typing import (
-    AbstractSet,
     Any,
     Deque,
     Dict,
@@ -33,7 +32,7 @@ from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
 
 NFAStateT = fa.FAStateT
 
-NFAPathT = Mapping[str, AbstractSet[NFAStateT]]
+NFAPathT = Mapping[str, Set[NFAStateT]]
 NFATransitionsT = Mapping[NFAStateT, NFAPathT]
 
 DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
@@ -57,11 +56,11 @@ class NFA(fa.FA):
     def __init__(
         self,
         *,
-        states: AbstractSet[NFAStateT],
-        input_symbols: AbstractSet[str],
+        states: Set[NFAStateT],
+        input_symbols: Set[str],
         transitions: NFATransitionsT,
         initial_state: NFAStateT,
-        final_states: AbstractSet[NFAStateT],
+        final_states: Set[NFAStateT],
     ) -> None:
         """Initialize a complete NFA."""
         super().__init__(
@@ -74,7 +73,7 @@ class NFA(fa.FA):
         )
 
     def _compute_lambda_closures(
-        self, states: AbstractSet[NFAStateT], transitions: NFATransitionsT
+        self, states: Set[NFAStateT], transitions: NFATransitionsT
     ) -> Mapping[NFAStateT, FrozenSet[NFAStateT]]:
         """
         Computes a dictionary of the lambda closures for this NFA, where each
@@ -162,7 +161,7 @@ class NFA(fa.FA):
 
     @classmethod
     def from_regex(
-        cls: Type[Self], regex: str, *, input_symbols: Optional[AbstractSet[str]] = None
+        cls: Type[Self], regex: str, *, input_symbols: Optional[Set[str]] = None
     ) -> Self:
         """Initialize this NFA as one equivalent to the given regular expression"""
 
@@ -207,7 +206,7 @@ class NFA(fa.FA):
         self._validate_final_states()
 
     def _get_next_current_states(
-        self, current_states: AbstractSet[NFAStateT], input_symbol: str
+        self, current_states: Set[NFAStateT], input_symbol: str
     ) -> FrozenSet[NFAStateT]:
         """Return the next set of current states given the current set."""
         next_current_states: Set[NFAStateT] = set()
@@ -249,7 +248,7 @@ class NFA(fa.FA):
 
     def _eliminate_lambda(
         self,
-    ) -> Tuple[AbstractSet[NFAStateT], NFATransitionsT, AbstractSet[NFAStateT]]:
+    ) -> Tuple[Set[NFAStateT], NFATransitionsT, Set[NFAStateT]]:
         """Internal helper function for eliminate lambda. Doesn't create final NFA."""
 
         # Create new transitions and final states for running this algorithm
@@ -311,7 +310,7 @@ class NFA(fa.FA):
         )
 
     def _check_for_input_rejection(
-        self, current_states: AbstractSet[NFAStateT]
+        self, current_states: Set[NFAStateT]
     ) -> None:
         """Raise an error if the given config indicates rejected input."""
         if current_states.isdisjoint(self.final_states):
@@ -323,7 +322,7 @@ class NFA(fa.FA):
 
     def read_input_stepwise(
         self, input_str: str
-    ) -> Generator[AbstractSet[NFAStateT], None, None]:
+    ) -> Generator[Set[NFAStateT], None, None]:
         """
         Check if the given string is accepted by this NFA.
 
@@ -340,8 +339,8 @@ class NFA(fa.FA):
 
     @staticmethod
     def _get_state_maps(
-        state_set_a: AbstractSet[NFAStateT],
-        state_set_b: AbstractSet[NFAStateT],
+        state_set_a: Set[NFAStateT],
+        state_set_b: Set[NFAStateT],
         *,
         start: int = 0,
     ) -> Tuple[Dict[NFAStateT, int], Dict[NFAStateT, int]]:
@@ -901,7 +900,7 @@ class NFA(fa.FA):
     @classmethod
     def edit_distance(
         cls: Type[Self],
-        input_symbols: AbstractSet[str],
+        input_symbols: Set[str],
         reference_str: str,
         max_edit_distance: int,
         *,
@@ -986,9 +985,6 @@ class NFA(fa.FA):
             final_states=final_states,
         )
 
-    def iter_states(self):
-        return iter(self.states)
-
     def iter_transitions(self):
         return (
             (from_, to_, symbol)
@@ -996,12 +992,6 @@ class NFA(fa.FA):
             for symbol, to_lookup in lookup.items()
             for to_ in to_lookup
         )
-
-    def is_accepting(self, state):
-        return state in self.final_states
-
-    def is_initial(self, state):
-        return state == self.initial_state
 
     def get_edge_name(self, symbol):
         return "ε" if symbol == "" else str(symbol)
@@ -1012,38 +1002,64 @@ class NFA(fa.FA):
         visiting = set()
 
         def gen_paths_for(state, step):
+            """
+            Generate all the possible paths from state after taking step n.
+            """
             symbol = input_str[step]
             transitions = self.transitions.get(state, {})
+            # generate all the paths after taking input symbol and increasing
+            # input read length by 1
             for next_state in transitions.get(symbol, set()):
-                path, accepted, steps = get_path_from(next_state, step + 1)
+                path, accepted, steps = find_best_path(next_state, step + 1)
                 yield [(state, next_state, symbol)] + path, accepted, steps + 1
 
+            # generate all the lambda paths from state
             for next_state in transitions.get("", set()):
-                path, accepted, steps = get_path_from(next_state, step)
+                path, accepted, steps = find_best_path(next_state, step)
                 yield [(state, next_state, "")] + path, accepted, steps
 
         @functools.cache
-        def get_path_from(state, step):
+        def find_best_path(state, step):
+            """
+            Try all the possible paths from state after taking step n. A path is
+            better if (with priority):
+            1. It is an accepting path (ends in a final state)
+            2. It reads more of the input (if the input is not accepted we
+            select the path such that we can stay on the nfa the longest)
+            3. It has the fewest jumps (uses less lambda symbols)
+
+            Returns a tuple of:
+            1. the path taken
+            2. wether the path was accepting
+            3. the number of input symbols read by this path (or the number of
+            non-lambda transitions in the path)
+            """
             if step >= len(input_str):
                 return [], state in self.final_states, 0
 
             if state in visiting:
                 return [], False, 0
 
+            # mark this state as being visited
             visiting.add(state)
+            # tracking variable for the shortest path
             shortest_path = []
+            # tracking variable for the info about the path
             # accepting, max_steps, -min_jumps
             best_path = (False, 0, 0)
 
+            # iterate over all the paths
             for path, accepted, steps in gen_paths_for(state, step):
+                # create a tuple to compare this with the current best
                 new_path = (accepted, steps, -len(path))
                 if new_path > best_path:
                     shortest_path = path
                     best_path = new_path
 
+            # mark this as complete
             visiting.remove(state)
             accepting, max_steps, _ = best_path
             return shortest_path, accepting, max_steps
 
-        path, accepting, _ = get_path_from(self.initial_state, 0)
+        path, accepting, _ = find_best_path(self.initial_state, 0)
         return path, accepting

@@ -2,7 +2,7 @@
 """Classes for working with all automata, including Turing machines."""
 
 import abc
-from typing import AbstractSet, Any, Dict, Generator, Mapping, NoReturn, Tuple
+from typing import Any, Dict, Generator, Mapping, NoReturn, Set, Tuple
 
 from typing_extensions import Self
 
@@ -21,10 +21,10 @@ class Automaton(metaclass=abc.ABCMeta):
     __slots__: Tuple[str, ...] = tuple()
 
     initial_state: AutomatonStateT
-    states: AbstractSet[AutomatonStateT]
-    final_states: AbstractSet[AutomatonStateT]
+    states: Set[AutomatonStateT]
+    final_states: Set[AutomatonStateT]
     transitions: AutomatonTransitionsT
-    input_symbols: AbstractSet[str]
+    input_symbols: Set[str]
 
     def __init__(self, **kwargs: Any) -> None:
         if not global_config.allow_mutable_automata:

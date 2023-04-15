@@ -3,10 +3,9 @@
 import abc
 import os
 import pathlib
-import typing
 import uuid
 from collections import defaultdict
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional, Union
 
 import graphviz
 from coloraide import Color
@@ -52,9 +51,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     def get_edge_name(self, symbol) -> str:
         return str(symbol)
 
-    @abc.abstractmethod
-    def iter_states(self) -> Iterable[FAStateT]:
-        """Iterate over all states in the automaton."""
+    @abc.abstractproperty
+    def states(self) -> set[FAStateT]:
+        """A set of all the automaton states."""
 
     @abc.abstractmethod
     def iter_transitions(self) -> Iterable[tuple[FAStateT, FAStateT, Any]]:
@@ -63,20 +62,20 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         of the form (from_state, to_state, symbol)
         """
 
-    @abc.abstractmethod
-    def is_accepting(self, state: FAStateT) -> bool:
-        """Check if a state is an accepting state."""
+    @abc.abstractproperty
+    def final_states(self) -> frozenset[FAStateT]:
+        """A fronzenset of all the accepting states"""
 
-    @abc.abstractmethod
-    def is_initial(self, state: FAStateT) -> bool:
-        """Check if a state is an initial state."""
+    @abc.abstractproperty
+    def initial_state(self) -> FAStateT:
+        """Initial state of the automaton"""
 
     def show_diagram(
         self,
-        input_str: str | None = None,
-        save_path: str | os.PathLike | None = None,
+        input_str: Optional[str] = None,
+        save_path: Union[str, os.PathLike, None] = None,
         *,
-        engine: typing.Optional[str] = None,
+        engine: Optional[str] = None,
         view=False,
         cleanup: bool = True,
         horizontal: bool = True,
@@ -129,30 +128,26 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             else:
                 graph.attr(rankdir="BT")
 
-        for state in self.iter_states():
-            # every edge needs an origin node, so we add a null node for every
-            # initial state.
-            if self.is_initial(state):
-                # we use a random uuid to make sure that the null node has a
-                # unique id to avoid colliding with other states and null_nodes.
-                null_node = str(uuid.uuid4())
-                graph.node(
-                    null_node,
-                    label="",
-                    tooltip=".",
-                    shape="point",
-                    fontsize=font_size,
-                )
-                node = self.get_state_name(state)
-                graph.edge(
-                    null_node,
-                    node,
-                    tooltip="->" + node,
-                    arrowsize=arrow_size,
-                )
+        # we use a random uuid to make sure that the null node has a
+        # unique id to avoid colliding with other states.
+        null_node = str(uuid.uuid4())
+        graph.node(
+            null_node,
+            label="",
+            tooltip=".",
+            shape="point",
+            fontsize=font_size,
+        )
+        initial_node = self.get_state_name(self.initial_state)
+        graph.edge(
+            null_node,
+            initial_node,
+            tooltip="->" + initial_node,
+            arrowsize=arrow_size,
+        )
 
-        for state in self.iter_states():
-            shape = "doublecircle" if self.is_accepting(state) else "circle"
+        for state in self.states:
+            shape = "doublecircle" if state in self.final_states else "circle"
             node = self.get_state_name(state)
             graph.node(node, shape=shape, fontsize=font_size)
 
@@ -220,6 +215,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         return graph
 
+    @abc.abstractmethod
     def _get_input_path(self, input_str):
         """Calculate the path taken by input."""
 
@@ -227,7 +223,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             f"_get_input_path is not implemented for {self.__class__}"
         )
 
-    def _ipython_display_(self):
+    def _ipython_display_(self) -> None:
         # IPython is imported here because this function is only called by
         # IPython. So if IPython is not installed, this function will not be
         # called, therefore no need to add ipython as dependency.

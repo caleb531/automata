@@ -2,6 +2,7 @@
 """Classes and methods for working with generalized non-deterministic finite
 automata."""
 
+from functools import cached_property
 from itertools import product
 
 from frozendict import frozendict
@@ -327,8 +328,6 @@ class GNFA(nfa.NFA):
             if symbol is not None
         )
 
-    def is_accepting(self, state):
-        return state == self.final_state
-
-    def is_initial(self, state):
-        return state == self.initial_state
+    @cached_property
+    def final_states(self):
+        return frozenset({self.final_state})
