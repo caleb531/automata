@@ -266,7 +266,7 @@ class TestDTM(test_tm.TestTM):
         """Should return correct state if acceptable TM input is given."""
         final_config = self.dtm1.read_input("00001111")
         self.assertEqual(final_config.state, "q4")
-        self.assertEqual(str(final_config.tape), "TMTape('xxxxyyyy..', 9)")
+        self.assertEqual(str(final_config.tape), "TMTape('xxxxyyyy..', '.', 9)")
 
     def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""
@@ -274,15 +274,15 @@ class TestDTM(test_tm.TestTM):
         self.assertIsInstance(validation_generator, types.GeneratorType)
         configs = list(validation_generator)
         self.assertEqual(configs[0].state, "q0")
-        self.assertEqual(str(configs[0].tape), "TMTape('00001111', 0)")
+        self.assertEqual(str(configs[0].tape), "TMTape('00001111', '.', 0)")
         self.assertEqual(configs[-1].state, "q4")
-        self.assertEqual(str(configs[-1].tape), "TMTape('xxxxyyyy..', 9)")
+        self.assertEqual(str(configs[-1].tape), "TMTape('xxxxyyyy..', '.', 9)")
 
     def test_read_input_offset(self):
         """Should valdiate input when tape is offset."""
         final_config = self.dtm2.read_input("01010101")
         self.assertEqual(final_config.state, "q4")
-        self.assertEqual(str(final_config.tape), "TMTape('yyx1010101', 3)")
+        self.assertEqual(str(final_config.tape), "TMTape('yyx1010101', '.', 3)")
 
     def test_read_input_rejection(self):
         """Should raise error if the machine halts."""

@@ -70,7 +70,7 @@ Returns a `TMConfiguration`. This is basically a tuple containing the final stat
 `TMTape` object representing the DTM's internal tape (if the input is accepted).
 
 ```python
-dtm.read_input('01')  # returns TMConfiguration('q4', TMTape('xy..', 3))
+dtm.read_input('01')  # returns TMConfiguration('q4', TMTape('xy..', '.', 3))
 ```
 
 Calling `config.print()` will produce a more readable output:
@@ -92,12 +92,12 @@ Yields sets of `TMConfiguration` objects. Those are basically tuples containing 
 ```python
 dtm.read_input_stepwise('01')
 # yields:
-# TMConfiguration('q0', TMTape('01', 0))
-# TMConfiguration('q1', TMTape('x1', 1))
-# TMConfiguration('q2', TMTape('xy', 0))
-# TMConfiguration('q0', TMTape('xy', 1))
-# TMConfiguration('q3', TMTape('xy.', 2))
-# TMConfiguration('q4', TMTape('xy..', 3))
+# TMConfiguration('q0', TMTape('01', '.', 0))
+# TMConfiguration('q1', TMTape('x1', '.', 1))
+# TMConfiguration('q2', TMTape('xy', '.', 0))
+# TMConfiguration('q0', TMTape('xy', '.', 1))
+# TMConfiguration('q3', TMTape('xy.', '.', 2))
+# TMConfiguration('q4', TMTape('xy..', '.', 3))
 ```
 
 ## DTM.accepts_input(self, input_str)
