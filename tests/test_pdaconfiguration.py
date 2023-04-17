@@ -20,5 +20,5 @@ class TestPDAConfiguration(test_pda.TestPDA):
         config = PDAConfiguration("q0", "ab", PDAStack(["a", "b"]))
         self.assertEqual(
             repr(config),
-            "PDAConfiguration(state='q0', remaining_input='ab', stack=PDAStack(('a', 'b')))",  # noqa
+            "PDAConfiguration('q0', 'ab', PDAStack(('a', 'b')))",  # noqa
         )
