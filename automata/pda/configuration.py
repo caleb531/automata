@@ -24,6 +24,6 @@ class PDAConfiguration:
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""
-        return "{}('{}', '{}', {})".format(
+        return "{}({!r}, {!r}, {!r})".format(
             self.__class__.__name__, self.state, self.remaining_input, self.stack
         )

@@ -86,7 +86,7 @@ class TMTape:
 
     def __repr__(self) -> str:
         """Return a string representation of the tape."""
-        return "{}('{}', '{}', {})".format(
+        return "{}({!r}, {!r}, {!r})".format(
             self.__class__.__name__,
             "".join(self.tape),
             self.blank_symbol,

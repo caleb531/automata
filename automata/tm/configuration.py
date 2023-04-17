@@ -19,7 +19,7 @@ class TMConfiguration:
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""
-        return "{}('{}', {})".format(self.__class__.__name__, self.state, self.tape)
+        return "{}({!r}, {!r})".format(self.__class__.__name__, self.state, self.tape)
 
     def print(self) -> None:
         """Print the machine's current configuration in a readable form."""
@@ -45,7 +45,7 @@ class MTMConfiguration:
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""
-        return "{}('{}', {})".format(self.__class__.__name__, self.state, self.tapes)
+        return "{}({!r}, {!r})".format(self.__class__.__name__, self.state, self.tapes)
 
     def print(self) -> None:
         """Print the machine's current configuration in a readable form."""
