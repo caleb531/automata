@@ -20,7 +20,7 @@ class TMTape:
     current_position: int
 
     def __init__(
-        self, tape: Sequence[str], *, blank_symbol: str, current_position: int = 0
+        self, tape: Sequence[str], blank_symbol: str, current_position: int = 0
     ) -> None:
         """Initialize a new Turing machine tape."""
         tape = list(tape)
