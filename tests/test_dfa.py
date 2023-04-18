@@ -44,7 +44,7 @@ class TestDFA(test_fa.TestFA):
     def test_dfa_immutable_attr_set(self) -> None:
         """Should disallow reassigning DFA attributes"""
         with self.assertRaises(AttributeError):
-            self.dfa.states = {} # type: ignore
+            self.dfa.states = {}  # type: ignore
 
     def test_dfa_immutable_attr_del(self) -> None:
         """Should disallow deleting DFA attributes"""
