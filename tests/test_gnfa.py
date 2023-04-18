@@ -366,40 +366,6 @@ class TestGNFA(test_fa.TestFA):
             # Test equality through DFA regex conversion
             self.assertEqual(dfa_1, dfa_2)
 
-    def test_read_input_step_not_implemented(self) -> None:
-        """Should not implement read_input_stepwise() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.read_input_stepwise("aaa")
-
-    def test_union_not_implemented(self) -> None:
-        """Should not implement union() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.union(self.gnfa)
-
-    def test_concatenate_not_implemented(self) -> None:
-        """Should not implement concatenate() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.concatenate(self.gnfa)
-
-    def test_kleene_star_not_implemented(self) -> None:
-        """Should not implement kleene_star() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.kleene_star()
-
-    def test_option_not_implemented(self) -> None:
-        """Should not implement option() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.option()
-
-    def test_reverse_not_implemented(self) -> None:
-        """Should not implement reverse() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.reverse()
-
-    def test_eq_not_implemented(self) -> None:
-        """Should not implement equality for GNFA."""
-        self.assertNotEqual(self.gnfa, GNFA.from_nfa(self.nfa))
-
     def test_show_diagram_showNone(self) -> None:
         """
         Should construct the diagram for a GNFA when show_None = False

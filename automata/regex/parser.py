@@ -8,6 +8,8 @@ from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
 from typing import AbstractSet, Deque, Dict, Iterable, List, Optional, Set, Tuple, Type
 
+from typing_extensions import Self
+
 import automata.base.exceptions as exceptions
 from automata.base.utils import get_renaming_function
 from automata.regex.lexer import Lexer, Token
@@ -412,7 +414,7 @@ class QuantifierToken(PostfixOperator[NFARegexBuilder]):
         self.upper_bound = upper_bound
 
     @classmethod
-    def from_match(cls, match: re.Match) -> QuantifierToken:
+    def from_match(cls: Type[Self], match: re.Match) -> QuantifierToken:
         lower_bound_str = match.group(1)
         upper_bound_str = match.group(2)
 
@@ -465,7 +467,7 @@ class StringToken(Literal[NFARegexBuilder]):
         self.counter = counter
 
     @classmethod
-    def from_match(cls, match: re.Match) -> StringToken:
+    def from_match(cls: Type[Self], match: re.Match) -> StringToken:
         raise NotImplementedError
 
     def val(self) -> NFARegexBuilder:
@@ -485,7 +487,7 @@ class WildcardToken(Literal[NFARegexBuilder]):
         self.counter = counter
 
     @classmethod
-    def from_match(cls, match: re.Match) -> WildcardToken:
+    def from_match(cls: Type[Self], match: re.Match) -> WildcardToken:
         raise NotImplementedError
 
     def val(self) -> NFARegexBuilder:
