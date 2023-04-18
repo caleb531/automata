@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with generalized non-deterministic finite
 automata."""
+from __future__ import annotations
 
 from itertools import product
 from typing import AbstractSet, Dict, Mapping, Optional, Set, Type, cast
