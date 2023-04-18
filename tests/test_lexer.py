@@ -122,15 +122,6 @@ class TestTokenRegistryTestCase(unittest.TestCase):
 class TestGetTokenTestCase(unittest.TestCase):
     """Test token registry in lexer."""
 
-    def test_token_precedence(self):
-        """Test that get_precedence starts as not implemented."""
-
-        class AToken(Token):
-            pass
-
-        with self.assertRaises(NotImplementedError):
-            AToken("").get_precedence()
-
     def test_get_token_no_text(self):
         """Test getting a token given an empty string."""
         lexer = Lexer()

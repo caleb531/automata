@@ -8,7 +8,7 @@ from collections import deque
 from itertools import chain, count, product, repeat, zip_longest
 from typing import AbstractSet, Deque, Dict, Iterable, List, Optional, Set, Tuple, Type
 
-from typing_extensions import Self
+from typing_extensions import NoReturn, Self
 
 import automata.base.exceptions as exceptions
 from automata.base.utils import get_renaming_function
@@ -467,7 +467,7 @@ class StringToken(Literal[NFARegexBuilder]):
         self.counter = counter
 
     @classmethod
-    def from_match(cls: Type[Self], match: re.Match) -> StringToken:
+    def from_match(cls: Type[Self], match: re.Match) -> NoReturn:
         raise NotImplementedError
 
     def val(self) -> NFARegexBuilder:
@@ -487,7 +487,7 @@ class WildcardToken(Literal[NFARegexBuilder]):
         self.counter = counter
 
     @classmethod
-    def from_match(cls: Type[Self], match: re.Match) -> WildcardToken:
+    def from_match(cls: Type[Self], match: re.Match) -> NoReturn:
         raise NotImplementedError
 
     def val(self) -> NFARegexBuilder:
