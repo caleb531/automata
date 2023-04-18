@@ -55,7 +55,7 @@ class TokenRegistry(Generic[ResultT]):
 
     _tokens: List[Tuple[TokenFactoryT, re.Pattern]]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._tokens = []
 
     def register(self, token_factory_fn: TokenFactoryT, token_regex: str) -> None:
