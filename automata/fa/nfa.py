@@ -932,7 +932,7 @@ class NFA(fa.FA):
         insertion: bool = True,
         deletion: bool = True,
         substitution: bool = True,
-    ):
+    ) -> Self:
         """
         Constructs the Levenshtein NFA for the given reference_str and given
         Levenshtein distance. This NFA recognizes strings within the given
