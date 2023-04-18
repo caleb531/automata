@@ -238,7 +238,7 @@ class TestGNFA(test_fa.TestFA):
                     "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
                     "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
                     "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
-                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None, "q5": {}},
+                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None, "q5": {}},  # type: ignore
                 },
                 initial_state="q_in",
                 final_state="q_f",

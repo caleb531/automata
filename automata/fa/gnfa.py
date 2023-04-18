@@ -3,6 +3,7 @@
 automata."""
 
 from itertools import product
+from typing import AbstractSet, Mapping, Optional
 
 from frozendict import frozendict
 from pydot import Dot, Edge, Node
@@ -13,6 +14,9 @@ import automata.fa.nfa as nfa
 import automata.regex.regex as re
 
 GNFAStateT = fa.AutomatonStateT
+
+GNFAPathT = Mapping[GNFAStateT, Optional[str]]
+GNFATransitionsT = Mapping[GNFAStateT, GNFAPathT]
 
 
 class GNFA(fa.FA):
@@ -34,7 +38,13 @@ class GNFA(fa.FA):
     final_state: GNFAStateT
 
     def __init__(
-        self, *, states, input_symbols, transitions, initial_state, final_state
+        self,
+        *,
+        states: AbstractSet[GNFAStateT],
+        input_symbols: AbstractSet[str],
+        transitions: GNFATransitionsT,
+        initial_state: GNFAStateT,
+        final_state: GNFAStateT,
     ):
         """Initialize a complete NFA."""
         super(fa.FA, self).__init__(
