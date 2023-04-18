@@ -12,8 +12,10 @@ import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 import automata.regex.regex as re
 
+GNFAStateT = fa.AutomatonStateT
 
-class GNFA(nfa.NFA):
+
+class GNFA(fa.FA):
     """A generalized nondeterministic finite automaton."""
 
     # The conventions of using __slots__ state that subclasses automatically
@@ -28,6 +30,8 @@ class GNFA(nfa.NFA):
         "initial_state",
         "final_state",
     )
+
+    final_state: GNFAStateT
 
     def __init__(
         self, *, states, input_symbols, transitions, initial_state, final_state

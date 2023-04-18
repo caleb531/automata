@@ -126,10 +126,6 @@ class NFA(fa.FA):
         else:
             return NotImplemented
 
-    def __reversed__(self) -> Self:
-        """Return the reversal of this NFA."""
-        return self.reverse()
-
     @classmethod
     def from_dfa(cls: Type[Self], dfa: dfa.DFA) -> Self:
         """Initialize this NFA as one equivalent to the given DFA."""
@@ -867,17 +863,6 @@ class NFA(fa.FA):
                 new_transition_dict[state_map_dict[state_a]][symbol] = {
                     state_map_dict[state_b] for state_b in states
                 }
-
-    @staticmethod
-    def _add_new_state(state_set: Set[NFAStateT], start: int = 0) -> int:
-        """Adds new state to the state set and returns it"""
-        new_state = start
-        while new_state in state_set:
-            new_state += 1
-
-        state_set.add(new_state)
-
-        return new_state
 
     def __eq__(self, other: Any) -> bool:
         """

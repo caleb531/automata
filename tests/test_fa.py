@@ -11,6 +11,10 @@ from automata.fa.nfa import NFA
 class TestFA(unittest.TestCase):
     """A test class for testing all finite automata."""
 
+    dfa: DFA
+    nfa: NFA
+    gnfa: GNFA
+
     def setUp(self):
         """Reset test automata before every test function."""
         # DFA which matches all binary strings ending in an odd number of '1's
