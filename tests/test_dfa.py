@@ -21,15 +21,15 @@ class TestDFA(test_fa.TestFA):
 
     temp_dir_path = tempfile.gettempdir()
 
-    def test_init_dfa(self):
+    def test_init_dfa(self) -> None:
         """Should copy DFA if passed into DFA constructor."""
         new_dfa = self.dfa.copy()
         self.assertIsNot(new_dfa, self.dfa)
 
-    def test_init_dfa_missing_formal_params(self):
+    def test_init_dfa_missing_formal_params(self) -> None:
         """Should raise an error if formal DFA parameters are missing."""
         with self.assertRaises(TypeError):
-            DFA(
+            DFA(  # type: ignore
                 states={"q0", "q1"},
                 input_symbols={"0", "1"},
                 initial_state="q0",

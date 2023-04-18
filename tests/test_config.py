@@ -2,7 +2,7 @@
 """Functions for testing the global Automata configuration."""
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
 
@@ -11,23 +11,23 @@ from automata.fa.dfa import DFA
 
 
 class TestConfig(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.orig_should_validate = global_config.should_validate_automata
         self.orig_allow_mutable_automata = global_config.allow_mutable_automata
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         global_config.should_validate_automata = self.orig_should_validate
         global_config.allow_mutable_automata = self.orig_allow_mutable_automata
 
     @patch("automata.fa.dfa.DFA.validate")
-    def test_disable_validation(self, validate):
+    def test_disable_validation(self, validate: MagicMock) -> None:
         """Should disable automaton validation"""
         global_config.should_validate_automata = False
-        DFA.universal_language({0, 1})
+        DFA.universal_language({"0", "1"})
         validate.assert_not_called()
 
     @patch("automata.base.utils.freeze_value")
-    def test_disable_ensure_values_are_frozen(self, freeze_value):
+    def test_disable_ensure_values_are_frozen(self, freeze_value: MagicMock) -> None:
         """Should enable automaton mutability"""
         global_config.allow_mutable_automata = True
         DFA(
