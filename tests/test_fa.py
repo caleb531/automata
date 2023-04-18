@@ -15,7 +15,7 @@ class TestFA(unittest.TestCase):
     nfa: NFA
     gnfa: GNFA
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Reset test automata before every test function."""
         # DFA which matches all binary strings ending in an odd number of '1's
         self.dfa = DFA(
