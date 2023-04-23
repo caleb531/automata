@@ -19,4 +19,5 @@ from automata.fa.fa import FA
 
 ------
 
+[Examples](examples.md)  
 [Table of Contents](../README.md)

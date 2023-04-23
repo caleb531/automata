@@ -5,6 +5,7 @@
     - [Deterministic (DFA)](fa/class-dfa.md)
     - [Non-Deterministic (NFA)](fa/class-nfa.md)
     - [Generalized Non-Deterministic (GNFA)](fa/class-gnfa.md)
+    - [Examples](fa/examples.md)
   - [Pushdown Automaton (PDA)](pda/class-pda.md)
     - [Deterministic (DPDA)](pda/class-dpda.md)
     - [Non-Deterministic (NPDA)](pda/class-npda.md)

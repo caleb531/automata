@@ -229,4 +229,5 @@ nfa1.show_diagram(path='./abc.png')
 
 [Next: GNFA Class](class-gnfa.md)  
 [FA Class](class-fa.md)  
+[Examples](examples.md)  
 [Table of Contents](../README.md)

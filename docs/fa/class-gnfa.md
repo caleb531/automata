@@ -97,4 +97,5 @@ gnfa.show_diagram(path='./gnfa.png', show_None=False)
 ------
 
 [FA Class](class-fa.md)  
+[Examples](examples.md)  
 [Table of Contents](../README.md)
