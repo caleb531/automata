@@ -87,10 +87,6 @@ nfa1 == nfa2
 nfa.reverse()
 ```
 
-```python
-reversed(nfa)
-```
-
 ## NFA.concatenate(self, other)
 
 ```python

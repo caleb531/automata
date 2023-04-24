@@ -16,6 +16,7 @@ from typing import (
     List,
     Optional,
     Tuple,
+    Type,
     TypeVar,
 )
 
@@ -37,11 +38,8 @@ class Token(Generic[ResultT], metaclass=abc.ABCMeta):
         self.text = text
 
     @classmethod
-    def from_match(cls, match: re.Match) -> Self:
+    def from_match(cls: Type[Self], match: re.Match) -> Self:
         return cls(match.group())
-
-    def get_precedence(self) -> int:
-        raise NotImplementedError
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.text}>"
@@ -57,7 +55,7 @@ class TokenRegistry(Generic[ResultT]):
 
     _tokens: List[Tuple[TokenFactoryT, re.Pattern]]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._tokens = []
 
     def register(self, token_factory_fn: TokenFactoryT, token_regex: str) -> None:

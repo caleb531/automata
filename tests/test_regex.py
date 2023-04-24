@@ -13,12 +13,12 @@ from automata.regex.parser import StringToken, WildcardToken
 class TestRegex(unittest.TestCase):
     """A test class for testing regular expression tools"""
 
-    def test_validate_valid(self):
+    def test_validate_valid(self) -> None:
         """Should pass validation for valid regular expression"""
         re.validate("a*")
         re.validate("b|a?*")
 
-    def test_validate_invalid(self):
+    def test_validate_invalid(self) -> None:
         """Should raise error for invalid regular expressions"""
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "ab|")
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "?")
@@ -33,17 +33,17 @@ class TestRegex(unittest.TestCase):
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "a{-1,}")
         self.assertRaises(exceptions.InvalidRegexError, re.validate, "a{-2,-1}")
 
-    def test_invalid_token_creation(self):
+    def test_invalid_token_creation(self) -> None:
         """Should raise error for invalid class creation"""
         match_obj = regex.compile("a").match("a")
         self.assertRaises(NotImplementedError, StringToken.from_match, match_obj)
         self.assertRaises(NotImplementedError, WildcardToken.from_match, match_obj)
 
-    def test_helper_validate_invalid(self):
+    def test_helper_validate_invalid(self) -> None:
         """Should pass validation for valid regular expression"""
         self.assertFalse(re._validate("a(|)"))
 
-    def test_isequal(self):
+    def test_isequal(self) -> None:
         """Should correctly check equivalence of two regular expressions"""
 
         self.assertTrue(re.isequal("aa?", "a|aa"))
@@ -62,7 +62,7 @@ class TestRegex(unittest.TestCase):
             )
         )
 
-    def test_not_isequal(self):
+    def test_not_isequal(self) -> None:
         """Should correctly check non-equivalence of two regular expressions"""
 
         self.assertFalse(
@@ -72,21 +72,21 @@ class TestRegex(unittest.TestCase):
             )
         )
 
-    def test_issubset(self):
+    def test_issubset(self) -> None:
         """Should correctly verify if re1 is subset of re2"""
 
         self.assertTrue(re.issubset("aa?", "a*"))
         self.assertFalse(re.issubset("a*", "a?"))
         self.assertTrue(re.issubset("aaa*b|bc", "a*b|b*c*"))
 
-    def test_issuperset(self):
+    def test_issuperset(self) -> None:
         """Should correctly verify if re1 is superset of re2"""
 
         self.assertFalse(re.issuperset("aa?", "a*"))
         self.assertTrue(re.issuperset("a*", "a?"))
         self.assertTrue(re.issuperset("a*b|b*c*", "aaa*b|bc"))
 
-    def test_intersection(self):
+    def test_intersection(self) -> None:
         """Should correctly check intersection of two regular expressions"""
         # Basic test
         nfa_1 = NFA.from_regex("(0|(01))&(01)")
@@ -117,7 +117,7 @@ class TestRegex(unittest.TestCase):
 
         self.assertEqual(nfa_7, nfa_8)
 
-    def test_kleene_plus(self):
+    def test_kleene_plus(self) -> None:
         """Should correctly check kleene plus of two regular expressions"""
         # Basic test
         self.assertTrue(re.isequal("aa*", "a+"))
@@ -127,7 +127,7 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(re.isequal("a*", "a+"))
         self.assertTrue(re.issuperset("a*", "a+"))
 
-    def test_wildcard(self):
+    def test_wildcard(self) -> None:
         """Should correctly check wildcard"""
 
         input_symbols = {"a", "b", "c"}
@@ -141,7 +141,7 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.issubset("a.b", "...", input_symbols=input_symbols))
         self.assertTrue(re.issuperset(".", "a|b", input_symbols=input_symbols))
 
-    def test_shuffle(self):
+    def test_shuffle(self) -> None:
         """Should correctly check shuffle"""
 
         input_symbols = {"a", "b", "c", "d"}
@@ -168,7 +168,7 @@ class TestRegex(unittest.TestCase):
         other_nfa = NFA.shuffle_product(NFA.from_regex("a*"), NFA.from_regex("ba"))
         self.assertEqual(reference_nfa, other_nfa)
 
-    def test_quantifier(self):
+    def test_quantifier(self) -> None:
         """Should correctly check quantifier"""
 
         input_symbols = {"a", "b", "c", "d"}
@@ -202,14 +202,14 @@ class TestRegex(unittest.TestCase):
             )
         )
 
-    def test_blank(self):
+    def test_blank(self) -> None:
         """Should correctly parse blank"""
         self.assertTrue(re.isequal("()", ""))
         self.assertTrue(re.isequal("a|()", "a?"))
         self.assertTrue(re.isequal("a()", "a"))
         self.assertTrue(re.isequal("a()b()()c()", "abc"))
 
-    def test_invalid_symbols(self):
+    def test_invalid_symbols(self) -> None:
         """Should throw exception if reserved character is in input symbols"""
         with self.assertRaises(exceptions.InvalidSymbolError):
             NFA.from_regex("a+", input_symbols={"a", "+"})

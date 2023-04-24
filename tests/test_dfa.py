@@ -6,7 +6,7 @@ import os.path
 import tempfile
 import types
 from itertools import product
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
 
@@ -21,52 +21,52 @@ class TestDFA(test_fa.TestFA):
 
     temp_dir_path = tempfile.gettempdir()
 
-    def test_init_dfa(self):
+    def test_init_dfa(self) -> None:
         """Should copy DFA if passed into DFA constructor."""
         new_dfa = self.dfa.copy()
         self.assertIsNot(new_dfa, self.dfa)
 
-    def test_init_dfa_missing_formal_params(self):
+    def test_init_dfa_missing_formal_params(self) -> None:
         """Should raise an error if formal DFA parameters are missing."""
         with self.assertRaises(TypeError):
-            DFA(
+            DFA(  # type: ignore
                 states={"q0", "q1"},
                 input_symbols={"0", "1"},
                 initial_state="q0",
                 final_states={"q1"},
             )
 
-    def test_copy_dfa(self):
+    def test_copy_dfa(self) -> None:
         """Should create exact copy of DFA if copy() method is called."""
         new_dfa = self.dfa.copy()
         self.assertIsNot(new_dfa, self.dfa)
 
-    def test_dfa_immutable_attr_set(self):
+    def test_dfa_immutable_attr_set(self) -> None:
         """Should disallow reassigning DFA attributes"""
         with self.assertRaises(AttributeError):
-            self.dfa.states = {}
+            self.dfa.states = {}  # type: ignore
 
-    def test_dfa_immutable_attr_del(self):
+    def test_dfa_immutable_attr_del(self) -> None:
         """Should disallow deleting DFA attributes"""
         with self.assertRaises(AttributeError):
             del self.dfa.states
 
-    def test_dfa_immutable_dict(self):
+    def test_dfa_immutable_dict(self) -> None:
         """Should create a DFA whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.dfa.input_parameters)), int)
 
     @patch("automata.fa.dfa.DFA.validate")
-    def test_init_validation(self, validate):
+    def test_init_validation(self, validate: MagicMock) -> None:
         """Should validate DFA when initialized."""
         self.dfa.copy()
         validate.assert_called_once_with()
 
-    def test_dfa_equal(self):
+    def test_dfa_equal(self) -> None:
         """Should correctly determine if two DFAs are equal."""
         new_dfa = self.dfa.copy()
         self.assertTrue(self.dfa == new_dfa, "DFAs are not equal")
 
-    def test_dfa_not_equal(self):
+    def test_dfa_not_equal(self) -> None:
         """Should correctly determine if two DFAs are not equal."""
         new_dfa = DFA(
             states={"q0"},
@@ -77,7 +77,7 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertTrue(self.dfa != new_dfa, "DFAs are equal")
 
-    def test_validate_missing_state(self):
+    def test_validate_missing_state(self) -> None:
         """Should raise error if a state has no transitions defined."""
         with self.assertRaises(exceptions.MissingStateError):
             DFA(
@@ -88,7 +88,7 @@ class TestDFA(test_fa.TestFA):
                 final_states={"q0"},
             )
 
-    def test_validate_missing_symbol(self):
+    def test_validate_missing_symbol(self) -> None:
         """Should raise error if a symbol transition is missing."""
         with self.assertRaises(exceptions.MissingSymbolError):
             DFA(
@@ -99,7 +99,7 @@ class TestDFA(test_fa.TestFA):
                 final_states={"q0"},
             )
 
-    def test_validate_invalid_symbol(self):
+    def test_validate_invalid_symbol(self) -> None:
         """Should raise error if a transition references an invalid symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             DFA(
@@ -110,7 +110,7 @@ class TestDFA(test_fa.TestFA):
                 final_states={"q0"},
             )
 
-    def test_validate_invalid_state(self):
+    def test_validate_invalid_state(self) -> None:
         """Should raise error if a transition references an invalid state."""
         with self.assertRaises(exceptions.InvalidStateError):
             DFA(
@@ -121,7 +121,7 @@ class TestDFA(test_fa.TestFA):
                 final_states={"q0"},
             )
 
-    def test_validate_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self) -> None:
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             DFA(
@@ -132,7 +132,7 @@ class TestDFA(test_fa.TestFA):
                 final_states={"q0"},
             )
 
-    def test_validate_invalid_final_state(self):
+    def test_validate_invalid_final_state(self) -> None:
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             DFA(
@@ -143,7 +143,7 @@ class TestDFA(test_fa.TestFA):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_final_state_non_str(self):
+    def test_validate_invalid_final_state_non_str(self) -> None:
         """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
             DFA(
@@ -154,35 +154,35 @@ class TestDFA(test_fa.TestFA):
                 final_states={3},
             )
 
-    def test_read_input_accepted(self):
+    def test_read_input_accepted(self) -> None:
         """Should return correct state if acceptable DFA input is given."""
         self.assertEqual(self.dfa.read_input("0111"), "q1")
 
-    def test_read_input_rejection(self):
+    def test_read_input_rejection(self) -> None:
         """Should raise error if the stop state is not a final state."""
         with self.assertRaises(exceptions.RejectionException):
             self.dfa.read_input("011")
 
-    def test_read_input_rejection_invalid_symbol(self):
+    def test_read_input_rejection_invalid_symbol(self) -> None:
         """Should raise error if an invalid symbol is read."""
         with self.assertRaises(exceptions.RejectionException):
             self.dfa.read_input("01112")
 
-    def test_accepts_input_true(self):
+    def test_accepts_input_true(self) -> None:
         """Should return True if DFA input is accepted."""
         self.assertTrue(self.dfa.accepts_input("0111"))
 
-    def test_accepts_input_false(self):
+    def test_accepts_input_false(self) -> None:
         """Should return False if DFA input is rejected."""
         self.assertFalse(self.dfa.accepts_input("011"))
 
-    def test_read_input_step(self):
+    def test_read_input_step(self) -> None:
         """Should return validation generator if step flag is supplied."""
         validation_generator = self.dfa.read_input_stepwise("0111")
         self.assertIsInstance(validation_generator, types.GeneratorType)
         self.assertEqual(list(validation_generator), ["q0", "q0", "q1", "q2", "q1"])
 
-    def test_operations_other_types(self):
+    def test_operations_other_types(self) -> None:
         """Should raise TypeError for all but equals."""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
@@ -200,23 +200,23 @@ class TestDFA(test_fa.TestFA):
         other = 42
         self.assertNotEqual(dfa, other)
         with self.assertRaises(TypeError):
-            dfa | other
+            dfa | other  # type: ignore
         with self.assertRaises(TypeError):
-            dfa & other
+            dfa & other  # type: ignore
         with self.assertRaises(TypeError):
-            dfa - other
+            dfa - other  # type: ignore
         with self.assertRaises(TypeError):
-            dfa ^ other
+            dfa ^ other  # type: ignore
         with self.assertRaises(TypeError):
-            dfa < other
+            dfa < other  # type: ignore
         with self.assertRaises(TypeError):
-            dfa <= other
+            dfa <= other  # type: ignore
         with self.assertRaises(TypeError):
-            dfa > other
+            dfa > other  # type: ignore
         with self.assertRaises(TypeError):
-            dfa >= other
+            dfa >= other  # type: ignore
 
-    def test_equivalence_not_equal(self):
+    def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
@@ -246,7 +246,7 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertNotEqual(no_consecutive_11_dfa, zero_or_one_1_dfa)
 
-    def test_equivalence_minify(self):
+    def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
         no_consecutive_11_dfa = DFA(
             states={"q0", "q1", "q2", "q3"},
@@ -263,7 +263,7 @@ class TestDFA(test_fa.TestFA):
         minimal_dfa = no_consecutive_11_dfa.minify()
         self.assertEqual(no_consecutive_11_dfa, minimal_dfa)
 
-    def test_equivalence_two_non_minimal(self):
+    def test_equivalence_two_non_minimal(self) -> None:
         """Should be equivalent even though they are non minimal."""
         no_consecutive_11_dfa = DFA(
             states={"q0", "q1", "q2", "q3"},
@@ -291,7 +291,7 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertEqual(no_consecutive_11_dfa, other_dfa)
 
-    def test_complement(self):
+    def test_complement(self) -> None:
         """Should compute the complement of a DFA"""
         no_consecutive_11_dfa = DFA(
             states={"q0", "q1", "q2"},
@@ -317,7 +317,7 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertEqual(complement_dfa.final_states, {"q2"})
 
-    def test_union(self):
+    def test_union(self) -> None:
         """Should compute the union between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
@@ -403,7 +403,7 @@ class TestDFA(test_fa.TestFA):
         # Test retain names logic without minify
         self.assertEqual(dfa1.union(dfa2, retain_names=False, minify=False), new_dfa)
 
-    def test_intersection(self):
+    def test_intersection(self) -> None:
         """Should compute the intersection between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
@@ -483,7 +483,7 @@ class TestDFA(test_fa.TestFA):
             dfa1.intersection(dfa2, retain_names=False, minify=False), new_dfa
         )
 
-    def test_difference(self):
+    def test_difference(self) -> None:
         """Should compute the difference between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
@@ -557,7 +557,7 @@ class TestDFA(test_fa.TestFA):
             dfa1.difference(dfa2, retain_names=False, minify=False), new_dfa
         )
 
-    def test_symmetric_difference(self):
+    def test_symmetric_difference(self) -> None:
         """Should compute the symmetric difference between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
@@ -643,7 +643,7 @@ class TestDFA(test_fa.TestFA):
             dfa1.symmetric_difference(dfa2, retain_names=False, minify=False), new_dfa
         )
 
-    def test_issubset(self):
+    def test_issubset(self) -> None:
         """Should test if one DFA is a subset of another"""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
@@ -677,7 +677,7 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(no_consecutive_11_dfa < zero_or_one_1_dfa)
         self.assertFalse(no_consecutive_11_dfa <= zero_or_one_1_dfa)
 
-    def test_issuperset(self):
+    def test_issuperset(self) -> None:
         """Should test if one DFA is a superset of another"""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
@@ -711,7 +711,7 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(no_consecutive_11_dfa > zero_or_one_1_dfa)
         self.assertTrue(no_consecutive_11_dfa >= zero_or_one_1_dfa)
 
-    def test_symbol_mismatch(self):
+    def test_symbol_mismatch(self) -> None:
         """Should test if symbol mismatch is raised"""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
@@ -745,7 +745,7 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.SymbolMismatchError):
             zero_or_one_b_dfa.difference(no_consecutive_11_dfa)
 
-    def test_isdisjoint(self):
+    def test_isdisjoint(self) -> None:
         """Should test if two DFAs are disjoint"""
         # This DFA accepts all words which contain at least
         # three occurrences of 1
@@ -772,14 +772,14 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(at_least_three_1.isdisjoint(at_least_one_1))
         self.assertFalse(at_most_one_1.isdisjoint(at_least_one_1))
 
-    def test_isempty_non_empty(self):
+    def test_isempty_non_empty(self) -> None:
         """Should test if a non-empty DFA is empty"""
         # This DFA accepts all words which contain at least
         # three occurrences of 1
         dfa = DFA.from_subsequence({"0", "1"}, "111")
         self.assertFalse(dfa.isempty())
 
-    def test_isempty_empty(self):
+    def test_isempty_empty(self) -> None:
         """Should test if an empty DFA is empty"""
         # This DFA has no reachable final states and
         # therefore accepts the empty language
@@ -797,14 +797,14 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertTrue(dfa1.isempty())
 
-    def test_isfinite_infinite(self):
+    def test_isfinite_infinite(self) -> None:
         """Should test if an infinite DFA is finite (case #1)"""
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         dfa = DFA.from_substring({"0", "1"}, "11").complement(minify=False)
         self.assertFalse(dfa.isfinite())
 
-    def test_isfinite_infinite_case_2(self):
+    def test_isfinite_infinite_case_2(self) -> None:
         """Should test if an infinite DFA is finite (case #2)"""
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
@@ -825,14 +825,14 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertFalse(dfa1.isfinite())
 
-    def test_isfinite_finite(self):
+    def test_isfinite_finite(self) -> None:
         """Should test if a finite DFA is finite"""
         # This DFA accepts all binary strings which have length
         # less than or equal to 5
         dfa = DFA.of_length({"0", "1"}, min_length=0, max_length=5)
         self.assertTrue(dfa.isfinite())
 
-    def test_isfinite_empty(self):
+    def test_isfinite_empty(self) -> None:
         """Should test if an empty DFA is finite"""
         # This DFA has no reachable final states and
         # therefore is finite.
@@ -850,13 +850,13 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertTrue(dfa.isfinite())
 
-    def test_isfinite_universe(self):
+    def test_isfinite_universe(self) -> None:
         # This DFA accepts all binary strings and
         # therefore is infinite.
         dfa = DFA.universal_language({"0", "1"})
         self.assertFalse(dfa.isfinite())
 
-    def test_set_laws(self):
+    def test_set_laws(self) -> None:
         """Tests many set laws that are true for all sets"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
@@ -901,7 +901,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(contains_1111 & avoids_11, avoids_11 & contains_1111)
         self.assertEqual(contains_1111 ^ avoids_11, avoids_11 ^ contains_1111)
 
-    def test_minify_dfa(self):
+    def test_minify_dfa(self) -> None:
         """Should minify a given DFA."""
         # This DFA accepts all words which are at least two characters long.
         # The states q1/q2 and q3/q4/q5/q6 are redundant.
@@ -1290,7 +1290,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(minimal_dfa.initial_state, check_dfa.initial_state)
         self.assertEqual(minimal_dfa.final_states, check_dfa.final_states)
 
-    def test_minify_minimal_dfa(self):
+    def test_minify_minimal_dfa(self) -> None:
         """Should minify an already minimal DFA."""
         # This DFA just accepts words ending in 1.
         dfa = DFA(
@@ -1318,7 +1318,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(minimal_dfa.initial_state, other_minimal_dfa.initial_state)
         self.assertEqual(minimal_dfa.final_states, other_minimal_dfa.final_states)
 
-    def test_minify_dfa_initial_state(self):
+    def test_minify_dfa_initial_state(self) -> None:
         """Should minify a DFA where the initial state is being changed."""
         # This DFA accepts all words with ones and zeroes.
         # The two states can be merged into one.
@@ -1347,7 +1347,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(minimal_dfa.initial_state, frozenset(("q0", "q1")))
         self.assertEqual(minimal_dfa.final_states, {frozenset(("q0", "q1"))})
 
-    def test_minify_dfa_no_final_states(self):
+    def test_minify_dfa_no_final_states(self) -> None:
         dfa = DFA(
             states={"q0", "q1"},
             input_symbols={"0", "1"},
@@ -1373,7 +1373,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(minimal_dfa.initial_state, frozenset(("q0", "q1")))
         self.assertEqual(minimal_dfa.final_states, set())
 
-    def test_init_nfa_simple(self):
+    def test_init_nfa_simple(self) -> None:
         """Should convert to a DFA a simple NFA."""
         nfa = NFA(
             states={"q0", "q1", "q2"},
@@ -1408,7 +1408,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dfa.initial_state, frozenset(("q0",)))
         self.assertEqual(dfa.final_states, {frozenset(("q2",))})
 
-    def test_init_nfa_more_complex(self):
+    def test_init_nfa_more_complex(self) -> None:
         """Should convert to a DFA a more complex NFA."""
         nfa = NFA(
             states={"q0", "q1", "q2"},
@@ -1458,7 +1458,7 @@ class TestDFA(test_fa.TestFA):
             dfa.final_states, {frozenset(("q0", "q1", "q2")), frozenset(("q0", "q2"))}
         )
 
-    def test_init_nfa_lambda_transition(self):
+    def test_init_nfa_lambda_transition(self) -> None:
         """Should convert to a DFA an NFA with a lambda transition."""
         dfa = DFA.from_nfa(self.nfa, retain_names=True, minify=False)
         self.assertEqual(
@@ -1479,7 +1479,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dfa.initial_state, frozenset(("q0",)))
         self.assertEqual(dfa.final_states, {frozenset(("q1", "q2"))})
 
-    def test_nfa_to_dfa_with_lambda_transitions(self):
+    def test_nfa_to_dfa_with_lambda_transitions(self) -> None:
         """Test NFA->DFA when initial state has lambda transitions"""
         nfa = NFA(
             states={"q0", "q1", "q2"},
@@ -1493,7 +1493,7 @@ class TestDFA(test_fa.TestFA):
         )  # returns an equivalent DFA
         self.assertEqual(dfa.read_input("a"), frozenset(("q1",)))
 
-    def test_partial_dfa(self):
+    def test_partial_dfa(self) -> None:
         """Should allow for partial DFA when flag is set"""
         dfa = DFA(
             states={"", "a", "b", "aa", "bb", "ab", "ba"},
@@ -1513,7 +1513,7 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertEqual(dfa.read_input("aa"), "aa")
 
-    def test_show_diagram_initial_final_different(self):
+    def test_show_diagram_initial_final_different(self) -> None:
         """
         Should construct the diagram for a DFA whose initial state
         is not a final state.
@@ -1540,7 +1540,7 @@ class TestDFA(test_fa.TestFA):
             },
         )
 
-    def test_show_diagram_initial_final_same(self):
+    def test_show_diagram_initial_final_same(self) -> None:
         """
         Should construct the diagram for a DFA whose initial state
         is also a final state.
@@ -1581,7 +1581,7 @@ class TestDFA(test_fa.TestFA):
             },
         )
 
-    def test_show_diagram_write_file(self):
+    def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a DFA
         and write it to the specified file.
@@ -1639,7 +1639,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(len(minimal_dfa.states), len(equiv_dfa.states))
         self.assertEqual(minimal_dfa, equiv_dfa)
 
-    def test_minimal_finite_language_large(self):
+    def test_minimal_finite_language_large(self) -> None:
         """Should compute the minimal DFA accepting the given finite language on
         large test case"""
         m = 50
@@ -1655,7 +1655,7 @@ class TestDFA(test_fa.TestFA):
         dfa_language = {word for word in equiv_dfa}
         self.assertEqual(dfa_language, language)
 
-    def test_dfa_repr(self):
+    def test_dfa_repr(self) -> None:
         """Should display proper string representation of DFA"""
         dfa = DFA(
             states={"q0"},
@@ -1671,7 +1671,7 @@ class TestDFA(test_fa.TestFA):
             "initial_state='q0', final_states={'q0'}, allow_partial=False)",
         )
 
-    def test_iter_finite(self):
+    def test_iter_finite(self) -> None:
         """
         Test that DFA for finite language generates all words
         """
@@ -1693,7 +1693,7 @@ class TestDFA(test_fa.TestFA):
         generated_set = {word for word in dfa}
         self.assertEqual(generated_set, language)
 
-    def test_iter_infinite(self):
+    def test_iter_infinite(self) -> None:
         """
         Test that language that avoids the pattern '11' generates the correct
         values in correct order
@@ -1735,7 +1735,7 @@ class TestDFA(test_fa.TestFA):
         generated_list = [next(generator) for _ in expected]
         self.assertEqual(generated_list, expected)
 
-    def test_len_finite(self):
+    def test_len_finite(self) -> None:
         input_symbols = {"a", "b"}
         dfa = DFA.from_finite_language(input_symbols, set())
         self.assertEqual(len(dfa), 0)
@@ -1752,7 +1752,7 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertEqual(len(dfa), 25)
 
-    def test_len_infinite(self):
+    def test_len_infinite(self) -> None:
         dfa = DFA(
             states={"p0", "p1", "p2"},
             input_symbols={"0", "1"},
@@ -1769,7 +1769,7 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.InfiniteLanguageException):
             len(~dfa)
 
-    def test_random_word(self):
+    def test_random_word(self) -> None:
         """
         Test random generation of words, the generation should be uniformly random
         """
@@ -1787,7 +1787,7 @@ class TestDFA(test_fa.TestFA):
         for i in range(10):
             self.assertIn(dfa.random_word(100), dfa)
 
-    def test_predecessor(self):
+    def test_predecessor(self) -> None:
         binary = {"0", "1"}
         language = {
             "",
@@ -1820,7 +1820,7 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.InfiniteLanguageException):
             [_ for _ in infinite_dfa.predecessors("000")]
 
-    def test_successor(self):
+    def test_successor(self) -> None:
         binary = {"0", "1"}
         language = {
             "",
@@ -1853,7 +1853,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(infinite_dfa.successor(100 * "0"), 101 * "0")
         self.assertEqual(infinite_dfa.successor(100 * "1"), 101 * "1")
 
-    def test_successor_and_predecessor(self):
+    def test_successor_and_predecessor(self) -> None:
         binary = {"0", "1"}
         language = {
             "",
@@ -1867,10 +1867,10 @@ class TestDFA(test_fa.TestFA):
         }
         dfa = DFA.from_finite_language(binary, language)
         for word in language:
-            self.assertEqual(dfa.successor(dfa.predecessor(word)), word)
-            self.assertEqual(dfa.predecessor(dfa.successor(word)), word)
+            self.assertEqual(dfa.successor(dfa.predecessor(word)), word)  # type: ignore
+            self.assertEqual(dfa.predecessor(dfa.successor(word)), word)  # type: ignore
 
-    def test_successor_custom_key(self):
+    def test_successor_custom_key(self) -> None:
         input_symbols = {"a", "b", "c", "d"}
         order = {"b": 0, "c": 1, "a": 2, "d": 3}
         expected = [
@@ -1895,7 +1895,7 @@ class TestDFA(test_fa.TestFA):
         actual = list(dfa.successors(None, key=order.get))
         self.assertListEqual(actual, expected)
 
-    def test_successor_partial(self):
+    def test_successor_partial(self) -> None:
         binary = {"0", "1"}
         dfa = DFA(
             states={0, 1},
@@ -1914,7 +1914,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dfa.successor("01000"), "011")
         self.assertEqual(dfa.successor("1"), None)
 
-    def test_count_words_of_length(self):
+    def test_count_words_of_length(self) -> None:
         """
         Test that language that avoids the pattern '11' is counted by fibonacci numbers
         """
@@ -1934,7 +1934,7 @@ class TestDFA(test_fa.TestFA):
         for i, fib in enumerate(fibonacci):
             self.assertEqual(dfa.count_words_of_length(i), fib)
 
-    def test_words_of_length(self):
+    def test_words_of_length(self) -> None:
         """
         Test that all words generated are accepted and that count matches
         """
@@ -1958,7 +1958,7 @@ class TestDFA(test_fa.TestFA):
                 self.assertIn(word, dfa)
             self.assertEqual(count, fib)
 
-    def test_minimum_word_length(self):
+    def test_minimum_word_length(self) -> None:
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         at_least_four_ones = DFA(
@@ -2013,7 +2013,7 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.EmptyLanguageException):
             empty.minimum_word_length()
 
-    def test_maximum_word_length(self):
+    def test_maximum_word_length(self) -> None:
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         at_least_four_ones = DFA(
@@ -2069,14 +2069,14 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.EmptyLanguageException):
             empty.maximum_word_length()
 
-    def test_contains_prefix(self):
+    def test_contains_prefix(self) -> None:
         input_symbols = {"a", "n", "o", "b"}
 
         prefix_dfa = DFA.from_prefix(input_symbols, "nano")
         self.assertEqual(len(prefix_dfa.states), len(prefix_dfa.minify().states))
 
         subset_dfa = DFA.from_finite_language(
-            input_symbols, ["nano", "nanobao", "nanonana", "nanonano", "nanoo"]
+            input_symbols, {"nano", "nanobao", "nanonana", "nanonano", "nanoo"}
         )
         self.assertTrue(subset_dfa < prefix_dfa)
 
@@ -2089,7 +2089,7 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertTrue(word.startswith("nano"))
 
-    def test_contains_suffix(self):
+    def test_contains_suffix(self) -> None:
         input_symbols = {"a", "n", "o", "b"}
 
         suffix_dfa = DFA.from_suffix(input_symbols, "nano")
@@ -2097,7 +2097,7 @@ class TestDFA(test_fa.TestFA):
 
         subset_dfa = DFA.from_finite_language(
             input_symbols,
-            ["nano", "annnano", "bnano", "anbonano", "nananananananananano"],
+            {"nano", "annnano", "bnano", "anbonano", "nananananananananano"},
         )
         self.assertTrue(subset_dfa < suffix_dfa)
 
@@ -2110,7 +2110,7 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertTrue(word.endswith("nano"))
 
-    def test_contains_substring(self):
+    def test_contains_substring(self) -> None:
         """Should compute the minimal DFA accepting strings with the given substring"""
 
         input_symbols = {"a", "n", "o", "b"}
@@ -2136,7 +2136,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(substring_dfa, equiv_dfa)
 
         subset_dfa = DFA.from_finite_language(
-            input_symbols, ["nano", "bananano", "nananano", "naonano"]
+            input_symbols, {"nano", "bananano", "nananano", "naonano"}
         )
         self.assertTrue(subset_dfa < substring_dfa)
 
@@ -2149,7 +2149,7 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertIn("nano", word)
 
-    def test_contains_subsequence(self):
+    def test_contains_subsequence(self) -> None:
         """Should compute the minimal DFA accepting strings with the given
         subsequence"""
 
@@ -2178,7 +2178,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(subsequence_dfa, equiv_dfa)
 
         subset_dfa = DFA.from_finite_language(
-            input_symbols, ["naooono", "bananano", "onbaonbo", "ooonano"]
+            input_symbols, {"naooono", "bananano", "onbaonbo", "ooonano"}
         )
         self.assertTrue(subset_dfa < subsequence_dfa)
 
@@ -2193,7 +2193,7 @@ class TestDFA(test_fa.TestFA):
             DFA.from_subsequence(input_symbols, "nano", contains=False),
         )
 
-    def test_of_length(self):
+    def test_of_length(self) -> None:
         binary = {"0", "1"}
         dfa1 = DFA.of_length(binary)
         self.assertFalse(dfa1.isfinite())
@@ -2300,7 +2300,7 @@ class TestDFA(test_fa.TestFA):
 
         self.assertEqual(dfa7.union(dfa8), DFA.universal_language(binary))
 
-    def test_count_mod(self):
+    def test_count_mod(self) -> None:
         binary = {"0", "1"}
         with self.assertRaises(ValueError):
             _ = DFA.count_mod(binary, 0)
@@ -2341,7 +2341,7 @@ class TestDFA(test_fa.TestFA):
             DFA.count_mod(binary, 4, remainders={0, 2}), DFA.count_mod(binary, 2)
         )
 
-    def test_nth_from_start(self):
+    def test_nth_from_start(self) -> None:
         binary = {"0", "1"}
         with self.assertRaises(ValueError):
             dfa = DFA.nth_from_start(binary, "0", 0)
@@ -2383,7 +2383,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
         self.assertEqual(dfa.minimum_word_length(), 4)
 
-    def test_nth_from_end(self):
+    def test_nth_from_end(self) -> None:
         binary = {"0", "1"}
         with self.assertRaises(ValueError):
             dfa = DFA.nth_from_end(binary, "0", 0)
@@ -2416,7 +2416,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(len(dfa.states), len(dfa.minify().states))
         self.assertEqual(dfa.minimum_word_length(), 4)
 
-    def test_empty_language(self):
+    def test_empty_language(self) -> None:
         dfa = DFA.empty_language({"0"})
         self.assertTrue(dfa.isempty())
 
