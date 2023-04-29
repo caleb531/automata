@@ -40,7 +40,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
             return state_data
 
-        if isinstance(state_data, (set, frozenset, list, tuple)):
+        elif isinstance(state_data, (set, frozenset, tuple)):
             inner = ", ".join(FA.get_state_name(sub_data) for sub_data in state_data)
             if isinstance(state_data, (set, frozenset)):
                 if state_data:
@@ -48,11 +48,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 else:
                     return "∅"
 
-            if isinstance(state_data, tuple):
+            elif isinstance(state_data, tuple):
                 return "(" + inner + ")"
-
-            if isinstance(state_data, list):
-                return "[" + inner + "]"
 
         return str(state_data)
 
