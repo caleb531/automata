@@ -7,10 +7,18 @@ import uuid
 from collections import defaultdict
 from typing import Any, Generator, List, Optional, Set, Tuple, Union
 
-import graphviz
-from coloraide import Color
-
 from automata.base.automaton import Automaton, AutomatonStateT
+
+# Optional imports for use with visual functionality
+try:
+    import coloraide
+    import graphviz
+    import IPython.display
+except ImportError:
+    _visual_imports = False
+else:
+    _visual_imports = True
+
 
 FAStateT = AutomatonStateT
 
@@ -98,6 +106,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             Digraph: The graph in dot format.
         """
 
+        if not _visual_imports:
+            raise ImportError("Missing visual imports.")
+
         # Defining the graph.
         graph = graphviz.Digraph(strict=False, engine=engine)
 
@@ -144,9 +155,13 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         if input_str is not None:
             path, is_accepted = self._get_input_path(input_str=input_str)
 
-            start_color = Color("#ff0")
-            end_color = Color("#0f0") if is_accepted else Color("#f00")
-            interpolation = Color.interpolate([start_color, end_color], space="srgb")
+            start_color = coloraide.Color("#ff0")
+            end_color = (
+                coloraide.Color("#0f0") if is_accepted else coloraide.Color("#f00")
+            )
+            interpolation = coloraide.Color.interpolate(
+                [start_color, end_color], space="srgb"
+            )
 
             # find all transitions in the finite state machine with traversal.
             for transition_index, (from_state, to_state, symbol) in enumerate(
@@ -215,12 +230,10 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         )
 
     def _ipython_display_(self) -> None:
-        # IPython is imported here because this function is only called by
-        # IPython. So if IPython is not installed, this function will not be
-        # called, therefore no need to add ipython as dependency.
-        from IPython.display import display
+        if not _visual_imports:
+            raise ImportError("Missing visual imports.")
 
-        display(self.show_diagram())
+        IPython.display.display(self.show_diagram())
 
     @staticmethod
     def _add_new_state(state_set: Set[FAStateT], start: int = 0) -> int:
