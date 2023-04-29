@@ -7,7 +7,7 @@ flake8-black==0.3.6
 flake8-isort==6.0.0
 Flake8-pyproject==1.2.3
 frozendict==2.3.4
-pygraphviz==1.9
+pygraphviz==1.10
 isort==5.10.1
 mccabe==0.7.0
 mypy==1.1.1

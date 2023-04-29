@@ -205,19 +205,18 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         if path is not None:
             save_path_final: pathlib.Path = pathlib.Path(path)
 
-            directory = save_path_final.parent
-            directory.mkdir(parents=True, exist_ok=True)
-            filename = save_path_final.stem
+            # directory = save_path_final.parent
+            # directory.mkdir(parents=True, exist_ok=True)
+            # filename = save_path_final.stem
             format = (
                 save_path_final.suffix.split(".")[1] if save_path_final.suffix else None
             )
 
-            graph.render(
-                directory=directory,
-                filename=filename,
+            graph.draw(
+                path=save_path_final,
                 format=format,
-                cleanup=cleanup,
-                view=view,
+                # cleanup=cleanup,
+                # view=view,
             )
 
         return graph
