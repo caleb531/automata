@@ -1550,7 +1550,7 @@ class DFA(fa.FA):
             final_states=dfa_final_states,
         )
 
-    def iter_transitions(self):
+    def iter_transitions(self) -> Iterable[Tuple[DFAStateT, DFAStateT, str]]:
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()
@@ -1559,7 +1559,7 @@ class DFA(fa.FA):
 
     def _get_input_path(
         self, input_str
-    ) -> tuple[list[tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]:
+    ) -> Tuple[List[Tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]:
         """
         Calculate the path taken by input.
 

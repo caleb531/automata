@@ -5,7 +5,7 @@ import os
 import pathlib
 import uuid
 from collections import defaultdict
-from typing import Any, Iterable, Optional, Set, Union
+from typing import Any, Iterable, List, Optional, Set, Tuple, Union
 
 import graphviz
 from coloraide import Color
@@ -56,7 +56,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         """A set of all the automaton states."""
 
     @abc.abstractmethod
-    def iter_transitions(self) -> Iterable[tuple[FAStateT, FAStateT, Any]]:
+    def iter_transitions(self) -> Iterable[Tuple[FAStateT, FAStateT, str]]:
         """
         Iterate over all transitions in the automaton. Each transition is a tuple
         of the form (from_state, to_state, symbol)
@@ -216,7 +216,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         return graph
 
     @abc.abstractmethod
-    def _get_input_path(self, input_str):
+    def _get_input_path(
+        self, input_str: str
+    ) -> Tuple[List[Tuple[FAStateT, FAStateT, str]], bool]:
         """Calculate the path taken by input."""
 
         raise NotImplementedError(
@@ -230,7 +232,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         from IPython.display import display
 
         display(self.show_diagram())
-        
+
     @staticmethod
     def _add_new_state(state_set: Set[FAStateT], start: int = 0) -> int:
         """Adds new state to the state set and returns it"""

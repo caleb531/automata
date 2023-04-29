@@ -305,9 +305,7 @@ class NFA(fa.FA):
             final_states=reachable_final_states,
         )
 
-    def _check_for_input_rejection(
-        self, current_states: Set[NFAStateT]
-    ) -> None:
+    def _check_for_input_rejection(self, current_states: Set[NFAStateT]) -> None:
         """Raise an error if the given config indicates rejected input."""
         if current_states.isdisjoint(self.final_states):
             raise exceptions.RejectionException(
@@ -981,7 +979,9 @@ class NFA(fa.FA):
     def get_edge_name(self, symbol):
         return "ε" if symbol == "" else str(symbol)
 
-    def _get_input_path(self, input_str):
+    def _get_input_path(
+        self, input_str: str
+    ) -> Tuple[List[Tuple[NFAStateT, NFAStateT, str], bool]]:
         """Calculate the path taken by input."""
 
         visiting = set()

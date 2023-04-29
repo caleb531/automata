@@ -8,7 +8,6 @@ from itertools import product
 from typing import AbstractSet, Dict, Mapping, Optional, Set, Type, cast
 
 from frozendict import frozendict
-
 from pydot import Dot, Edge, Node
 from typing_extensions import NoReturn, Self
 
@@ -340,3 +339,8 @@ class GNFA(fa.FA):
     @cached_property
     def final_states(self):
         return frozenset({self.final_state})
+
+    def _get_input_path(self, input_str: str) -> NoReturn:
+        raise NotImplementedError(
+            f"_get_input_path is not implemented for {self.__class__}"
+        )
