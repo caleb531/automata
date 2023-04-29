@@ -51,24 +51,12 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     def get_edge_name(self, symbol) -> str:
         return str(symbol)
 
-    @abc.abstractproperty
-    def states(self) -> set[FAStateT]:
-        """A set of all the automaton states."""
-
     @abc.abstractmethod
     def iter_transitions(self) -> Iterable[Tuple[FAStateT, FAStateT, str]]:
         """
         Iterate over all transitions in the automaton. Each transition is a tuple
         of the form (from_state, to_state, symbol)
         """
-
-    @abc.abstractproperty
-    def final_states(self) -> frozenset[FAStateT]:
-        """A fronzenset of all the accepting states"""
-
-    @abc.abstractproperty
-    def initial_state(self) -> FAStateT:
-        """Initial state of the automaton"""
 
     def show_diagram(
         self,
