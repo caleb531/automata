@@ -455,5 +455,4 @@ dfa.show_diagram(path='./dfa1.png')
 
 [Next: NFA Class](class-nfa.md)  
 [FA Class](class-fa.md)  
-[Examples](examples.md)  
 [Table of Contents](../README.md)

@@ -1,15 +1,15 @@
-# Examples
+# FA Examples
 
 [FA Class](class-fa.md)  
-[NFA Class](class-nfa.md)  
-[DFA Class](class-dfa.md)  
 [Table of Contents](../README.md)
 
-On this page, we give some short examples with discussion for the finite automata classes and methods.
+On this page, we give some short examples with discussion for the finite
+automata classes and methods.
 
 ## Reading basic input
 
-The following code snippet creates a `DFA` and prints whether it accepts or rejects user input.
+The following code snippet creates a `DFA` and prints whether it accepts or
+rejects user input.
 
 ```python
 from automata.fa.dfa import DFA
@@ -39,10 +39,12 @@ except KeyboardInterrupt:
 
 ## Subset for NFAs
 
-The `NFA` does not have a built-in method for checking whether it is a subset of another `NFA`. However, this can be done using existing methods.
+The `NFA` does not have a built-in method for checking whether it is a subset
+of another `NFA`. However, this can be done using existing methods.
 
 ```python
-# In the following, we have nfa1 and nfa2 and want to determine whether nfa1 is a subset of nfa2.
+# In the following, we have nfa1 and nfa2 and want to determine whether
+# nfa1 is a subset of nfa2.
 
 # If taking the union of nfa2 with nfa1 is equal to nfa2 again,
 # nfa1 didn't accept any strings that nfa2 did not, so it is a subset.
@@ -55,7 +57,13 @@ else:
 
 ## Edit distance automaton
 
-The following example is inspired by [this blog post](http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata). Essentially, given a set of strings, we want to determine whether 
+The following example is inspired by [this blog post][levelshtein-article].
+Essentially, we want to determine which strings in a given set are within
+the target edit distance to a reference string.
+
+[levelshtein-article]: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
+
+
 
 ```python
 from automata.fa.dfa import DFA
@@ -89,7 +97,10 @@ words_within_edit_distance_dfa = DFA.from_nfa(
 found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
 found_words = list(found_words_dfa)
 
-print(f"All words within edit distance {edit_distance} of '{reference_string}': {found_words}")
+print(
+    f"All words within edit distance {edit_distance} of "
+    f"'{reference_string}': {found_words}"
+)
 ```
 
 ------
