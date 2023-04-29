@@ -5,10 +5,19 @@ from __future__ import annotations
 
 from functools import cached_property
 from itertools import product
-from typing import AbstractSet, Dict, Mapping, Optional, Set, Type, cast
+from typing import (
+    AbstractSet,
+    Dict,
+    Generator,
+    Mapping,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    cast,
+)
 
 from frozendict import frozendict
-from pydot import Dot, Edge, Node
 from typing_extensions import NoReturn, Self
 
 import automata.base.exceptions as exceptions
@@ -324,7 +333,9 @@ class GNFA(fa.FA):
     def read_input_stepwise(self, input_str: str) -> NoReturn:
         raise NotImplementedError
 
-    def iter_transitions(self):
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[GNFAStateT, GNFAStateT, str], None, None]:
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()

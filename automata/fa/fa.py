@@ -5,7 +5,7 @@ import os
 import pathlib
 import uuid
 from collections import defaultdict
-from typing import Any, Iterable, List, Optional, Set, Tuple, Union
+from typing import Any, Generator, List, Optional, Set, Tuple, Union
 
 import graphviz
 from coloraide import Color
@@ -52,7 +52,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         return str(symbol)
 
     @abc.abstractmethod
-    def iter_transitions(self) -> Iterable[Tuple[FAStateT, FAStateT, str]]:
+    def iter_transitions(self) -> Generator[Tuple[FAStateT, FAStateT, str], None, None]:
         """
         Iterate over all transitions in the automaton. Each transition is a tuple
         of the form (from_state, to_state, symbol)
@@ -68,7 +68,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         cleanup: bool = True,
         horizontal: bool = True,
         reverse_orientation: bool = False,
-        fig_size: tuple = None,
+        fig_size: Optional[Tuple] = None,
         font_size: float = 14.0,
         arrow_size: float = 0.85,
         state_separation: float = 0.5,

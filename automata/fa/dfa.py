@@ -1561,7 +1561,7 @@ class DFA(fa.FA):
 
     def _get_input_path(
         self, input_str
-    ) -> Tuple[List[Tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]:
+    ) -> Tuple[List[Tuple[DFAStateT, DFAStateT, DFASymbolT]], bool]:
         """
         Calculate the path taken by input.
 

@@ -36,7 +36,7 @@ exclude = ["build"]
 module = [
   "setuptools.*",
   "networkx.*",
-  "pydot.*" # TODO pydot dependency is going to get removed, can delete
+  "graphviz.*" # TODO pydot dependency is going to get removed, can delete
 ]
 ignore_missing_imports = true
 

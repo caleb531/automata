@@ -984,7 +984,7 @@ class NFA(fa.FA):
 
     def _get_input_path(
         self, input_str: str
-    ) -> Tuple[List[Tuple[NFAStateT, NFAStateT, str], bool]]:
+    ) -> Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool]:
         """Calculate the path taken by input."""
 
         visiting = set()
