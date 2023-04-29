@@ -981,9 +981,6 @@ class NFA(fa.FA):
             for to_ in to_lookup
         )
 
-    def get_edge_name(self, symbol):
-        return "ε" if symbol == "" else str(symbol)
-
     def _get_input_path(
         self, input_str: str
     ) -> Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool]:

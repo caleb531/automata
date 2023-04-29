@@ -48,8 +48,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         return str(state_data)
 
-    def get_edge_name(self, symbol) -> str:
-        return str(symbol)
+    @staticmethod
+    def get_edge_name(symbol: str) -> str:
+        return "ε" if symbol == "" else str(symbol)
 
     @abc.abstractmethod
     def iter_transitions(self) -> Generator[Tuple[FAStateT, FAStateT, str], None, None]:
