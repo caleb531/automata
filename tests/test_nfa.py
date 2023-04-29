@@ -5,7 +5,7 @@ import string
 import tempfile
 import types
 from itertools import product
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
 
@@ -20,39 +20,39 @@ class TestNFA(test_fa.TestFA):
 
     temp_dir_path = tempfile.gettempdir()
 
-    def test_init_nfa(self):
+    def test_init_nfa(self) -> None:
         """Should copy NFA if passed into NFA constructor."""
         new_nfa = self.nfa.copy()
         self.assertIsNot(new_nfa, self.nfa)
 
-    def test_init_nfa_missing_formal_params(self):
+    def test_init_nfa_missing_formal_params(self) -> None:
         """Should raise an error if formal NFA parameters are missing."""
         with self.assertRaises(TypeError):
-            NFA(
+            NFA(  # type: ignore
                 states={"q0", "q1"},
                 input_symbols={"0", "1"},
                 initial_state="q0",
                 final_states={"q1"},
             )
 
-    def test_copy_nfa(self):
+    def test_copy_nfa(self) -> None:
         """Should create exact copy of NFA if copy() method is called."""
         new_nfa = self.nfa.copy()
         self.assertIsNot(new_nfa, self.nfa)
 
-    def test_nfa_immutable_attr_set(self):
+    def test_nfa_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.nfa.states = {}
+            self.nfa.states = {}  # type: ignore
 
-    def test_nfa_immutable_attr_del(self):
+    def test_nfa_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):
             del self.nfa.states
 
-    def test_nfa_immutable_dict(self):
+    def test_nfa_immutable_dict(self) -> None:
         """Should create an NFA whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.nfa.input_parameters)), int)
 
-    def test_init_dfa(self):
+    def test_init_dfa(self) -> None:
         """Should convert DFA to NFA if passed into NFA constructor."""
         nfa = NFA.from_dfa(self.dfa)
         self.assertEqual(nfa.states, {"q0", "q1", "q2"})
@@ -68,12 +68,12 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa.initial_state, "q0")
 
     @patch("automata.fa.nfa.NFA.validate")
-    def test_init_validation(self, validate):
+    def test_init_validation(self, validate: MagicMock) -> None:
         """Should validate NFA when initialized."""
         self.nfa.copy()
         validate.assert_called_once_with()
 
-    def test_nfa_equal(self):
+    def test_nfa_equal(self) -> None:
         """Should correctly determine if two NFAs are equal."""
         nfa1 = NFA(
             states={"q0", "q1", "q2", "q3"},
@@ -102,7 +102,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1, nfa2)
         self.assertEqual(nfa1.eliminate_lambda(), nfa2.eliminate_lambda())
 
-    def test_nfa_not_equal(self):
+    def test_nfa_not_equal(self) -> None:
         """Should correctly determine if two NFAs are not equal."""
         nfa1 = NFA(
             states={"q0", "q1", "q2"},
@@ -124,7 +124,7 @@ class TestNFA(test_fa.TestFA):
         )
         self.assertNotEqual(nfa1, nfa2)
 
-    def test_validate_invalid_symbol(self):
+    def test_validate_invalid_symbol(self) -> None:
         """Should raise error if a transition references an invalid symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             NFA(
@@ -135,7 +135,7 @@ class TestNFA(test_fa.TestFA):
                 final_states={"q0"},
             )
 
-    def test_validate_invalid_state(self):
+    def test_validate_invalid_state(self) -> None:
         """Should raise error if a transition references an invalid state."""
         with self.assertRaises(exceptions.InvalidStateError):
             NFA(
@@ -146,7 +146,7 @@ class TestNFA(test_fa.TestFA):
                 final_states={"q0"},
             )
 
-    def test_validate_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self) -> None:
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             NFA(
@@ -157,7 +157,7 @@ class TestNFA(test_fa.TestFA):
                 final_states={"q0"},
             )
 
-    def test_validate_initial_state_transitions(self):
+    def test_validate_initial_state_transitions(self) -> None:
         """Should raise error if the initial state has no transitions."""
         with self.assertRaises(exceptions.MissingStateError):
             NFA(
@@ -168,7 +168,7 @@ class TestNFA(test_fa.TestFA):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_final_state(self):
+    def test_validate_invalid_final_state(self) -> None:
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             NFA(
@@ -179,7 +179,7 @@ class TestNFA(test_fa.TestFA):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_final_state_non_str(self):
+    def test_validate_invalid_final_state_non_str(self) -> None:
         """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
             NFA(
@@ -191,11 +191,11 @@ class TestNFA(test_fa.TestFA):
             )
             self.nfa.validate()
 
-    def test_read_input_accepted(self):
+    def test_read_input_accepted(self) -> None:
         """Should return correct states if acceptable NFA input is given."""
         self.assertEqual(self.nfa.read_input("aba"), {"q1", "q2"})
 
-    def test_validate_missing_state(self):
+    def test_validate_missing_state(self) -> None:
         """Should silently ignore states without transitions defined."""
         NFA(
             states={"q0"},
@@ -206,17 +206,17 @@ class TestNFA(test_fa.TestFA):
         )
         self.assertIsNotNone(self.nfa.transitions)
 
-    def test_read_input_rejection(self):
+    def test_read_input_rejection(self) -> None:
         """Should raise error if the stop state is not a final state."""
         with self.assertRaises(exceptions.RejectionException):
             self.nfa.read_input("abba")
 
-    def test_read_input_rejection_invalid_symbol(self):
+    def test_read_input_rejection_invalid_symbol(self) -> None:
         """Should raise error if an invalid symbol is read."""
         with self.assertRaises(exceptions.RejectionException):
             self.nfa.read_input("abc")
 
-    def test_read_input_step(self):
+    def test_read_input_step(self) -> None:
         """Should return validation generator if step flag is supplied."""
         validation_generator = self.nfa.read_input_stepwise("aba")
         self.assertIsInstance(validation_generator, types.GeneratorType)
@@ -224,15 +224,15 @@ class TestNFA(test_fa.TestFA):
             list(validation_generator), [{"q0"}, {"q1", "q2"}, {"q0"}, {"q1", "q2"}]
         )
 
-    def test_accepts_input_true(self):
+    def test_accepts_input_true(self) -> None:
         """Should return True if NFA input is accepted."""
         self.assertTrue(self.nfa.accepts_input("aba"))
 
-    def test_accepts_input_false(self):
+    def test_accepts_input_false(self) -> None:
         """Should return False if NFA input is rejected."""
         self.assertFalse(self.nfa.accepts_input("abba"))
 
-    def test_cyclic_lambda_transitions(self):
+    def test_cyclic_lambda_transitions(self) -> None:
         """Should traverse NFA containing cyclic lambda transitions."""
         # NFA which matches zero or more occurrences of 'a'
         nfa = NFA(
@@ -250,11 +250,11 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa.read_input(""), {"q0", "q1", "q3"})
         self.assertEqual(nfa.read_input("a"), {"q0", "q1", "q2", "q3"})
 
-    def test_non_str_states(self):
+    def test_non_str_states(self) -> None:
         """Should handle non-string state names"""
         nfa = NFA(
             states={0},
-            input_symbols={0},
+            input_symbols={"0"},
             transitions={0: {}},
             initial_state=0,
             final_states=set(),
@@ -263,7 +263,7 @@ class TestNFA(test_fa.TestFA):
         # raised
         self.assertIsNotNone(nfa.accepts_input(""))
 
-    def test_operations_other_type(self):
+    def test_operations_other_type(self) -> None:
         """Should raise TypeError for concatenate."""
         nfa = NFA(
             states={"q1", "q2", "q3", "q4"},
@@ -279,9 +279,9 @@ class TestNFA(test_fa.TestFA):
         )
         other = 42
         with self.assertRaises(TypeError):
-            nfa + other
+            nfa + other  # type: ignore
 
-    def test_concatenate(self):
+    def test_concatenate(self) -> None:
         nfa_a = NFA(
             states={"q1", "q2", "q3", "q4"},
             input_symbols={"0", "1"},
@@ -320,7 +320,7 @@ class TestNFA(test_fa.TestFA):
         self.assertTrue(concat_nfa.accepts_input("101100"))
         self.assertTrue(concat_nfa.accepts_input("1010"))
 
-    def test_kleene_star(self):
+    def test_kleene_star(self) -> None:
         """Should perform the Kleene Star operation on an NFA"""
         # This NFA accepts aa and ab
         nfa = NFA(
@@ -355,7 +355,7 @@ class TestNFA(test_fa.TestFA):
         self.assertTrue(kleene_nfa.accepts_input("aaabababaaaaab"))
         self.assertFalse(kleene_nfa.accepts_input("aaabababaaaaba"))
 
-    def test_reverse(self):
+    def test_reverse(self) -> None:
         """Should reverse an NFA"""
         nfa = NFA(
             states={0, 1, 2, 4},
@@ -369,14 +369,15 @@ class TestNFA(test_fa.TestFA):
             initial_state=0,
             final_states={2},
         )
-        reverse_nfa = reversed(nfa)
+
+        reverse_nfa = nfa.reverse()
         self.assertFalse(reverse_nfa.accepts_input("a"))
         self.assertFalse(reverse_nfa.accepts_input("ab"))
         self.assertTrue(reverse_nfa.accepts_input("ba"))
         self.assertTrue(reverse_nfa.accepts_input("bba"))
         self.assertTrue(reverse_nfa.accepts_input("bbba"))
 
-    def test_from_regex(self):
+    def test_from_regex(self) -> None:
         """Test if from_regex produces correct NFA"""
         input_symbols = {"a", "b", "c", "d"}
         nfa1 = NFA.from_regex("ab(cd*|dc)|a?", input_symbols=input_symbols)
@@ -401,10 +402,10 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(nfa1, nfa2)
 
-    def test_from_regex_empty_string(self):
+    def test_from_regex_empty_string(self) -> None:
         NFA.from_regex("")
 
-    def test_eliminate_lambda(self):
+    def test_eliminate_lambda(self) -> None:
         original_nfa = NFA(
             states={0, 1, 2, 3, 4, 5, 6},
             initial_state=0,
@@ -438,7 +439,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
         self.assertNotEqual(nfa1._lambda_closures, original_nfa._lambda_closures)
 
-    def test_eliminate_lambda_other(self):
+    def test_eliminate_lambda_other(self) -> None:
         original_nfa = NFA(
             states={0, 1, 2},
             initial_state=0,
@@ -464,7 +465,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
         self.assertNotEqual(nfa1._lambda_closures, original_nfa._lambda_closures)
 
-    def test_eliminate_lambda_regex(self):
+    def test_eliminate_lambda_regex(self) -> None:
         nfa = NFA.from_regex(
             "a(aaa*bbcd|abbcd)d*|aa*bb(dcc*|(d|c)b|a?bb(dcc*|(d|c)))ab(c|d)*(ccd)?"
         )
@@ -475,7 +476,7 @@ class TestNFA(test_fa.TestFA):
             for char in transition.keys():
                 self.assertNotEqual(char, "")
 
-    def test_option(self):
+    def test_option(self) -> None:
         """
         Given a NFA recognizing language L, should return NFA
         such that it accepts the language 'L?'
@@ -496,7 +497,7 @@ class TestNFA(test_fa.TestFA):
             )
         )
 
-    def test_union(self):
+    def test_union(self) -> None:
         input_symbols = {"a", "b"}
         nfa1 = NFA.from_regex("ab*", input_symbols=input_symbols)
         nfa2 = NFA.from_regex("ba*", input_symbols=input_symbols)
@@ -533,9 +534,9 @@ class TestNFA(test_fa.TestFA):
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
-            self.nfa | self.dfa
+            self.nfa | self.dfa  # type: ignore
 
-    def test_intersection(self):
+    def test_intersection(self) -> None:
         nfa1 = NFA.from_regex("aaaa*")
         nfa2 = NFA.from_regex("(a)|(aa)|(aaa)")
 
@@ -558,9 +559,9 @@ class TestNFA(test_fa.TestFA):
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
-            self.nfa & self.dfa
+            self.nfa & self.dfa  # type: ignore
 
-    def test_validate_regex(self):
+    def test_validate_regex(self) -> None:
         """Should raise an error if invalid regex is passed into NFA.from_regex()"""
 
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "ab|")
@@ -577,7 +578,7 @@ class TestNFA(test_fa.TestFA):
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "a(*)")
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "ab(|)")
 
-    def test_show_diagram_initial_final_same(self):
+    def test_show_diagram_initial_final_same(self) -> None:
         """
         Should construct the diagram for a NFA whose initial state
         is also a final state.
@@ -610,7 +611,7 @@ class TestNFA(test_fa.TestFA):
             {("q0", "a", "q1"), ("q1", "a", "q1"), ("q1", "", "q2"), ("q2", "b", "q0")},
         )
 
-    def test_show_diagram_write_file(self):
+    def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a NFA
         and write it to the specified file.
@@ -625,7 +626,7 @@ class TestNFA(test_fa.TestFA):
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
 
-    def test_add_new_state_type_integrity(self):
+    def test_add_new_state_type_integrity(self) -> None:
         """
         Should properly add new state of different type than original states;
         see <https://github.com/caleb531/automata/issues/60> for more details
@@ -646,7 +647,7 @@ class TestNFA(test_fa.TestFA):
             "DFA and NFA are not equivalent when they should be",
         )
 
-    def test_nfa_equality(self):
+    def test_nfa_equality(self) -> None:
         input_symbols = {"0", "1"}
         nfa1 = NFA(
             states={"s", "a", "b", "c", "d", "e", "f", "g", "h"},
@@ -760,7 +761,7 @@ class TestNFA(test_fa.TestFA):
             ),
         )
 
-    def test_nfa_levenshtein_distance(self):
+    def test_nfa_levenshtein_distance(self) -> None:
         alphabet = {"f", "o", "d", "a"}
 
         nfa = NFA(
@@ -876,7 +877,7 @@ class TestNFA(test_fa.TestFA):
                 alphabet, "food", 2, insertion=False, deletion=False, substitution=False
             )
 
-    def test_nfa_hamming_distance(self):
+    def test_nfa_hamming_distance(self) -> None:
         alphabet = {"f", "o", "d", "a"}
 
         nfa = NFA(
@@ -991,7 +992,7 @@ class TestNFA(test_fa.TestFA):
         for close_string in close_strings_insertion_deletion:
             self.assertFalse(nice_nfa.accepts_input(close_string))
 
-    def test_nfa_LCS_distance(self):
+    def test_nfa_LCS_distance(self) -> None:
         alphabet = {"f", "o", "d", "a"}
 
         nfa = NFA(
@@ -1103,7 +1104,7 @@ class TestNFA(test_fa.TestFA):
             self.assertTrue(nice_nfa_deletion.accepts_input(close_string))
             self.assertFalse(nice_nfa_insertion.accepts_input(close_string))
 
-    def test_nfa_shuffle_product(self):
+    def test_nfa_shuffle_product(self) -> None:
         """
         Test shuffle product of two NFAs.
 
@@ -1154,9 +1155,9 @@ class TestNFA(test_fa.TestFA):
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
-            self.nfa.shuffle_product(self.dfa)
+            self.nfa.shuffle_product(self.dfa)  # type: ignore
 
-    def test_nfa_shuffle_product_set_laws(self):
+    def test_nfa_shuffle_product_set_laws(self) -> None:
         """Test set laws for shuffle product"""
         alphabet = {"a", "b"}
 
@@ -1178,7 +1179,7 @@ class TestNFA(test_fa.TestFA):
             nfa1.shuffle_product(nfa2).union(nfa1.shuffle_product(nfa3)),
         )
 
-    def test_right_quotient(self):
+    def test_right_quotient(self) -> None:
         """
         Tests for right quotient operator,
         based on https://www.geeksforgeeks.org/quotient-operation-in-automata/
@@ -1239,9 +1240,9 @@ class TestNFA(test_fa.TestFA):
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
-            self.nfa.right_quotient(self.dfa)
+            self.nfa.right_quotient(self.dfa)  # type: ignore
 
-    def test_left_quotient(self):
+    def test_left_quotient(self) -> None:
         """
         Tests for left quotient operator,
         based on https://www.geeksforgeeks.org/quotient-operation-in-automata/
@@ -1291,9 +1292,9 @@ class TestNFA(test_fa.TestFA):
 
         # raise error if other is not NFA
         with self.assertRaises(TypeError):
-            self.nfa.left_quotient(self.dfa)
+            self.nfa.left_quotient(self.dfa)  # type: ignore
 
-    def test_quotient_properties(self):
+    def test_quotient_properties(self) -> None:
         """Test some properties of quotients, based on
         https://planetmath.org/quotientoflanguages"""
 

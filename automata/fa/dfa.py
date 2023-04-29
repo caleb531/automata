@@ -818,7 +818,7 @@ class DFA(fa.FA):
 
     def successor(
         self,
-        input_str: str,
+        input_str: Optional[str],
         *,
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
@@ -837,7 +837,7 @@ class DFA(fa.FA):
 
     def successors(
         self,
-        input_str: str,
+        input_str: Optional[str],
         *,
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,

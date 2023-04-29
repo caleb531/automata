@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """Classes and methods for working with Turing machine configurations."""
 
-from typing import List, NamedTuple
+from dataclasses import dataclass
+from typing import List
 
 from automata.tm.tape import TMTape
 from automata.tm.tm import TMStateT
 
 
-class TMConfiguration(NamedTuple):
+@dataclass(frozen=True)
+class TMConfiguration:
     """A Turing machine configuration."""
+
+    __slots__ = ("state", "tape")
 
     state: TMStateT
     tape: TMTape
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""
-        return "{}('{}', {})".format(self.__class__.__name__, self.state, self.tape)
+        return "{}({!r}, {!r})".format(self.__class__.__name__, self.state, self.tape)
 
     def print(self) -> None:
         """Print the machine's current configuration in a readable form."""
@@ -30,15 +34,18 @@ class TMConfiguration(NamedTuple):
         )
 
 
-class MTMConfiguration(NamedTuple):
+@dataclass(frozen=True)
+class MTMConfiguration:
     """A Multitape Turing machine configuration."""
+
+    __slots__ = ("state", "tapes")
 
     state: TMStateT
     tapes: List[TMTape]
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""
-        return "{}('{}', {})".format(self.__class__.__name__, self.state, self.tapes)
+        return "{}({!r}, {!r})".format(self.__class__.__name__, self.state, self.tapes)
 
     def print(self) -> None:
         """Print the machine's current configuration in a readable form."""

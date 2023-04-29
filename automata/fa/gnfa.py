@@ -1,19 +1,30 @@
 #!/usr/bin/env python3
 """Classes and methods for working with generalized non-deterministic finite
 automata."""
+from __future__ import annotations
 
 from functools import cached_property
 from itertools import product
+from typing import AbstractSet, Dict, Mapping, Optional, Set, Type, cast
 
 from frozendict import frozendict
 
+from pydot import Dot, Edge, Node
+from typing_extensions import NoReturn, Self
+
 import automata.base.exceptions as exceptions
+import automata.fa.dfa as dfa
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 import automata.regex.regex as re
 
+GNFAStateT = fa.AutomatonStateT
 
-class GNFA(nfa.NFA):
+GNFAPathT = Mapping[GNFAStateT, Optional[str]]
+GNFATransitionsT = Mapping[GNFAStateT, GNFAPathT]
+
+
+class GNFA(fa.FA):
     """A generalized nondeterministic finite automaton."""
 
     # The conventions of using __slots__ state that subclasses automatically
@@ -29,9 +40,17 @@ class GNFA(nfa.NFA):
         "final_state",
     )
 
+    final_state: GNFAStateT
+
     def __init__(
-        self, *, states, input_symbols, transitions, initial_state, final_state
-    ):
+        self,
+        *,
+        states: AbstractSet[GNFAStateT],
+        input_symbols: AbstractSet[str],
+        transitions: GNFATransitionsT,
+        initial_state: GNFAStateT,
+        final_state: GNFAStateT,
+    ) -> None:
         """Initialize a complete NFA."""
         super(fa.FA, self).__init__(
             states=frozenset(states),
@@ -44,17 +63,17 @@ class GNFA(nfa.NFA):
         )
 
     # GNFA should NOT create the lambda closures via NFA.__post_init__()
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.validate()
 
     @classmethod
-    def from_dfa(cls, dfa):
+    def from_dfa(cls: Type[Self], dfa: dfa.DFA) -> Self:
         """Initialize this GNFA as one equivalent to the given DFA."""
         new_gnfa_transitions = dict()
         gnfa_states = set(dfa.states)
 
         for state in dfa.states:
-            gnfa_transitions = dict()
+            gnfa_transitions: Dict[GNFAStateT, Optional[str]] = dict()
             if state in dfa.transitions:
                 for input_symbol, to_state in dfa.transitions[state].items():
                     if to_state in gnfa_transitions.keys():
@@ -90,13 +109,13 @@ class GNFA(nfa.NFA):
         )
 
     @classmethod
-    def from_nfa(cls, nfa):
+    def from_nfa(cls: Type[Self], nfa: nfa.NFA) -> Self:
         """Initialize this GNFA as one equivalent to the given NFA."""
-        new_gnfa_transitions = dict()
+        new_gnfa_transitions: Dict[GNFAStateT, Dict[GNFAStateT, Optional[str]]] = dict()
         gnfa_states = set(nfa.states)
 
         for state in nfa.states:
-            gnfa_transitions = dict()
+            gnfa_transitions: Dict[GNFAStateT, str] = dict()
             if state in nfa.transitions:
                 for input_symbol, to_states in nfa.transitions[state].items():
                     for to_state in to_states:
@@ -120,7 +139,9 @@ class GNFA(nfa.NFA):
                                 ] = f"{gnfa_transitions[to_state]}|{input_symbol}"
                         else:
                             gnfa_transitions[to_state] = input_symbol
-                new_gnfa_transitions[state] = gnfa_transitions
+                new_gnfa_transitions[state] = cast(
+                    Dict[GNFAStateT, Optional[str]], gnfa_transitions
+                )
             else:
                 new_gnfa_transitions[state] = dict()
 
@@ -146,7 +167,9 @@ class GNFA(nfa.NFA):
             final_state=new_final_state,
         )
 
-    def _validate_transition_invalid_symbols(self, start_state, paths):
+    def _validate_transition_invalid_symbols(
+        self, start_state: GNFAStateT, paths: GNFAPathT
+    ) -> None:
         """Raise an error if transition symbols are invalid."""
         check = self.input_symbols | {"*", "|", "(", ")", "?"}
 
@@ -160,7 +183,9 @@ class GNFA(nfa.NFA):
                     )
                 )
 
-    def _validate_transition_end_states(self, start_state, paths):
+    def _validate_transition_end_states(
+        self, start_state: GNFAStateT, paths: GNFAPathT
+    ) -> None:
         """Raise an error if transition end states are invalid or missing"""
         if start_state == self.final_state:
             if len(paths) != 0:  # pragma: no branch
@@ -193,7 +218,7 @@ class GNFA(nfa.NFA):
                     "not valid".format(end_state, start_state)
                 )
 
-    def _validate_final_state(self):
+    def _validate_final_state(self) -> None:
         """Raise an error if the initial state is invalid."""
         if self.final_state not in self.states:
             raise exceptions.InvalidStateError(
@@ -210,7 +235,7 @@ class GNFA(nfa.NFA):
         self._validate_initial_state_transitions()
 
     @staticmethod
-    def _isbracket_req(regex):
+    def _isbracket_req(regex: str) -> bool:
         bracket_open = 0
         for symbol in regex:
             if symbol == "(":
@@ -223,7 +248,12 @@ class GNFA(nfa.NFA):
         return False
 
     @staticmethod
-    def _find_min_connected_node(states, transitions, initial_state, final_state):
+    def _find_min_connected_node(
+        states: Set[GNFAStateT],
+        transitions: GNFATransitionsT,
+        initial_state: GNFAStateT,
+        final_state: GNFAStateT,
+    ) -> GNFAStateT:
         state_set = states - {initial_state, final_state}
         state_degree = dict.fromkeys(state_set, 0)
 
@@ -235,9 +265,9 @@ class GNFA(nfa.NFA):
                     if to_state != final_state:
                         state_degree[to_state] += 1
 
-        return min(state_degree, key=state_degree.get)
+        return min(state_degree, key=lambda x: state_degree.get(x, -1))
 
-    def to_regex(self):
+    def to_regex(self) -> str:
         """
         Convert GNFA to regular expression.
         """
@@ -296,28 +326,7 @@ class GNFA(nfa.NFA):
 
         return new_transitions[self.initial_state][self.final_state]
 
-    def __eq__(self, other):
-        return NotImplemented
-
-    # The following NFA methods are not supported on GNFA instances because
-    # they are out of scope for the purpose of the GNFA class (which is focused
-    # on regular expression conversion)
-    def read_input_stepwise(self, input_str):
-        raise NotImplementedError
-
-    def union(self, other):
-        raise NotImplementedError
-
-    def concatenate(self, other):
-        raise NotImplementedError
-
-    def kleene_star(self):
-        raise NotImplementedError
-
-    def option(self):
-        raise NotImplementedError
-
-    def reverse(self):
+    def read_input_stepwise(self, input_str: str) -> NoReturn:
         raise NotImplementedError
 
     def iter_transitions(self):

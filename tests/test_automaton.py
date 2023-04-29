@@ -7,7 +7,7 @@ from automata.base.automaton import Automaton
 
 
 class TestAutomaton(unittest.TestCase):
-    def test_abstract_methods_not_implemented(self):
+    def test_abstract_methods_not_implemented(self) -> None:
         """Should raise NotImplementedError when calling abstract methods."""
         abstract_methods = {
             "validate": (Automaton,),
