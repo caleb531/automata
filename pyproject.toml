@@ -20,6 +20,8 @@ dependencies = [
     "frozendict>=2.3.4", #TODO I think that typing extensions needs to be in here
 ]
 
+#TODO maybe add stuff from here?: https://blog.whtsky.me/tech/2021/dont-forget-py.typed-for-your-typed-python-package/#adding-pytyped
+
 [project.urls]
 homepage = "https://github.com/caleb531/automata"
 documentation = "https://github.com/caleb531/automata#readme"

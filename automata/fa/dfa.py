@@ -1574,15 +1574,9 @@ class DFA(fa.FA):
             whether the DFA accepted the input.
 
         """
-        state_history = [
-            state
-            for state in self.read_input_stepwise(input_str, ignore_rejection=True)
-        ]
 
-        path = [
-            transition
-            for transition in zip(state_history, state_history[1:], input_str)
-        ]
+        state_history = list(self.read_input_stepwise(input_str, ignore_rejection=True))
+        path = list(zip(state_history, state_history[1:], input_str))
 
         last_state = state_history[-1] if state_history else self.initial_state
         accepted = last_state in self.final_states
