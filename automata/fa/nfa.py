@@ -971,7 +971,9 @@ class NFA(fa.FA):
             final_states=final_states,
         )
 
-    def iter_transitions(self):
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[NFAStateT, NFAStateT, str], None, None]:
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()
