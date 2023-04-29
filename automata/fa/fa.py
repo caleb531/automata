@@ -5,7 +5,7 @@ import os
 import pathlib
 import uuid
 from collections import defaultdict
-from typing import Any, Dict, Generator, Iterable, List, Optional, Set, Tuple, Union
+from typing import Dict, Generator, Iterable, List, Optional, Set, Tuple, Union
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
