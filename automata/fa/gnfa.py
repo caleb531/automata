@@ -26,17 +26,13 @@ GNFATransitionsT = Mapping[GNFAStateT, GNFAPathT]
 class GNFA(fa.FA):
     """A generalized nondeterministic finite automaton."""
 
-    # The conventions of using __slots__ state that subclasses automatically
-    # inherit __slots__ from parent classes, so there's no need to redeclare
-    # slotted attributes for each subclass; however, because NFA has a
-    # 'final_states' attribute but GNFA has a 'final_state' attribute, we must
-    # redeclare them below to exclude 'final_states'
     __slots__ = (
         "states",
         "input_symbols",
         "transitions",
         "initial_state",
         "final_state",
+        "__dict__",
     )
 
     final_state: GNFAStateT
