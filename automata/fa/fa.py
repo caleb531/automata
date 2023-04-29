@@ -5,7 +5,7 @@ import os
 import pathlib
 import uuid
 from collections import defaultdict
-from typing import Any, Generator, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, Generator, Iterable, List, Optional, Set, Tuple, Union
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
@@ -14,6 +14,7 @@ try:
     import coloraide
     import graphviz
     import IPython.display
+    import pygraphviz as pgv
 except ImportError:
     _visual_imports = False
 else:
@@ -78,7 +79,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         font_size: float = 14.0,
         arrow_size: float = 0.85,
         state_separation: float = 0.5,
-    ) -> graphviz.Digraph:
+    ) -> pgv.AGraph:
         """
         Generates the graph associated with the given DFA.
         Args:
@@ -105,28 +106,28 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             raise ImportError("Missing visual imports.")
 
         # Defining the graph.
-        graph = graphviz.Digraph(strict=False, engine=engine)
+        graph = pgv.AGraph(strict=False, directed=True)
 
         # TODO test fig_size
         if fig_size is not None:
-            graph.attr(size=", ".join(map(str, fig_size)))
+            graph.graph_attr.update(size=", ".join(map(str, fig_size)))
 
-        graph.attr(ranksep=str(state_separation))
+        graph.graph_attr.update(ranksep=str(state_separation))
         font_size_str = str(font_size)
         arrow_size_str = str(arrow_size)
 
         if horizontal:
-            graph.attr(rankdir="LR")
+            graph.graph_attr.update(rankdir="LR")
         if reverse_orientation:
             if horizontal:
-                graph.attr(rankdir="RL")
+                graph.graph_attr.update(rankdir="RL")
             else:
-                graph.attr(rankdir="BT")
+                graph.graph_attr.update(rankdir="BT")
 
         # we use a random uuid to make sure that the null node has a
         # unique id to avoid colliding with other states.
         null_node = str(uuid.uuid4())
-        graph.node(
+        graph.add_node(
             null_node,
             label="",
             tooltip=".",
@@ -134,7 +135,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             fontsize=font_size_str,
         )
         initial_node = self.get_state_name(self.initial_state)
-        graph.edge(
+        graph.add_edge(
             null_node,
             initial_node,
             tooltip="->" + initial_node,
@@ -144,7 +145,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         for state in self.states:
             shape = "doublecircle" if state in self.final_states else "circle"
             node = self.get_state_name(state)
-            graph.node(node, shape=shape, fontsize=font_size_str)
+            graph.add_node(node, shape=shape, fontsize=font_size_str)
 
         is_edge_drawn = defaultdict(lambda: False)
         if input_str is not None:
@@ -166,7 +167,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 label = self.get_edge_name(symbol)
 
                 is_edge_drawn[from_state, to_state, symbol] = True
-                graph.edge(
+                graph.add_edge(
                     self.get_state_name(from_state),
                     self.get_state_name(to_state),
                     label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
@@ -187,7 +188,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             edge_labels[from_node, to_node].append(label)
 
         for (from_node, to_node), labels in edge_labels.items():
-            graph.edge(
+            graph.add_edge(
                 from_node,
                 to_node,
                 label=",".join(sorted(labels)),
@@ -195,7 +196,14 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 fontsize=font_size_str,
             )
 
+        # Set layout
+        if engine is None:
+            engine = "dot"
+
+        graph.layout(prog=engine)
+
         # Write diagram to file. PNG, SVG, etc.
+        # TODO gotta fix this
         if path is not None:
             save_path_final: pathlib.Path = pathlib.Path(path)
 
@@ -226,11 +234,29 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             f"_get_input_path is not implemented for {self.__class__}"
         )
 
-    def _ipython_display_(self) -> None:
-        if not _visual_imports:
-            raise ImportError("Missing visual imports.")
+    def _repr_mimebundle_(
+        self,
+        include: Optional[Iterable[str]] = None,
+        exclude: Optional[Iterable[str]] = None,
+        **_,
+    ) -> Dict[str, Union[bytes, str]]:
+        DEFAULT_FORMATS = {"image/svg+xml"}
+        # TODO add proper support for include/exclude
+        # DEFAULT_FORMATS = frozenset(("jpeg", "jpg", "png", "svg"))
 
-        IPython.display.display(self.show_diagram())
+        diagram_graph = self.show_diagram()
+
+        include = set(include) if include is not None else DEFAULT_FORMATS
+        include -= set(exclude or set())
+
+        return {"image/svg+xml": diagram_graph.draw(format="svg").decode("utf-8")}
+
+    # def _ipython_display_(self) -> None:
+    #    if not _visual_imports:
+    #        raise ImportError("Missing visual imports.")
+    #    from IPython.display import SVG
+    #
+    #    IPython.display.display(SVG(self.show_diagram().draw(format="svg")))
 
     @staticmethod
     def _add_new_state(state_set: Set[FAStateT], start: int = 0) -> int:
