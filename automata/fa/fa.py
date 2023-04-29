@@ -5,7 +5,7 @@ import os
 import pathlib
 import uuid
 from collections import defaultdict
-from typing import Any, Iterable, Optional, Union
+from typing import Any, Iterable, Optional, Set, Union
 
 import graphviz
 from coloraide import Color
@@ -230,3 +230,14 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         from IPython.display import display
 
         display(self.show_diagram())
+        
+    @staticmethod
+    def _add_new_state(state_set: Set[FAStateT], start: int = 0) -> int:
+        """Adds new state to the state set and returns it"""
+        new_state = start
+        while new_state in state_set:
+            new_state += 1
+
+        state_set.add(new_state)
+
+        return new_state

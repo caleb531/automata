@@ -2,7 +2,7 @@
 """Classes and functions for testing the behavior of GNFAs."""
 import os
 import tempfile
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
@@ -16,35 +16,35 @@ class TestGNFA(test_fa.TestFA):
 
     temp_dir_path = tempfile.gettempdir()
 
-    def test_init_gnfa(self):
+    def test_init_gnfa(self) -> None:
         """Should copy GNFA if passed into NFA constructor."""
         new_gnfa = self.gnfa.copy()
         self.assertIsNot(new_gnfa, self.gnfa)
 
-    def test_init_nfa_missing_formal_params(self):
+    def test_init_nfa_missing_formal_params(self) -> None:
         """Should raise an error if formal NFA parameters are missing."""
         with self.assertRaises(TypeError):
-            GNFA(
+            GNFA(  # type: ignore
                 states={"q0", "q1"},
                 input_symbols={"0", "1"},
                 initial_state="q0",
                 final_state="q1",
             )
 
-    def test_copy_gnfa(self):
+    def test_copy_gnfa(self) -> None:
         """Should create exact copy of NFA if copy() method is called."""
         new_gnfa = self.gnfa.copy()
         self.assertIsNot(new_gnfa, self.gnfa)
 
-    def test_gnfa_immutable_attr_set(self):
+    def test_gnfa_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.gnfa.states = {}
+            self.gnfa.states = {}  # type: ignore
 
-    def test_gnfa_immutable_attr_del(self):
+    def test_gnfa_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):
             del self.gnfa.states
 
-    def test_init_dfa(self):
+    def test_init_dfa(self) -> None:
         """Should convert DFA to GNFA if passed into GNFA constructor."""
         gnfa = GNFA.from_dfa(self.dfa)
         self.assertEqual(gnfa.states, {0, 1, "q2", "q0", "q1"})
@@ -60,7 +60,7 @@ class TestGNFA(test_fa.TestFA):
         )
         self.assertEqual(gnfa.initial_state, 0)
 
-    def test_init_nfa(self):
+    def test_init_nfa(self) -> None:
         """Should convert NFA to GNFA if passed into GNFA constructor."""
         gnfa = GNFA.from_nfa(self.nfa)
         self.assertEqual(gnfa.states, {0, 1, "q0", "q1", "q2"})
@@ -77,12 +77,12 @@ class TestGNFA(test_fa.TestFA):
         self.assertEqual(gnfa.initial_state, 0)
 
     @patch("automata.fa.gnfa.GNFA.validate")
-    def test_init_validation(self, validate):
+    def test_init_validation(self, validate: MagicMock) -> None:
         """Should validate NFA when initialized."""
         self.gnfa.copy()
         validate.assert_called_once_with()
 
-    def test_validate_invalid_symbol(self):
+    def test_validate_invalid_symbol(self) -> None:
         """Should raise error if a transition references an invalid symbol."""
         with self.assertRaises(exceptions.InvalidRegexError):
             GNFA(
@@ -98,7 +98,7 @@ class TestGNFA(test_fa.TestFA):
                 final_state="q_f",
             )
 
-    def test_validate_invalid_state(self):
+    def test_validate_invalid_state(self) -> None:
         """Should raise error if a transition references an invalid state."""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
@@ -114,7 +114,7 @@ class TestGNFA(test_fa.TestFA):
                 final_state="q_f",
             )
 
-    def test_validate_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self) -> None:
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
@@ -130,7 +130,7 @@ class TestGNFA(test_fa.TestFA):
                 final_state="q_f",
             )
 
-    def test_validate_initial_state_transitions(self):
+    def test_validate_initial_state_transitions(self) -> None:
         """Should raise error if the initial state has no transitions."""
         with self.assertRaises(exceptions.MissingStateError):
             GNFA(
@@ -145,7 +145,7 @@ class TestGNFA(test_fa.TestFA):
                 final_state="q_f",
             )
 
-    def test_validate_invalid_final_state(self):
+    def test_validate_invalid_final_state(self) -> None:
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
@@ -161,7 +161,7 @@ class TestGNFA(test_fa.TestFA):
                 final_state="q3",
             )
 
-    def test_validate_final_state_transition(self):
+    def test_validate_final_state_transition(self) -> None:
         """Should raise error if there are transitions from final state"""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
@@ -178,7 +178,7 @@ class TestGNFA(test_fa.TestFA):
                 final_state="q_f",
             )
 
-    def test_validate_missing_state(self):
+    def test_validate_missing_state(self) -> None:
         """Should raise an error if some transitions are missing."""
         with self.assertRaises(exceptions.MissingStateError):
             GNFA(
@@ -194,7 +194,7 @@ class TestGNFA(test_fa.TestFA):
                 final_state="q_f",
             )
 
-    def test_validate_incomplete_transitions(self):
+    def test_validate_incomplete_transitions(self) -> None:
         """
         Should raise error if transitions from (except final state)
         and to (except initial state) every state is missing.
@@ -238,13 +238,19 @@ class TestGNFA(test_fa.TestFA):
                     "q0": {"q1": "a", "q_f": None, "q2": None, "q0": None},
                     "q1": {"q1": "a", "q2": "", "q_f": "", "q0": None},
                     "q2": {"q0": "b", "q_f": None, "q2": None, "q1": None},
-                    "q_in": {"q0": "", "q_f": None, "q2": None, "q1": None, "q5": {}},
+                    "q_in": {
+                        "q0": "",
+                        "q_f": None,
+                        "q2": None,
+                        "q1": None,
+                        "q5": {},  # type: ignore
+                    },
                 },
                 initial_state="q_in",
                 final_state="q_f",
             )
 
-    def test_from_dfa(self):
+    def test_from_dfa(self) -> None:
         """
         Check if GNFA is generated properly from DFA
         """
@@ -275,7 +281,7 @@ class TestGNFA(test_fa.TestFA):
 
         self.assertEqual(gnfa.input_parameters, gnfa2.input_parameters)
 
-    def test_from_dfa_single_state(self):
+    def test_from_dfa_single_state(self) -> None:
         nfa = NFA.from_regex("")
         dfa = DFA.from_nfa(nfa)
         gnfa = GNFA.from_dfa(dfa)
@@ -290,7 +296,7 @@ class TestGNFA(test_fa.TestFA):
 
         self.assertEqual(gnfa.to_regex(), gnfa2.to_regex())
 
-    def test_from_nfa_single_state(self):
+    def test_from_nfa_single_state(self) -> None:
         nfa = NFA.from_regex("")
         gnfa = GNFA.from_nfa(nfa)
 
@@ -304,7 +310,7 @@ class TestGNFA(test_fa.TestFA):
 
         self.assertEqual(gnfa.to_regex(), gnfa2.to_regex())
 
-    def test_from_nfa(self):
+    def test_from_nfa(self) -> None:
         """Should convert NFA to GNFA properly"""
 
         nfa = NFA(
@@ -337,7 +343,7 @@ class TestGNFA(test_fa.TestFA):
 
         self.assertEqual(gnfa.input_parameters, gnfa2.input_parameters)
 
-    def test_to_regex(self):
+    def test_to_regex(self) -> None:
         """
         We generate GNFA from DFA then convert it to regex
         then generate NFA from regex (already tested method)
@@ -366,41 +372,7 @@ class TestGNFA(test_fa.TestFA):
             # Test equality through DFA regex conversion
             self.assertEqual(dfa_1, dfa_2)
 
-    def test_read_input_step_not_implemented(self):
-        """Should not implement read_input_stepwise() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.read_input_stepwise("aaa")
-
-    def test_union_not_implemented(self):
-        """Should not implement union() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.union(self.gnfa)
-
-    def test_concatenate_not_implemented(self):
-        """Should not implement concatenate() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.concatenate(self.gnfa)
-
-    def test_kleene_star_not_implemented(self):
-        """Should not implement kleene_star() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.kleene_star()
-
-    def test_option_not_implemented(self):
-        """Should not implement option() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.option()
-
-    def test_reverse_not_implemented(self):
-        """Should not implement reverse() for GNFA."""
-        with self.assertRaises(NotImplementedError):
-            self.gnfa.reverse()
-
-    def test_eq_not_implemented(self):
-        """Should not implement equality for GNFA."""
-        self.assertNotEqual(self.gnfa, GNFA.from_nfa(self.nfa))
-
-    def test_show_diagram_showNone(self):
+    def test_show_diagram_showNone(self) -> None:
         """
         Should construct the diagram for a GNFA when show_None = False
         """
@@ -427,7 +399,7 @@ class TestGNFA(test_fa.TestFA):
             },
         )
 
-    def test_show_diagram(self):
+    def test_show_diagram(self) -> None:
         """
         Should construct the diagram for a GNFA when show_None = True
         """
@@ -464,7 +436,7 @@ class TestGNFA(test_fa.TestFA):
             },
         )
 
-    def test_show_diagram_write_file(self):
+    def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a NFA
         and write it to the specified file.

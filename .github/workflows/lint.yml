@@ -12,23 +12,19 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11"]
 
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Set up Python ${{ matrix.python-version }}
+
+      - name: Install Python 3
         uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Install graphviz
-        run: |
-          sudo apt-get install graphviz
+        run: sudo apt-get install graphviz
 
       - name: Install dependencies
         run: |
@@ -36,9 +32,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run mypy
-        run: |
-          mypy automata/**/*.py tests/*.py setup.py
+        run: mypy automata/**/*.py tests/*.py setup.py
 
       - name: Run flake8
-        run: |
-          flake8 automata/**/*.py tests/*.py setup.py
+        run: flake8 automata/**/*.py tests/*.py setup.py

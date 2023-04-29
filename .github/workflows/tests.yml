@@ -11,8 +11,8 @@ on:
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
@@ -28,8 +28,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install graphviz
-      run: |
-        sudo apt-get install graphviz
+      run: sudo apt-get install graphviz
 
     - name: Install dependencies
       run: |
@@ -41,7 +40,7 @@ jobs:
         coverage run -m nose2 tests
         coverage lcov -o cover/coverage.lcov
 
-    - name: Coveralls
+    - name: Run Coveralls
       uses: coverallsapp/github-action@master
       continue-on-error: true
       with:

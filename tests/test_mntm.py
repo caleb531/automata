@@ -385,11 +385,13 @@ class TestMNTM(test_tm.TestTM):
         validation_generator = self.mntm2.read_input_as_ntm("#0000")
         configs = list(validation_generator)
         first_config = configs[0].pop()
-        self.assertEqual(first_config[0], "q-1")
-        self.assertEqual(str(first_config[1]), "TMTape('#^0000_#^_#^_', 0)")
+        self.assertEqual(first_config.state, "q-1")
+        self.assertEqual(str(first_config.tape), "TMTape('#^0000_#^_#^_', '#', 0)")
         last_config = configs[-1].pop()
-        self.assertEqual(last_config[0], "qf")
-        self.assertEqual(str(last_config[1]), "TMTape('#0000#^_#0000#^_#XYYY#^_', 23)")
+        self.assertEqual(last_config.state, "qf")
+        self.assertEqual(
+            str(last_config.tape), "TMTape('#0000#^_#0000#^_#XYYY#^_', '#', 23)"
+        )
 
         with self.assertRaises(exceptions.RejectionException):
             for _ in self.mntm2.read_input_as_ntm("#00"):
@@ -398,9 +400,9 @@ class TestMNTM(test_tm.TestTM):
     def test_read_input_accepted(self):
         """Should return correct state if acceptable TM input is given."""
         final_config = self.mntm1.read_input("0101101011").pop()
-        self.assertEqual(final_config[0], "q1")
-        self.assertEqual(str(final_config[1][0]), "TMTape('0101101011#', 10)")
-        self.assertEqual(str(final_config[1][1]), "TMTape('111111#', 6)")
+        self.assertEqual(final_config.state, "q1")
+        self.assertEqual(str(final_config.tapes[0]), "TMTape('0101101011#', '#', 10)")
+        self.assertEqual(str(final_config.tapes[1]), "TMTape('111111#', '#', 6)")
 
     def test_read_input_step(self):
         """Should return validation generator if step flag is supplied."""
@@ -408,13 +410,13 @@ class TestMNTM(test_tm.TestTM):
         self.assertIsInstance(validation_generator, types.GeneratorType)
         configs = list(validation_generator)
         first_config = configs[0].pop()
-        self.assertEqual(first_config[0], "q0")
-        self.assertEqual(str(first_config[1][0]), "TMTape('0010101111', 0)")
-        self.assertEqual(str(first_config[1][1]), "TMTape('#', 0)")
+        self.assertEqual(first_config.state, "q0")
+        self.assertEqual(str(first_config.tapes[0]), "TMTape('0010101111', '#', 0)")
+        self.assertEqual(str(first_config.tapes[1]), "TMTape('#', '#', 0)")
         last_config = configs[-1].pop()
-        self.assertEqual(last_config[0], "q1")
-        self.assertEqual(str(last_config[1][0]), "TMTape('0010101111#', 10)")
-        self.assertEqual(str(last_config[1][1]), "TMTape('111111#', 6)")
+        self.assertEqual(last_config.state, "q1")
+        self.assertEqual(str(last_config.tapes[0]), "TMTape('0010101111#', '#', 10)")
+        self.assertEqual(str(last_config.tapes[1]), "TMTape('111111#', '#', 6)")
 
     def test_read_input_rejection(self):
         """Should raise error if the machine halts."""

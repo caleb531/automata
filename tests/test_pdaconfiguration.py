@@ -9,9 +9,16 @@ from automata.pda.stack import PDAStack
 class TestPDAConfiguration(test_pda.TestPDA):
     """A test class for testing configurations of pushdown automata."""
 
+    def test_config_hashability(self):
+        self.assertEqual(
+            hash(PDAConfiguration("q0", "ab", PDAStack(["a", "b"]))),
+            hash(PDAConfiguration("q0", "ab", PDAStack(["a", "b"]))),
+        )
+
     def test_config_repr(self):
-        """Should create proper string representation of PDA stack."""
+        """Should create proper string representation of PDA configuration."""
         config = PDAConfiguration("q0", "ab", PDAStack(["a", "b"]))
         self.assertEqual(
-            repr(config), "PDAConfiguration('q0', 'ab', PDAStack('a', 'b'))"
+            repr(config),
+            "PDAConfiguration('q0', 'ab', PDAStack(('a', 'b')))",  # noqa
         )

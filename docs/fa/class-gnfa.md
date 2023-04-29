@@ -1,16 +1,18 @@
-# class GNFA(NFA)
+# class GNFA(FA)
 
 [FA Class](class-fa.md)  
 [Table of Contents](../README.md)
 
-The `GNFA` class is a subclass of `NFA` and represents a generalized
+The `GNFA` class is a subclass of `FA` and represents a generalized
 nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
-Its main usage is for conversion of DFAs and NFAs to regular expressions.
+Its main usage is for conversion of DFAs and NFAs to regular expressions. Note
+that because of this, the `GNFA` doesn't support any binary operators or reading
+input (e.g. `read_input_stepwise`).
 
 Every `GNFA` has the following properties: `states`, `input_symbols`,
 `transitions`, `initial_state`, and `final_state`. This is very similar to the
 `NFA` signature, except that a `GNFA` has several differences with respect to
-`NFA`
+`NFA`:
 - The `initial_state` has transitions going to every other state but no transitions
 coming in from any other state.
 - There is only a single `final_state`, and it has transitions coming in from every
@@ -20,14 +22,15 @@ is not the same has `initial_state`.
 state and also from each state to itself. To accommodate this, transitions can be
 regular expressions and `None` also in addition to normal symbols.
 
+
 `GNFA` is modified with respect to `NFA` in the following parameters:
 
-1. `final_state`: a string (single state).
-2. `transitions`: (its structure is changed from `NFA`) a `dict` consisting of the transitions
+1. `final_state`: a single state.
+2. `transitions`: A `dict` consisting of the transitions
 for each state except `final_state`. Each key is a state name and each value is `dict`
 which maps a state (the key) to the transition expression (the value).
     - value: a regular expression (string) consisting of `input_symbols` and the following symbols only:
-    `*`, `|`, `?`, `()`. Check [Regular Expressions](../regular-expressions.md)
+    `*`, `|`, `?`, `()`. This is a subset of the standard [Regular Expressions](../regular-expressions.md).
 
 ```python
 from automata.fa.gnfa import GNFA

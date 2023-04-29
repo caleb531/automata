@@ -44,12 +44,12 @@ class TestTMTools(unittest.TestCase):
     def test_repr_config(self):
         """Should return a string representation ot the given configuration."""
         self.assertEqual(
-            repr(self.config), "TMConfiguration('q2', TMTape('abcdefghij', 2))"
+            repr(self.config), "TMConfiguration('q2', TMTape('abcdefghij', '.', 2))"
         )
         self.assertEqual(
             repr(self.config2),
-            "MTMConfiguration('q1', (TMTape('abcdefghij', 2), "
-            + "TMTape('klmnopq', 5)))",
+            "MTMConfiguration('q1', (TMTape('abcdefghij', '.', 2), "
+            + "TMTape('klmnopq', '.', 5)))",
         )
 
     def test_print_config(self):
