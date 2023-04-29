@@ -7,6 +7,7 @@ import string
 from collections import deque
 from itertools import chain, count, product, repeat
 from typing import (
+    AbstractSet,
     Any,
     Deque,
     Dict,
@@ -32,7 +33,7 @@ from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
 
 NFAStateT = fa.FAStateT
 
-NFAPathT = Mapping[str, Set[NFAStateT]]
+NFAPathT = Mapping[str, AbstractSet[NFAStateT]]
 NFATransitionsT = Mapping[NFAStateT, NFAPathT]
 
 DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
@@ -56,11 +57,11 @@ class NFA(fa.FA):
     def __init__(
         self,
         *,
-        states: Set[NFAStateT],
-        input_symbols: Set[str],
+        states: AbstractSet[NFAStateT],
+        input_symbols: AbstractSet[str],
         transitions: NFATransitionsT,
         initial_state: NFAStateT,
-        final_states: Set[NFAStateT],
+        final_states: AbstractSet[NFAStateT],
     ) -> None:
         """Initialize a complete NFA."""
         super().__init__(
@@ -73,7 +74,7 @@ class NFA(fa.FA):
         )
 
     def _compute_lambda_closures(
-        self, states: Set[NFAStateT], transitions: NFATransitionsT
+        self, states: AbstractSet[NFAStateT], transitions: NFATransitionsT
     ) -> Mapping[NFAStateT, FrozenSet[NFAStateT]]:
         """
         Computes a dictionary of the lambda closures for this NFA, where each
@@ -157,7 +158,7 @@ class NFA(fa.FA):
 
     @classmethod
     def from_regex(
-        cls: Type[Self], regex: str, *, input_symbols: Optional[Set[str]] = None
+        cls: Type[Self], regex: str, *, input_symbols: Optional[AbstractSet[str]] = None
     ) -> Self:
         """Initialize this NFA as one equivalent to the given regular expression"""
 
@@ -202,7 +203,7 @@ class NFA(fa.FA):
         self._validate_final_states()
 
     def _get_next_current_states(
-        self, current_states: Set[NFAStateT], input_symbol: str
+        self, current_states: AbstractSet[NFAStateT], input_symbol: str
     ) -> FrozenSet[NFAStateT]:
         """Return the next set of current states given the current set."""
         next_current_states: Set[NFAStateT] = set()
@@ -244,7 +245,7 @@ class NFA(fa.FA):
 
     def _eliminate_lambda(
         self,
-    ) -> Tuple[Set[NFAStateT], NFATransitionsT, Set[NFAStateT]]:
+    ) -> Tuple[AbstractSet[NFAStateT], NFATransitionsT, AbstractSet[NFAStateT]]:
         """Internal helper function for eliminate lambda. Doesn't create final NFA."""
 
         # Create new transitions and final states for running this algorithm
@@ -305,7 +306,9 @@ class NFA(fa.FA):
             final_states=reachable_final_states,
         )
 
-    def _check_for_input_rejection(self, current_states: Set[NFAStateT]) -> None:
+    def _check_for_input_rejection(
+        self, current_states: AbstractSet[NFAStateT]
+    ) -> None:
         """Raise an error if the given config indicates rejected input."""
         if current_states.isdisjoint(self.final_states):
             raise exceptions.RejectionException(
@@ -316,7 +319,7 @@ class NFA(fa.FA):
 
     def read_input_stepwise(
         self, input_str: str
-    ) -> Generator[Set[NFAStateT], None, None]:
+    ) -> Generator[AbstractSet[NFAStateT], None, None]:
         """
         Check if the given string is accepted by this NFA.
 
@@ -333,8 +336,8 @@ class NFA(fa.FA):
 
     @staticmethod
     def _get_state_maps(
-        state_set_a: Set[NFAStateT],
-        state_set_b: Set[NFAStateT],
+        state_set_a: AbstractSet[NFAStateT],
+        state_set_b: AbstractSet[NFAStateT],
         *,
         start: int = 0,
     ) -> Tuple[Dict[NFAStateT, int], Dict[NFAStateT, int]]:
@@ -883,7 +886,7 @@ class NFA(fa.FA):
     @classmethod
     def edit_distance(
         cls: Type[Self],
-        input_symbols: Set[str],
+        input_symbols: AbstractSet[str],
         reference_str: str,
         max_edit_distance: int,
         *,

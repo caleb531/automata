@@ -804,7 +804,7 @@ class DFA(fa.FA):
         *,
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
-    ) -> Iterable[str]:
+    ) -> Generator[str, None, None]:
         """
         Generates all strings that come before the input string
         in lexicographical order.
@@ -842,7 +842,7 @@ class DFA(fa.FA):
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
         reverse: bool = False,
-    ) -> Iterable[str]:
+    ) -> Generator[str, None, None]:
         """
         Generates all strings that come after the input string in
         lexicographical order. Passing in None will generate all words. If
@@ -1550,7 +1550,9 @@ class DFA(fa.FA):
             final_states=dfa_final_states,
         )
 
-    def iter_transitions(self) -> Iterable[Tuple[DFAStateT, DFAStateT, str]]:
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[DFAStateT, DFAStateT, str], None, None]:
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()
