@@ -12,8 +12,6 @@ from automata.base.automaton import Automaton, AutomatonStateT
 # Optional imports for use with visual functionality
 try:
     import coloraide
-    import graphviz
-    import IPython.display
     import pygraphviz as pgv
 except ImportError:
     _visual_imports = False
