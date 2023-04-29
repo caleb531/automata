@@ -77,6 +77,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         font_size: float = 14.0,
         arrow_size: float = 0.85,
         state_separation: float = 0.5,
+        show_None=None,  # TODO fix this
     ) -> pgv.AGraph:
         """
         Generates the graph associated with the given DFA.

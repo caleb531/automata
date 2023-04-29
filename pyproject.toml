@@ -15,7 +15,7 @@ maintainers = [
 dependencies = [
     "coloraide>=1.8.2",
     "frozendict>=2.3.4",
-    "graphviz>=0.20.1",
+    "pygraphviz>=1.10",
     "networkx>=2.6.2",
     "frozendict>=2.3.4", #TODO I think that typing extensions needs to be in here
 ]
@@ -38,7 +38,7 @@ exclude = ["build"]
 module = [
   "setuptools.*",
   "networkx.*",
-  "graphviz.*" # TODO pydot dependency is going to get removed, can delete
+  "pygraphviz.*" # TODO pydot dependency is going to get removed, can delete
 ]
 ignore_missing_imports = true
 
