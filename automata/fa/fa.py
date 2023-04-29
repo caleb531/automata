@@ -70,7 +70,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     def show_diagram(
         self,
         input_str: Optional[str] = None,
-        save_path: Union[str, os.PathLike, None] = None,
+        path: Union[str, os.PathLike, None] = None,
         *,
         engine: Optional[str] = None,
         view=False,
@@ -81,15 +81,13 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         font_size: float = 14.0,
         arrow_size: float = 0.85,
         state_separation: float = 0.5,
-    ):
+    ) -> graphviz.Digraph:
         """
         Generates the graph associated with the given DFA.
         Args:
             input_str (str, optional): String list of input symbols. Defaults to None.
-            - save_path (str or os.PathLike, optional): Path to output file. If
+            - path (str or os.PathLike, optional): Path to output file. If
               None, the output will not be saved.
-            - path (str, optional): Folder path for output file. Defaults to
-              None.
             - view (bool, optional): Storing and displaying the graph as a pdf.
               Defaults to False.
             - cleanup (bool, optional): Garbage collection. Defaults to True.
@@ -117,8 +115,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             graph.attr(size=", ".join(map(str, fig_size)))
 
         graph.attr(ranksep=str(state_separation))
-        font_size = str(font_size)
-        arrow_size = str(arrow_size)
+        font_size_str = str(font_size)
+        arrow_size_str = str(arrow_size)
 
         if horizontal:
             graph.attr(rankdir="LR")
@@ -136,24 +134,24 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             label="",
             tooltip=".",
             shape="point",
-            fontsize=font_size,
+            fontsize=font_size_str,
         )
         initial_node = self.get_state_name(self.initial_state)
         graph.edge(
             null_node,
             initial_node,
             tooltip="->" + initial_node,
-            arrowsize=arrow_size,
+            arrowsize=arrow_size_str,
         )
 
         for state in self.states:
             shape = "doublecircle" if state in self.final_states else "circle"
             node = self.get_state_name(state)
-            graph.node(node, shape=shape, fontsize=font_size)
+            graph.node(node, shape=shape, fontsize=font_size_str)
 
         is_edge_drawn = defaultdict(lambda: False)
         if input_str is not None:
-            path, is_accepted = self._get_input_path(input_str=input_str)
+            input_path, is_accepted = self._get_input_path(input_str=input_str)
 
             start_color = coloraide.Color("#ff0")
             end_color = (
@@ -165,9 +163,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
             # find all transitions in the finite state machine with traversal.
             for transition_index, (from_state, to_state, symbol) in enumerate(
-                path, start=1
+                input_path, start=1
             ):
-                color = interpolation(transition_index / len(path))
+                color = interpolation(transition_index / len(input_path))
                 label = self.get_edge_name(symbol)
 
                 is_edge_drawn[from_state, to_state, symbol] = True
@@ -175,8 +173,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                     self.get_state_name(from_state),
                     self.get_state_name(to_state),
                     label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
-                    arrowsize=arrow_size,
-                    fontsize=font_size,
+                    arrowsize=arrow_size_str,
+                    fontsize=font_size_str,
                     color=color.to_string(hex=True),
                     penwidth="2.5",
                 )
@@ -196,18 +194,20 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 from_node,
                 to_node,
                 label=",".join(sorted(labels)),
-                arrowsize=arrow_size,
-                fontsize=font_size,
+                arrowsize=arrow_size_str,
+                fontsize=font_size_str,
             )
 
         # Write diagram to file. PNG, SVG, etc.
-        if save_path is not None:
-            save_path: pathlib.Path = pathlib.Path(save_path)
+        if path is not None:
+            save_path_final: pathlib.Path = pathlib.Path(path)
 
-            directory = save_path.parent
+            directory = save_path_final.parent
             directory.mkdir(parents=True, exist_ok=True)
-            filename = save_path.stem
-            format = save_path.suffix.split(".")[1] if save_path.suffix else None
+            filename = save_path_final.stem
+            format = (
+                save_path_final.suffix.split(".")[1] if save_path_final.suffix else None
+            )
 
             graph.render(
                 directory=directory,
