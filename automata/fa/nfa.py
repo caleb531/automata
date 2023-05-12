@@ -990,7 +990,9 @@ class NFA(fa.FA):
 
         def gen_paths_for(
             state: NFAStateT, step: int
-        ) -> Generator[Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool, int], None, None]:
+        ) -> Generator[
+            Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool, int], None, None
+        ]:
             """
             Generate all the possible paths from state after taking step n.
             """
