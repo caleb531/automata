@@ -988,7 +988,9 @@ class NFA(fa.FA):
 
         visiting = set()
 
-        def gen_paths_for(state, step):
+        def gen_paths_for(
+            state: NFAStateT, step: int
+        ) -> Generator[List[Tuple[NFAStateT, NFAStateT, str]], None, None]:
             """
             Generate all the possible paths from state after taking step n.
             """
@@ -1006,7 +1008,9 @@ class NFA(fa.FA):
                 yield [(state, next_state, "")] + path, accepted, steps
 
         @functools.cache
-        def find_best_path(state, step):
+        def find_best_path(
+            state: NFAStateT, step: int
+        ) -> List[Tuple[NFAStateT, NFAStateT, str]]:
             """
             Try all the possible paths from state after taking step n. A path is
             better if (with priority):

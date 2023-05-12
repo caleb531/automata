@@ -344,8 +344,8 @@ class GNFA(fa.FA):
         )
 
     @cached_property
-    def final_states(self):
-        return frozenset({self.final_state})
+    def final_states(self) -> AbstractSet[GNFAStateT]:
+        return frozenset((self.final_state,))
 
     def _get_input_path(self, input_str: str) -> NoReturn:
         raise NotImplementedError(

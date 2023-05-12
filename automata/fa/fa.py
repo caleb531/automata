@@ -5,7 +5,7 @@ import os
 import pathlib
 import uuid
 from collections import defaultdict
-from typing import Dict, Generator, Iterable, List, Optional, Set, Tuple, Union
+from typing import Dict, Generator, List, Optional, Set, Tuple, Union
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
@@ -69,15 +69,13 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         path: Union[str, os.PathLike, None] = None,
         *,
         engine: Optional[str] = None,
-        view=False,
-        cleanup: bool = True,
         horizontal: bool = True,
         reverse_orientation: bool = False,
         fig_size: Optional[Tuple] = None,
         font_size: float = 14.0,
         arrow_size: float = 0.85,
         state_separation: float = 0.5,
-        show_None=None,  # TODO fix this
+        show_None=True,  # TODO fix this
     ) -> pgv.AGraph:
         """
         Generates the graph associated with the given DFA.
@@ -85,18 +83,14 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             input_str (str, optional): String list of input symbols. Defaults to None.
             - path (str or os.PathLike, optional): Path to output file. If
               None, the output will not be saved.
-            - view (bool, optional): Storing and displaying the graph as a pdf.
-              Defaults to False.
-            - cleanup (bool, optional): Garbage collection. Defaults to True.
-              horizontal (bool, optional): Direction of node layout. Defaults
+            - horizontal (bool, optional): Direction of node layout. Defaults
               to True.
             - reverse_orientation (bool, optional): Reverse direction of node
               layout. Defaults to False.
             - fig_size (tuple, optional): Figure size. Defaults to None.
             - font_size (float, optional): Font size. Defaults to 14.0.
             - arrow_size (float, optional): Arrow head size. Defaults to 0.85.
-            - state_separation (float, optional): Node distance. Defaults to 0
-              5.
+            - state_separation (float, optional): Node distance. Defaults to 0.5.
         Returns:
             Digraph: The graph in dot format.
         """
@@ -216,8 +210,6 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             graph.draw(
                 path=save_path_final,
                 format=format,
-                # cleanup=cleanup,
-                # view=view,
             )
 
         return graph
@@ -232,29 +224,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             f"_get_input_path is not implemented for {self.__class__}"
         )
 
-    def _repr_mimebundle_(
-        self,
-        include: Optional[Iterable[str]] = None,
-        exclude: Optional[Iterable[str]] = None,
-        **_,
-    ) -> Dict[str, Union[bytes, str]]:
-        DEFAULT_FORMATS = {"image/svg+xml"}
-        # TODO add proper support for include/exclude
-        # DEFAULT_FORMATS = frozenset(("jpeg", "jpg", "png", "svg"))
-
-        diagram_graph = self.show_diagram()
-
-        include = set(include) if include is not None else DEFAULT_FORMATS
-        include -= set(exclude or set())
-
-        return {"image/svg+xml": diagram_graph.draw(format="svg").decode("utf-8")}
-
-    # def _ipython_display_(self) -> None:
-    #    if not _visual_imports:
-    #        raise ImportError("Missing visual imports.")
-    #    from IPython.display import SVG
-    #
-    #    IPython.display.display(SVG(self.show_diagram().draw(format="svg")))
+    def _repr_mimebundle_(self, *args, **kwargs) -> Dict[str, Union[bytes, str]]:
+        return self.show_diagram()._repr_mimebundle_(*args, **kwargs)
 
     @staticmethod
     def _add_new_state(state_set: Set[FAStateT], start: int = 0) -> int:

@@ -13,12 +13,14 @@ maintainers = [
     {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
 ]
 dependencies = [
-    "coloraide>=1.8.2",
-    "frozendict>=2.3.4",
-    "pygraphviz>=1.10",
     "networkx>=2.6.2",
-    "frozendict>=2.3.4", #TODO I think that typing extensions needs to be in here
+    "frozendict>=2.3.4",
+    "typing-extensions>=4.5.0"
 ]
+
+# Per https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
+[project.optional-dependencies]
+visual = ["coloraide>=1.8.2", "pygraphviz>=1.10"]
 
 #TODO maybe add stuff from here?: https://blog.whtsky.me/tech/2021/dont-forget-py.typed-for-your-typed-python-package/#adding-pytyped
 
@@ -38,7 +40,7 @@ exclude = ["build"]
 module = [
   "setuptools.*",
   "networkx.*",
-  "pygraphviz.*" # TODO pydot dependency is going to get removed, can delete
+  "pygraphviz.*"
 ]
 ignore_missing_imports = true
 
