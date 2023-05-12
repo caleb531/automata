@@ -598,7 +598,7 @@ class TestNFA(test_fa.TestFA):
 
         graph = nfa.show_diagram()
         node_names = {node.get_name() for node in graph.nodes()}
-        self.assertTrue(nfa.states.issubset(node_names))
+        self.assertTrue(set(nfa.states).issubset(node_names))
         self.assertEqual(len(nfa.states) + 1, len(node_names))
 
         for state in self.dfa.states:
