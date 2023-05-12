@@ -1520,8 +1520,8 @@ class TestDFA(test_fa.TestFA):
         """
         graph = self.dfa.show_diagram()
         node_names = {node.get_name() for node in graph.nodes()}
-        self.assertTrue(self.dfa.states.issubset(node_names))
-        self.assertEqual(len(self.dfa.states)+1, len(node_names))
+        self.assertTrue(set(self.dfa.states).issubset(node_names))
+        self.assertEqual(len(self.dfa.states) + 1, len(node_names))
 
         for state in self.dfa.states:
             node = graph.get_node(state)
@@ -1544,6 +1544,11 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(expected_transitions.issubset(seen_transitions))
         self.assertEqual(len(expected_transitions) + 1, len(seen_transitions))
 
+        source, symbol, dest = list(seen_transitions - expected_transitions)[0]
+        self.assertEqual(symbol, "")
+        self.assertEqual(dest, self.dfa.initial_state)
+        self.assertTrue(source not in self.dfa.states)
+
     def test_show_diagram_initial_final_same(self) -> None:
         """
         Should construct the diagram for a DFA whose initial state
@@ -1565,14 +1570,12 @@ class TestDFA(test_fa.TestFA):
 
         graph = dfa.show_diagram()
         node_names = {node.get_name() for node in graph.nodes()}
-        self.assertTrue({"q0", "q1", "q2"}.issubset(node_names))
-        self.assertEqual(len(dfa.states)+1, len(node_names))
+        self.assertTrue(set(dfa.states).issubset(node_names))
+        self.assertEqual(len(dfa.states) + 1, len(node_names))
 
         for state in self.dfa.states:
             node = graph.get_node(state)
-            expected_shape = (
-                "doublecircle" if state in dfa.final_states else "circle"
-            )
+            expected_shape = "doublecircle" if state in dfa.final_states else "circle"
             self.assertEqual(node.attr["shape"], expected_shape)
 
         expected_transitions = {
@@ -1587,6 +1590,11 @@ class TestDFA(test_fa.TestFA):
         }
         self.assertTrue(expected_transitions.issubset(seen_transitions))
         self.assertEqual(len(expected_transitions) + 1, len(seen_transitions))
+
+        source, symbol, dest = list(seen_transitions - expected_transitions)[0]
+        self.assertEqual(symbol, "")
+        self.assertEqual(dest, dfa.initial_state)
+        self.assertTrue(source not in dfa.states)
 
     def test_show_diagram_write_file(self) -> None:
         """

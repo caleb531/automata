@@ -111,6 +111,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         font_size_str = str(font_size)
         arrow_size_str = str(arrow_size)
 
+        # TODO missing case here
         if horizontal:
             graph.graph_attr.update(rankdir="LR")
         if reverse_orientation:
