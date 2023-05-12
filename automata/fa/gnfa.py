@@ -16,7 +16,6 @@ from typing import (
     cast,
 )
 
-from frozendict import frozendict
 from typing_extensions import NoReturn, Self
 
 import automata.base.exceptions as exceptions
