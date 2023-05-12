@@ -55,16 +55,14 @@ class GNFA(fa.FA):
         initial_state: GNFAStateT,
         final_state: GNFAStateT,
     ) -> None:
-        """Initialize a complete NFA."""
+        """Initialize a complete GNFA."""
         super(fa.FA, self).__init__(
-            states=frozenset(states),
-            input_symbols=frozenset(input_symbols),
-            transitions=frozendict(
-                {state: frozendict(paths) for state, paths in transitions.items()}
-            ),
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
             initial_state=initial_state,
             final_state=final_state,
-            final_states=frozenset((final_state,)),
+            final_states={final_state},
         )
 
     # GNFA should NOT create the lambda closures via NFA.__post_init__()
