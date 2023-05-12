@@ -64,6 +64,7 @@ class GNFA(fa.FA):
             ),
             initial_state=initial_state,
             final_state=final_state,
+            final_states=frozenset((final_state,)),
         )
 
     # GNFA should NOT create the lambda closures via NFA.__post_init__()
@@ -342,10 +343,6 @@ class GNFA(fa.FA):
             for to_, symbol in lookup.items()
             if symbol is not None
         )
-
-    @cached_property
-    def final_states(self) -> AbstractSet[GNFAStateT]:
-        return frozenset((self.final_state,))
 
     def _get_input_path(self, input_str: str) -> NoReturn:
         raise NotImplementedError(
