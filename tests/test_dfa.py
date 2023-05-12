@@ -1519,26 +1519,30 @@ class TestDFA(test_fa.TestFA):
         is not a final state.
         """
         graph = self.dfa.show_diagram()
-        self.assertEqual(
-            {node.get_name() for node in graph.get_nodes()}, {"q0", "q1", "q2"}
-        )
-        self.assertEqual(graph.get_node("q0")[0].get_style(), "filled")
-        self.assertEqual(graph.get_node("q1")[0].get_peripheries(), 2)
-        self.assertEqual(graph.get_node("q2")[0].get_peripheries(), None)
-        self.assertEqual(
-            {
-                (edge.get_source(), edge.get_label(), edge.get_destination())
-                for edge in graph.get_edges()
-            },
-            {
-                ("q0", "0", "q0"),
-                ("q0", "1", "q1"),
-                ("q1", "0", "q0"),
-                ("q1", "1", "q2"),
-                ("q2", "0", "q2"),
-                ("q2", "1", "q1"),
-            },
-        )
+        node_names = {node.get_name() for node in graph.nodes()}
+        self.assertTrue({"q0", "q1", "q2"}.issubset(node_names))
+        self.assertEqual(4, len(node_names))
+
+        for state in self.dfa.states:
+            node = graph.get_node(state)
+            expected_shape = (
+                "doublecircle" if state in self.dfa.final_states else "circle"
+            )
+            self.assertEqual(node.attr["shape"], expected_shape)
+
+        expected_transitions = {
+            ("q0", "0", "q0"),
+            ("q0", "1", "q1"),
+            ("q1", "0", "q0"),
+            ("q1", "1", "q2"),
+            ("q2", "0", "q2"),
+            ("q2", "1", "q1"),
+        }
+        seen_transitions = {
+            (edge[0], edge.attr["label"], edge[1]) for edge in graph.edges()
+        }
+        self.assertTrue(expected_transitions.issubset(seen_transitions))
+        self.assertEqual(len(expected_transitions) + 1, len(seen_transitions))
 
     def test_show_diagram_initial_final_same(self) -> None:
         """

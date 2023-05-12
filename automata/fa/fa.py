@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with all finite automata."""
+from __future__ import annotations
+
 import abc
 import os
 import pathlib
