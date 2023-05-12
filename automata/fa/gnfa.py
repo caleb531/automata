@@ -3,7 +3,6 @@
 automata."""
 from __future__ import annotations
 
-from functools import cached_property
 from itertools import product
 from typing import (
     AbstractSet,
