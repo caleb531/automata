@@ -1010,7 +1010,7 @@ class NFA(fa.FA):
         @functools.cache
         def find_best_path(
             state: NFAStateT, step: int
-        ) -> List[Tuple[NFAStateT, NFAStateT, str]]:
+        ) -> Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool, int]:
             """
             Try all the possible paths from state after taking step n. A path is
             better if (with priority):
