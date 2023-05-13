@@ -22,7 +22,7 @@ else:
 
 
 FAStateT = AutomatonStateT
-Layout = Literal["neato", "dot", "twopi", "circo", "fdp", "nop"]
+LayoutMethod = Literal["neato", "dot", "twopi", "circo", "fdp", "nop"]
 
 
 class FA(Automaton, metaclass=abc.ABCMeta):
@@ -71,7 +71,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         input_str: Optional[str] = None,
         path: Union[str, os.PathLike, None] = None,
         *,
-        layout: Layout = "dot",
+        layout_method: LayoutMethod = "dot",
         horizontal: bool = True,
         reverse_orientation: bool = False,
         fig_size: Optional[Tuple] = None,
@@ -191,7 +191,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             )
 
         # Set layout
-        graph.layout(prog=layout)
+        graph.layout(prog=layout_method)
 
         # Write diagram to file. PNG, SVG, etc.
         # TODO gotta fix this
