@@ -622,7 +622,7 @@ class TestNFA(test_fa.TestFA):
         source, symbol, dest = list(seen_transitions - expected_transitions)[0]
         self.assertEqual(symbol, "")
         self.assertEqual(dest, self.nfa.initial_state)
-        self.assertTrue(source not in self.dfa.states)
+        self.assertTrue(source not in self.nfa.states)
 
     def test_show_diagram_write_file(self) -> None:
         """
