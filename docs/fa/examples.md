@@ -1,6 +1,6 @@
 # FA Examples
 
-[FA Class](class-fa.md)  
+[FA Class](class-fa.md)
 [Table of Contents](../README.md)
 
 On this page, we give some short examples with discussion for the finite
@@ -101,6 +101,60 @@ print(
     f"All words within edit distance {edit_distance} of "
     f"'{reference_string}': {found_words}"
 )
+```
+
+## Making a transition table
+
+The example below is adapted from the
+[visual automata](https://github.com/lewiuberg/visual-automata) library.
+This function takes in a `DFA` or `NFA` and returns the
+corresponding transition table.
+
+The start state is prefixed with `→` and final states are prefixed
+with `*`.
+
+```python
+import pandas as pd
+
+def make_table(target_fa) -> pd.DataFrame:
+    initial_state = target_fa.initial_state
+    final_states = target_fa.final_states
+
+    table = {}
+
+    for from_state, to_state, symbol in target_fa.iter_transitions():
+        # Prepare nice string for from_state
+        if isinstance(from_state, frozenset):
+            from_state_str = str(set(from_state))
+        else:
+            from_state_str = str(from_state)
+
+        if from_state in final_states:
+            from_state_str = "*" + from_state_str
+        if from_state == initial_state:
+            from_state_str = "→" + from_state_str
+
+        # Prepare nice string for to_state
+        if isinstance(to_state, frozenset):
+            to_state_str = str(set(to_state))
+        else:
+            to_state_str = str(to_state)
+
+        if to_state in final_states:
+            to_state_str = "*" + to_state_str
+
+        from_state_dict = table.setdefault(from_state_str, dict())
+        from_state_dict.setdefault(symbol, set()).add(to_state_str)
+
+    # Reformat table for singleton sets
+    for symbol_dict in table.values():
+        for symbol in symbol_dict:
+            if len(symbol_dict[symbol]) == 1:
+                symbol_dict[symbol] = symbol_dict[symbol].pop()
+
+
+    df = pd.DataFrame.from_dict(table).fillna("∅").T
+    return df.reindex(sorted(df.columns), axis=1)
 ```
 
 ------
