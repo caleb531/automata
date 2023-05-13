@@ -93,7 +93,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             - arrow_size (float, optional): Arrow head size. Defaults to 0.85.
             - state_separation (float, optional): Node distance. Defaults to 0.5.
         Returns:
-            Digraph: The graph in dot format.
+            AGraph corresponding to the given automaton.
         """
 
         if not _visual_imports:
@@ -110,14 +110,12 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         font_size_str = str(font_size)
         arrow_size_str = str(arrow_size)
 
-        # TODO missing case here
         if horizontal:
-            graph.graph_attr.update(rankdir="LR")
-        if reverse_orientation:
-            if horizontal:
-                graph.graph_attr.update(rankdir="RL")
-            else:
-                graph.graph_attr.update(rankdir="BT")
+            rankdir = "RL" if reverse_orientation else "LR"
+        else:
+            rankdir = "BT" if reverse_orientation else "TB"
+
+        graph.graph_attr.update(rankdir=rankdir)
 
         # we use a random uuid to make sure that the null node has a
         # unique id to avoid colliding with other states.
