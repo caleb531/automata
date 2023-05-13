@@ -7,7 +7,7 @@ import os
 import pathlib
 import uuid
 from collections import defaultdict
-from typing import Dict, Generator, List, Optional, Set, Tuple, Union
+from typing import Dict, Generator, List, Literal, Optional, Set, Tuple, Union
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
@@ -22,6 +22,7 @@ else:
 
 
 FAStateT = AutomatonStateT
+Layout = Literal["neato", "dot", "twopi", "circo", "fdp", "nop"]
 
 
 class FA(Automaton, metaclass=abc.ABCMeta):
@@ -70,7 +71,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         input_str: Optional[str] = None,
         path: Union[str, os.PathLike, None] = None,
         *,
-        engine: Optional[str] = None,
+        layout: Layout = "dot",
         horizontal: bool = True,
         reverse_orientation: bool = False,
         fig_size: Optional[Tuple] = None,
@@ -190,10 +191,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             )
 
         # Set layout
-        if engine is None:
-            engine = "dot"
-
-        graph.layout(prog=engine)
+        graph.layout(prog=layout)
 
         # Write diagram to file. PNG, SVG, etc.
         # TODO gotta fix this
