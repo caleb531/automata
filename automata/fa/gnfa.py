@@ -33,6 +33,7 @@ GNFATransitionsT = Mapping[GNFAStateT, GNFAPathT]
 class GNFA(fa.FA):
     """A generalized nondeterministic finite automaton."""
 
+    # Add __dict__ to deal with inheritance issue and the final_states attribute.
     __slots__ = (
         "states",
         "input_symbols",
