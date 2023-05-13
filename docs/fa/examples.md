@@ -143,6 +143,10 @@ def make_table(target_fa) -> pd.DataFrame:
         if to_state in final_states:
             to_state_str = "*" + to_state_str
 
+        # Prepare nice symbol
+        if symbol == "":
+            symbol = "λ"
+
         from_state_dict = table.setdefault(from_state_str, dict())
         from_state_dict.setdefault(symbol, set()).add(to_state_str)
 
