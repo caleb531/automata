@@ -1,6 +1,6 @@
 # FA Examples
 
-[FA Class](class-fa.md)
+[FA Class](class-fa.md)  
 [Table of Contents](../README.md)
 
 On this page, we give some short examples with discussion for the finite
