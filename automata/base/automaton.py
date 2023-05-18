@@ -133,13 +133,21 @@ class Automaton(metaclass=abc.ABCMeta):
         corresponding mutable ones. Makes things look nicer in the repr.
         """
         if isinstance(value, frozenset):
-            return repr({self._get_repr_friendly_string(element) for element in value})
+            return (
+                "{"
+                + ", ".join(
+                    self._get_repr_friendly_string(element) for element in value
+                )
+                + "}"
+            )
         elif isinstance(value, frozendict):
-            return repr(
-                {
-                    dict_key: self._get_repr_friendly_string(dict_value)
+            return (
+                "{"
+                + ", ".join(
+                    f"{dict_key!r}: {self._get_repr_friendly_string(dict_value)}"
                     for dict_key, dict_value in value.items()
-                }
+                )
+                + "}"
             )
         else:
             return repr(value)
