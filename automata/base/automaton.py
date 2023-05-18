@@ -127,26 +127,27 @@ class Automaton(metaclass=abc.ABCMeta):
     # Format the given value for string output via repr() or str(); this exists
     # for the purpose of displaying
 
-    def _get_repr_friendly_value(self, value: Any) -> Any:
+    def _get_repr_friendly_string(self, value: Any) -> str:
         """
-        A helper function to convert the given value / structure into a fully
-        mutable one by recursively processing said structure and any of its
-        members, unfreezing them along the way
+        A helper function to convert immutable data structures into strings for the
+        corresponding mutable ones. Makes things look nicer in the repr.
         """
         if isinstance(value, frozenset):
-            return {self._get_repr_friendly_value(element) for element in value}
+            return repr({self._get_repr_friendly_string(element) for element in value})
         elif isinstance(value, frozendict):
-            return {
-                dict_key: self._get_repr_friendly_value(dict_value)
-                for dict_key, dict_value in value.items()
-            }
+            return repr(
+                {
+                    dict_key: self._get_repr_friendly_string(dict_value)
+                    for dict_key, dict_value in value.items()
+                }
+            )
         else:
-            return value
+            return repr(value)
 
     def __repr__(self) -> str:
         """Return a string representation of the automaton."""
         values = ", ".join(
-            f"{attr_name}={self._get_repr_friendly_value(attr_value)!r}"
+            f"{attr_name}={self._get_repr_friendly_string(attr_value)}"
             for attr_name, attr_value in self.input_parameters.items()
         )
         return f"{self.__class__.__qualname__}({values})"

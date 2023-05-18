@@ -136,10 +136,10 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             arrowsize=arrow_size_str,
         )
 
-        for state in self.states:
-            shape = "doublecircle" if state in self.final_states else "circle"
-            node = self.get_state_name(state)
-            graph.add_node(node, shape=shape, fontsize=font_size_str)
+        nonfinal_states = map(self.get_state_name, self.states - self.final_states)
+        final_states = map(self.get_state_name, self.final_states)
+        graph.add_nodes_from(nonfinal_states, shape="circle", fontsize=font_size_str)
+        graph.add_nodes_from(final_states, shape="doublecircle", fontsize=font_size_str)
 
         is_edge_drawn = defaultdict(lambda: False)
         if input_str is not None:
