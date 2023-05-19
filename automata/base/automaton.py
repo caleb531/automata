@@ -143,7 +143,7 @@ class Automaton(metaclass=abc.ABCMeta):
         else:
             return value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the automaton."""
         values = ", ".join(
             f"{attr_name}={self._get_repr_friendly_value(attr_value)!r}"
