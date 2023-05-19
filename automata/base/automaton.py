@@ -127,7 +127,7 @@ class Automaton(metaclass=abc.ABCMeta):
     # Format the given value for string output via repr() or str(); this exists
     # for the purpose of displaying
 
-    def _get_repr_friendly_value(self, value):
+    def _get_repr_friendly_value(self, value: Any) -> Any:
         """
         A helper function to convert the given value / structure into a fully
         mutable one by recursively processing said structure and any of its
