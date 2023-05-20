@@ -1549,6 +1549,26 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dest, self.dfa.initial_state)
         self.assertTrue(source not in self.dfa.states)
 
+    def test_show_diagram_read_input(self) -> None:
+        """
+        Should construct the diagram for a DFA reading input.
+        """
+        input_strings = ["0111", "001", "01110011", "001011001", "1100", ""]
+
+        for input_string in input_strings:
+            graph = self.dfa.show_diagram(input_str=input_string)
+
+            # Get edges corresponding to input path
+            colored_edges = [
+                edge for edge in graph.edges() if "color" in dict(edge.attr)
+            ]
+            colored_edges.sort(key=lambda edge: edge.attr["label"][2:])
+
+            edge_pairs = [
+                edge[0:2] for edge in self.dfa._get_input_path(input_string)[0]
+            ]
+            self.assertEqual(edge_pairs, colored_edges)
+
     def test_show_diagram_initial_final_same(self) -> None:
         """
         Should construct the diagram for a DFA whose initial state

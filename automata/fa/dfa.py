@@ -903,7 +903,7 @@ class DFA(fa.FA):
             )
             # Traverse to child if candidate is viable
             if candidate_state in coaccessible_nodes:
-                state_stack.append(cast(str, candidate_state))
+                state_stack.append(candidate_state)
                 char_stack.append(cast(str, candidate))
                 candidate = first_symbol
             else:
