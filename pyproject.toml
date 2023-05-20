@@ -70,13 +70,12 @@ branch = true
 # Have to fix this and figure out what's going on
 
 # Regexes for lines to exclude from consideration
-#exclude_lines = [
-#    "pragma: no cover",
-#    # Ignore non-runnable code
-#    "if __name__ == .__main__.:",
-#    "pass",
-#    "...",
-#]
+exclude_lines = [
+    "pragma: no cover",
+    # Ignore non-runnable code
+    "if __name__ == .__main__.:",
+    "pass",
+]
 
 # Only check coverage for source files
 include =["automata/*/*.py"]
