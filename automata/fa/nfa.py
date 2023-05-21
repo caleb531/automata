@@ -1009,7 +1009,7 @@ class NFA(fa.FA):
                 path, accepted, steps = find_best_path(next_state, step)
                 yield [(state, next_state, "")] + path, accepted, steps
 
-        @functools.cache
+        @functools.lru_cache(maxsize=None)
         def find_best_path(
             state: NFAStateT, step: int
         ) -> Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool, int]:
