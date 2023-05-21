@@ -584,26 +584,16 @@ class TestNFA(test_fa.TestFA):
         is also a final state.
         """
 
-        nfa = NFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"a", "b"},
-            transitions={
-                "q0": {"a": {"q1"}},
-                "q1": {"a": {"q1"}, "": {"q2"}},
-                "q2": {"b": {"q0"}},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
-
-        graph = nfa.show_diagram()
+        graph = self.nfa.show_diagram()
         node_names = {node.get_name() for node in graph.nodes()}
-        self.assertTrue(set(nfa.states).issubset(node_names))
-        self.assertEqual(len(nfa.states) + 1, len(node_names))
+        self.assertTrue(set(self.nfa.states).issubset(node_names))
+        self.assertEqual(len(self.nfa.states) + 1, len(node_names))
 
         for state in self.dfa.states:
             node = graph.get_node(state)
-            expected_shape = "doublecircle" if state in nfa.final_states else "circle"
+            expected_shape = (
+                "doublecircle" if state in self.nfa.final_states else "circle"
+            )
             self.assertEqual(node.attr["shape"], expected_shape)
 
         expected_transitions = {
@@ -624,6 +614,27 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(dest, self.nfa.initial_state)
         self.assertTrue(source not in self.nfa.states)
 
+    def test_show_diagram_read_input(self) -> None:
+        """
+        Should construct the diagram for a NFA reading input.
+        """
+        input_strings = ["ababa", "bba", "aabba", "baaab", "bbaab", ""]
+
+        for input_string in input_strings:
+            graph = self.nfa.show_diagram(input_str=input_string)
+
+            # Get edges corresponding to input path
+            colored_edges = [
+                edge for edge in graph.edges() if "color" in dict(edge.attr)
+            ]
+            colored_edges.sort(key=lambda edge: edge.attr["label"][2:])
+
+            edge_pairs = [
+                edge[0:2] for edge in self.nfa._get_input_path(input_string)[0]
+            ]
+
+            self.assertEqual(edge_pairs, colored_edges)
+
     def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a NFA
@@ -638,6 +649,13 @@ class TestNFA(test_fa.TestFA):
         self.nfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
+
+    # TODO this test case fails, there's a bug in the get_input_path for NFAs
+    # def test_get_input_path(self) -> None:
+    #    input_str = "aba"
+    #
+    #    was_accepted = self.nfa._get_input_path(input_str)[1]
+    #    self.assertEqual(was_accepted, self.nfa.accepts_input(input_str))
 
     def test_add_new_state_type_integrity(self) -> None:
         """
