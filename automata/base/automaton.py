@@ -134,7 +134,7 @@ class Automaton(metaclass=abc.ABCMeta):
         members, unfreezing them along the way
         """
         if isinstance(value, frozenset):
-            return {self._get_repr_friendly_value(element) for element in value}
+            return set(value)
         elif isinstance(value, frozendict):
             return {
                 dict_key: self._get_repr_friendly_value(dict_value)

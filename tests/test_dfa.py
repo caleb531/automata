@@ -1671,6 +1671,14 @@ class TestDFA(test_fa.TestFA):
             "initial_state='q0', final_states={'q0'}, allow_partial=False)",
         )
 
+    def test_dfa_repr_retain_names(self) -> None:
+        """Should produce repr of minified DFA with retain_names=True"""
+        dfa1 = DFA.from_finite_language(set("abcd"), {"abcd", "dcba"})
+        dfa2 = dfa1.minify(
+            retain_names=True
+        )  # dfa2.states is a frozenset of frozensets
+        self.assertTrue(repr(dfa2))
+
     def test_iter_finite(self) -> None:
         """
         Test that DFA for finite language generates all words
