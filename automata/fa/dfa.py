@@ -260,6 +260,9 @@ class DFA(fa.FA):
             allow_partial=True,
         )
 
+    def get_trap_state_id(self) -> int:
+        return next(x for x in count(-1, -1) if x not in self.states)
+
     # Supports partial (test)
     def to_complete(self) -> DFA:
         """
@@ -269,7 +272,7 @@ class DFA(fa.FA):
         if not self.allow_partial:
             return self.copy()
 
-        trap_state = None
+        trap_state = self.get_trap_state_id()
         default_to_trap = {symbol: trap_state for symbol in self.input_symbols}
         transitions = {
             state: {**default_to_trap, **lookup}
@@ -551,8 +554,8 @@ class DFA(fa.FA):
         initial_state, expand_state_fn = self.__class__._cross_product(self, other)
 
         if self.allow_partial or other.allow_partial:
-            trap_a = None
-            trap_b = None
+            trap_a = self.get_trap_state_id()
+            trap_b = other.get_trap_state_id()
 
             def partial_union_expand_state_fn(state):
                 q_a, q_b = state
@@ -634,7 +637,7 @@ class DFA(fa.FA):
 
         # We stop if we reach a trap state for A
         if self.allow_partial and other.allow_partial:
-            trap_b = None
+            trap_b = other.get_trap_state_id()
 
             def partial_difference_expand_state_fn(state):
                 q_a, q_b = state
@@ -676,8 +679,8 @@ class DFA(fa.FA):
 
         # The benefit here is not so clear, but for very linear DFAs it pays off
         if self.allow_partial or other.allow_partial:
-            trap_a = None
-            trap_b = None
+            trap_a = self.get_trap_state_id()
+            trap_b = other.get_trap_state_id()
 
             def partial_sym_diff_expand_state_fn(state):
                 q_a, q_b = state
@@ -911,7 +914,7 @@ class DFA(fa.FA):
         # Looking for counter example state that is final in A but not in B
         #   therefore we only expand characters in A
         if self.allow_partial or other.allow_partial:
-            trap_b = None
+            trap_b = other.get_trap_state_id()
 
             def partial_intersection_expand_state_fn(state):
                 q_a, q_b = state
@@ -1318,7 +1321,7 @@ class DFA(fa.FA):
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
 
         if not as_partial:
-            err_state = None
+            err_state = -1
             for i, _ in enumerate(prefix):
                 transitions_i = transitions[i]
                 for symbol in input_symbols:
@@ -1727,7 +1730,7 @@ class DFA(fa.FA):
 
         if not as_partial_dfa:
             # Add trap state. Always needed since dict is finite
-            trap_state = None
+            trap_state = 0
             transitions[trap_state] = {symbol: trap_state for symbol in input_symbols}
 
             for path in transitions.values():
