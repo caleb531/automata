@@ -399,13 +399,15 @@ class DFA(fa.FA):
     # Supports partial
     def _get_digraph(self) -> nx.DiGraph:
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
-        return nx.DiGraph(
+        graph = nx.DiGraph(
             [
                 (start_state, end_state)
                 for start_state, transition in self.transitions.items()
                 for end_state in transition.values()
             ]
         )
+        graph.update(nodes=(state for state in self.states))
+        return graph
 
     # Supports partial
     def minify(self, retain_names: bool = False) -> Self:
