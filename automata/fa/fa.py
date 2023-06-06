@@ -124,7 +124,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         # we use a random uuid to make sure that the null node has a
         # unique id to avoid colliding with other states.
-        # Code from: https://nathanielknight.ca/articles/consistent_random_uuids_in_python.html
+        # To be able to set the random seed, took code from:
+        # https://nathanielknight.ca/articles/consistent_random_uuids_in_python.html
         null_node = str(
             uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
         )

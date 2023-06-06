@@ -65,3 +65,36 @@ class TestFAAbstract(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             getattr(FA, "_get_input_path")(FA, "")
+
+    def test_get_state_name(self) -> None:
+        """Tests get_state_name function."""
+
+        self.assertEqual(FA.get_state_name(""), "λ")
+        self.assertEqual(FA.get_state_name("abc"), "abc")
+        self.assertEqual(FA.get_state_name(set()), "∅")
+
+        original_sets = [set("abc"), frozenset("dcgf")]
+
+        for original_set in original_sets:
+            set_output = set(
+                FA.get_state_name(original_set)
+                .replace("{", "")
+                .replace("}", "")
+                .replace("'", "")
+                .replace(" ", "")
+                .split(",")
+            )
+            self.assertEqual(set_output, set(original_set))
+
+        original_tuple = tuple("abc")
+
+        tuple_output = tuple(
+            FA.get_state_name(original_tuple)
+            .replace("(", "")
+            .replace(")", "")
+            .replace("'", "")
+            .replace(" ", "")
+            .split(",")
+        )
+
+        self.assertEqual(tuple_output, original_tuple)
