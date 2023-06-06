@@ -686,9 +686,19 @@ class TestNFA(test_fa.TestFA):
             initial_state="q0",
             final_states={"q1"},
         )
+        nfa3 = NFA.from_regex("(abab|aabba)*bba*bb")
 
-        input_strings = ["ababa", "bba", "aabba", "baaab", "bbaab", ""]
-        nfas = [self.nfa, nfa2]
+        input_strings = [
+            "ababa",
+            "bba",
+            "aabba",
+            "baaab",
+            "bbaab",
+            "",
+            "bbbb",
+            "bbaabb",
+        ]
+        nfas = [self.nfa, nfa2, nfa3]
 
         for input_str, nfa in product(input_strings, nfas):
             input_path, was_accepted = nfa._get_input_path(input_str)
