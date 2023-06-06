@@ -4,6 +4,7 @@
 import unittest
 
 from automata.fa.dfa import DFA
+from automata.fa.fa import FA
 from automata.fa.gnfa import GNFA
 from automata.fa.nfa import NFA
 
@@ -56,3 +57,11 @@ class TestFA(unittest.TestCase):
             initial_state="q_in",
             final_state="q_f",
         )
+
+
+class TestFAAbstract(unittest.TestCase):
+    def test_abstract_methods_not_implemented(self) -> None:
+        """Should raise NotImplementedError when calling abstract methods."""
+
+        with self.assertRaises(NotImplementedError):
+            getattr(FA, "_get_input_path")(FA, "")

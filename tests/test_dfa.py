@@ -3,6 +3,7 @@
 
 import os
 import os.path
+import random
 import tempfile
 import types
 from itertools import product
@@ -1630,6 +1631,18 @@ class TestDFA(test_fa.TestFA):
         self.dfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
+
+    def test_repr_mimebundle_same(self) -> None:
+        """
+        Should construct the diagram for a DFA whose initial state
+        is also a final state.
+        """
+
+        random.seed(42)
+        first_repr = self.dfa._repr_mimebundle_()
+        random.seed(42)
+        second_repr = self.dfa.show_diagram()._repr_mimebundle_()
+        self.assertEqual(first_repr, second_repr)
 
     def test_minimal_finite_language(self):
         """Should compute the minimal DFA accepting the given finite language"""

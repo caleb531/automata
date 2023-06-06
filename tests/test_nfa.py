@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of NFAs."""
 import os
+import random
 import string
 import tempfile
 import types
@@ -650,6 +651,18 @@ class TestNFA(test_fa.TestFA):
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
 
+    def test_repr_mimebundle_same(self) -> None:
+        """
+        Should construct the diagram for a NFA whose initial state
+        is also a final state.
+        """
+
+        random.seed(42)
+        first_repr = self.nfa._repr_mimebundle_()
+        random.seed(42)
+        second_repr = self.nfa.show_diagram()._repr_mimebundle_()
+        self.assertEqual(first_repr, second_repr)
+
     def test_get_input_path(self) -> None:
         nfa2 = NFA(
             states={"q0", "q1", "q2"},
@@ -675,7 +688,7 @@ class TestNFA(test_fa.TestFA):
             for start_vtx, end_vtx, symbol in input_path:
                 last_vtx = end_vtx
                 self.assertIn(end_vtx, nfa.transitions[start_vtx][symbol])
-            
+
             self.assertEqual(last_vtx in nfa.final_states, was_accepted)
 
     def test_add_new_state_type_integrity(self) -> None:

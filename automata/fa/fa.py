@@ -5,6 +5,7 @@ from __future__ import annotations
 import abc
 import os
 import pathlib
+import random
 import uuid
 from collections import defaultdict
 from typing import Dict, Generator, List, Literal, Optional, Set, Tuple, Union
@@ -123,7 +124,10 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         # we use a random uuid to make sure that the null node has a
         # unique id to avoid colliding with other states.
-        null_node = str(uuid.uuid4())
+        # Code from: https://nathanielknight.ca/articles/consistent_random_uuids_in_python.html
+        null_node = str(
+            uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
+        )
         graph.add_node(
             null_node,
             label="",
@@ -197,13 +201,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         graph.layout(prog=layout_method)
 
         # Write diagram to file. PNG, SVG, etc.
-        # TODO gotta fix this
         if path is not None:
             save_path_final: pathlib.Path = pathlib.Path(path)
 
-            # directory = save_path_final.parent
-            # directory.mkdir(parents=True, exist_ok=True)
-            # filename = save_path_final.stem
             format = (
                 save_path_final.suffix.split(".")[1] if save_path_final.suffix else None
             )
