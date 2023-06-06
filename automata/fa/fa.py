@@ -75,7 +75,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         layout_method: LayoutMethod = "dot",
         horizontal: bool = True,
         reverse_orientation: bool = False,
-        fig_size: Optional[Tuple] = None,
+        fig_size: Union[Tuple[float, float], Tuple[float], None] = None,
         font_size: float = 14.0,
         arrow_size: float = 0.85,
         state_separation: float = 0.5,
@@ -107,7 +107,6 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         # Defining the graph.
         graph = pgv.AGraph(strict=False, directed=True)
 
-        # TODO test fig_size
         if fig_size is not None:
             graph.graph_attr.update(size=", ".join(map(str, fig_size)))
 

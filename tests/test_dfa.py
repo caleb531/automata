@@ -1634,8 +1634,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_repr_mimebundle_same(self) -> None:
         """
-        Should construct the diagram for a DFA whose initial state
-        is also a final state.
+        Check that the mimebundle is the same.
         """
 
         random.seed(42)
@@ -1643,6 +1642,27 @@ class TestDFA(test_fa.TestFA):
         random.seed(42)
         second_repr = self.dfa.show_diagram()._repr_mimebundle_()
         self.assertEqual(first_repr, second_repr)
+
+    def test_show_diagram_orientations(self) -> None:
+        graph = self.dfa.show_diagram()
+        self.assertEqual(graph.graph_attr["rankdir"], "LR")
+        graph = self.dfa.show_diagram(horizontal=False)
+        self.assertEqual(graph.graph_attr["rankdir"], "TB")
+        graph = self.dfa.show_diagram(reverse_orientation=True)
+        self.assertEqual(graph.graph_attr["rankdir"], "RL")
+        graph = self.dfa.show_diagram(horizontal=False, reverse_orientation=True)
+        self.assertEqual(graph.graph_attr["rankdir"], "BT")
+
+    def test_show_diagram_fig_size(self) -> None:
+        """
+        Testing figure size. Just need to make sure it matches the input
+        (the library handles the rendering).
+        """
+        graph = self.dfa.show_diagram(fig_size=(1.1, 2))
+        self.assertEqual(graph.graph_attr["size"], "1.1, 2")
+
+        graph = self.dfa.show_diagram(fig_size=(3.3,))
+        self.assertEqual(graph.graph_attr["size"], "3.3")
 
     def test_minimal_finite_language(self):
         """Should compute the minimal DFA accepting the given finite language"""

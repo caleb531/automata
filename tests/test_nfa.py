@@ -615,17 +615,6 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(dest, self.nfa.initial_state)
         self.assertTrue(source not in self.nfa.states)
 
-    def test_show_diagram_orientations(self) -> None:
-        for automaton in [self.nfa, self.dfa]:
-            graph = automaton.show_diagram()
-            self.assertEqual(graph.graph_attr["rankdir"], "LR")
-            graph = automaton.show_diagram(horizontal=False)
-            self.assertEqual(graph.graph_attr["rankdir"], "TB")
-            graph = automaton.show_diagram(reverse_orientation=True)
-            self.assertEqual(graph.graph_attr["rankdir"], "RL")
-            graph = automaton.show_diagram(horizontal=False, reverse_orientation=True)
-            self.assertEqual(graph.graph_attr["rankdir"], "BT")
-
     def test_show_diagram_read_input(self) -> None:
         """
         Should construct the diagram for a NFA reading input.
@@ -661,18 +650,6 @@ class TestNFA(test_fa.TestFA):
         self.nfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
-
-    def test_repr_mimebundle_same(self) -> None:
-        """
-        Should construct the diagram for a NFA whose initial state
-        is also a final state.
-        """
-
-        random.seed(42)
-        first_repr = self.nfa._repr_mimebundle_()
-        random.seed(42)
-        second_repr = self.nfa.show_diagram()._repr_mimebundle_()
-        self.assertEqual(first_repr, second_repr)
 
     def test_get_input_path(self) -> None:
         nfa2 = NFA(
