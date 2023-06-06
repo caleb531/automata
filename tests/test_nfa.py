@@ -615,6 +615,17 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(dest, self.nfa.initial_state)
         self.assertTrue(source not in self.nfa.states)
 
+    def test_show_diagram_orientations(self) -> None:
+        for automaton in [self.nfa, self.dfa]:
+            graph = automaton.show_diagram()
+            self.assertEqual(graph.graph_attr["rankdir"], "LR")
+            graph = automaton.show_diagram(horizontal=False)
+            self.assertEqual(graph.graph_attr["rankdir"], "TB")
+            graph = automaton.show_diagram(reverse_orientation=True)
+            self.assertEqual(graph.graph_attr["rankdir"], "RL")
+            graph = automaton.show_diagram(horizontal=False, reverse_orientation=True)
+            self.assertEqual(graph.graph_attr["rankdir"], "BT")
+
     def test_show_diagram_read_input(self) -> None:
         """
         Should construct the diagram for a NFA reading input.
