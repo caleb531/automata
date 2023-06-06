@@ -71,12 +71,12 @@ class TestFAAbstract(unittest.TestCase):
 
         self.assertEqual(FA.get_state_name(""), "λ")
         self.assertEqual(FA.get_state_name("abc"), "abc")
-        self.assertEqual(FA.get_state_name(set()), "∅")
+        self.assertEqual(FA.get_state_name(frozenset()), "∅")
 
-        original_sets = [set("abc"), frozenset("dcgf")]
+        original_sets = [frozenset("abc"), frozenset("dcgf")]
 
         for original_set in original_sets:
-            set_output = set(
+            set_output = frozenset(
                 FA.get_state_name(original_set)
                 .replace("{", "")
                 .replace("}", "")
@@ -84,7 +84,7 @@ class TestFAAbstract(unittest.TestCase):
                 .replace(" ", "")
                 .split(",")
             )
-            self.assertEqual(set_output, set(original_set))
+            self.assertEqual(set_output, original_set)
 
         original_tuple = tuple("abc")
 
