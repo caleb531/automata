@@ -2,7 +2,6 @@
 """Classes and methods for working with nondeterministic finite automata."""
 from __future__ import annotations
 
-import functools
 import string
 from collections import deque
 from itertools import chain, count, product, repeat
