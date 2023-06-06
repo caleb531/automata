@@ -16,6 +16,16 @@ class TestGNFA(test_fa.TestFA):
 
     temp_dir_path = tempfile.gettempdir()
 
+    def test_methods_not_implemented(self) -> None:
+        """Should raise NotImplementedError when calling non-implemented methods."""
+        abstract_methods = {
+            "_get_input_path": (GNFA, ""),
+            "read_input_stepwise": (GNFA, ""),
+        }
+        for method_name, method_args in abstract_methods.items():
+            with self.assertRaises(NotImplementedError):
+                getattr(GNFA, method_name)(*method_args)
+
     def test_init_gnfa(self) -> None:
         """Should copy GNFA if passed into NFA constructor."""
         new_gnfa = self.gnfa.copy()

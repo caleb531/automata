@@ -71,6 +71,7 @@ class TestFAAbstract(unittest.TestCase):
 
         self.assertEqual(FA.get_state_name(""), "λ")
         self.assertEqual(FA.get_state_name("abc"), "abc")
+        self.assertEqual(FA.get_state_name(123), "123")
         self.assertEqual(FA.get_state_name(frozenset()), "∅")
 
         original_sets = [frozenset("abc"), frozenset("dcgf")]
