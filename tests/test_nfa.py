@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of NFAs."""
 import os
-import random
 import string
 import tempfile
 import types
@@ -690,7 +689,10 @@ class TestNFA(test_fa.TestFA):
             self.assertEqual(last_vtx in nfa.final_states, was_accepted)
 
     def test_input_path_optimality(self) -> None:
-        """A test case for optimality of path found. Checks path length doesn't use the extra epsilon transition."""
+        """
+        A test case for optimality of path found.
+        Checks path length doesn't use the extra epsilon transition.
+        """
 
         nfa = NFA(
             states=set(range(6)),
