@@ -651,14 +651,29 @@ class TestNFA(test_fa.TestFA):
         os.remove(diagram_path)
 
     def test_get_input_path(self) -> None:
-        input_strings = ["ababa", "bba", "aabba", "baaab", "bbaab", ""]
+        nfa2 = NFA(
+            states={"q0", "q1", "q2"},
+            input_symbols={"a", "b"},
+            transitions={
+                "q0": {"": {"q1"}},
+                "q1": {"a": {"q2"}, "": {"q0"}},
+                "q2": {"b": {"q2"}},
+            },
+            initial_state="q0",
+            final_states={"q1"},
+        )
 
-        for input_str in input_strings:
-            input_path, was_accepted = self.nfa._get_input_path(input_str)
-            self.assertEqual(was_accepted, self.nfa.accepts_input(input_str))
+        input_strings = ["ababa", "bba", "aabba", "baaab", "bbaab", ""]
+        nfas = [self.nfa, nfa2]
+
+        for input_str, nfa in product(input_strings, nfas):
+            input_path, was_accepted = nfa._get_input_path(input_str)
+            self.assertEqual(was_accepted, nfa.accepts_input(input_str))
 
             for start_vtx, end_vtx, symbol in input_path:
-                self.assertIn(end_vtx, self.nfa.transitions[start_vtx][symbol])
+                self.assertIn(end_vtx, nfa.transitions[start_vtx][symbol])
+
+            self.assertEqual(end_vtx in nfa.final_states, was_accepted)
 
     def test_add_new_state_type_integrity(self) -> None:
         """
