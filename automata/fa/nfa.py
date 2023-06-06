@@ -35,7 +35,7 @@ NFAStateT = fa.FAStateT
 
 NFAPathT = Mapping[str, AbstractSet[NFAStateT]]
 NFATransitionsT = Mapping[NFAStateT, NFAPathT]
-
+InputPathListT = List[Tuple[NFAStateT, NFAStateT, str]]
 DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
 
@@ -981,78 +981,68 @@ class NFA(fa.FA):
             for to_ in to_lookup
         )
 
-    def _get_input_path(
-        self, input_str: str
-    ) -> Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool]:
-        """Calculate the path taken by input."""
+    def _get_input_path(self, input_str: str) -> Tuple[InputPathListT, bool]:
+        """
+        Get best input path. A path is better if (with priority):
 
-        visiting = set()
-
-        def gen_paths_for(
-            state: NFAStateT, step: int
-        ) -> Generator[
-            Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool, int], None, None
-        ]:
-            """
-            Generate all the possible paths from state after taking step n.
-            """
-            symbol = input_str[step]
-            transitions = self.transitions.get(state, {})
-            # generate all the paths after taking input symbol and increasing
-            # input read length by 1
-            for next_state in transitions.get(symbol, set()):
-                path, accepted, steps = find_best_path(next_state, step + 1)
-                yield [(state, next_state, symbol)] + path, accepted, steps + 1
-
-            # generate all the lambda paths from state
-            for next_state in transitions.get("", set()):
-                path, accepted, steps = find_best_path(next_state, step)
-                yield [(state, next_state, "")] + path, accepted, steps
-
-        @functools.lru_cache(maxsize=None)
-        def find_best_path(
-            state: NFAStateT, step: int
-        ) -> Tuple[List[Tuple[NFAStateT, NFAStateT, str]], bool, int]:
-            """
-            Try all the possible paths from state after taking step n. A path is
-            better if (with priority):
-            1. It is an accepting path (ends in a final state)
-            2. It reads more of the input (if the input is not accepted we
+        1. It is an accepting path (ends in a final state)
+        2. It reads more of the input (if the input is not accepted we
             select the path such that we can stay on the nfa the longest)
-            3. It has the fewest jumps (uses less lambda symbols)
+        3. It has the fewest jumps (uses less lambda symbols)
 
-            Returns a tuple of:
-            1. the path taken
-            2. wether the path was accepting
-            3. the number of input symbols read by this path (or the number of
-            non-lambda transitions in the path)
-            """
-            if step >= len(input_str):
-                return [], state in self.final_states, 0
+        Returns a tuple of:
+        1. the path taken
+        2. wether the path was accepting
+        """
 
-            if state in visiting:
-                return [], False, 0
+        visited = set()
+        work_queue: Deque[Tuple[InputPathListT, NFAStateT, str]] = deque(
+            [([], self.initial_state, input_str)]
+        )
 
-            # mark this state as being visited
-            visiting.add(state)
-            # tracking variable for the shortest path
-            shortest_path = []
-            # tracking variable for the info about the path
-            # accepting, max_steps, -min_jumps
-            best_path = (False, 0, 0)
+        last_non_accepting_input: InputPathListT = []
+        least_input_remaining = len(input_str)
 
-            # iterate over all the paths
-            for path, accepted, steps in gen_paths_for(state, step):
-                # create a tuple to compare this with the current best
-                new_path = (accepted, steps, -len(path))
-                if new_path > best_path:
-                    shortest_path = path
-                    best_path = new_path
+        while work_queue:
+            visited_states, curr_state, remaining_input = work_queue.popleft()
 
-            # mark this as complete
-            visiting.remove(state)
-            accepting, max_steps, _ = best_path
-            return shortest_path, accepting, max_steps
+            # First final state we hit is the best according to desired criteria
+            if curr_state in self.final_states and not remaining_input:
+                return visited_states, True
 
-        path, accepting, _ = find_best_path(self.initial_state, 0)
-        return path, accepting
+            # Otherwise, update longest non-accepting input
+            if len(remaining_input) < least_input_remaining:
+                least_input_remaining = len(remaining_input)
+                last_non_accepting_input = visited_states
+
+            # First, get next states that result from reading from input
+            if remaining_input:
+                next_symbol = remaining_input[0]
+                rest = remaining_input[1:] if remaining_input else ""
+
+                next_states_from_symbol = self.transitions[curr_state].get(
+                    next_symbol, set()
+                )
+
+                for next_state in next_states_from_symbol:
+                    if (next_state, rest) not in visited:
+                        next_visited_states = visited_states.copy()
+                        next_visited_states.append(
+                            (curr_state, next_state, next_symbol)
+                        )
+                        visited.add((next_state, rest))
+                        work_queue.append((next_visited_states, next_state, rest))
+
+            # Next, get next states resulting from lambda transition
+            next_states_from_lambda = self.transitions[curr_state].get("", set())
+
+            for next_state in next_states_from_lambda:
+                if (next_state, remaining_input) not in visited:
+                    next_visited_states = visited_states.copy()
+                    next_visited_states.append((curr_state, next_state, ""))
+                    visited.add((next_state, remaining_input))
+                    work_queue.append(
+                        (next_visited_states, next_state, remaining_input)
+                    )
+
+        return last_non_accepting_input, False

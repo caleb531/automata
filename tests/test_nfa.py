@@ -650,12 +650,15 @@ class TestNFA(test_fa.TestFA):
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
 
-    # TODO this test case fails, there's a bug in the get_input_path for NFAs
-    # def test_get_input_path(self) -> None:
-    #    input_str = "aba"
-    #
-    #    was_accepted = self.nfa._get_input_path(input_str)[1]
-    #    self.assertEqual(was_accepted, self.nfa.accepts_input(input_str))
+    def test_get_input_path(self) -> None:
+        input_strings = ["ababa", "bba", "aabba", "baaab", "bbaab", ""]
+
+        for input_str in input_strings:
+            input_path, was_accepted = self.nfa._get_input_path(input_str)
+            self.assertEqual(was_accepted, self.nfa.accepts_input(input_str))
+
+            for start_vtx, end_vtx, symbol in input_path:
+                self.assertIn(end_vtx, self.nfa.transitions[start_vtx][symbol])
 
     def test_add_new_state_type_integrity(self) -> None:
         """

@@ -98,7 +98,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         """
 
         if not _visual_imports:
-            raise ImportError("Missing visual imports.")
+            raise ImportError(
+                "Missing visualization packages; please install coloraide and pygraphviz."
+            )
 
         # Defining the graph.
         graph = pgv.AGraph(strict=False, directed=True)
