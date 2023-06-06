@@ -655,9 +655,9 @@ class TestNFA(test_fa.TestFA):
             states={"q0", "q1", "q2"},
             input_symbols={"a", "b"},
             transitions={
-                "q0": {"": {"q1"}},
+                "q0": {"": {"q1"}, "b": {"q0"}},
                 "q1": {"a": {"q2"}, "": {"q0"}},
-                "q2": {"b": {"q2"}},
+                "q2": {"b": {"q2"}, "a": {"q1"}},
             },
             initial_state="q0",
             final_states={"q1"},
@@ -670,10 +670,13 @@ class TestNFA(test_fa.TestFA):
             input_path, was_accepted = nfa._get_input_path(input_str)
             self.assertEqual(was_accepted, nfa.accepts_input(input_str))
 
-            for start_vtx, end_vtx, symbol in input_path:
-                self.assertIn(end_vtx, nfa.transitions[start_vtx][symbol])
+            last_vtx = None
 
-            self.assertEqual(end_vtx in nfa.final_states, was_accepted)
+            for start_vtx, end_vtx, symbol in input_path:
+                last_vtx = end_vtx
+                self.assertIn(end_vtx, nfa.transitions[start_vtx][symbol])
+            
+            self.assertEqual(last_vtx in nfa.final_states, was_accepted)
 
     def test_add_new_state_type_integrity(self) -> None:
         """
