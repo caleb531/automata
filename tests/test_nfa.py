@@ -712,6 +712,30 @@ class TestNFA(test_fa.TestFA):
 
             self.assertEqual(last_vtx in nfa.final_states, was_accepted)
 
+    def test_input_path_optimality(self) -> None:
+        """A test case for optimality of path found. Checks path length doesn't use the extra epsilon transition."""
+
+        nfa = NFA(
+            states=set(range(6)),
+            input_symbols=set("01"),
+            transitions={
+                0: {"0": {1, 2}},
+                1: {"": {3}},
+                2: {"1": {4}},
+                3: {"1": {4}},
+                4: {"": {5}},
+                5: {},
+            },
+            initial_state=0,
+            final_states={5},
+        )
+
+        input_str = "01"
+
+        input_path, was_accepted = nfa._get_input_path(input_str)
+        self.assertEqual(was_accepted, nfa.accepts_input(input_str))
+        self.assertEqual(len(input_path), 3)
+
     def test_add_new_state_type_integrity(self) -> None:
         """
         Should properly add new state of different type than original states;
