@@ -16,6 +16,16 @@ class TestGNFA(test_fa.TestFA):
 
     temp_dir_path = tempfile.gettempdir()
 
+    def test_methods_not_implemented(self) -> None:
+        """Should raise NotImplementedError when calling non-implemented methods."""
+        abstract_methods = {
+            "_get_input_path": (GNFA, ""),
+            "read_input_stepwise": (GNFA, ""),
+        }
+        for method_name, method_args in abstract_methods.items():
+            with self.assertRaises(NotImplementedError):
+                getattr(GNFA, method_name)(*method_args)
+
     def test_init_gnfa(self) -> None:
         """Should copy GNFA if passed into NFA constructor."""
         new_gnfa = self.gnfa.copy()
@@ -372,69 +382,43 @@ class TestGNFA(test_fa.TestFA):
             # Test equality through DFA regex conversion
             self.assertEqual(dfa_1, dfa_2)
 
-    def test_show_diagram_showNone(self) -> None:
-        """
-        Should construct the diagram for a GNFA when show_None = False
-        """
-
-        gnfa = self.gnfa
-
-        graph = gnfa.show_diagram(show_None=False)
-        self.assertEqual({node.get_name() for node in graph.get_nodes()}, gnfa.states)
-        self.assertEqual(graph.get_node(gnfa.initial_state)[0].get_style(), "filled")
-        self.assertEqual(graph.get_node(gnfa.final_state)[0].get_peripheries(), 2)
-        self.assertEqual(graph.get_node("q2")[0].get_peripheries(), None)
-        self.assertEqual(
-            {
-                (edge.get_source(), edge.get_label(), edge.get_destination())
-                for edge in graph.get_edges()
-            },
-            {
-                ("q0", "a", "q1"),
-                ("q1", "a", "q1"),
-                ("q1", "", "q2"),
-                ("q1", "", "q_f"),
-                ("q2", "b", "q0"),
-                ("q_in", "", "q0"),
-            },
-        )
-
     def test_show_diagram(self) -> None:
         """
-        Should construct the diagram for a GNFA when show_None = True
+        Should construct the diagram for a GNFA.
         """
 
-        gnfa = self.gnfa
+        graph = self.gnfa.show_diagram()
 
-        graph = gnfa.show_diagram()
-        self.assertEqual({node.get_name() for node in graph.get_nodes()}, gnfa.states)
-        self.assertEqual(graph.get_node(gnfa.initial_state)[0].get_style(), "filled")
-        self.assertEqual(graph.get_node(gnfa.final_state)[0].get_peripheries(), 2)
-        self.assertEqual(graph.get_node("q2")[0].get_peripheries(), None)
-        self.assertEqual(
-            {
-                (edge.get_source(), edge.get_label(), edge.get_destination())
-                for edge in graph.get_edges()
-            },
-            {
-                ("q_in", "", "q0"),
-                ("q0", "ø", "q2"),
-                ("q1", "", "q2"),
-                ("q0", "ø", "q_f"),
-                ("q1", "", "q_f"),
-                ("q_in", "ø", "q2"),
-                ("q_in", "ø", "q1"),
-                ("q1", "a", "q1"),
-                ("q2", "b", "q0"),
-                ("q2", "ø", "q2"),
-                ("q_in", "ø", "q_f"),
-                ("q2", "ø", "q1"),
-                ("q0", "ø", "q0"),
-                ("q2", "ø", "q_f"),
-                ("q0", "a", "q1"),
-                ("q1", "ø", "q0"),
-            },
-        )
+        node_names = {node.get_name() for node in graph.nodes()}
+        self.assertTrue(set(self.gnfa.states).issubset(node_names))
+        self.assertEqual(len(self.gnfa.states) + 1, len(node_names))
+
+        for state in self.dfa.states:
+            node = graph.get_node(state)
+            expected_shape = (
+                "doublecircle" if state in self.gnfa.final_states else "circle"
+            )
+            self.assertEqual(node.attr["shape"], expected_shape)
+
+        expected_transitions = {
+            ("q_in", "ε", "q0"),
+            ("q1", "ε", "q2"),
+            ("q1", "ε", "q_f"),
+            ("q1", "a", "q1"),
+            ("q2", "b", "q0"),
+            ("q0", "a", "q1"),
+        }
+        seen_transitions = {
+            (edge[0], edge.attr["label"], edge[1]) for edge in graph.edges()
+        }
+
+        self.assertTrue(expected_transitions.issubset(seen_transitions))
+        self.assertEqual(len(expected_transitions) + 1, len(seen_transitions))
+
+        source, symbol, dest = list(seen_transitions - expected_transitions)[0]
+        self.assertEqual(symbol, "")
+        self.assertEqual(dest, self.gnfa.initial_state)
+        self.assertTrue(source not in self.gnfa.states)
 
     def test_show_diagram_write_file(self) -> None:
         """

@@ -4,10 +4,18 @@ automata."""
 from __future__ import annotations
 
 from itertools import product
-from typing import AbstractSet, Dict, Mapping, Optional, Set, Type, cast
+from typing import (
+    AbstractSet,
+    Dict,
+    Generator,
+    Mapping,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    cast,
+)
 
-from frozendict import frozendict
-from pydot import Dot, Edge, Node
 from typing_extensions import NoReturn, Self
 
 import automata.base.exceptions as exceptions
@@ -25,17 +33,14 @@ GNFATransitionsT = Mapping[GNFAStateT, GNFAPathT]
 class GNFA(fa.FA):
     """A generalized nondeterministic finite automaton."""
 
-    # The conventions of using __slots__ state that subclasses automatically
-    # inherit __slots__ from parent classes, so there's no need to redeclare
-    # slotted attributes for each subclass; however, because NFA has a
-    # 'final_states' attribute but GNFA has a 'final_state' attribute, we must
-    # redeclare them below to exclude 'final_states'
+    # Add __dict__ to deal with inheritance issue and the final_states attribute.
     __slots__ = (
         "states",
         "input_symbols",
         "transitions",
         "initial_state",
         "final_state",
+        "__dict__",
     )
 
     final_state: GNFAStateT
@@ -49,15 +54,14 @@ class GNFA(fa.FA):
         initial_state: GNFAStateT,
         final_state: GNFAStateT,
     ) -> None:
-        """Initialize a complete NFA."""
+        """Initialize a complete GNFA."""
         super(fa.FA, self).__init__(
-            states=frozenset(states),
-            input_symbols=frozenset(input_symbols),
-            transitions=frozendict(
-                {state: frozendict(paths) for state, paths in transitions.items()}
-            ),
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
             initial_state=initial_state,
             final_state=final_state,
+            final_states={final_state},
         )
 
     # GNFA should NOT create the lambda closures via NFA.__post_init__()
@@ -327,39 +331,17 @@ class GNFA(fa.FA):
     def read_input_stepwise(self, input_str: str) -> NoReturn:
         raise NotImplementedError
 
-    def show_diagram(self, path=None, show_None=True):
-        """
-        Creates the graph associated with this DFA
-        """
-        # Nodes are set of states
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[GNFAStateT, GNFAStateT, str], None, None]:
+        return (
+            (from_, to_, symbol)
+            for from_, lookup in self.transitions.items()
+            for to_, symbol in lookup.items()
+            if symbol is not None
+        )
 
-        graph = Dot(graph_type="digraph", rankdir="LR")
-        nodes = {}
-        for state in self.states:
-            if state == self.initial_state:
-                # color start state with green
-                initial_state_node = Node(state, style="filled", fillcolor="#66cc33")
-                nodes[state] = initial_state_node
-                graph.add_node(initial_state_node)
-            else:
-                if state == self.final_state:
-                    state_node = Node(state, peripheries=2)
-                else:
-                    state_node = Node(state)
-                nodes[state] = state_node
-                graph.add_node(state_node)
-        # adding edges
-        for from_state, lookup in self.transitions.items():
-            for to_state, to_label in lookup.items():  # pragma: no branch
-                if to_label is None and show_None:
-                    to_label = "ø"
-                    graph.add_edge(
-                        Edge(nodes[from_state], nodes[to_state], label=to_label)
-                    )
-                elif to_label is not None:
-                    graph.add_edge(
-                        Edge(nodes[from_state], nodes[to_state], label=to_label)
-                    )
-        if path:
-            graph.write_png(path)
-        return graph
+    def _get_input_path(self, input_str: str) -> NoReturn:
+        raise NotImplementedError(
+            f"_get_input_path is not implemented for {self.__class__}"
+        )

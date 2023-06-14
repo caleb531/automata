@@ -49,7 +49,7 @@ class PDAStack:
         """Return an interator for the stack."""
         return iter(self.stack)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int) -> str:
         """Return the stack element at the given index"""
         return self.stack[key]
 

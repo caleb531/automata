@@ -17,18 +17,15 @@ from typing import (  # noqa Fixes a false positive where flake8 thinks that Lit
     Iterable,
     Iterator,
     List,
-    Literal,
     Mapping,
     Optional,
     Set,
     Tuple,
     Type,
-    TypeVar,
     cast,
 )
 
 import networkx as nx
-from pydot import Dot, Edge, Node
 from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
@@ -50,7 +47,6 @@ TargetStateFn = Callable[[DFAStateT], bool]
 class DFA(fa.FA):
     """A deterministic finite automaton."""
 
-    # TODO allow
     __slots__ = (
         "states",
         "input_symbols",
@@ -332,7 +328,7 @@ class DFA(fa.FA):
         Create a minimal DFA which accepts the same inputs as this DFA.
 
         First, non-reachable states are removed.
-        Then, similiar states are merged using Hopcroft's Algorithm.
+        Then, similar states are merged using Hopcroft's Algorithm.
             retain_names: If True, merged states retain names.
                           If False, new states will be named 0, ..., n-1.
         """
@@ -807,7 +803,7 @@ class DFA(fa.FA):
         *,
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
-    ) -> Iterable[str]:
+    ) -> Generator[str, None, None]:
         """
         Generates all strings that come before the input string
         in lexicographical order.
@@ -845,7 +841,7 @@ class DFA(fa.FA):
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
         reverse: bool = False,
-    ) -> Iterable[str]:
+    ) -> Generator[str, None, None]:
         """
         Generates all strings that come after the input string in
         lexicographical order. Passing in None will generate all words. If
@@ -906,7 +902,7 @@ class DFA(fa.FA):
             )
             # Traverse to child if candidate is viable
             if candidate_state in coaccessible_nodes:
-                state_stack.append(cast(str, candidate_state))
+                state_stack.append(candidate_state)
                 char_stack.append(cast(str, candidate))
                 candidate = first_symbol
             else:
@@ -1553,38 +1549,35 @@ class DFA(fa.FA):
             final_states=dfa_final_states,
         )
 
-    def show_diagram(self, path=None):
-        """
-        Creates the graph associated with this DFA
-        """
-        # Nodes are set of states
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[DFAStateT, DFAStateT, str], None, None]:
+        return (
+            (from_, to_, symbol)
+            for from_, lookup in self.transitions.items()
+            for symbol, to_ in lookup.items()
+        )
 
-        graph = Dot(graph_type="digraph", rankdir="LR")
-        nodes = {}
-        for state in self.states:
-            if state == self.initial_state:
-                # color start state with green
-                if state in self.final_states:
-                    initial_state_node = Node(
-                        state, style="filled", peripheries=2, fillcolor="#66cc33"
-                    )
-                else:
-                    initial_state_node = Node(
-                        state, style="filled", fillcolor="#66cc33"
-                    )
-                nodes[state] = initial_state_node
-                graph.add_node(initial_state_node)
-            else:
-                if state in self.final_states:
-                    state_node = Node(state, peripheries=2)
-                else:
-                    state_node = Node(state)
-                nodes[state] = state_node
-                graph.add_node(state_node)
-        # adding edges
-        for from_state, lookup in self.transitions.items():
-            for to_label, to_state in lookup.items():
-                graph.add_edge(Edge(nodes[from_state], nodes[to_state], label=to_label))
-        if path:
-            graph.write_png(path)
-        return graph
+    def _get_input_path(
+        self, input_str
+    ) -> Tuple[List[Tuple[DFAStateT, DFAStateT, DFASymbolT]], bool]:
+        """
+        Calculate the path taken by input.
+
+        Args:
+            input_str (str): The input string to run on the DFA.
+
+        Returns:
+            tuple[list[tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]: A list
+            of all transitions taken in each step and a boolean indicating
+            whether the DFA accepted the input.
+
+        """
+
+        state_history = list(self.read_input_stepwise(input_str, ignore_rejection=True))
+        path = list(zip(state_history, state_history[1:], input_str))
+
+        last_state = state_history[-1] if state_history else self.initial_state
+        accepted = last_state in self.final_states
+
+        return path, accepted

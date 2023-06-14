@@ -23,7 +23,6 @@ from typing import (
 
 import networkx as nx
 from frozendict import frozendict
-from pydot import Dot, Edge, Node
 from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
@@ -35,7 +34,7 @@ NFAStateT = fa.FAStateT
 
 NFAPathT = Mapping[str, AbstractSet[NFAStateT]]
 NFATransitionsT = Mapping[NFAStateT, NFAPathT]
-
+InputPathListT = List[Tuple[NFAStateT, NFAStateT, str]]
 DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
 
@@ -808,45 +807,6 @@ class NFA(fa.FA):
             final_states=new_final_states,
         )
 
-    def show_diagram(self, path=None):
-        """
-        Creates the graph associated with this DFA
-        """
-        # Nodes are set of states
-
-        graph = Dot(graph_type="digraph", rankdir="LR")
-        nodes = {}
-        for state in self.states:
-            if state == self.initial_state:
-                # color start state with green
-                if state in self.final_states:
-                    initial_state_node = Node(
-                        state, style="filled", peripheries=2, fillcolor="#66cc33"
-                    )
-                else:
-                    initial_state_node = Node(
-                        state, style="filled", fillcolor="#66cc33"
-                    )
-                nodes[state] = initial_state_node
-                graph.add_node(initial_state_node)
-            else:
-                if state in self.final_states:
-                    state_node = Node(state, peripheries=2)
-                else:
-                    state_node = Node(state)
-                nodes[state] = state_node
-                graph.add_node(state_node)
-        # adding edges
-        for from_state, lookup in self.transitions.items():
-            for to_label, to_states in lookup.items():
-                for to_state in to_states:
-                    graph.add_edge(
-                        Edge(nodes[from_state], nodes[to_state], label=to_label)
-                    )
-        if path:
-            graph.write_png(path)
-        return graph
-
     @staticmethod
     def _load_new_transition_dict(
         state_map_dict: Mapping[NFAStateT, NFAStateT],
@@ -1009,3 +969,79 @@ class NFA(fa.FA):
             initial_state=(0, 0),
             final_states=final_states,
         )
+
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[NFAStateT, NFAStateT, str], None, None]:
+        return (
+            (from_, to_, symbol)
+            for from_, lookup in self.transitions.items()
+            for symbol, to_lookup in lookup.items()
+            for to_ in to_lookup
+        )
+
+    def _get_input_path(self, input_str: str) -> Tuple[InputPathListT, bool]:
+        """
+        Get best input path. A path is better if (with priority):
+
+        1. It is an accepting path (ends in a final state)
+        2. It reads more of the input (if the input is not accepted we
+            select the path such that we can stay on the nfa the longest)
+        3. It has the fewest jumps (uses less lambda symbols)
+
+        Returns a tuple of:
+        1. the path taken
+        2. whether the path was accepting
+        """
+
+        visited = set()
+        work_queue: Deque[Tuple[InputPathListT, NFAStateT, str]] = deque(
+            [([], self.initial_state, input_str)]
+        )
+
+        last_non_accepting_input: InputPathListT = []
+        least_input_remaining = len(input_str)
+
+        while work_queue:
+            visited_states, curr_state, remaining_input = work_queue.popleft()
+
+            # First final state we hit is the best according to desired criteria
+            if curr_state in self.final_states and not remaining_input:
+                return visited_states, True
+
+            # Otherwise, update longest non-accepting input
+            if len(remaining_input) < least_input_remaining:
+                least_input_remaining = len(remaining_input)
+                last_non_accepting_input = visited_states
+
+            # First, get next states that result from reading from input
+            if remaining_input:
+                next_symbol = remaining_input[0]
+                rest = remaining_input[1:] if remaining_input else ""
+
+                next_states_from_symbol = self.transitions[curr_state].get(
+                    next_symbol, set()
+                )
+
+                for next_state in next_states_from_symbol:
+                    if (next_state, rest) not in visited:
+                        next_visited_states = visited_states.copy()
+                        next_visited_states.append(
+                            (curr_state, next_state, next_symbol)
+                        )
+                        visited.add((next_state, rest))
+                        work_queue.append((next_visited_states, next_state, rest))
+
+            # Next, get next states resulting from lambda transition
+            next_states_from_lambda = self.transitions[curr_state].get("", set())
+
+            for next_state in next_states_from_lambda:
+                if (next_state, remaining_input) not in visited:
+                    next_visited_states = visited_states.copy()
+                    next_visited_states.append((curr_state, next_state, ""))
+                    visited.add((next_state, remaining_input))
+                    work_queue.append(
+                        (next_visited_states, next_state, remaining_input)
+                    )
+
+        return last_non_accepting_input, False

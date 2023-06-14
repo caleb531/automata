@@ -13,10 +13,17 @@ maintainers = [
     {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
 ]
 dependencies = [
-    "pydot>=1.4.2",
     "networkx>=2.6.2",
-    "frozendict>=2.3.4", #TODO I think that typing extensions needs to be in here
+    "frozendict>=2.3.4",
+    "typing-extensions>=4.5.0"
 ]
+
+# Per https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
+[project.optional-dependencies]
+visual = ["coloraide>=1.8.2", "pygraphviz>=1.10"]
+
+[tool.setuptools.package-data]
+"automata" = ["py.typed"]
 
 [project.urls]
 homepage = "https://github.com/caleb531/automata"
@@ -34,7 +41,7 @@ exclude = ["build"]
 module = [
   "setuptools.*",
   "networkx.*",
-  "pydot.*" # TODO pydot dependency is going to get removed, can delete
+  "pygraphviz.*"
 ]
 ignore_missing_imports = true
 
@@ -46,3 +53,22 @@ extend-ignore = ["E203", "W503"]
 # Per <https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#profile>
 [tool.isort]
 profile = "black"
+
+
+# Configuration for coverage.py (https://pypi.python.org/pypi/coverage)
+
+[tool.coverage.run]
+# Enable branch coverage
+branch = true
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+    "pragma: no cover",
+    # Ignore non-runnable code
+    "if __name__ == .__main__.:",
+    "pass",
+]
+
+# Only check coverage for source files
+include =["automata/*/*.py"]
