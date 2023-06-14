@@ -22,11 +22,8 @@ dependencies = [
 [project.optional-dependencies]
 visual = ["coloraide>=1.8.2", "pygraphviz>=1.10"]
 
-# TODO add other setup options as needed
 [tool.setuptools.package-data]
 "automata" = ["py.typed"]
-
-#TODO maybe add stuff from here?: https://blog.whtsky.me/tech/2021/dont-forget-py.typed-for-your-typed-python-package/#adding-pytyped
 
 [project.urls]
 homepage = "https://github.com/caleb531/automata"
@@ -65,10 +62,6 @@ profile = "black"
 branch = true
 
 [tool.coverage.report]
-
-# TODO I commented this out because otherwise, the coverage report always read 100%
-# Have to fix this and figure out what's going on
-
 # Regexes for lines to exclude from consideration
 exclude_lines = [
     "pragma: no cover",

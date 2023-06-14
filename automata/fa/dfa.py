@@ -47,7 +47,6 @@ TargetStateFn = Callable[[DFAStateT], bool]
 class DFA(fa.FA):
     """A deterministic finite automaton."""
 
-    # TODO allow
     __slots__ = (
         "states",
         "input_symbols",
