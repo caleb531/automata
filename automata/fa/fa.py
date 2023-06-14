@@ -67,6 +67,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         of the form (from_state, to_state, symbol)
         """
 
+    # Supports partial DFA
     def show_diagram(
         self,
         input_str: Optional[str] = None,
