@@ -991,7 +991,7 @@ class NFA(fa.FA):
 
         Returns a tuple of:
         1. the path taken
-        2. wether the path was accepting
+        2. whether the path was accepting
         """
 
         visited = set()
