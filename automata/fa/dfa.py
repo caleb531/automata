@@ -88,7 +88,10 @@ class DFA(fa.FA):
         self.reset_cache()
 
     def reset_cache(self) -> None:
-        """Resets the word and count caches. Can be called if too much memory is being used."""
+        """
+        Resets the word and count caches.
+        Can be called if too much memory is being used.
+        """
         object.__setattr__(self, "_word_cache", [])
         object.__setattr__(self, "_count_cache", [])
 
