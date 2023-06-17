@@ -22,6 +22,7 @@ from typing import (
 )
 
 import networkx as nx
+from cached_method import cached_method
 from frozendict import frozendict
 from typing_extensions import Self
 
@@ -47,11 +48,12 @@ class NFA(fa.FA):
         "transitions",
         "initial_state",
         "final_states",
-        "_lambda_closures",
+        # These two entries are to allow for caching methods
+        "__dict__",
+        "__weakref__",
     )
 
     transitions: NFATransitionsT
-    _lambda_closures: Mapping[NFAStateT, FrozenSet[NFAStateT]]
 
     def __init__(
         self,
@@ -69,13 +71,10 @@ class NFA(fa.FA):
             transitions=transitions,
             initial_state=initial_state,
             final_states=final_states,
-            _lambda_closures=self._compute_lambda_closures(states, transitions),
         )
 
-    @staticmethod
-    def _compute_lambda_closures(
-        states: AbstractSet[NFAStateT], transitions: NFATransitionsT
-    ) -> Mapping[NFAStateT, FrozenSet[NFAStateT]]:
+    @cached_method
+    def _get_lambda_closures(self) -> Mapping[NFAStateT, FrozenSet[NFAStateT]]:
         """
         Computes a dictionary of the lambda closures for this NFA, where each
         key is the state name and the value is the lambda closure for that
@@ -87,11 +86,11 @@ class NFA(fa.FA):
         transitions.
         """
         lambda_graph = nx.DiGraph()
-        lambda_graph.add_nodes_from(states)
+        lambda_graph.add_nodes_from(self.states)
         lambda_graph.add_edges_from(
             (
                 (start_state, end_state)
-                for start_state, transition in transitions.items()
+                for start_state, transition in self.transitions.items()
                 for char, end_states in transition.items()
                 if char == ""
                 for end_state in end_states
@@ -101,7 +100,7 @@ class NFA(fa.FA):
         return frozendict(
             {
                 state: frozenset(nx.descendants(lambda_graph, state) | {state})
-                for state in states
+                for state in self.states
             }
         )
 
@@ -207,13 +206,14 @@ class NFA(fa.FA):
     ) -> FrozenSet[NFAStateT]:
         """Return the next set of current states given the current set."""
         next_current_states: Set[NFAStateT] = set()
+        lambda_closures = self._get_lambda_closures()
 
         for current_state in current_states:
             if current_state not in self.transitions:
                 continue
             current_transition = self.transitions[current_state]
             for end_state in current_transition.get(input_symbol, {}):
-                next_current_states.update(self._lambda_closures[end_state])
+                next_current_states.update(lambda_closures[end_state])
 
         return frozenset(next_current_states)
 
@@ -254,9 +254,10 @@ class NFA(fa.FA):
             for state, paths in self.transitions.items()
         }
         new_final_states = set(self.final_states)
+        lambda_closures = self._get_lambda_closures()
 
         for state in self.states:
-            lambda_enclosure = self._lambda_closures[state] - {state}
+            lambda_enclosure = lambda_closures[state] - {state}
             for input_symbol in self.input_symbols:
                 next_current_states = set(
                     self._get_next_current_states(lambda_enclosure, input_symbol)
@@ -325,7 +326,7 @@ class NFA(fa.FA):
 
         Yield the current configuration of the NFA at each step.
         """
-        current_states = self._lambda_closures[self.initial_state]
+        current_states = self._get_lambda_closures()[self.initial_state]
 
         yield current_states
         for input_symbol in input_str:
@@ -839,8 +840,8 @@ class NFA(fa.FA):
             return NotImplemented
 
         operand_nfas = (self, other)
-        initial_state_a = (self._lambda_closures[self.initial_state], 0)
-        initial_state_b = (other._lambda_closures[other.initial_state], 1)
+        initial_state_a = (self._get_lambda_closures()[self.initial_state], 0)
+        initial_state_b = (other._get_lambda_closures()[other.initial_state], 1)
 
         def is_final_state(states_pair: NFAStatesPairT) -> bool:
             states, operand_index = states_pair
@@ -848,7 +849,7 @@ class NFA(fa.FA):
             # If at least one of the current states is a final state, the
             # condition should satisfy
             return any(
-                not nfa.final_states.isdisjoint(nfa._lambda_closures[state])
+                not nfa.final_states.isdisjoint(nfa._get_lambda_closures()[state])
                 for state in states
             )
 

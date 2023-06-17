@@ -760,6 +760,7 @@ class DFA(fa.FA):
             lambda state: iter(self.transitions[state].items()),
         )
 
+    @cached_method
     def isfinite(self) -> bool:
         """
         Returns True if the DFA accepts a finite language, False otherwise.
@@ -1005,6 +1006,7 @@ class DFA(fa.FA):
                     }
                 )
 
+    @cached_method
     def cardinality(self) -> int:
         """Returns the cardinality of the language represented by the DFA."""
         try:
@@ -1018,6 +1020,7 @@ class DFA(fa.FA):
             )
         return sum(self.count_words_of_length(j) for j in range(i, limit + 1))
 
+    @cached_method
     def minimum_word_length(self) -> int:
         """
         Returns the length of the shortest word in the language represented by the DFA
@@ -1037,6 +1040,7 @@ class DFA(fa.FA):
             "The language represented by the DFA is empty"
         )
 
+    @cached_method
     def maximum_word_length(self) -> Optional[int]:
         """
         Returns the length of the longest word in the language represented by the DFA
@@ -1509,7 +1513,7 @@ class DFA(fa.FA):
 
         # equivalent DFA states states
         nfa_initial_states = frozenset(
-            target_nfa._lambda_closures[target_nfa.initial_state]
+            target_nfa._get_lambda_closures()[target_nfa.initial_state]
         )
         dfa_initial_state = get_name(nfa_initial_states)
         dfa_final_states = set()
