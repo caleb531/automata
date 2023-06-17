@@ -309,7 +309,7 @@ for word in dfa:
     print(word)
 ```
 
-## DFA.reset_word_cache(self)
+## DFA.reset_cache(self)
 
 Resets the word and count caches. Can be called if too much memory is being used.
 

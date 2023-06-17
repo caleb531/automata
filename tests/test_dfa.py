@@ -2506,15 +2506,18 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(dfa.isempty())
 
     def test_reset_word_cache(self) -> None:
-        dfa = DFA.of_length(set("01"), min_length=0, max_length=4)
+        max_len = 4
+        dfa = DFA.of_length(set("01"), min_length=0, max_length=max_len)
 
-        self.assertEqual(dfa._word_cache, 0)
-        self.assertEqual(dfa._word_cache, 0)
+        self.assertEqual(len(dfa._word_cache), 0)
+        self.assertEqual(len(dfa._count_cache), 0)
 
         self.assertGreater(dfa.cardinality(), 0)
-        self.assertGreater(dfa._word_cache, 0)
-        self.assertGreater(dfa._word_cache, 0)
+        self.assertGreater(len(dfa._count_cache), 0)
 
-        dfa.reset_word_cache()
-        self.assertEqual(dfa._word_cache, 0)
-        self.assertEqual(dfa._word_cache, 0)
+        self.assertGreater(len(list(dfa.words_of_length(max_len))), 0)
+        self.assertGreater(len(dfa._word_cache), 0)
+
+        dfa.reset_cache()
+        self.assertEqual(len(dfa._word_cache), 0)
+        self.assertEqual(len(dfa._count_cache), 0)
