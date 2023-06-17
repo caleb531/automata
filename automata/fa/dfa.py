@@ -62,6 +62,7 @@ class DFA(fa.FA):
     allow_partial: bool
     _word_cache: List[DefaultDict[DFAStateT, List[str]]]
     _count_cache: List[DefaultDict[DFAStateT, int]]
+    _digraph: nx.DiGraph
 
     def __init__(
         self,
