@@ -350,7 +350,7 @@ class DFA(fa.FA):
         bfs_states = self.__class__._bfs_states(
             self.initial_state, lambda state: iter(self.transitions[state].items())
         )
-        reachable_states = {*bfs_states}
+        reachable_states = set(bfs_states)
         reachable_final_states = self.final_states & reachable_states
 
         return self.__class__._minify(
@@ -557,7 +557,7 @@ class DFA(fa.FA):
             bfs_states = self.__class__._bfs_states(
                 self.initial_state, lambda state: iter(self.transitions[state].items())
             )
-            reachable_states = {*bfs_states}
+            reachable_states = set(bfs_states)
             reachable_final_states = self.final_states & reachable_states
 
             return self.__class__._minify(
@@ -755,7 +755,7 @@ class DFA(fa.FA):
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
         return not self.__class__._find_state(
-            lambda state: state in self.final_states,
+            self.final_states.__contains__,
             self.initial_state,
             lambda state: iter(self.transitions[state].items()),
         )
