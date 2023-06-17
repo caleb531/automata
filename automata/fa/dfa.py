@@ -285,7 +285,9 @@ class DFA(fa.FA):
             return self.copy()
 
         trap_state = self.get_trap_state_id()
-        default_to_trap = {symbol: trap_state for symbol in self.input_symbols}
+        default_to_trap: DFAPathT = {
+            symbol: trap_state for symbol in self.input_symbols
+        }
         transitions: DFATransitionsT = {
             state: {**default_to_trap, **lookup}
             for state, lookup in self.transitions.items()
