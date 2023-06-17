@@ -42,7 +42,8 @@ exclude = ["build"]
 module = [
   "setuptools.*",
   "networkx.*",
-  "pygraphviz.*"
+  "pygraphviz.*",
+  "cached_method.*"
 ]
 ignore_missing_imports = true
 

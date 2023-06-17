@@ -307,17 +307,6 @@ class DFA(fa.FA):
                 "the DFA stopped on a non-final state ({})".format(current_state)
             )
 
-    @cached_method
-    def _get_digraph(self) -> nx.DiGraph:
-        """Return a digraph corresponding to this DFA with transition symbols ignored"""
-        return nx.DiGraph(
-            (
-                (start_state, end_state)
-                for start_state, transition in self.transitions.items()
-                for end_state in transition.values()
-            )
-        )
-
     def read_input_stepwise(
         self, input_str: str, ignore_rejection: bool = False
     ) -> Generator[AbstractSet[DFAStateT], None, None]:
@@ -335,6 +324,17 @@ class DFA(fa.FA):
 
         if not ignore_rejection:
             self._check_for_input_rejection(current_state)
+
+    @cached_method
+    def _get_digraph(self) -> nx.DiGraph:
+        """Return a digraph corresponding to this DFA with transition symbols ignored"""
+        return nx.DiGraph(
+            (
+                (start_state, end_state)
+                for start_state, transition in self.transitions.items()
+                for end_state in transition.values()
+            )
+        )
 
     def minify(self, retain_names: bool = False) -> Self:
         """
