@@ -411,19 +411,21 @@ class DFA(fa.FA):
         if not ignore_rejection:
             self._check_for_input_rejection(current_state)
 
-
     # Supports partial
     @cached_method
     def _get_digraph(self) -> nx.DiGraph:
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
-        return nx.DiGraph(
+
+        graph = nx.DiGraph()
+        graph.add_nodes_from(self.states)
+        graph.add_edges_from(
             (
                 (start_state, end_state)
                 for start_state, transition in self.transitions.items()
                 for end_state in transition.values()
             )
         )
-        graph.update(nodes=(state for state in self.states))
+
         return graph
 
     # Supports partial
@@ -732,7 +734,7 @@ class DFA(fa.FA):
                 complete_dfa.initial_state,
                 lambda state: iter(complete_dfa.transitions[state].items()),
             )
-            
+
             reachable_states = set(bfs_states)
             reachable_final_states = complete_dfa.final_states & reachable_states
 
@@ -990,7 +992,6 @@ class DFA(fa.FA):
             self.initial_state,
             lambda state: iter(self.transitions[state].items()),
         )
-
 
     # Supports partial
     @cached_method
@@ -1257,7 +1258,6 @@ class DFA(fa.FA):
                         for state in self.states
                     }
                 )
-
 
     # Supports partial
     @cached_method
