@@ -1397,9 +1397,7 @@ class DFA(fa.FA):
         If contains is set to False then the complement is constructed instead.
         If must_be_suffix is set to True, then the substring must be a suffix instead.
         """
-        transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {
-            i: {} for i in range(len(substring))
-        }
+        transitions: DFATransitionsT = {i: {} for i in range(len(substring))}
         transitions[len(substring)] = {
             symbol: len(substring) for symbol in input_symbols
         }
