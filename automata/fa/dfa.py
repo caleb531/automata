@@ -2,6 +2,7 @@
 """Classes and methods for working with deterministic finite automata."""
 from __future__ import annotations
 
+import array
 from collections import defaultdict, deque
 from itertools import chain, count
 from random import Random
@@ -1397,7 +1398,9 @@ class DFA(fa.FA):
         If contains is set to False then the complement is constructed instead.
         If must_be_suffix is set to True, then the substring must be a suffix instead.
         """
-        transitions: DFATransitionsT = {i: {} for i in range(len(substring))}
+        transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {
+            i: {} for i in range(len(substring))
+        }
         transitions[len(substring)] = {
             symbol: len(substring) for symbol in input_symbols
         }
@@ -1405,7 +1408,7 @@ class DFA(fa.FA):
         # Computing failure function for partial matches as is done in the
         # Knuth-Morris-Pratt string algorithm so we can quickly compute the
         # next state from another state
-        kmp_table = [-1 for _ in substring]
+        kmp_table = array.array("i", (-1 for _ in substring))
         candidate = 0
         for i, char in enumerate(substring):
             if i == 0:
