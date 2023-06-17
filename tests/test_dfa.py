@@ -2504,3 +2504,17 @@ class TestDFA(test_fa.TestFA):
 
         dfa = DFA.empty_language({"0", "1", "a", "b"})
         self.assertTrue(dfa.isempty())
+
+    def test_reset_word_cache(self) -> None:
+        dfa = DFA.of_length(set("01"), min_length=0, max_length=4)
+
+        self.assertEqual(dfa._word_cache, 0)
+        self.assertEqual(dfa._word_cache, 0)
+
+        self.assertGreater(dfa.cardinality(), 0)
+        self.assertGreater(dfa._word_cache, 0)
+        self.assertGreater(dfa._word_cache, 0)
+
+        dfa.reset_word_cache()
+        self.assertEqual(dfa._word_cache, 0)
+        self.assertEqual(dfa._word_cache, 0)

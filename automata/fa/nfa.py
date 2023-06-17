@@ -89,13 +89,13 @@ class NFA(fa.FA):
         lambda_graph = nx.DiGraph()
         lambda_graph.add_nodes_from(states)
         lambda_graph.add_edges_from(
-            [
+            (
                 (start_state, end_state)
                 for start_state, transition in transitions.items()
                 for char, end_states in transition.items()
                 if char == ""
                 for end_state in end_states
-            ]
+            )
         )
 
         return frozendict(

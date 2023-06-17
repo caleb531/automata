@@ -83,6 +83,11 @@ class DFA(fa.FA):
             allow_partial=allow_partial,
             _digraph=self._get_digraph(transitions),
         )
+
+        self.reset_word_cache()
+
+    def reset_word_cache(self) -> None:
+        """Resets the word and count caches. Can be called if too much memory is being used."""
         object.__setattr__(self, "_word_cache", [])
         object.__setattr__(self, "_count_cache", [])
 
@@ -90,11 +95,11 @@ class DFA(fa.FA):
     def _get_digraph(transitions: DFATransitionsT) -> nx.DiGraph:
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
         return nx.DiGraph(
-            [
+            (
                 (start_state, end_state)
                 for start_state, transition in transitions.items()
                 for end_state in transition.values()
-            ]
+            )
         )
 
     def __eq__(self, other: Any) -> bool:
