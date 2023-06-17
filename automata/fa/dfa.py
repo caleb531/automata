@@ -56,6 +56,7 @@ class DFA(fa.FA):
         "allow_partial",
         "_count_cache",
         "_word_cache",
+        "_digraph",
     )
 
     allow_partial: bool
@@ -80,9 +81,21 @@ class DFA(fa.FA):
             initial_state=initial_state,
             final_states=final_states,
             allow_partial=allow_partial,
+            _digraph=self._get_digraph(transitions),
         )
         object.__setattr__(self, "_word_cache", [])
         object.__setattr__(self, "_count_cache", [])
+
+    @staticmethod
+    def _get_digraph(transitions: DFATransitionsT) -> nx.DiGraph:
+        """Return a digraph corresponding to this DFA with transition symbols ignored"""
+        return nx.DiGraph(
+            [
+                (start_state, end_state)
+                for start_state, transition in transitions.items()
+                for end_state in transition.values()
+            ]
+        )
 
     def __eq__(self, other: Any) -> bool:
         """
@@ -312,16 +325,6 @@ class DFA(fa.FA):
 
         if not ignore_rejection:
             self._check_for_input_rejection(current_state)
-
-    def _get_digraph(self) -> nx.DiGraph:
-        """Return a digraph corresponding to this DFA with transition symbols ignored"""
-        return nx.DiGraph(
-            [
-                (start_state, end_state)
-                for start_state, transition in self.transitions.items()
-                for end_state in transition.values()
-            ]
-        )
 
     def minify(self, retain_names: bool = False) -> Self:
         """
@@ -856,7 +859,7 @@ class DFA(fa.FA):
             raise exceptions.InfiniteLanguageException(
                 "Predecessors cannot be computed for infinite languages"
             )
-        graph = self._get_digraph()
+        graph = self._digraph
         coaccessible_nodes = set(self.final_states).union(
             *(nx.ancestors(graph, state) for state in self.final_states)
         )
@@ -1032,7 +1035,7 @@ class DFA(fa.FA):
             raise exceptions.EmptyLanguageException(
                 "The language represented by the DFA is empty"
             )
-        graph = self._get_digraph()
+        graph = self._digraph
 
         accessible_nodes = nx.descendants(graph, self.initial_state) | {
             self.initial_state

@@ -72,8 +72,9 @@ class NFA(fa.FA):
             _lambda_closures=self._compute_lambda_closures(states, transitions),
         )
 
+    @staticmethod
     def _compute_lambda_closures(
-        self, states: AbstractSet[NFAStateT], transitions: NFATransitionsT
+        states: AbstractSet[NFAStateT], transitions: NFATransitionsT
     ) -> Mapping[NFAStateT, FrozenSet[NFAStateT]]:
         """
         Computes a dictionary of the lambda closures for this NFA, where each
