@@ -350,7 +350,7 @@ class DFA(fa.FA):
         bfs_states = self.__class__._bfs_states(
             self.initial_state, lambda state: iter(self.transitions[state].items())
         )
-        reachable_states = {*bfs_states}
+        reachable_states = set(bfs_states)
         reachable_final_states = self.final_states & reachable_states
 
         return self.__class__._minify(
@@ -557,7 +557,7 @@ class DFA(fa.FA):
             bfs_states = self.__class__._bfs_states(
                 self.initial_state, lambda state: iter(self.transitions[state].items())
             )
-            reachable_states = {*bfs_states}
+            reachable_states = set(bfs_states)
             reachable_final_states = self.final_states & reachable_states
 
             return self.__class__._minify(
@@ -755,7 +755,7 @@ class DFA(fa.FA):
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
         return not self.__class__._find_state(
-            lambda state: state in self.final_states,
+            self.final_states.__contains__,
             self.initial_state,
             lambda state: iter(self.transitions[state].items()),
         )
@@ -890,7 +890,7 @@ class DFA(fa.FA):
             if input_str is None
             else self.read_input_stepwise(input_str, ignore_rejection=True)
         )
-        char_stack: List[str] = [] if input_str is None else list(input_str)
+        char_stack: Deque[str] = deque("" if input_str is None else input_str)
         first_symbol = sorted_symbols[0]
         # For predecessors we need to special case the input string None
         candidate = None if reverse and input_str is not None else first_symbol
