@@ -237,7 +237,7 @@ class DFA(fa.FA):
         return self.cardinality()
 
     # Supports partial (test)
-    def as_partial(self) -> DFA:
+    def as_partial(self) -> Self:
         """
         Turns a DFA (complete or not) into a partial DFA.
         Removes dead states and trap states (except the initial state)
@@ -255,7 +255,7 @@ class DFA(fa.FA):
         new_states = live_states & non_trap_states
         new_states.add(self.initial_state)
 
-        return DFA(
+        return self.__class__(
             states=new_states,
             input_symbols=self.input_symbols,
             transitions={
@@ -276,7 +276,7 @@ class DFA(fa.FA):
         return next(x for x in count(-1, -1) if x not in self.states)
 
     # Supports partial (test)
-    def to_complete(self) -> DFA:
+    def to_complete(self) -> Self:
         """
         Turns a DFA (complete or not) into a complete DFA.
         Might add trap state if the DFA does not have any
@@ -286,13 +286,13 @@ class DFA(fa.FA):
 
         trap_state = self.get_trap_state_id()
         default_to_trap = {symbol: trap_state for symbol in self.input_symbols}
-        transitions = {
+        transitions: DFATransitionsT = {
             state: {**default_to_trap, **lookup}
             for state, lookup in self.transitions.items()
         }
         transitions[trap_state] = default_to_trap
 
-        return DFA(
+        return self.__class__(
             states=frozenset(transitions.keys()),
             input_symbols=self.input_symbols,
             transitions=transitions,
@@ -727,7 +727,7 @@ class DFA(fa.FA):
         """Return the complement of this DFA."""
 
         # We can't do much here, we must turn it into a complete DFA
-        complete_dfa = self.to_complete() if self.allow_partial else self
+        complete_dfa: Self = self.to_complete() if self.allow_partial else self
 
         if minify:
             bfs_states = self.__class__._bfs_states(
