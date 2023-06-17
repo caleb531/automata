@@ -26,6 +26,7 @@ from typing import (  # noqa Fixes a false positive where flake8 thinks that Lit
 )
 
 import networkx as nx
+from cached_method import cached_method
 from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
@@ -56,13 +57,14 @@ class DFA(fa.FA):
         "allow_partial",
         "_count_cache",
         "_word_cache",
-        "_digraph",
+        # These two entries are to allow for caching methods
+        "__dict__",
+        "__weakref__",
     )
 
     allow_partial: bool
     _word_cache: List[DefaultDict[DFAStateT, List[str]]]
     _count_cache: List[DefaultDict[DFAStateT, int]]
-    _digraph: nx.DiGraph
 
     def __init__(
         self,
@@ -82,7 +84,6 @@ class DFA(fa.FA):
             initial_state=initial_state,
             final_states=final_states,
             allow_partial=allow_partial,
-            _digraph=self._get_digraph(transitions),
         )
 
         self.reset_cache()
@@ -94,17 +95,6 @@ class DFA(fa.FA):
         """
         object.__setattr__(self, "_word_cache", [])
         object.__setattr__(self, "_count_cache", [])
-
-    @staticmethod
-    def _get_digraph(transitions: DFATransitionsT) -> nx.DiGraph:
-        """Return a digraph corresponding to this DFA with transition symbols ignored"""
-        return nx.DiGraph(
-            (
-                (start_state, end_state)
-                for start_state, transition in transitions.items()
-                for end_state in transition.values()
-            )
-        )
 
     def __eq__(self, other: Any) -> bool:
         """
@@ -316,6 +306,17 @@ class DFA(fa.FA):
             raise exceptions.RejectionException(
                 "the DFA stopped on a non-final state ({})".format(current_state)
             )
+
+    @cached_method
+    def _get_digraph(self) -> nx.DiGraph:
+        """Return a digraph corresponding to this DFA with transition symbols ignored"""
+        return nx.DiGraph(
+            (
+                (start_state, end_state)
+                for start_state, transition in self.transitions.items()
+                for end_state in transition.values()
+            )
+        )
 
     def read_input_stepwise(
         self, input_str: str, ignore_rejection: bool = False
@@ -750,6 +751,7 @@ class DFA(fa.FA):
             disjoint_state_fn, initial_state, expand_state_fn
         )
 
+    @cached_method
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
         return not self.__class__._find_state(
@@ -868,7 +870,7 @@ class DFA(fa.FA):
             raise exceptions.InfiniteLanguageException(
                 "Predecessors cannot be computed for infinite languages"
             )
-        graph = self._digraph
+        graph = self._get_digraph()
         coaccessible_nodes = set(self.final_states).union(
             *(nx.ancestors(graph, state) for state in self.final_states)
         )
@@ -1044,7 +1046,7 @@ class DFA(fa.FA):
             raise exceptions.EmptyLanguageException(
                 "The language represented by the DFA is empty"
             )
-        graph = self._digraph
+        graph = self._get_digraph()
 
         accessible_nodes = nx.descendants(graph, self.initial_state) | {
             self.initial_state
