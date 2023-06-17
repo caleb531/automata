@@ -172,10 +172,13 @@ class TestDFA(test_fa.TestFA):
     def test_accepts_input_true(self) -> None:
         """Should return True if DFA input is accepted."""
         self.assertTrue(self.dfa.accepts_input("0111"))
+        self.assertIn("0111", self.dfa)
 
     def test_accepts_input_false(self) -> None:
         """Should return False if DFA input is rejected."""
         self.assertFalse(self.dfa.accepts_input("011"))
+        self.assertNotIn("011", self.dfa)
+        self.assertNotIn(1, self.nfa)
 
     def test_read_input_step(self) -> None:
         """Should return validation generator if step flag is supplied."""
@@ -2504,3 +2507,20 @@ class TestDFA(test_fa.TestFA):
 
         dfa = DFA.empty_language({"0", "1", "a", "b"})
         self.assertTrue(dfa.isempty())
+
+    def test_reset_word_cache(self) -> None:
+        max_len = 4
+        dfa = DFA.of_length({"0", "1"}, min_length=0, max_length=max_len)
+
+        self.assertEqual(len(dfa._word_cache), 0)
+        self.assertEqual(len(dfa._count_cache), 0)
+
+        self.assertGreater(dfa.cardinality(), 0)
+        self.assertGreater(len(dfa._count_cache), 0)
+
+        self.assertGreater(len(list(dfa.words_of_length(max_len))), 0)
+        self.assertGreater(len(dfa._word_cache), 0)
+
+        dfa.clear_cache()
+        self.assertEqual(len(dfa._word_cache), 0)
+        self.assertEqual(len(dfa._count_cache), 0)

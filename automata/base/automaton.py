@@ -151,6 +151,10 @@ class Automaton(metaclass=abc.ABCMeta):
         )
         return f"{self.__class__.__qualname__}({values})"
 
-    def __contains__(self, input_str: str) -> bool:
+    def __contains__(self, item: Any) -> bool:
         """Returns whether the word is accepted by the automaton."""
-        return self.accepts_input(input_str)
+
+        if not isinstance(item, str):
+            return False
+
+        return self.accepts_input(item)

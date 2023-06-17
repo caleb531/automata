@@ -309,6 +309,14 @@ for word in dfa:
     print(word)
 ```
 
+## DFA.clear_cache(self)
+
+Resets the word and count caches. Can be called if too much memory is being used.
+
+```python
+dfa.clear_cache()
+```
+
 ## DFA.cardinality(self)
 
 Returns the cardinality of the language represented by the DFA. Raises an
