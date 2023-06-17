@@ -227,10 +227,12 @@ class TestNFA(test_fa.TestFA):
     def test_accepts_input_true(self) -> None:
         """Should return True if NFA input is accepted."""
         self.assertTrue(self.nfa.accepts_input("aba"))
+        self.assertIn("aba", self.nfa)
 
     def test_accepts_input_false(self) -> None:
         """Should return False if NFA input is rejected."""
         self.assertFalse(self.nfa.accepts_input("abba"))
+        self.assertNotIn("abba", self.nfa)
 
     def test_cyclic_lambda_transitions(self) -> None:
         """Should traverse NFA containing cyclic lambda transitions."""

@@ -63,6 +63,9 @@ class Automaton(metaclass=abc.ABCMeta):
         #   because __setattr__ is disabled due to immutability
         self.__init__(**d)  # type: ignore
 
+    def __contains__(self, item: str) -> bool:
+        return self.accepts_input(item)
+
     @abc.abstractmethod
     def read_input_stepwise(self, input_str: str) -> Generator[Any, None, None]:
         """Return a generator that yields each step while reading input."""
