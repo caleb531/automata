@@ -86,9 +86,9 @@ class DFA(fa.FA):
             allow_partial=allow_partial,
         )
 
-        self.reset_cache()
+        self.clear_cache()
 
-    def reset_cache(self) -> None:
+    def clear_cache(self) -> None:
         """
         Resets the word and count caches.
         Can be called if too much memory is being used.

@@ -2518,6 +2518,6 @@ class TestDFA(test_fa.TestFA):
         self.assertGreater(len(list(dfa.words_of_length(max_len))), 0)
         self.assertGreater(len(dfa._word_cache), 0)
 
-        dfa.reset_cache()
+        dfa.clear_cache()
         self.assertEqual(len(dfa._word_cache), 0)
         self.assertEqual(len(dfa._count_cache), 0)

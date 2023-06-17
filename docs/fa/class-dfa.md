@@ -309,12 +309,12 @@ for word in dfa:
     print(word)
 ```
 
-## DFA.reset_cache(self)
+## DFA.clear_cache(self)
 
 Resets the word and count caches. Can be called if too much memory is being used.
 
 ```python
-dfa.reset_word_cache()
+dfa.clear_cache()
 ```
 
 ## DFA.cardinality(self)
