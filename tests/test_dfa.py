@@ -178,6 +178,7 @@ class TestDFA(test_fa.TestFA):
         """Should return False if DFA input is rejected."""
         self.assertFalse(self.dfa.accepts_input("011"))
         self.assertNotIn("011", self.dfa)
+        self.assertNotIn(1, self.nfa)
 
     def test_read_input_step(self) -> None:
         """Should return validation generator if step flag is supplied."""
