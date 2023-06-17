@@ -2507,7 +2507,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_reset_word_cache(self) -> None:
         max_len = 4
-        dfa = DFA.of_length(set("01"), min_length=0, max_length=max_len)
+        dfa = DFA.of_length({"0", "1"}, min_length=0, max_length=max_len)
 
         self.assertEqual(len(dfa._word_cache), 0)
         self.assertEqual(len(dfa._count_cache), 0)
