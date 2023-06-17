@@ -26,6 +26,7 @@ from typing import (  # noqa Fixes a false positive where flake8 thinks that Lit
 )
 
 import networkx as nx
+from cached_method import cached_method
 from typing_extensions import Self
 
 import automata.base.exceptions as exceptions
@@ -56,6 +57,9 @@ class DFA(fa.FA):
         "allow_partial",
         "_count_cache",
         "_word_cache",
+        # These two entries are to allow for caching methods
+        "__dict__",
+        "__weakref__",
     )
 
     allow_partial: bool
@@ -81,6 +85,14 @@ class DFA(fa.FA):
             final_states=final_states,
             allow_partial=allow_partial,
         )
+
+        self.clear_cache()
+
+    def clear_cache(self) -> None:
+        """
+        Resets the word and count caches.
+        Can be called if too much memory is being used.
+        """
         object.__setattr__(self, "_word_cache", [])
         object.__setattr__(self, "_count_cache", [])
 
@@ -313,14 +325,15 @@ class DFA(fa.FA):
         if not ignore_rejection:
             self._check_for_input_rejection(current_state)
 
+    @cached_method
     def _get_digraph(self) -> nx.DiGraph:
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
         return nx.DiGraph(
-            [
+            (
                 (start_state, end_state)
                 for start_state, transition in self.transitions.items()
                 for end_state in transition.values()
-            ]
+            )
         )
 
     def minify(self, retain_names: bool = False) -> Self:
@@ -738,6 +751,7 @@ class DFA(fa.FA):
             disjoint_state_fn, initial_state, expand_state_fn
         )
 
+    @cached_method
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
         return not self.__class__._find_state(
@@ -746,6 +760,7 @@ class DFA(fa.FA):
             lambda state: iter(self.transitions[state].items()),
         )
 
+    @cached_method
     def isfinite(self) -> bool:
         """
         Returns True if the DFA accepts a finite language, False otherwise.
@@ -991,6 +1006,7 @@ class DFA(fa.FA):
                     }
                 )
 
+    @cached_method
     def cardinality(self) -> int:
         """Returns the cardinality of the language represented by the DFA."""
         try:
@@ -1004,6 +1020,7 @@ class DFA(fa.FA):
             )
         return sum(self.count_words_of_length(j) for j in range(i, limit + 1))
 
+    @cached_method
     def minimum_word_length(self) -> int:
         """
         Returns the length of the shortest word in the language represented by the DFA
@@ -1023,6 +1040,7 @@ class DFA(fa.FA):
             "The language represented by the DFA is empty"
         )
 
+    @cached_method
     def maximum_word_length(self) -> Optional[int]:
         """
         Returns the length of the longest word in the language represented by the DFA
@@ -1495,7 +1513,7 @@ class DFA(fa.FA):
 
         # equivalent DFA states states
         nfa_initial_states = frozenset(
-            target_nfa._lambda_closures[target_nfa.initial_state]
+            target_nfa._get_lambda_closures()[target_nfa.initial_state]
         )
         dfa_initial_state = get_name(nfa_initial_states)
         dfa_final_states = set()

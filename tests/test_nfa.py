@@ -227,10 +227,13 @@ class TestNFA(test_fa.TestFA):
     def test_accepts_input_true(self) -> None:
         """Should return True if NFA input is accepted."""
         self.assertTrue(self.nfa.accepts_input("aba"))
+        self.assertIn("aba", self.nfa)
 
     def test_accepts_input_false(self) -> None:
         """Should return False if NFA input is rejected."""
         self.assertFalse(self.nfa.accepts_input("abba"))
+        self.assertNotIn("abba", self.nfa)
+        self.assertNotIn(1, self.nfa)
 
     def test_cyclic_lambda_transitions(self) -> None:
         """Should traverse NFA containing cyclic lambda transitions."""
@@ -437,7 +440,9 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.transitions, nfa2.transitions)
         self.assertEqual(nfa1.final_states, nfa2.final_states)
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
-        self.assertNotEqual(nfa1._lambda_closures, original_nfa._lambda_closures)
+        self.assertNotEqual(
+            nfa1._get_lambda_closures(), original_nfa._get_lambda_closures()
+        )
 
     def test_eliminate_lambda_other(self) -> None:
         original_nfa = NFA(
@@ -463,7 +468,9 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(nfa1.transitions, nfa2.transitions)
         self.assertEqual(nfa1.final_states, nfa2.final_states)
         self.assertEqual(nfa1.input_symbols, nfa2.input_symbols)
-        self.assertNotEqual(nfa1._lambda_closures, original_nfa._lambda_closures)
+        self.assertNotEqual(
+            nfa1._get_lambda_closures(), original_nfa._get_lambda_closures()
+        )
 
     def test_eliminate_lambda_regex(self) -> None:
         nfa = NFA.from_regex(
