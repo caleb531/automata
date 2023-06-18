@@ -273,9 +273,6 @@ class DFA(fa.FA):
             allow_partial=True,
         )
 
-    def get_trap_state_id(self) -> int:
-        return next(x for x in count(-1, -1) if x not in self.states)
-
     # Supports partial (test)
     def to_complete(self) -> Self:
         """
@@ -285,22 +282,42 @@ class DFA(fa.FA):
         if not self.allow_partial:
             return self.copy()
 
-        trap_state = self.get_trap_state_id()
-        default_to_trap: DFAPathT = {
-            symbol: trap_state for symbol in self.input_symbols
-        }
-        transitions: Dict[DFAStateT, DFAPathT] = {
-            state: {**default_to_trap, **lookup}
-            for state, lookup in self.transitions.items()
-        }
-        transitions[trap_state] = default_to_trap
+        return self._to_complete(states=self.states)
 
-        return self.__class__(
-            states=frozenset(transitions.keys()),
-            input_symbols=self.input_symbols,
-            transitions=transitions,
-            initial_state=self.initial_state,
-            final_states=self.final_states,
+    @classmethod
+    def _to_complete(
+        cls: Type[Self],
+        *,
+        states: AbstractSet[DFAStateT],
+        input_symbols: AbstractSet[str],
+        transitions: DFATransitionsT,
+        initial_state: DFAStateT,
+        final_states: AbstractSet[DFAStateT],
+        trap_state: Optional[DFAStateT],
+    ) -> Self:
+        if trap_state is None:
+            trap_state = next(x for x in count(-1, -1) if x not in states)
+
+        added_trap_state = False
+        new_transitions: Dict[DFAStateT, DFAPathT] = {}
+
+        for state, state_path in transitions.items():
+            new_state_path = new_transitions.setdefault(state, state_path)
+
+            for symbol in input_symbols:
+                if symbol not in new_state_path:
+                    new_state_path[symbol] = trap_state
+                    added_trap_state = True
+
+        if added_trap_state:
+            transitions[trap_state] = {symbol: trap_state for symbol in input_symbols}
+
+        return cls(
+            states=frozenset(new_transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=new_transitions,
+            initial_state=initial_state,
+            final_states=final_states,
             allow_partial=False,
         )
 
@@ -1839,13 +1856,13 @@ class DFA(fa.FA):
                 retain_names=retain_names,
             )
 
-        return cls(
+        return cls._to_complete(
             states=dfa_states,
             input_symbols=dfa_symbols,
             transitions=dfa_transitions,
             initial_state=dfa_initial_state,
             final_states=dfa_final_states,
-            allow_partial=False,
+            trap_state=frozenset(),
         )
 
     def iter_transitions(
