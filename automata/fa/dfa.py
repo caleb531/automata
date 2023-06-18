@@ -1843,7 +1843,6 @@ class DFA(fa.FA):
                 input_symbol,
                 next_current_states,
             ) in target_nfa._iterate_through_symbol_path_pairs(current_states):
-                
                 next_current_states_name = get_name(next_current_states)
                 path_dict[input_symbol] = next_current_states_name
 
