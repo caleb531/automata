@@ -1839,10 +1839,14 @@ class DFA(fa.FA):
                 dfa_final_states.add(current_state_name)
 
             # Enqueue the next set of current states for the generated DFA.
-            for input_symbol in target_nfa._get_used_input_symbols(current_states):
-                next_current_states = target_nfa._get_next_current_states(
-                    current_states, input_symbol
-                )
+            for (
+                input_symbol,
+                next_current_states,
+            ) in target_nfa._iterate_through_symbol_path_pairs(current_states):
+                #print(input_symbol, next_current_states)
+                # next_current_states = target_nfa._get_next_current_states(
+                #    current_states, input_symbol
+                # )
 
                 # Can ignore trivial trap state (going to the empty set)
                 if next_current_states:

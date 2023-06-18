@@ -201,17 +201,36 @@ class NFA(fa.FA):
         self._validate_initial_state_transitions()
         self._validate_final_states()
 
-    def _get_used_input_symbols(
+    def _iterate_through_symbol_path_pairs(
         self, current_states: AbstractSet[NFAStateT]
-    ) -> Set[str]:
+    ) -> Generator[Tuple[str, FrozenSet[NFAStateT]], None, None]:
         """Return all input symbols with transitions in current_states"""
-        return set().union(
+
+        all_keys = set().union(
             *(
                 self.transitions[state].keys()
                 for state in current_states
                 if state in self.transitions
             )
         ) - {""}
+
+        for key in all_keys:
+            yield (key, self._get_next_current_states(current_states, key))
+
+        """
+        res_dict = {}
+
+        for input_symbol, next_states in chain.from_iterable(
+            self.transitions[state].items() for state in current_states
+        ):
+            # Ignore empty string
+            if input_symbol:
+                input_symbol_set = res_dict.setdefault(input_symbol, set())
+                input_symbol_set |= next_states
+
+        for input_symbol, next_states in res_dict.items():
+            yield (input_symbol, frozenset(next_states))
+        """
 
     def _get_next_current_states(
         self, current_states: AbstractSet[NFAStateT], input_symbol: str
