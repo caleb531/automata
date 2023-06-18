@@ -1865,29 +1865,23 @@ class DFA(fa.FA):
                     dfa_states.add(next_current_states_name)
                     state_queue.append(next_current_states)
 
-        # if minify:
-        #    return cls._minify(
-        #        reachable_states=dfa_states,
-        #        input_symbols=dfa_symbols,
-        #        transitions=dfa_transitions,
-        #        initial_state=dfa_initial_state,
-        #        reachable_final_states=dfa_final_states,
-        #        retain_names=retain_names,
-        #    )
-        # TODO change this back once _minify has compatibility with partial DFAs.
+        if minify:
+            return cls._minify(
+                reachable_states=dfa_states,
+                input_symbols=dfa_symbols,
+                transitions=dfa_transitions,
+                initial_state=dfa_initial_state,
+                reachable_final_states=dfa_final_states,
+                retain_names=retain_names,
+            )
 
-        final_dfa = cls._to_complete(
+        return cls._to_complete(
             input_symbols=dfa_symbols,
             transitions=dfa_transitions,
             initial_state=dfa_initial_state,
             final_states=dfa_final_states,
             trap_state=frozenset(),
         )
-
-        if minify:
-            final_dfa = final_dfa.minify(retain_names=retain_names)
-
-        return final_dfa
 
     def iter_transitions(
         self,
