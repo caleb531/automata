@@ -272,7 +272,7 @@ class DFA(fa.FA):
             final_states=self.final_states & new_states,
             allow_partial=True,
         )
-    
+
     def get_trap_state_id(self) -> DFAStateT:
         return next(x for x in count(-1, -1) if x not in self.states)
 
@@ -286,31 +286,28 @@ class DFA(fa.FA):
             return self.copy()
 
         return self._to_complete(
-            states=self.states,
             input_symbols=self.input_symbols,
             transitions=self.transitions,
             initial_state=self.initial_state,
             final_states=self.final_states,
-            trap_state=self.get_trap_state_id()
+            trap_state=self.get_trap_state_id(),
         )
 
     @classmethod
     def _to_complete(
         cls: Type[Self],
         *,
-        states: AbstractSet[DFAStateT],
         input_symbols: AbstractSet[str],
         transitions: DFATransitionsT,
         initial_state: DFAStateT,
         final_states: AbstractSet[DFAStateT],
         trap_state: DFAStateT,
     ) -> Self:
-
         added_trap_state = False
         new_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
 
         for state, state_path in transitions.items():
-            new_state_path = new_transitions.setdefault(state, state_path)
+            new_state_path = new_transitions.setdefault(state, dict(state_path))
 
             for symbol in input_symbols:
                 if symbol not in new_state_path:
@@ -1870,7 +1867,6 @@ class DFA(fa.FA):
         # TODO change this back once _minify has compatibility with partial DFAs.
 
         final_dfa = cls._to_complete(
-            states=dfa_states,
             input_symbols=dfa_symbols,
             transitions=dfa_transitions,
             initial_state=dfa_initial_state,
