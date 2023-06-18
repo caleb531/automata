@@ -293,7 +293,7 @@ class DFA(fa.FA):
         transitions: DFATransitionsT,
         initial_state: DFAStateT,
         final_states: AbstractSet[DFAStateT],
-        trap_state: Optional[DFAStateT],
+        trap_state: Optional[DFAStateT] = None,
     ) -> Self:
         if trap_state is None:
             trap_state = next(x for x in count(-1, -1) if x not in states)
@@ -310,7 +310,9 @@ class DFA(fa.FA):
                     added_trap_state = True
 
         if added_trap_state:
-            transitions[trap_state] = {symbol: trap_state for symbol in input_symbols}
+            new_transitions[trap_state] = {
+                symbol: trap_state for symbol in input_symbols
+            }
 
         return cls(
             states=frozenset(new_transitions.keys()),
@@ -337,7 +339,7 @@ class DFA(fa.FA):
             if input_symbol not in paths:
                 raise exceptions.MissingSymbolError(
                     f"state {start_state} is missing transitions "
-                    f"for symbol {input_symbol}"
+                    f'for symbol "{input_symbol}"'
                 )
 
     # Supports partial
@@ -348,7 +350,7 @@ class DFA(fa.FA):
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols:
                 raise exceptions.InvalidSymbolError(
-                    f"state {start_state} has invalid transition symbol {input_symbol}"
+                    f'state {start_state} has invalid transition symbol "{input_symbol}"'
                 )
 
     # Supports partial
@@ -1831,32 +1833,35 @@ class DFA(fa.FA):
                 dfa_final_states.add(current_state_name)
 
             # Enqueue the next set of current states for the generated DFA.
-            for input_symbol in target_nfa.input_symbols:
+            for input_symbol in target_nfa._get_used_input_symbols(current_states):
                 next_current_states = target_nfa._get_next_current_states(
                     current_states, input_symbol
                 )
 
-                next_current_states_name = get_name(next_current_states)
-                dfa_transitions[current_state_name][
-                    input_symbol
-                ] = next_current_states_name
+                # Can ignore trivial trap state (going to the empty set)
+                if next_current_states:
+                    next_current_states_name = get_name(next_current_states)
+                    dfa_transitions[current_state_name][
+                        input_symbol
+                    ] = next_current_states_name
 
-                # Only enqueue a state if it has not been seen yet.
-                if next_current_states_name not in dfa_states:
-                    dfa_states.add(next_current_states_name)
-                    state_queue.append(next_current_states)
+                    # Only enqueue a state if it has not been seen yet.
+                    if next_current_states_name not in dfa_states:
+                        dfa_states.add(next_current_states_name)
+                        state_queue.append(next_current_states)
 
-        if minify:
-            return cls._minify(
-                reachable_states=dfa_states,
-                input_symbols=dfa_symbols,
-                transitions=dfa_transitions,
-                initial_state=dfa_initial_state,
-                reachable_final_states=dfa_final_states,
-                retain_names=retain_names,
-            )
+        # if minify:
+        #    return cls._minify(
+        #        reachable_states=dfa_states,
+        #        input_symbols=dfa_symbols,
+        #        transitions=dfa_transitions,
+        #        initial_state=dfa_initial_state,
+        #        reachable_final_states=dfa_final_states,
+        #        retain_names=retain_names,
+        #    )
+        # TODO change this back once _minify has compatibility with partial DFAs.
 
-        return cls._to_complete(
+        final_dfa = cls._to_complete(
             states=dfa_states,
             input_symbols=dfa_symbols,
             transitions=dfa_transitions,
@@ -1864,6 +1869,11 @@ class DFA(fa.FA):
             final_states=dfa_final_states,
             trap_state=frozenset(),
         )
+
+        if minify:
+            final_dfa = final_dfa.minify(retain_names=retain_names)
+
+        return final_dfa
 
     def iter_transitions(
         self,
