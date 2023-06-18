@@ -859,7 +859,11 @@ class DFA(fa.FA):
         """
 
         if retain_names:
-            get_name = lambda state: state
+
+            def get_name_original(state):
+                return state
+
+            get_name = get_name_original
         else:
             get_name = get_renaming_function(count(0))
 
@@ -967,7 +971,9 @@ class DFA(fa.FA):
         if self.allow_partial or other.allow_partial:
             trap_b = other.get_trap_state_id()
 
-            def partial_intersection_expand_state_fn(state):
+            def partial_intersection_expand_state_fn(
+                state: DFAStateT,
+            ) -> ExpandStateReturnType:
                 q_a, q_b = state
                 transitions_a = self.transitions[q_a]
                 transitions_b = other.transitions.get(q_b, {})
