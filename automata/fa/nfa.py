@@ -204,7 +204,9 @@ class NFA(fa.FA):
     def _iterate_through_symbol_path_pairs(
         self, current_states: AbstractSet[NFAStateT]
     ) -> Generator[Tuple[str, FrozenSet[NFAStateT]], None, None]:
-        """Iterate through input symbols with set of end transitions which are nonempty."""
+        """
+        Iterate through input symbols with set of end transitions which are nonempty.
+        """
 
         lambda_closures = self._get_lambda_closures()
         res_dict: Dict[str, Set[NFAStateT]] = {}
