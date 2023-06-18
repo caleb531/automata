@@ -1834,7 +1834,7 @@ class DFA(fa.FA):
             current_state_name = get_name(current_states)
 
             # Add NFA states to DFA as it is constructed from NFA.
-            dfa_transitions[current_state_name] = {}
+            path_dict = dfa_transitions.setdefault(current_state_name, {})
             if not current_states.isdisjoint(target_nfa.final_states):
                 dfa_final_states.add(current_state_name)
 
@@ -1843,10 +1843,9 @@ class DFA(fa.FA):
                 input_symbol,
                 next_current_states,
             ) in target_nfa._iterate_through_symbol_path_pairs(current_states):
+                
                 next_current_states_name = get_name(next_current_states)
-                dfa_transitions[current_state_name][
-                    input_symbol
-                ] = next_current_states_name
+                path_dict[input_symbol] = next_current_states_name
 
                 # Only enqueue a state if it has not been seen yet.
                 if next_current_states_name not in dfa_states:
