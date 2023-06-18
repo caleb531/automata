@@ -41,7 +41,8 @@ DFASymbolT = str
 DFAPathT = Mapping[DFASymbolT, DFAStateT]
 DFATransitionsT = Mapping[DFAStateT, DFAPathT]
 
-ExpandStateFn = Callable[[DFAStateT], Iterator[Tuple[DFASymbolT, DFAStateT]]]
+ExpandStateReturnType = Iterator[Tuple[DFASymbolT, DFAStateT]]
+ExpandStateFn = Callable[[DFAStateT], ExpandStateReturnType]
 IsFinalStateFn = Callable[[DFAStateT], bool]
 TargetStateFn = Callable[[DFAStateT], bool]
 
@@ -249,7 +250,7 @@ class DFA(fa.FA):
 
         graph = self._get_digraph()
         live_states = nx.descendants(graph, self.initial_state) | {self.initial_state}
-        non_trap_states = {*self.final_states}.union(
+        non_trap_states = set(self.final_states).union(
             *(nx.ancestors(graph, state) for state in self.final_states)
         )
 
@@ -304,11 +305,11 @@ class DFA(fa.FA):
         trap_state: DFAStateT,
     ) -> Self:
         added_trap_state = False
-        new_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
+        new_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {
+            state: dict(state_path) for state, state_path in transitions.items()
+        }
 
-        for state, state_path in transitions.items():
-            new_state_path = new_transitions.setdefault(state, dict(state_path))
-
+        for new_state_path in new_transitions.values():
             for symbol in input_symbols:
                 if symbol not in new_state_path:
                     new_state_path[symbol] = trap_state
@@ -601,7 +602,9 @@ class DFA(fa.FA):
             trap_a = self.get_trap_state_id()
             trap_b = other.get_trap_state_id()
 
-            def partial_union_expand_state_fn(state):
+            def partial_union_expand_state_fn(
+                state: DFAStateT,
+            ) -> ExpandStateReturnType:
                 q_a, q_b = state
                 q_a_transitions = self.transitions.get(q_a, {})
                 q_b_transitions = self.transitions.get(q_b, {})
@@ -643,7 +646,9 @@ class DFA(fa.FA):
         # We only expand characters in both transition functions
         if self.allow_partial or other.allow_partial:
 
-            def partial_intersection_expand_state_fn(state):
+            def partial_intersection_expand_state_fn(
+                state: DFAStateT,
+            ) -> ExpandStateReturnType:
                 q_a, q_b = state
                 transitions_a = self.transitions[q_a]
                 transitions_b = other.transitions[q_b]
@@ -683,7 +688,9 @@ class DFA(fa.FA):
         if self.allow_partial and other.allow_partial:
             trap_b = other.get_trap_state_id()
 
-            def partial_difference_expand_state_fn(state):
+            def partial_difference_expand_state_fn(
+                state: DFAStateT,
+            ) -> ExpandStateReturnType:
                 q_a, q_b = state
                 q_a_transitions = self.transitions[q_a]
                 q_b_transitions = other.transitions.get(q_b, {})
@@ -726,7 +733,9 @@ class DFA(fa.FA):
             trap_a = self.get_trap_state_id()
             trap_b = other.get_trap_state_id()
 
-            def partial_sym_diff_expand_state_fn(state):
+            def partial_sym_diff_expand_state_fn(
+                state: DFAStateT,
+            ) -> ExpandStateReturnType:
                 q_a, q_b = state
                 transitions_a = self.transitions.get(q_a, {})
                 transitions_b = self.transitions.get(q_b, {})
@@ -849,11 +858,8 @@ class DFA(fa.FA):
         is set to False, states are renamed.
         """
 
-        def get_name_original(state):
-            return state
-
         if retain_names:
-            get_name = get_name_original
+            get_name = lambda state: state
         else:
             get_name = get_renaming_function(count(0))
 
@@ -934,7 +940,7 @@ class DFA(fa.FA):
                 "The input symbols between the two given DFAs do not match"
             )
 
-        def expand_state_fn(state):
+        def expand_state_fn(state: DFAStateT) -> ExpandStateReturnType:
             q_a, q_b = state
             transitions_a = lhs.transitions[q_a]
             transitions_b = rhs.transitions[q_b]
@@ -996,7 +1002,9 @@ class DFA(fa.FA):
         #   We expand their intersection
         if self.allow_partial or other.allow_partial:
 
-            def partial_intersection_expand_state_fn(state):
+            def partial_intersection_expand_state_fn(
+                state: DFAStateT,
+            ) -> ExpandStateReturnType:
                 q_a, q_b = state
                 transitions_a = self.transitions[q_a]
                 transitions_b = other.transitions[q_b]
@@ -1552,7 +1560,7 @@ class DFA(fa.FA):
         *,
         remainders: Optional[AbstractSet[int]] = None,
         symbols_to_count: Optional[AbstractSet[str]] = None,
-    ):
+    ) -> Self:
         """
         Directly computes a DFA that counts given symbols and accepts all strings where
         the remainder of division by k is in the set of remainders given.
@@ -1779,13 +1787,13 @@ class DFA(fa.FA):
         compress(prev_word, "")
 
         if not as_partial_dfa:
-            # Add trap state. Always needed since dict is finite
-            trap_state = 0
-            transitions[trap_state] = {symbol: trap_state for symbol in input_symbols}
-
-            for path in transitions.values():
-                for symbol in input_symbols:
-                    path.setdefault(symbol, trap_state)
+            return cls._to_complete(
+                input_symbols=input_symbols,
+                transitions=transitions,
+                initial_state="",
+                final_states=final_states,
+                trap_state=0,
+            )
 
         return cls(
             states=frozenset(transitions.keys()),
