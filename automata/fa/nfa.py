@@ -203,7 +203,7 @@ class NFA(fa.FA):
 
     def _get_used_input_symbols(
         self, current_states: AbstractSet[NFAStateT]
-    ) -> FrozenSet[str]:
+    ) -> Set[str]:
         """Return all input symbols with transitions in current_states"""
         return set().union(
             *(

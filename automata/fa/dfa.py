@@ -272,6 +272,9 @@ class DFA(fa.FA):
             final_states=self.final_states & new_states,
             allow_partial=True,
         )
+    
+    def get_trap_state_id(self) -> DFAStateT:
+        return next(x for x in count(-1, -1) if x not in self.states)
 
     # Supports partial (test)
     def to_complete(self) -> Self:
@@ -282,7 +285,14 @@ class DFA(fa.FA):
         if not self.allow_partial:
             return self.copy()
 
-        return self._to_complete(states=self.states)
+        return self._to_complete(
+            states=self.states,
+            input_symbols=self.input_symbols,
+            transitions=self.transitions,
+            initial_state=self.initial_state,
+            final_states=self.final_states,
+            trap_state=self.get_trap_state_id()
+        )
 
     @classmethod
     def _to_complete(
@@ -293,10 +303,8 @@ class DFA(fa.FA):
         transitions: DFATransitionsT,
         initial_state: DFAStateT,
         final_states: AbstractSet[DFAStateT],
-        trap_state: Optional[DFAStateT] = None,
+        trap_state: DFAStateT,
     ) -> Self:
-        if trap_state is None:
-            trap_state = next(x for x in count(-1, -1) if x not in states)
 
         added_trap_state = False
         new_transitions: Dict[DFAStateT, DFAPathT] = {}
