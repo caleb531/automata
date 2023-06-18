@@ -1384,25 +1384,23 @@ class DFA(fa.FA):
         transitions = {i: {char: i + 1} for i, char in enumerate(prefix)}
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
 
+        if not as_partial:
+            err_state = -1
+            for i, _ in enumerate(prefix):
+                transitions_i = transitions[i]
+                for symbol in input_symbols:
+                    transitions_i.setdefault(symbol, err_state)
+            transitions[err_state] = {symbol: err_state for symbol in input_symbols}
+
         states = frozenset(transitions.keys())
         final_states = {last_state}
-
-        if as_partial:
-            return cls(
-                states=states,
-                input_symbols=input_symbols,
-                transitions=transitions,
-                initial_state=0,
-                final_states=final_states if contains else states - final_states,
-                allow_partial=as_partial,
-            )
-
-        return cls._to_complete(
+        return cls(
+            states=states,
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
             final_states=final_states if contains else states - final_states,
-            trap_state=-1,
+            allow_partial=as_partial,
         )
 
     # Supports partial (but have a second look later)
@@ -1803,7 +1801,7 @@ class DFA(fa.FA):
                 final_states=final_states,
                 allow_partial=as_partial_dfa,
             )
-        
+
         return cls._to_complete(
             input_symbols=input_symbols,
             transitions=transitions,
@@ -1811,8 +1809,6 @@ class DFA(fa.FA):
             final_states=final_states,
             trap_state=0,
         )
-
-
 
     # Supports partial
     @classmethod
