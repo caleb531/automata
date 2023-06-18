@@ -307,7 +307,7 @@ class DFA(fa.FA):
     ) -> Self:
 
         added_trap_state = False
-        new_transitions: Dict[DFAStateT, DFAPathT] = {}
+        new_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
 
         for state, state_path in transitions.items():
             new_state_path = new_transitions.setdefault(state, state_path)
