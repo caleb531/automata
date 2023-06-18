@@ -1386,10 +1386,9 @@ class DFA(fa.FA):
 
         if not as_partial:
             err_state = -1
-            for i, _ in enumerate(prefix):
-                transitions_i = transitions[i]
+            for state_path in transitions.values():
                 for symbol in input_symbols:
-                    transitions_i.setdefault(symbol, err_state)
+                    state_path.setdefault(symbol, err_state)
             transitions[err_state] = {symbol: err_state for symbol in input_symbols}
 
         states = frozenset(transitions.keys())
