@@ -1843,22 +1843,15 @@ class DFA(fa.FA):
                 input_symbol,
                 next_current_states,
             ) in target_nfa._iterate_through_symbol_path_pairs(current_states):
-                #print(input_symbol, next_current_states)
-                # next_current_states = target_nfa._get_next_current_states(
-                #    current_states, input_symbol
-                # )
+                next_current_states_name = get_name(next_current_states)
+                dfa_transitions[current_state_name][
+                    input_symbol
+                ] = next_current_states_name
 
-                # Can ignore trivial trap state (going to the empty set)
-                if next_current_states:
-                    next_current_states_name = get_name(next_current_states)
-                    dfa_transitions[current_state_name][
-                        input_symbol
-                    ] = next_current_states_name
-
-                    # Only enqueue a state if it has not been seen yet.
-                    if next_current_states_name not in dfa_states:
-                        dfa_states.add(next_current_states_name)
-                        state_queue.append(next_current_states)
+                # Only enqueue a state if it has not been seen yet.
+                if next_current_states_name not in dfa_states:
+                    dfa_states.add(next_current_states_name)
+                    state_queue.append(next_current_states)
 
         # if minify:
         #    return cls._minify(
