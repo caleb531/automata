@@ -355,7 +355,8 @@ class DFA(fa.FA):
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols:
                 raise exceptions.InvalidSymbolError(
-                    f'state {start_state} has invalid transition symbol "{input_symbol}"'
+                    f"state {start_state} has invalid transition symbol"
+                    f' "{input_symbol}"'
                 )
 
     # Supports partial
