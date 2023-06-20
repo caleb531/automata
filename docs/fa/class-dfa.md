@@ -43,6 +43,23 @@ dfa = DFA(
 )
 ```
 
+## DFA.table
+
+Returns a `DataFrame` representing the transition table for the DFA.
+
+```python
+dfa.table
+```
+
+Output:
+
+```text
+      0    1
+→q0  q0  *q1
+*q1  q0   q2
+q2   q2  *q1
+```
+
 ## DFA.read_input(self, input_str)
 
 Returns the final state the DFA stopped on, if the input is accepted.

@@ -8,9 +8,20 @@ import pathlib
 import random
 import uuid
 from collections import defaultdict
-from typing import Dict, Generator, List, Literal, Optional, Set, Tuple, Union
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    List,
+    Literal,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 from automata.base.automaton import Automaton, AutomatonStateT
+from pandas import DataFrame
 
 # Optional imports for use with visual functionality
 try:
@@ -30,6 +41,48 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for finite automata."""
 
     __slots__ = tuple()
+
+    @property
+    def table(self) -> DataFrame:
+        """Get a Pandas DataFrame representation of the transition table."""
+        initial_state = self.initial_state
+        final_states = self.final_states
+
+        table: Dict[str, Dict[str, Any]] = {}
+
+        for from_state, to_state, symbol in self.iter_transitions():
+            # Prepare nice string for from_state
+            if isinstance(from_state, frozenset):
+                from_state_str = str(set(from_state))
+            else:
+                from_state_str = str(from_state)
+
+            if from_state in final_states:
+                from_state_str = "*" + from_state_str
+            if from_state == initial_state:
+                from_state_str = "→" + from_state_str
+
+            # Prepare nice string for to_state
+            if isinstance(to_state, frozenset):
+                to_state_str = str(set(to_state))
+            else:
+                to_state_str = str(to_state)
+
+            if to_state in final_states:
+                to_state_str = "*" + to_state_str
+
+            from_state_dict = table.setdefault(from_state_str, dict())
+            from_state_dict.setdefault(symbol, set()).add(to_state_str)
+
+        # Reformat table for singleton sets
+        for symbol_dict in table.values():
+            for symbol in symbol_dict:
+                if len(symbol_dict[symbol]) == 1:
+                    symbol_dict[symbol] = symbol_dict[symbol].pop()
+
+        df = DataFrame.from_dict(table).fillna("∅").T
+
+        return df.reindex(sorted(df.columns), axis=1)
 
     @staticmethod
     def get_state_name(state_data: FAStateT) -> str:

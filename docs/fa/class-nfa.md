@@ -31,6 +31,23 @@ nfa = NFA(
 )
 ```
 
+## NFA.table
+
+Returns a `DataFrame` representing the transition table for the NFA.
+
+```python
+nfa.table
+```
+
+Output:
+
+```text
+           a   b
+→q0   ∅  *q1   ∅
+*q1  q2  *q1   ∅
+q2    ∅    ∅  q0
+```
+
 ## NFA.read_input(self, input_str)
 
 Returns a set of final states the FA stopped on, if the input is accepted.
