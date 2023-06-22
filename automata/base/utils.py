@@ -3,17 +3,7 @@
 
 from collections import defaultdict
 from itertools import count
-from typing import (
-    Any,
-    Callable,
-    DefaultDict,
-    Generic,
-    Iterable,
-    List,
-    Set,
-    Tuple,
-    TypeVar,
-)
+from typing import Any, Callable, Generic, Iterable, List, Set, Tuple, TypeVar
 
 from frozendict import frozendict
 
