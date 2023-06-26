@@ -62,7 +62,7 @@ class TestNPDA(test_pda.TestPDA):
 
     def test_npda_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.npda.states = {}
+            self.npda.states = set()
 
     def test_npda_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):

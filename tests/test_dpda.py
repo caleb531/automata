@@ -58,7 +58,7 @@ class TestDPDA(test_pda.TestPDA):
 
     def test_dpda_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.dpda.states = {}
+            self.dpda.states = set()
 
     def test_dpda_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):

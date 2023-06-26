@@ -11,7 +11,7 @@ from automata.tm.ntm import NTM
 class TestTM(unittest.TestCase):
     """A test class for testing all Turing machines."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Reset test machines before every test function."""
         # DTM which matches all strings beginning with '0's, and followed by
         # the same number of '1's

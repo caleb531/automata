@@ -14,7 +14,7 @@ from automata.tm.tape import TMTape
 class TestTMTools(unittest.TestCase):
     """A test class for testing Turing machine utility functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Provide a configuration for testing."""
         self.config = TMConfiguration(
             "q2",
@@ -27,7 +27,7 @@ class TestTMTools(unittest.TestCase):
 
         self.config2 = MTMConfiguration(
             "q1",
-            (
+            [
                 TMTape(
                     tape="abcdefghij",
                     blank_symbol=".",
@@ -38,21 +38,21 @@ class TestTMTools(unittest.TestCase):
                     blank_symbol=".",
                     current_position=5,
                 ),
-            ),
+            ],
         )
 
-    def test_repr_config(self):
+    def test_repr_config(self) -> None:
         """Should return a string representation ot the given configuration."""
         self.assertEqual(
             repr(self.config), "TMConfiguration('q2', TMTape('abcdefghij', '.', 2))"
         )
         self.assertEqual(
             repr(self.config2),
-            "MTMConfiguration('q1', (TMTape('abcdefghij', '.', 2), "
-            + "TMTape('klmnopq', '.', 5)))",
+            "MTMConfiguration('q1', [TMTape('abcdefghij', '.', 2), "
+            + "TMTape('klmnopq', '.', 5)])",
         )
 
-    def test_print_config(self):
+    def test_print_config(self) -> None:
         """Should print the given configuration to stdout."""
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
@@ -63,7 +63,7 @@ class TestTMTools(unittest.TestCase):
         )
 
     @patch("automata.tm.configuration.TMConfiguration.print")
-    def test_print_configs(self, print_config):
+    def test_print_configs(self, print_config) -> None:
         """Should print each machine configuration to stdout."""
         tape1 = TMTape(
             tape="01010101",
@@ -81,17 +81,17 @@ class TestTMTools(unittest.TestCase):
             current_position=-2,
         )
         configs = [
-            TMConfiguration(tape1, "q0"),
-            TMConfiguration(tape2, "q1"),
-            TMConfiguration(tape3, "q2"),
-            MTMConfiguration("q1", (tape1, tape2, tape3)),
+            TMConfiguration("q0", tape1),
+            TMConfiguration("q1", tape2),
+            TMConfiguration("q2", tape3),
+            MTMConfiguration("q1", [tape1, tape2, tape3]),
         ]
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            tmtools.print_configs(configs)
+            tmtools.print_configs(configs)  # type: ignore
             self.assertEqual(print_config.call_args_list, [call(), call(), call()])
 
-    def test_tape_iteration(self):
+    def test_tape_iteration(self) -> None:
         """Should be able to iterate over a Turing machine tape."""
         tape = TMTape(
             tape="abcdef",
@@ -100,7 +100,7 @@ class TestTMTools(unittest.TestCase):
         )
         self.assertEqual(tuple(tape), ("a", "b", "c", "d", "e", "f"))
 
-    def test_get_symbols_as_str(self):
+    def test_get_symbols_as_str(self) -> None:
         """Should print tape contents as a string without spaces."""
         tape = TMTape(
             tape="abcdef",
