@@ -47,7 +47,7 @@ class TestMNTM(test_tm.TestTM):
 
     def test_mntm_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.mntm1.states = {}
+            self.mntm1.states = set()
 
     def test_mntm_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):
@@ -384,10 +384,10 @@ class TestMNTM(test_tm.TestTM):
     def test_read_input_as_ntm(self) -> None:
         validation_generator = self.mntm2.read_input_as_ntm("#0000")
         configs = list(validation_generator)
-        first_config = configs[0].pop()
+        first_config = set(configs[0]).pop()
         self.assertEqual(first_config.state, "q-1")
         self.assertEqual(str(first_config.tape), "TMTape('#^0000_#^_#^_', '#', 0)")
-        last_config = configs[-1].pop()
+        last_config = set(configs[-1]).pop()
         self.assertEqual(last_config.state, "qf")
         self.assertEqual(
             str(last_config.tape), "TMTape('#0000#^_#0000#^_#XYYY#^_', '#', 23)"

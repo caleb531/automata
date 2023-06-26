@@ -45,7 +45,7 @@ class TestDTM(test_tm.TestTM):
 
     def test_dtm_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.dtm1.states = {}
+            self.dtm1.states = set()
 
     def test_dtm_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):
