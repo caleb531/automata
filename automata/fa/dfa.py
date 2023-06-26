@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from itertools import chain, count
 from random import Random
-from typing import (  # noqa Fixes a false positive where flake8 thinks that Literal is imported/unused even though it's not imported at all here
+from typing import (
     AbstractSet,
     Any,
     Callable,
@@ -14,7 +14,6 @@ from typing import (  # noqa Fixes a false positive where flake8 thinks that Lit
     Dict,
     FrozenSet,
     Generator,
-    Iterable,
     Iterator,
     List,
     Mapping,
@@ -641,11 +640,11 @@ class DFA(fa.FA):
         is set to False, states are renamed.
         """
 
-        def get_name_original(state):
+        def get_name_original(state: DFAStateT) -> DFAStateT:
             return state
 
         if retain_names:
-            get_name = get_name_original
+            get_name: Callable[[DFAStateT], DFAStateT] = get_name_original
         else:
             get_name = get_renaming_function(count(0))
 
@@ -710,7 +709,9 @@ class DFA(fa.FA):
                 "The input symbols between the two given DFAs do not match"
             )
 
-        def expand_states_fn(state):
+        def expand_states_fn(
+            state: DFAStateT,
+        ) -> Generator[Tuple[DFASymbolT, DFAStateT], None, None]:
             q_a, q_b = state
             transitions_a = lhs.transitions[q_a]
             transitions_b = rhs.transitions[q_b]
@@ -1260,7 +1261,7 @@ class DFA(fa.FA):
         *,
         remainders: Optional[AbstractSet[int]] = None,
         symbols_to_count: Optional[AbstractSet[str]] = None,
-    ):
+    ) -> Self:
         """
         Directly computes a DFA that counts given symbols and accepts all strings where
         the remainder of division by k is in the set of remainders given.
@@ -1577,7 +1578,7 @@ class DFA(fa.FA):
         )
 
     def _get_input_path(
-        self, input_str
+        self, input_str: str
     ) -> Tuple[List[Tuple[DFAStateT, DFAStateT, DFASymbolT]], bool]:
         """
         Calculate the path taken by input.

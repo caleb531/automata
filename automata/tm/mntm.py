@@ -3,7 +3,7 @@
 machines."""
 
 from collections import deque
-from typing import AbstractSet, Generator, List, Mapping, Optional, Sequence, Tuple
+from typing import AbstractSet, Any, Generator, List, Mapping, Optional, Sequence, Tuple
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -147,31 +147,33 @@ class MNTM(ntm.NTM):
             return None
 
     def _get_next_configuration(
-        self, transition: MNTMPathResultT, current_tapes: List[TMTape]
+        self, transition: MNTMPathResultT, current_tapes: Tuple[TMTape, ...]
     ) -> MTMConfiguration:
         """Advances to the next configuration."""
         current_state, moves = transition
-        tapes = current_tapes.copy()
+        tapes = list(current_tapes)
         for i, move in enumerate(moves):
             symbol, direction = move
-            tapes[i] = tapes[i].write_symbol(symbol)
-            tapes[i] = tapes[i].move(direction)
+            tapes[i] = tapes[i].write_symbol(symbol).move(direction)
 
-        return MTMConfiguration(state=current_state, tapes=tapes)
+        return MTMConfiguration(state=current_state, tapes=tuple(tapes))
 
-    def read_input_stepwise(self, input_str):
+    def read_input_stepwise(self, input_str: str) -> Generator[Any, None, Any]:
+        # TODO Any type above should be Set[MTMConfiguration], refactor required
         """Checks if the given string is accepted by this Turing machine,
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
         """
         tapes = self._get_tapes_for_input_str(input_str)
-        queue = deque([(MTMConfiguration(state=self.initial_state, tapes=tapes[:]))])
+        queue = deque(
+            [(MTMConfiguration(state=self.initial_state, tapes=tuple(tapes)))]
+        )
         while len(queue) > 0:
             current_config = queue.popleft()
             yield {MTMConfiguration(current_config.state, tuple(current_config.tapes))}
 
             possible_transitions = self._get_transition(
-                current_config.state, current_config.tapes
+                current_config.state, tuple(current_config.tapes)
             )
             if possible_transitions is None:
                 if current_config.state in self.final_states:

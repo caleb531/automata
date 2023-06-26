@@ -4,7 +4,7 @@
 import abc
 from collections import deque
 from itertools import zip_longest
-from typing import Deque, List, Optional, Tuple, TypeVar
+from typing import Deque, List, Optional, Tuple, TypeVar, cast
 
 import automata.base.exceptions as exceptions
 from automata.regex.lexer import Token
@@ -131,9 +131,14 @@ def tokens_to_postfix(
     stack: Deque[Token[ExpressionResultT]] = deque()
     res: List[Token[ExpressionResultT]] = []
 
-    def comp_precedence(a, b):
+    def comp_precedence(
+        a: Token[ExpressionResultT], b: Token[ExpressionResultT]
+    ) -> bool:
         """Compare precedence of operators (two tokens)."""
-        return a.get_precedence() <= b.get_precedence()
+        return (
+            cast(Operator[ExpressionResultT], a).get_precedence()
+            <= cast(Operator[ExpressionResultT], b).get_precedence()
+        )
 
     for c in tokens:
         if isinstance(c, Literal):

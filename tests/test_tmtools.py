@@ -4,6 +4,7 @@
 import contextlib
 import io
 import unittest
+from typing import Any
 from unittest.mock import call, patch
 
 import automata.tm.tools as tmtools
@@ -27,7 +28,7 @@ class TestTMTools(unittest.TestCase):
 
         self.config2 = MTMConfiguration(
             "q1",
-            [
+            (
                 TMTape(
                     tape="abcdefghij",
                     blank_symbol=".",
@@ -38,7 +39,7 @@ class TestTMTools(unittest.TestCase):
                     blank_symbol=".",
                     current_position=5,
                 ),
-            ],
+            ),
         )
 
     def test_repr_config(self) -> None:
@@ -48,8 +49,8 @@ class TestTMTools(unittest.TestCase):
         )
         self.assertEqual(
             repr(self.config2),
-            "MTMConfiguration('q1', [TMTape('abcdefghij', '.', 2), "
-            + "TMTape('klmnopq', '.', 5)])",
+            "MTMConfiguration('q1', (TMTape('abcdefghij', '.', 2), "
+            + "TMTape('klmnopq', '.', 5)))",
         )
 
     def test_print_config(self) -> None:
@@ -63,7 +64,7 @@ class TestTMTools(unittest.TestCase):
         )
 
     @patch("automata.tm.configuration.TMConfiguration.print")
-    def test_print_configs(self, print_config) -> None:
+    def test_print_configs(self, print_config: Any) -> None:
         """Should print each machine configuration to stdout."""
         tape1 = TMTape(
             tape="01010101",
@@ -84,7 +85,7 @@ class TestTMTools(unittest.TestCase):
             TMConfiguration("q0", tape1),
             TMConfiguration("q1", tape2),
             TMConfiguration("q2", tape3),
-            MTMConfiguration("q1", [tape1, tape2, tape3]),
+            MTMConfiguration("q1", (tape1, tape2, tape3)),
         ]
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
