@@ -958,7 +958,7 @@ class TestDFA(test_fa.TestFA):
             minimal_dfa.final_states, {frozenset(("q3", "q4", "q5", "q6"))}
         )
 
-    def test_minify_dfa_complex(self):
+    def test_minify_dfa_complex(self) -> None:
         """Should minify a given large DFA."""
         dfa = DFA(
             states={
@@ -1667,7 +1667,7 @@ class TestDFA(test_fa.TestFA):
         graph = self.dfa.show_diagram(fig_size=(3.3,))
         self.assertEqual(graph.graph_attr["size"], "3.3")
 
-    def test_minimal_finite_language(self):
+    def test_minimal_finite_language(self) -> None:
         """Should compute the minimal DFA accepting the given finite language"""
 
         # Same language described in the book this algorithm comes from

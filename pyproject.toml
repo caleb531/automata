@@ -37,6 +37,7 @@ requires = ["setuptools", "wheel"]
 
 [tool.mypy]
 exclude = ["build"]
+disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = [

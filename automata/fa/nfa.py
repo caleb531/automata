@@ -928,11 +928,17 @@ class NFA(fa.FA):
         transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = {}
         final_states = set()
 
-        def add_transition(start_state_dict, end_state, symbol):
+        def add_transition(
+            start_state_dict: Dict[str, Set[NFAStateT]],
+            end_state: NFAStateT,
+            symbol: str,
+        ) -> None:
             """Add transition between start and end state on symbol"""
             start_state_dict.setdefault(symbol, set()).add(end_state)
 
-        def add_any_transition(start_state_dict, end_state):
+        def add_any_transition(
+            start_state_dict: Dict[str, Set[NFAStateT]], end_state: NFAStateT
+        ) -> None:
             """Add transition on all symbols between start and end state"""
             for symbol in input_symbols:
                 add_transition(start_state_dict, end_state, symbol)

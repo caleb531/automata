@@ -1409,7 +1409,7 @@ class TestNFA(test_fa.TestFA):
             nfa1_reversed.right_quotient(nfa2_reversed),
         )
 
-        def is_subset_nfa(nfa_a, nfa_b):
+        def is_subset_nfa(nfa_a: NFA, nfa_b: NFA) -> bool:
             """Returns true if nfa_a is a subset of nfa_b"""
             return (nfa_a | nfa_b) == nfa_b
 

@@ -9,7 +9,7 @@ from automata.tm.tape import TMTape
 class TestTMConfiguration(test_pda.TestPDA):
     """A test class for testing configurations of pushdown automata."""
 
-    def test_config_hashability(self):
+    def test_config_hashability(self) -> None:
         self.assertEqual(
             hash(
                 TMConfiguration(
@@ -23,7 +23,7 @@ class TestTMConfiguration(test_pda.TestPDA):
             ),
         )
 
-    def test_config_repr(self):
+    def test_config_repr(self) -> None:
         """Should create proper string representation of PDA configuration."""
         config = TMConfiguration(
             "q0", TMTape("01", blank_symbol=".", current_position=0)

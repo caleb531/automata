@@ -42,7 +42,7 @@ class Mult(postfix.InfixOperator[int]):
     def get_precedence(self) -> int:
         return 20  # Higher precedence than addition/substraction.
 
-    def op(self, left, right) -> int:
+    def op(self, left: int, right: int) -> int:
         return left * right
 
 
@@ -77,6 +77,8 @@ class TestTokens(unittest.TestCase):
 
 class TestArithmeticParser(unittest.TestCase):
     """Test parsing arithmetic expressions."""
+
+    arithmetic_lexer: Lexer
 
     def test_parse_invalid_token(self) -> None:
         """Test exception for invalid input tokens."""
