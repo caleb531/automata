@@ -169,17 +169,15 @@ class MNTM(ntm.NTM):
         queue = deque([(MTMConfiguration(state=self.initial_state, tapes=tapes))])
         while len(queue) > 0:
             current_config = queue.popleft()
-            yield {MTMConfiguration(current_config.state, tuple(current_config.tapes))}
+            yield {MTMConfiguration(current_config.state, current_config.tapes)}
 
             possible_transitions = self._get_transition(
-                current_config.state, tuple(current_config.tapes)
+                current_config.state, current_config.tapes
             )
             if possible_transitions is None:
                 if current_config.state in self.final_states:
                     return {
-                        MTMConfiguration(
-                            current_config.state, tuple(current_config.tapes)
-                        )
+                        MTMConfiguration(current_config.state, current_config.tapes)
                     }
             else:
                 for transition in possible_transitions[1:]:
