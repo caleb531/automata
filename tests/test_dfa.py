@@ -958,7 +958,7 @@ class TestDFA(test_fa.TestFA):
             minimal_dfa.final_states, {frozenset(("q3", "q4", "q5", "q6"))}
         )
 
-    def test_minify_dfa_complex(self):
+    def test_minify_dfa_complex(self) -> None:
         """Should minify a given large DFA."""
         dfa = DFA(
             states={

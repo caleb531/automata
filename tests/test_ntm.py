@@ -2,6 +2,7 @@
 """Classes and functions for testing the behavior of NTMs."""
 
 import types
+from typing import Any
 from unittest.mock import patch
 
 from frozendict import frozendict
@@ -33,7 +34,7 @@ class TestNTM(test_tm.TestTM):
             )
 
     @patch("automata.tm.ntm.NTM.validate")
-    def test_init_validation(self, validate) -> None:
+    def test_init_validation(self, validate: Any) -> None:
         """Should validate NTM when initialized."""
         self.ntm1.copy()
         validate.assert_called_once_with()
