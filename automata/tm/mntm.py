@@ -109,9 +109,9 @@ class MNTM(ntm.NTM):
         super().validate()
         self._validate_tapes_consistency()
 
-    def _get_tapes_for_input_str(self, input_str: str) -> List[TMTape]:
+    def _get_tapes_for_input_str(self, input_str: str) -> Tuple[TMTape, ...]:
         """Produce a new list of tapes based on an input string to be read."""
-        return [
+        return (
             # Input is saved on first tape
             TMTape(input_str, blank_symbol=self.blank_symbol),
             # The rest of the tapes have blanks
@@ -123,7 +123,7 @@ class MNTM(ntm.NTM):
                 )
                 for _ in range(self.n_tapes - 1)
             ),
-        ]
+        )
 
     def _read_current_tape_symbols(self, tapes: Tuple[TMTape, ...]) -> Tuple[str, ...]:
         """Reads the current tape symbols in each of the tapes and their
@@ -151,12 +151,12 @@ class MNTM(ntm.NTM):
     ) -> MTMConfiguration:
         """Advances to the next configuration."""
         current_state, moves = transition
-        tapes = list(current_tapes)
-        for i, move in enumerate(moves):
-            symbol, direction = move
-            tapes[i] = tapes[i].write_symbol(symbol).move(direction)
+        tapes = tuple(
+            tape.write_symbol(symbol).move(direction)
+            for (symbol, direction), tape in zip(moves, current_tapes)
+        )
 
-        return MTMConfiguration(state=current_state, tapes=tuple(tapes))
+        return MTMConfiguration(state=current_state, tapes=tapes)
 
     def read_input_stepwise(self, input_str: str) -> Generator[Any, None, Any]:
         # TODO Any type above should be Set[MTMConfiguration], refactor required
@@ -249,9 +249,8 @@ class MNTM(ntm.NTM):
         head_symbol = "^"
         tape_separator_symbol = "_"
         extended_tape = ""
-        tapes_copy = tapes.copy()
-        for tape_copy in tapes_copy:
-            tape_str = tape_copy.get_symbols_as_str()
+        for tape in tapes:
+            tape_str = tape.get_symbols_as_str()
             extended_tape += (
                 tape_str[0] + head_symbol + tape_str[1:] + tape_separator_symbol
             )
