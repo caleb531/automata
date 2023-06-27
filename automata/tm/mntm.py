@@ -3,7 +3,8 @@
 machines."""
 
 from collections import deque
-from typing import AbstractSet, Any, Generator, List, Mapping, Optional, Sequence, Tuple
+from itertools import chain
+from typing import AbstractSet, Any, Generator, Mapping, Optional, Sequence, Tuple
 
 import automata.base.exceptions as exceptions
 import automata.tm.exceptions as tm_exceptions
@@ -165,9 +166,7 @@ class MNTM(ntm.NTM):
         Yields the current configuration of the machine at each step.
         """
         tapes = self._get_tapes_for_input_str(input_str)
-        queue = deque(
-            [(MTMConfiguration(state=self.initial_state, tapes=tuple(tapes)))]
-        )
+        queue = deque([(MTMConfiguration(state=self.initial_state, tapes=tapes))])
         while len(queue) > 0:
             current_config = queue.popleft()
             yield {MTMConfiguration(current_config.state, tuple(current_config.tapes))}
@@ -248,12 +247,14 @@ class MNTM(ntm.NTM):
         tapes = self._get_tapes_for_input_str(input_str)
         head_symbol = "^"
         tape_separator_symbol = "_"
-        extended_tape = ""
-        for tape in tapes:
-            tape_str = tape.get_symbols_as_str()
-            extended_tape += (
-                tape_str[0] + head_symbol + tape_str[1:] + tape_separator_symbol
+
+        # Make string from all tapes
+        extended_tape = "".join(
+            chain.from_iterable(
+                (tape.tape[0], head_symbol, *tape.tape[1:], tape_separator_symbol)
+                for tape in tapes
             )
+        )
 
         current_state = self.initial_state
         yield {
