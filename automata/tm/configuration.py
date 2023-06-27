@@ -2,7 +2,7 @@
 """Classes and methods for working with Turing machine configurations."""
 
 from dataclasses import dataclass
-from typing import List
+from typing import Tuple
 
 from automata.tm.tape import TMTape
 from automata.tm.tm import TMStateT
@@ -41,7 +41,7 @@ class MTMConfiguration:
     __slots__ = ("state", "tapes")
 
     state: TMStateT
-    tapes: List[TMTape]
+    tapes: Tuple[TMTape, ...]
 
     def __repr__(self) -> str:
         """Return a string representation of the configuration."""

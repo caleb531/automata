@@ -4,7 +4,7 @@
 import math
 import random
 import types
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
 
@@ -17,15 +17,15 @@ from automata.tm.mntm import MNTM
 class TestMNTM(test_tm.TestTM):
     """A test class for testing multitape nondeterministic Turing machines."""
 
-    def test_init_mntm(self):
+    def test_init_mntm(self) -> None:
         """Should copy MNTM if passed into MNTM constructor."""
         new_mntm = self.mntm1.copy()
         self.assertIsNot(new_mntm, self.mntm1)
 
-    def test_init_mntm_missing_formal_params(self):
+    def test_init_mntm_missing_formal_params(self) -> None:
         """Should raise an error if formal MNTM parameters are missing."""
         with self.assertRaises(TypeError):
-            MNTM(
+            MNTM(  # type: ignore
                 states={"q0", "q1", "q2", "q3", "q4"},
                 input_symbols={"0", "1"},
                 tape_symbols={"0", "1", "x", "y", "."},
@@ -35,29 +35,29 @@ class TestMNTM(test_tm.TestTM):
             )
 
     @patch("automata.tm.mntm.MNTM.validate")
-    def test_init_validation(self, validate):
+    def test_init_validation(self, validate: MagicMock) -> None:
         """Should validate MNTM when initialized."""
         self.mntm1.copy()
         validate.assert_called_once_with()
 
-    def test_copy_ntm(self):
+    def test_copy_ntm(self) -> None:
         """Should create exact copy of MNTM if copy() method is called."""
         new_mntm = self.mntm1.copy()
         self.assertIsNot(new_mntm, self.mntm1)
 
-    def test_mntm_immutable_attr_set(self):
+    def test_mntm_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.mntm1.states = {}
+            self.mntm1.states = set()
 
-    def test_mntm_immutable_attr_del(self):
+    def test_mntm_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):
             del self.mntm1.states
 
-    def test_mntm_immutable_dict(self):
+    def test_mntm_immutable_dict(self) -> None:
         """Should create a DPDA whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.mntm1.input_parameters)), int)
 
-    def test_validate_input_symbol_subset(self):
+    def test_validate_input_symbol_subset(self) -> None:
         """Should raise error if input symbols are not a strict superset of tape
         symbols."""
         with self.assertRaises(exceptions.MissingSymbolError):
@@ -78,7 +78,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_transition_state(self):
+    def test_validate_invalid_transition_state(self) -> None:
         """Should raise error if a transition state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
@@ -98,7 +98,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_transition_symbol(self):
+    def test_validate_invalid_transition_symbol(self) -> None:
         """Should raise error if a transition symbol is invalid."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             MNTM(
@@ -119,7 +119,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_transition_result_state(self):
+    def test_validate_invalid_transition_result_state(self) -> None:
         """Should raise error if a transition result state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
@@ -139,7 +139,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_transition_result_symbol(self):
+    def test_validate_invalid_transition_result_symbol(self) -> None:
         """Should raise error if a transition result symbol is invalid."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             MNTM(
@@ -159,7 +159,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_transition_result_direction(self):
+    def test_validate_invalid_transition_result_direction(self) -> None:
         """Should raise error if a transition result direction is invalid."""
         with self.assertRaises(tm_exceptions.InvalidDirectionError):
             MNTM(
@@ -169,7 +169,7 @@ class TestMNTM(test_tm.TestTM):
                 n_tapes=2,
                 transitions={
                     "q0": {
-                        ("1", "#"): [("q1", (("#", "U"), ("#", "R")))],
+                        ("1", "#"): [("q1", (("#", "U"), ("#", "R")))],  # type: ignore
                         ("0", "#"): [("q0", (("0", "R"), ("#", "N")))],
                         ("#", "#"): [("q1", (("#", "N"), ("#", "N")))],
                     }
@@ -179,7 +179,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_invalid_initial_state(self):
+    def test_validate_invalid_initial_state(self) -> None:
         """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
@@ -199,7 +199,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_initial_state_transitions(self):
+    def test_validate_initial_state_transitions(self) -> None:
         """Should raise error if the initial state has no transitions."""
         with self.assertRaises(exceptions.MissingStateError):
             MNTM(
@@ -219,7 +219,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_nonfinal_initial_state(self):
+    def test_validate_nonfinal_initial_state(self) -> None:
         """Should raise error if the initial state is a final state."""
         with self.assertRaises(exceptions.InitialStateError):
             MNTM(
@@ -239,7 +239,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q0", "q1"},
             )
 
-    def test_validate_invalid_final_state(self):
+    def test_validate_invalid_final_state(self) -> None:
         """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
@@ -259,7 +259,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q5"},
             )
 
-    def test_validate_invalid_final_state_non_str(self):
+    def test_validate_invalid_final_state_non_str(self) -> None:
         """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
@@ -279,7 +279,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={5},
             )
 
-    def test_validate_final_state_transitions(self):
+    def test_validate_final_state_transitions(self) -> None:
         """Should raise error if a final state has any transitions."""
         with self.assertRaises(exceptions.FinalStateError):
             MNTM(
@@ -300,7 +300,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_tapes_consistency_too_few_specified(self):
+    def test_validate_tapes_consistency_too_few_specified(self) -> None:
         with self.assertRaises(tm_exceptions.InconsistentTapesException):
             MNTM(
                 states={"q0", "q1"},
@@ -319,7 +319,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_validate_tapes_consistency_too_many_specified(self):
+    def test_validate_tapes_consistency_too_many_specified(self) -> None:
         with self.assertRaises(tm_exceptions.InconsistentTapesException):
             MNTM(
                 states={"q0", "q1"},
@@ -338,7 +338,7 @@ class TestMNTM(test_tm.TestTM):
                 final_states={"q1"},
             )
 
-    def test_read_extended_tape(self):
+    def test_read_extended_tape(self) -> None:
         self.assertEqual(
             self.mntm1._read_extended_tape("10^10_1^00_00#^_", "^"), ("0", "1", "#")
         )
@@ -381,13 +381,13 @@ class TestMNTM(test_tm.TestTM):
                 self.mntm1._read_extended_tape("0^101010^_#^_", "^"), ("0", "0", "#")
             )
 
-    def test_read_input_as_ntm(self):
+    def test_read_input_as_ntm(self) -> None:
         validation_generator = self.mntm2.read_input_as_ntm("#0000")
         configs = list(validation_generator)
-        first_config = configs[0].pop()
+        first_config = set(configs[0]).pop()
         self.assertEqual(first_config.state, "q-1")
         self.assertEqual(str(first_config.tape), "TMTape('#^0000_#^_#^_', '#', 0)")
-        last_config = configs[-1].pop()
+        last_config = set(configs[-1]).pop()
         self.assertEqual(last_config.state, "qf")
         self.assertEqual(
             str(last_config.tape), "TMTape('#0000#^_#0000#^_#XYYY#^_', '#', 23)"
@@ -397,14 +397,14 @@ class TestMNTM(test_tm.TestTM):
             for _ in self.mntm2.read_input_as_ntm("#00"):
                 pass
 
-    def test_read_input_accepted(self):
+    def test_read_input_accepted(self) -> None:
         """Should return correct state if acceptable TM input is given."""
         final_config = self.mntm1.read_input("0101101011").pop()
         self.assertEqual(final_config.state, "q1")
         self.assertEqual(str(final_config.tapes[0]), "TMTape('0101101011#', '#', 10)")
         self.assertEqual(str(final_config.tapes[1]), "TMTape('111111#', '#', 6)")
 
-    def test_read_input_step(self):
+    def test_read_input_step(self) -> None:
         """Should return validation generator if step flag is supplied."""
         validation_generator = self.mntm1.read_input_stepwise("0010101111")
         self.assertIsInstance(validation_generator, types.GeneratorType)
@@ -418,17 +418,17 @@ class TestMNTM(test_tm.TestTM):
         self.assertEqual(str(last_config.tapes[0]), "TMTape('0010101111#', '#', 10)")
         self.assertEqual(str(last_config.tapes[1]), "TMTape('111111#', '#', 6)")
 
-    def test_read_input_rejection(self):
+    def test_read_input_rejection(self) -> None:
         """Should raise error if the machine halts."""
         with self.assertRaises(exceptions.RejectionException):
             self.mntm1.read_input("2")
 
-    def test_read_input_rejection_invalid_symbol(self):
+    def test_read_input_rejection_invalid_symbol(self) -> None:
         """Should raise error if an invalid symbol is read."""
         with self.assertRaises(exceptions.RejectionException):
             self.mntm2.read_input("1")
 
-    def test_accepts_input_true(self):
+    def test_accepts_input_true(self) -> None:
         """Should return False if MNTM input is not accepted."""
         test_limit = 20
         for i in range(test_limit):
@@ -457,11 +457,11 @@ class TestMNTM(test_tm.TestTM):
             else:
                 self.assertFalse(self.mntm2.accepts_input(input_str_2))
 
-    def test_accepts_input_false(self):
+    def test_accepts_input_false(self) -> None:
         """Should return False if MNTM input is rejected."""
         self.assertFalse(self.mntm1.accepts_input("000012"))
         self.assertFalse(self.mntm2.accepts_input("#00000"))
 
     @staticmethod
-    def is_perfect_square(number: int):
+    def is_perfect_square(number: int) -> bool:
         return number == int(math.sqrt(number)) ** 2

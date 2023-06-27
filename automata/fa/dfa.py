@@ -6,7 +6,7 @@ import array
 from collections import defaultdict, deque
 from itertools import chain, count
 from random import Random
-from typing import (  # noqa Fixes a false positive where flake8 thinks that Literal is imported/unused even though it's not imported at all here
+from typing import (
     AbstractSet,
     Any,
     Callable,
@@ -15,7 +15,6 @@ from typing import (  # noqa Fixes a false positive where flake8 thinks that Lit
     Dict,
     FrozenSet,
     Generator,
-    Iterable,
     Iterator,
     List,
     Mapping,
@@ -859,11 +858,10 @@ class DFA(fa.FA):
         """
 
         if retain_names:
-
-            def get_name_original(state):
+            def get_name_original(state: DFAStateT) -> DFAStateT:
                 return state
 
-            get_name = get_name_original
+            get_name: Callable[[DFAStateT], DFAStateT] = get_name_original
         else:
             get_name = get_renaming_function(count(0))
 
@@ -1892,7 +1890,7 @@ class DFA(fa.FA):
         )
 
     def _get_input_path(
-        self, input_str
+        self, input_str: str
     ) -> Tuple[List[Tuple[DFAStateT, DFAStateT, DFASymbolT]], bool]:
         """
         Calculate the path taken by input.

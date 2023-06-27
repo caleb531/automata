@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic pushdown automata."""
 
-from typing import AbstractSet, Generator, Mapping, Set, Tuple
+from typing import AbstractSet, Generator, Mapping, Set, Tuple, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.pda as pda
@@ -12,7 +12,7 @@ NPDAStateT = pda.PDAStateT
 
 NPDAPathT = Mapping[
     str,
-    AbstractSet[Tuple[NPDAStateT, Tuple[str]]],
+    Mapping[str, AbstractSet[Tuple[NPDAStateT, Union[str, Tuple[str, ...]]]]],
 ]
 NPDATransitionsT = Mapping[NPDAStateT, NPDAPathT]
 

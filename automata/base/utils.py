@@ -3,17 +3,7 @@
 
 from collections import defaultdict
 from itertools import count
-from typing import (
-    Any,
-    Callable,
-    DefaultDict,
-    Generic,
-    Iterable,
-    List,
-    Set,
-    Tuple,
-    TypeVar,
-)
+from typing import Any, Callable, Dict, Generic, Iterable, List, Set, Tuple, TypeVar
 
 from frozendict import frozendict
 
@@ -48,12 +38,7 @@ def get_renaming_function(counter: count) -> Callable[[Any], int]:
     for each distinct input.
     """
 
-    new_state_name_dict: DefaultDict[Any, int] = defaultdict(counter.__next__)
-
-    def renaming_function(item: Any) -> int:
-        return new_state_name_dict[item]
-
-    return renaming_function
+    return defaultdict(counter.__next__).__getitem__
 
 
 T = TypeVar("T")
@@ -69,6 +54,9 @@ class PartitionRefinement(Generic[T]):
     """
 
     __slots__: Tuple[str, ...] = ("_sets", "_partition")
+
+    _sets: Dict[int, Set[T]]
+    _partition: Dict[T, int]
 
     def __init__(self, items: Iterable[T]) -> None:
         """Create a new partition refinement data structure for the given

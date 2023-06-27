@@ -8,7 +8,7 @@ import pathlib
 import random
 import uuid
 from collections import defaultdict
-from typing import Dict, Generator, List, Literal, Optional, Set, Tuple, Union
+from typing import Any, Dict, Generator, List, Literal, Optional, Set, Tuple, Union
 
 from automata.base.automaton import Automaton, AutomatonStateT
 
@@ -226,7 +226,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             f"_get_input_path is not implemented for {self.__class__}"
         )
 
-    def _repr_mimebundle_(self, *args, **kwargs) -> Dict[str, Union[bytes, str]]:
+    def _repr_mimebundle_(
+        self, *args: Any, **kwargs: Any
+    ) -> Dict[str, Union[bytes, str]]:
         return self.show_diagram()._repr_mimebundle_(*args, **kwargs)
 
     @staticmethod
