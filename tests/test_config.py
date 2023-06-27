@@ -11,6 +11,9 @@ from automata.fa.dfa import DFA
 
 
 class TestConfig(unittest.TestCase):
+    orig_should_validate: bool
+    orig_allow_mutable_automata: bool
+
     def setUp(self) -> None:
         self.orig_should_validate = global_config.should_validate_automata
         self.orig_allow_mutable_automata = global_config.allow_mutable_automata

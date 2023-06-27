@@ -10,6 +10,9 @@ from automata.pda.npda import NPDA
 class TestPDA(unittest.TestCase):
     """A test class for testing all pushdown automata."""
 
+    dpda: DPDA
+    npda: NPDA
+
     def setUp(self) -> None:
         """Reset test automata before every test function."""
         # DPDA which which matches zero or more 'a's, followed by the same

@@ -2,8 +2,7 @@
 """Classes and functions for testing the behavior of DTMs."""
 
 import types
-from typing import Any
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
 
@@ -34,7 +33,7 @@ class TestDTM(test_tm.TestTM):
             )
 
     @patch("automata.tm.dtm.DTM.validate")
-    def test_init_validation(self, validate: Any) -> None:
+    def test_init_validation(self, validate: MagicMock) -> None:
         """Should validate DTM when initialized."""
         self.dtm1.copy()
         validate.assert_called_once_with()

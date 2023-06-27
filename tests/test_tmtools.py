@@ -4,8 +4,7 @@
 import contextlib
 import io
 import unittest
-from typing import Any
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 
 import automata.tm.tools as tmtools
 from automata.tm.configuration import MTMConfiguration, TMConfiguration
@@ -14,6 +13,9 @@ from automata.tm.tape import TMTape
 
 class TestTMTools(unittest.TestCase):
     """A test class for testing Turing machine utility functions."""
+
+    config: TMConfiguration
+    config2: MTMConfiguration
 
     def setUp(self) -> None:
         """Provide a configuration for testing."""
@@ -64,7 +66,7 @@ class TestTMTools(unittest.TestCase):
         )
 
     @patch("automata.tm.configuration.TMConfiguration.print")
-    def test_print_configs(self, print_config: Any) -> None:
+    def test_print_configs(self, print_config: MagicMock) -> None:
         """Should print each machine configuration to stdout."""
         tape1 = TMTape(
             tape="01010101",

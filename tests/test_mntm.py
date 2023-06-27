@@ -4,8 +4,7 @@
 import math
 import random
 import types
-from typing import Any
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
 
@@ -36,7 +35,7 @@ class TestMNTM(test_tm.TestTM):
             )
 
     @patch("automata.tm.mntm.MNTM.validate")
-    def test_init_validation(self, validate: Any) -> None:
+    def test_init_validation(self, validate: MagicMock) -> None:
         """Should validate MNTM when initialized."""
         self.mntm1.copy()
         validate.assert_called_once_with()

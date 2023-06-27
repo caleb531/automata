@@ -78,6 +78,8 @@ class TestTokens(unittest.TestCase):
 class TestArithmeticParser(unittest.TestCase):
     """Test parsing arithmetic expressions."""
 
+    arithmetic_lexer: Lexer
+
     def test_parse_invalid_token(self) -> None:
         """Test exception for invalid input tokens."""
         with self.assertRaises(exceptions.InvalidRegexError):

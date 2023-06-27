@@ -8,6 +8,8 @@ from automata.pda.stack import PDAStack
 class TestPDAStack(test_pda.TestPDA):
     """A test class for testing stacks of pushdown automata."""
 
+    stack: PDAStack
+
     def setUp(self) -> None:
         self.stack = PDAStack(["a", "b"])
 
