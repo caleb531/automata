@@ -19,16 +19,17 @@ bibliography: paper.bib
 
 # Summary
 
-Automata are abstract machines used as models of computation, and are a central object of study in theoretical computer science. Given an input string of characters over a fixed alphabet, these machines either accept or reject the string. A language corresponding to an automaton is
+Automata are abstract machines used to represent models of computation, and are a central object of study in theoretical computer science. Given an input string of characters over a fixed alphabet, these machines either accept or reject the string. A language corresponding to an automaton is
 the set of all strings it accepts. Three general families of automata in increasing order of generality are as follows:
 
 1. Finite-state automata
 2. Pushdown automata
 3. Turing machines
 
-The ability to manipulate and interact with these automaton is 
+These models are a core component of both computer science education and research, seeing applications in a wide variety of areas. In particular, the ability to manipulate finite-state automata within the context of a robust software package has seen attention from
+mainstream researchers in the past [CITE KLAUS AUTOMATA PACKAGE]
 
-In particular, finite state automata have widespread applications, as their simplicity allows for efficient computation and manipulation. [CITE KLAUS AUTOMATA PACKAGE]
+# Statement of need
 
 The forces on stars, galaxies, and dark matter under external gravitational
 fields lead to the dynamical evolution of structures in the universe. The orbits
