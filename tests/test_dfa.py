@@ -22,7 +22,7 @@ ArgT = TypeVar("ArgT")
 
 
 def get_permutation_tuples(*args: ArgT) -> Tuple[Tuple[ArgT, ArgT], ...]:
-    return tuple(permutations(args))
+    return tuple(permutations(args, 2))
 
 
 class TestDFA(test_fa.TestFA):
@@ -293,7 +293,9 @@ class TestDFA(test_fa.TestFA):
         self.assertNotEqual(self.no_consecutive_11_dfa, self.zero_or_one_1_dfa)
 
     def test_equivalence_partials(self) -> None:
-        self.assertEqual(self.partial_dfa, self.partial_dfa.to_complete())
+        complete_dfa = self.partial_dfa.to_complete()
+        self.assertEqual(self.partial_dfa, complete_dfa)
+        self.assertEqual(self.partial_dfa, complete_dfa.to_partial())
 
     def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
@@ -316,6 +318,14 @@ class TestDFA(test_fa.TestFA):
             final_states={"q0", "q1"},
         )
         self.assertEqual(self.no_consecutive_11_dfa, other_dfa)
+
+    def test_complement_partial(self) -> None:
+        """Test complement properties for partial DFAs"""
+
+        complement_partial_dfa = self.partial_dfa.complement()
+        complement_complete_dfa = self.partial_dfa.to_complete().complement()
+
+        self.assertEqual(complement_complete_dfa, complement_partial_dfa)
 
     def test_complement(self) -> None:
         """Should compute the complement of a DFA"""
@@ -699,7 +709,11 @@ class TestDFA(test_fa.TestFA):
     @params(
         *get_permutation_tuples(
             DFA.from_substring(set("01"), "1111"),
-            DFA.from_substring(set("01"), "11").complement(minify=False),
+            partial_dfa,
+            no_consecutive_11_dfa,
+            at_least_four_ones,
+            zero_or_one_1_dfa,
+            no_reachable_final_dfa,
         )
     )
     def test_set_laws(self, dfa1: DFA, dfa2: DFA) -> None:
@@ -1507,7 +1521,8 @@ class TestDFA(test_fa.TestFA):
         graph = self.dfa.show_diagram(fig_size=(3.3,))
         self.assertEqual(graph.graph_attr["size"], "3.3")
 
-    def test_minimal_finite_language(self) -> None:
+    @params(True, False)
+    def test_minimal_finite_language(self, allow_partial: bool) -> None:
         """Should compute the minimal DFA accepting the given finite language"""
 
         # Same language described in the book this algorithm comes from
@@ -1545,7 +1560,12 @@ class TestDFA(test_fa.TestFA):
             final_states={4, 9},
         )
 
-        minimal_dfa = DFA.from_finite_language({"a", "b"}, language)
+        if allow_partial:
+            equiv_dfa = equiv_dfa.to_partial()
+
+        minimal_dfa = DFA.from_finite_language(
+            {"a", "b"}, language, as_partial_dfa=allow_partial
+        )
 
         self.assertEqual(len(minimal_dfa.states), len(equiv_dfa.states))
         self.assertEqual(minimal_dfa, equiv_dfa)

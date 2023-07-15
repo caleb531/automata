@@ -595,31 +595,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
-
-        if self.allow_partial or other.allow_partial:
-            trap_a = self.get_trap_state_id()
-            trap_b = other.get_trap_state_id()
-
-            def partial_union_expand_state_fn(
-                state: DFAStateT,
-            ) -> ExpandStateReturnType:
-                q_a, q_b = state
-                q_a_transitions = self.transitions.get(q_a, {})
-                q_b_transitions = self.transitions.get(q_b, {})
-
-                for chr, tgt_a in q_a_transitions.items():
-                    tgt_b = q_b_transitions.get(chr, trap_b)
-                    yield chr, (tgt_a, tgt_b)
-                for chr, tgt_b in q_b_transitions.items():
-                    if chr not in q_a_transitions:
-                        yield chr, (trap_a, tgt_b)
-
-            expand_state_fn = partial_union_expand_state_fn
+        expand_state_fn = self.__class__._cross_product(self, other, True, True)
 
         return self.__class__._expand_dfa(
             union_function,
-            initial_state,
+            (self.initial_state, other.initial_state),
             expand_state_fn,
             self.input_symbols,
             retain_names=retain_names,
@@ -640,27 +620,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
-
-        # We only expand characters in both transition functions
-        if self.allow_partial or other.allow_partial:
-
-            def partial_intersection_expand_state_fn(
-                state: DFAStateT,
-            ) -> ExpandStateReturnType:
-                q_a, q_b = state
-                transitions_a = self.transitions[q_a]
-                transitions_b = other.transitions[q_b]
-
-                for chr, tgt_a in transitions_a.items():
-                    if chr in transitions_b:
-                        yield chr, (tgt_a, transitions_b[chr])
-
-            expand_state_fn = partial_intersection_expand_state_fn
+        expand_state_fn = self.__class__._cross_product(self, other, False, False)
 
         return self.__class__._expand_dfa(
             intersection_function,
-            initial_state,
+            (self.initial_state, other.initial_state),
             expand_state_fn,
             self.input_symbols,
             retain_names=retain_names,
@@ -681,28 +645,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
-
-        # We stop if we reach a trap state for A
-        if self.allow_partial and other.allow_partial:
-            trap_b = other.get_trap_state_id()
-
-            def partial_difference_expand_state_fn(
-                state: DFAStateT,
-            ) -> ExpandStateReturnType:
-                q_a, q_b = state
-                q_a_transitions = self.transitions[q_a]
-                q_b_transitions = other.transitions.get(q_b, {})
-
-                for chr, tgt_a in q_a_transitions.items():
-                    tgt_b = q_b_transitions.get(chr, trap_b)
-                    yield chr, (tgt_a, tgt_b)
-
-            expand_state_fn = partial_difference_expand_state_fn
+        expand_state_fn = self.__class__._cross_product(self, other, False, True)
 
         return self.__class__._expand_dfa(
             difference_function,
-            initial_state,
+            (self.initial_state, other.initial_state),
             expand_state_fn,
             self.input_symbols,
             retain_names=retain_names,
@@ -725,33 +672,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
-
-        # The benefit here is not so clear, but for very linear DFAs it pays off
-        if self.allow_partial or other.allow_partial:
-            trap_a = self.get_trap_state_id()
-            trap_b = other.get_trap_state_id()
-
-            def partial_sym_diff_expand_state_fn(
-                state: DFAStateT,
-            ) -> ExpandStateReturnType:
-                q_a, q_b = state
-                transitions_a = self.transitions.get(q_a, {})
-                transitions_b = self.transitions.get(q_b, {})
-
-                for chr, tgt_a in transitions_a.items():
-                    tgt_b = transitions_b.get(chr, trap_b)
-                    yield chr, (tgt_a, tgt_b)
-
-                for chr, tgt_b in transitions_b.items():
-                    if chr not in transitions_a:
-                        yield chr, (trap_a, tgt_b)
-
-            expand_state_fn = partial_sym_diff_expand_state_fn
+        expand_state_fn = self.__class__._cross_product(self, other, True, True)
 
         return self.__class__._expand_dfa(
             symmetric_difference_function,
-            initial_state,
+            (self.initial_state, other.initial_state),
             expand_state_fn,
             self.input_symbols,
             retain_names=retain_names,
@@ -858,7 +783,6 @@ class DFA(fa.FA):
         """
 
         if retain_names:
-
             def get_name_original(state: DFAStateT) -> DFAStateT:
                 return state
 
@@ -931,28 +855,41 @@ class DFA(fa.FA):
         return any(target_state_fn(state) for state in bfs_states)
 
     @staticmethod
-    def _cross_product(lhs: DFA, rhs: DFA) -> Tuple[DFAStateT, ExpandStateFn]:
-        """Builds the cross product between the two ->complete<- DFAs"""
-        if lhs.allow_partial or rhs.allow_partial:
-            raise ValueError(
-                "Internal _cross_product function does not support" "partial DFAs."
-            )
+    def _cross_product(
+        lhs: DFA, rhs: DFA, lhs_relevant: bool, rhs_relevant: bool
+    ) -> ExpandStateFn:
+        """
+        Builds the cross product between the two DFAs.
+        Keeps expanding the lhs and rhs if the trap state is encountered based on the
+        lhs_relevant and rhs_relevant booleans.
+        """
 
         if lhs.input_symbols != rhs.input_symbols:
             raise exceptions.SymbolMismatchError(
                 "The input symbols between the two given DFAs do not match"
             )
 
+        trap_a = lhs.get_trap_state_id()
+        trap_b = rhs.get_trap_state_id()
+
         def expand_state_fn(state: DFAStateT) -> ExpandStateReturnType:
             q_a, q_b = state
-            transitions_a = lhs.transitions[q_a]
-            transitions_b = rhs.transitions[q_b]
+            transitions_a = lhs.transitions.get(q_a, {})
+            transitions_b = rhs.transitions.get(q_b, {})
 
             for chr in lhs.input_symbols:
-                yield chr, (transitions_a[chr], transitions_b[chr])
+                # Equivalent to reaching the trap state, skip ahead if irrelevant
+                if not lhs_relevant and chr not in transitions_a:
+                    continue
+                elif not rhs_relevant and chr not in transitions_b:
+                    continue
 
-        initial_state = (lhs.initial_state, rhs.initial_state)
-        return initial_state, expand_state_fn
+                yield chr, (
+                    transitions_a.get(chr, trap_a),
+                    transitions_b.get(chr, trap_b),
+                )
+
+        return expand_state_fn
 
     # Supports partial (test)
     def issubset(self, other: DFA) -> bool:
@@ -963,28 +900,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
-
-        # Looking for counter example state that is final in A but not in B
-        #   therefore we only expand characters in A
-        if self.allow_partial or other.allow_partial:
-            trap_b = other.get_trap_state_id()
-
-            def partial_intersection_expand_state_fn(
-                state: DFAStateT,
-            ) -> ExpandStateReturnType:
-                q_a, q_b = state
-                transitions_a = self.transitions[q_a]
-                transitions_b = other.transitions.get(q_b, {})
-
-                for chr, tgt_a in transitions_a.items():
-                    tgt_b = transitions_b.get(chr, trap_b)
-                    yield chr, (tgt_a, tgt_b)
-
-            expand_state_fn = partial_intersection_expand_state_fn
+        # TODO maybe fix this
+        expand_state_fn = self.__class__._cross_product(self, other, False, True)
 
         return not self.__class__._find_state(
-            subset_state_fn, initial_state, expand_state_fn
+            subset_state_fn, (self.initial_state, other.initial_state), expand_state_fn
         )
 
     # Supports partial (test)
@@ -1001,27 +921,13 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
-
-        # Looking for counter example state that is final in both DFAs
-        #   We expand their intersection
-        if self.allow_partial or other.allow_partial:
-
-            def partial_intersection_expand_state_fn(
-                state: DFAStateT,
-            ) -> ExpandStateReturnType:
-                q_a, q_b = state
-                transitions_a = self.transitions[q_a]
-                transitions_b = other.transitions[q_b]
-
-                for chr, tgt_a in transitions_a.items():
-                    if chr in transitions_b:
-                        yield chr, (tgt_a, transitions_b[chr])
-
-            expand_state_fn = partial_intersection_expand_state_fn
+        # TODO maybe change this
+        expand_state_fn = self.__class__._cross_product(self, other, True, False)
 
         return not self.__class__._find_state(
-            disjoint_state_fn, initial_state, expand_state_fn
+            disjoint_state_fn,
+            (self.initial_state, other.initial_state),
+            expand_state_fn,
         )
 
     # Supports partial
