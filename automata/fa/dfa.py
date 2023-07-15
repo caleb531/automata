@@ -783,6 +783,7 @@ class DFA(fa.FA):
         """
 
         if retain_names:
+
             def get_name_original(state: DFAStateT) -> DFAStateT:
                 return state
 

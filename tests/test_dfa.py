@@ -1613,7 +1613,8 @@ class TestDFA(test_fa.TestFA):
         )  # dfa2.states is a frozenset of frozensets
         self.assertTrue(repr(dfa2))
 
-    def test_iter_finite(self) -> None:
+    @params(True, False)
+    def test_iter_finite(self, as_partial_dfa: bool) -> None:
         """
         Test that DFA for finite language generates all words
         """
@@ -1631,7 +1632,9 @@ class TestDFA(test_fa.TestFA):
             "bbabb",
             "bbbab",
         }
-        dfa = DFA.from_finite_language({"a", "b"}, language)
+        dfa = DFA.from_finite_language(
+            {"a", "b"}, language, as_partial_dfa=as_partial_dfa
+        )
         generated_set = {word for word in dfa}
         self.assertEqual(generated_set, language)
 
@@ -1677,20 +1680,25 @@ class TestDFA(test_fa.TestFA):
         generated_list = [next(generator) for _ in expected]
         self.assertEqual(generated_list, expected)
 
-    def test_len_finite(self) -> None:
+    @params(True, False)
+    def test_len_finite(self, as_partial_dfa: bool) -> None:
         input_symbols = {"a", "b"}
-        dfa = DFA.from_finite_language(input_symbols, set())
+        dfa = DFA.from_finite_language(input_symbols, set(), as_partial_dfa)
         self.assertEqual(len(dfa), 0)
-        dfa = DFA.from_finite_language(input_symbols, {""})
+        dfa = DFA.from_finite_language(input_symbols, {""}, as_partial_dfa)
         self.assertEqual(len(dfa), 1)
-        dfa = DFA.from_finite_language(input_symbols, {"a"})
+        dfa = DFA.from_finite_language(input_symbols, {"a"}, as_partial_dfa)
         self.assertEqual(len(dfa), 1)
-        dfa = DFA.from_finite_language(input_symbols, {"ababababab"})
+        dfa = DFA.from_finite_language(input_symbols, {"ababababab"}, as_partial_dfa)
         self.assertEqual(len(dfa), 1)
-        dfa = DFA.from_finite_language(input_symbols, {"a" * i for i in range(5)})
+        dfa = DFA.from_finite_language(
+            input_symbols, {"a" * i for i in range(5)}, as_partial_dfa
+        )
         self.assertEqual(len(dfa), 5)
         dfa = DFA.from_finite_language(
-            input_symbols, {"a" * i + "b" * j for i in range(5) for j in range(5)}
+            input_symbols,
+            {"a" * i + "b" * j for i in range(5) for j in range(5)},
+            as_partial_dfa,
         )
         self.assertEqual(len(dfa), 25)
 
@@ -1729,7 +1737,8 @@ class TestDFA(test_fa.TestFA):
         for i in range(10):
             self.assertIn(dfa.random_word(100), dfa)
 
-    def test_predecessor(self) -> None:
+    @params(True, False)
+    def test_predecessor(self, as_partial_dfa: bool) -> None:
         binary = {"0", "1"}
         language = {
             "",
@@ -1741,7 +1750,7 @@ class TestDFA(test_fa.TestFA):
             "110",
             "010101111111101011010100",
         }
-        dfa = DFA.from_finite_language(binary, language)
+        dfa = DFA.from_finite_language(binary, language, as_partial_dfa)
         expected = sorted(language, reverse=True)
         actual = list(dfa.predecessors("11111111111111111111111111111111"))
         self.assertListEqual(actual, expected)
@@ -1762,7 +1771,8 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.InfiniteLanguageException):
             [_ for _ in infinite_dfa.predecessors("000")]
 
-    def test_successor(self) -> None:
+    @params(True, False)
+    def test_successor(self, as_partial_dfa: bool) -> None:
         binary = {"0", "1"}
         language = {
             "",
@@ -1774,7 +1784,7 @@ class TestDFA(test_fa.TestFA):
             "110",
             "010101111111101011010100",
         }
-        dfa = DFA.from_finite_language(binary, language)
+        dfa = DFA.from_finite_language(binary, language, as_partial_dfa)
         expected = sorted(language)
         actual = list(dfa.successors("", strict=False))
         self.assertListEqual(actual, expected)
@@ -1795,7 +1805,8 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(infinite_dfa.successor(100 * "0"), 101 * "0")
         self.assertEqual(infinite_dfa.successor(100 * "1"), 101 * "1")
 
-    def test_successor_and_predecessor(self) -> None:
+    @params(True, False)
+    def test_successor_and_predecessor(self, as_partial_dfa: bool) -> None:
         binary = {"0", "1"}
         language = {
             "",
@@ -1807,7 +1818,7 @@ class TestDFA(test_fa.TestFA):
             "110",
             "010101111111101011010100",
         }
-        dfa = DFA.from_finite_language(binary, language)
+        dfa = DFA.from_finite_language(binary, language, as_partial_dfa)
         for word in language:
             self.assertEqual(dfa.successor(dfa.predecessor(word)), word)  # type: ignore
             self.assertEqual(dfa.predecessor(dfa.successor(word)), word)  # type: ignore
@@ -1955,14 +1966,17 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.EmptyLanguageException):
             empty.maximum_word_length()
 
-    def test_contains_prefix(self) -> None:
+    @params(True, False)
+    def test_contains_prefix(self, as_partial_dfa: bool) -> None:
         input_symbols = {"a", "n", "o", "b"}
 
         prefix_dfa = DFA.from_prefix(input_symbols, "nano")
         self.assertEqual(len(prefix_dfa.states), len(prefix_dfa.minify().states))
 
         subset_dfa = DFA.from_finite_language(
-            input_symbols, {"nano", "nanobao", "nanonana", "nanonano", "nanoo"}
+            input_symbols,
+            {"nano", "nanobao", "nanonana", "nanonano", "nanoo"},
+            as_partial_dfa,
         )
         self.assertTrue(subset_dfa < prefix_dfa)
 
@@ -1975,7 +1989,8 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertTrue(word.startswith("nano"))
 
-    def test_contains_suffix(self) -> None:
+    @params(True, False)
+    def test_contains_suffix(self, as_partial_dfa: bool) -> None:
         input_symbols = {"a", "n", "o", "b"}
 
         suffix_dfa = DFA.from_suffix(input_symbols, "nano")
@@ -1984,6 +1999,7 @@ class TestDFA(test_fa.TestFA):
         subset_dfa = DFA.from_finite_language(
             input_symbols,
             {"nano", "annnano", "bnano", "anbonano", "nananananananananano"},
+            as_partial_dfa,
         )
         self.assertTrue(subset_dfa < suffix_dfa)
 
@@ -1996,7 +2012,8 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertTrue(word.endswith("nano"))
 
-    def test_contains_substring(self) -> None:
+    @params(True, False)
+    def test_contains_substring(self, as_partial_dfa: bool) -> None:
         """Should compute the minimal DFA accepting strings with the given substring"""
 
         input_symbols = {"a", "n", "o", "b"}
@@ -2022,7 +2039,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(substring_dfa, equiv_dfa)
 
         subset_dfa = DFA.from_finite_language(
-            input_symbols, {"nano", "bananano", "nananano", "naonano"}
+            input_symbols, {"nano", "bananano", "nananano", "naonano"}, as_partial_dfa
         )
         self.assertTrue(subset_dfa < substring_dfa)
 
@@ -2035,7 +2052,8 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertIn("nano", word)
 
-    def test_contains_subsequence(self) -> None:
+    @params(True, False)
+    def test_contains_subsequence(self, as_partial_dfa: bool) -> None:
         """Should compute the minimal DFA accepting strings with the given
         subsequence"""
 
@@ -2064,7 +2082,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(subsequence_dfa, equiv_dfa)
 
         subset_dfa = DFA.from_finite_language(
-            input_symbols, {"naooono", "bananano", "onbaonbo", "ooonano"}
+            input_symbols, {"naooono", "bananano", "onbaonbo", "ooonano"}, as_partial_dfa
         )
         self.assertTrue(subset_dfa < subsequence_dfa)
 
@@ -2079,7 +2097,8 @@ class TestDFA(test_fa.TestFA):
             DFA.from_subsequence(input_symbols, "nano", contains=False),
         )
 
-    def test_of_length(self) -> None:
+    @params(True, False)
+    def test_of_length(self, as_partial_dfa: bool) -> None:
         binary = {"0", "1"}
         dfa1 = DFA.of_length(binary)
         self.assertFalse(dfa1.isfinite())
@@ -2136,7 +2155,7 @@ class TestDFA(test_fa.TestFA):
             "1111",
         ]
         self.assertListEqual(list(dfa3), expected)
-        self.assertEqual(dfa3, DFA.from_finite_language(binary, set(expected)))
+        self.assertEqual(dfa3, DFA.from_finite_language(binary, set(expected), as_partial_dfa))
         self.assertEqual(dfa1, dfa2.union(dfa3))
         self.assertEqual(dfa3.minimum_word_length(), 0)
         self.assertEqual(dfa3.maximum_word_length(), 4)
