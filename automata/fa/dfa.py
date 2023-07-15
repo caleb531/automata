@@ -1179,14 +1179,11 @@ class DFA(fa.FA):
         """
         Populate word cache up to length k
         """
-        if not self.allow_partial:
-            sorted_symbols = sorted(self.input_symbols)
-            sorted_transition_symbols = {state: sorted_symbols for state in self.states}
-        else:
-            sorted_transition_symbols = {
-                state: sorted(lookup.keys())
-                for state, lookup in self.transitions.items()
-            }
+
+        # Weird construction to account for partial DFAs.
+        sorted_transition_symbols = {
+            state: sorted(lookup.keys()) for state, lookup in self.transitions.items()
+        }
 
         while len(self._word_cache) <= k:
             i = len(self._word_cache)
