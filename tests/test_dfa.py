@@ -6,7 +6,8 @@ import os.path
 import random
 import tempfile
 import types
-from itertools import product
+from itertools import permutations, product
+from typing import Tuple, TypeVar
 from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
@@ -16,6 +17,12 @@ import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
+
+ArgT = TypeVar("ArgT")
+
+
+def get_permutation_tuples(*args: ArgT) -> Tuple[Tuple[ArgT, ArgT], ...]:
+    return tuple(permutations(args))
 
 
 class TestDFA(test_fa.TestFA):
@@ -689,50 +696,61 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.universal_language({"0", "1"})
         self.assertFalse(dfa.isfinite())
 
-    def test_set_laws(self) -> None:
+    @params(
+        *get_permutation_tuples(
+            DFA.from_substring(set("01"), "1111"),
+            DFA.from_substring(set("01"), "11").complement(minify=False),
+        )
+    )
+    def test_set_laws(self, dfa1: DFA, dfa2: DFA) -> None:
         """Tests many set laws that are true for all sets"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
         input_symbols = {"0", "1"}
-        contains_1111 = DFA.from_substring(input_symbols, "1111")
+
+        dfa1 = dfa1.to_complete()
+        dfa2 = dfa2.to_partial()
+        # dfa1 = DFA.from_substring(input_symbols, "1111")
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
-        avoids_11 = DFA.from_substring(input_symbols, "11").complement(minify=False)
+        # dfa2 = DFA.from_substring(input_symbols, "11").complement(minify=False)
+
+        # DFAs have to be not equal for test to work
+        self.assertNotEqual(dfa1, dfa2)
+
         # This DFA accepts all binary strings
         universal = DFA.universal_language(input_symbols)
         # This DFA represents the empty language
         empty = DFA.empty_language(input_symbols)
         # De Morgan's laws
-        self.assertEqual(~(contains_1111 | avoids_11), ~contains_1111 & ~avoids_11)
-        self.assertEqual(~(contains_1111 & avoids_11), ~contains_1111 | ~avoids_11)
+        self.assertEqual(~(dfa1 | dfa2), ~dfa1 & ~dfa2)
+        self.assertEqual(~(dfa1 & dfa2), ~dfa1 | ~dfa2)
         # Complement laws
-        self.assertEqual(contains_1111 | ~contains_1111, universal)
-        self.assertEqual(contains_1111 & ~contains_1111, empty)
+        self.assertEqual(dfa1 | ~dfa1, universal)
+        self.assertEqual(dfa1 & ~dfa1, empty)
         self.assertEqual(~universal, empty)
         self.assertEqual(~empty, universal)
         # Involution
-        self.assertEqual(contains_1111, ~(~contains_1111))
+        self.assertEqual(dfa1, ~(~dfa1))
         # Relationships between relative and absolute complements
-        self.assertEqual(contains_1111 - avoids_11, contains_1111 & ~avoids_11)
-        self.assertEqual(~(contains_1111 - avoids_11), ~contains_1111 | avoids_11)
-        self.assertEqual(
-            ~(contains_1111 - avoids_11), ~contains_1111 | (avoids_11 & contains_1111)
-        )
+        self.assertEqual(dfa1 - dfa2, dfa1 & ~dfa2)
+        self.assertEqual(~(dfa1 - dfa2), ~dfa1 | dfa2)
+        self.assertEqual(~(dfa1 - dfa2), ~dfa1 | (dfa2 & dfa1))
         # Relationship with set difference
-        self.assertEqual(~contains_1111 - ~avoids_11, avoids_11 - contains_1111)
+        self.assertEqual(~dfa1 - ~dfa2, dfa2 - dfa1)
         # Symmetric difference
         self.assertEqual(
-            contains_1111 ^ avoids_11,
-            (contains_1111 - avoids_11) | (avoids_11 - contains_1111),
+            dfa1 ^ dfa2,
+            (dfa1 - dfa2) | (dfa2 - dfa1),
         )
         self.assertEqual(
-            contains_1111 ^ avoids_11,
-            (contains_1111 | avoids_11) - (contains_1111 & avoids_11),
+            dfa1 ^ dfa2,
+            (dfa1 | dfa2) - (dfa1 & dfa2),
         )
         # Commutativity
-        self.assertEqual(contains_1111 | avoids_11, avoids_11 | contains_1111)
-        self.assertEqual(contains_1111 & avoids_11, avoids_11 & contains_1111)
-        self.assertEqual(contains_1111 ^ avoids_11, avoids_11 ^ contains_1111)
+        self.assertEqual(dfa1 | dfa2, dfa2 | dfa1)
+        self.assertEqual(dfa1 & dfa2, dfa2 & dfa1)
+        self.assertEqual(dfa1 ^ dfa2, dfa2 ^ dfa1)
 
     def test_minify_dfa(self) -> None:
         """Should minify a given DFA."""
