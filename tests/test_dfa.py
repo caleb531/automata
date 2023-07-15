@@ -7,7 +7,7 @@ import random
 import tempfile
 import types
 from itertools import permutations, product
-from typing import Tuple, TypeVar
+from typing import Iterable, Tuple, TypeVar, cast
 from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
@@ -22,7 +22,7 @@ ArgT = TypeVar("ArgT")
 
 
 def get_permutation_tuples(*args: ArgT) -> Tuple[Tuple[ArgT, ArgT], ...]:
-    return tuple(permutations(args, 2))
+    return tuple(cast(Iterable[Tuple[ArgT, ArgT]], permutations(args, 2)))
 
 
 class TestDFA(test_fa.TestFA):
@@ -2315,9 +2315,13 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.empty_language({"0", "1", "a", "b"})
         self.assertTrue(dfa.isempty())
 
-    def test_reset_word_cache(self) -> None:
+    @params(True, False)
+    def test_reset_word_cache(self, as_partial_dfa: bool) -> None:
         max_len = 4
         dfa = DFA.of_length({"0", "1"}, min_length=0, max_length=max_len)
+
+        if as_partial_dfa:
+            dfa = dfa.to_partial()
 
         self.assertEqual(len(dfa._word_cache), 0)
         self.assertEqual(len(dfa._count_cache), 0)

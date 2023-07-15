@@ -10,7 +10,8 @@ authors = [
     {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
 ]
 maintainers = [
-    {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
+    {name = 'Caleb Evans', email = 'caleb@calebevans.me'},
+    {name = 'Eliot W. Robson', email = 'eliot.robson24@gmail.com'},
 ]
 dependencies = [
     "networkx>=2.6.2",
@@ -44,7 +45,8 @@ module = [
   "setuptools.*",
   "networkx.*",
   "pygraphviz.*",
-  "cached_method.*"
+  "cached_method.*",
+  "nose2.tools.*"
 ]
 ignore_missing_imports = true
 
