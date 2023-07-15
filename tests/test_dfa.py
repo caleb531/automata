@@ -2082,7 +2082,9 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(subsequence_dfa, equiv_dfa)
 
         subset_dfa = DFA.from_finite_language(
-            input_symbols, {"naooono", "bananano", "onbaonbo", "ooonano"}, as_partial_dfa
+            input_symbols,
+            {"naooono", "bananano", "onbaonbo", "ooonano"},
+            as_partial_dfa,
         )
         self.assertTrue(subset_dfa < subsequence_dfa)
 
@@ -2155,7 +2157,9 @@ class TestDFA(test_fa.TestFA):
             "1111",
         ]
         self.assertListEqual(list(dfa3), expected)
-        self.assertEqual(dfa3, DFA.from_finite_language(binary, set(expected), as_partial_dfa))
+        self.assertEqual(
+            dfa3, DFA.from_finite_language(binary, set(expected), as_partial_dfa)
+        )
         self.assertEqual(dfa1, dfa2.union(dfa3))
         self.assertEqual(dfa3.minimum_word_length(), 0)
         self.assertEqual(dfa3.maximum_word_length(), 4)
