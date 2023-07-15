@@ -67,6 +67,35 @@ class TestDFA(test_fa.TestFA):
         final_states={"q4"},
     )
 
+    # This DFA accepts all words which contain either zero
+    # or one occurrence of 1
+    zero_or_one_1_dfa = DFA(
+        states={"q0", "q1", "q2"},
+        input_symbols={"0", "1"},
+        transitions={
+            "q0": {"0": "q0", "1": "q1"},
+            "q1": {"0": "q1", "1": "q2"},
+            "q2": {"0": "q2", "1": "q2"},
+        },
+        initial_state="q0",
+        final_states={"q0", "q1"},
+    )
+
+    # This DFA has no reachable final states and
+    # therefore is finite.
+    no_reachable_final_dfa = DFA(
+        states={"q0", "q1", "q2", "q3"},
+        input_symbols={"0", "1"},
+        transitions={
+            "q0": {"0": "q0", "1": "q1"},
+            "q1": {"0": "q1", "1": "q2"},
+            "q2": {"0": "q0", "1": "q1"},
+            "q3": {"0": "q2", "1": "q1"},
+        },
+        initial_state="q0",
+        final_states={"q3"},
+    )
+
     def test_init_dfa(self) -> None:
         """Should copy DFA if passed into DFA constructor."""
         new_dfa = self.dfa.copy()
@@ -254,21 +283,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
-
-        # This DFA accepts all words which contain either zero
-        # or one occurrence of 1
-        zero_or_one_1_dfa = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
-        self.assertNotEqual(self.no_consecutive_11_dfa, zero_or_one_1_dfa)
+        self.assertNotEqual(self.no_consecutive_11_dfa, self.zero_or_one_1_dfa)
 
     def test_equivalence_partials(self) -> None:
         self.assertEqual(self.partial_dfa, self.partial_dfa.to_complete())
@@ -553,45 +568,21 @@ class TestDFA(test_fa.TestFA):
 
     def test_issubset(self) -> None:
         """Should test if one DFA is a subset of another"""
-        # This DFA accepts all words which contain either zero
-        # or one occurrence of 1
-        zero_or_one_1_dfa = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
+
         # Test both proper subset and subset with each set as left hand side
-        self.assertTrue(zero_or_one_1_dfa < self.no_consecutive_11_dfa)
-        self.assertTrue(zero_or_one_1_dfa <= self.no_consecutive_11_dfa)
-        self.assertFalse(self.no_consecutive_11_dfa < zero_or_one_1_dfa)
-        self.assertFalse(self.no_consecutive_11_dfa <= zero_or_one_1_dfa)
+        self.assertTrue(self.zero_or_one_1_dfa < self.no_consecutive_11_dfa)
+        self.assertTrue(self.zero_or_one_1_dfa <= self.no_consecutive_11_dfa)
+        self.assertFalse(self.no_consecutive_11_dfa < self.zero_or_one_1_dfa)
+        self.assertFalse(self.no_consecutive_11_dfa <= self.zero_or_one_1_dfa)
 
     def test_issuperset(self) -> None:
         """Should test if one DFA is a superset of another"""
-        # This DFA accepts all words which contain either zero
-        # or one occurrence of 1
-        zero_or_one_1_dfa = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
+
         # Test both proper subset and subset with each set as left hand side
-        self.assertFalse(zero_or_one_1_dfa > self.no_consecutive_11_dfa)
-        self.assertFalse(zero_or_one_1_dfa >= self.no_consecutive_11_dfa)
-        self.assertTrue(self.no_consecutive_11_dfa > zero_or_one_1_dfa)
-        self.assertTrue(self.no_consecutive_11_dfa >= zero_or_one_1_dfa)
+        self.assertFalse(self.zero_or_one_1_dfa > self.no_consecutive_11_dfa)
+        self.assertFalse(self.zero_or_one_1_dfa >= self.no_consecutive_11_dfa)
+        self.assertTrue(self.no_consecutive_11_dfa > self.zero_or_one_1_dfa)
+        self.assertTrue(self.no_consecutive_11_dfa >= self.zero_or_one_1_dfa)
 
     def test_symbol_mismatch(self) -> None:
         """Should test if symbol mismatch is raised"""
@@ -650,21 +641,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_isempty_empty(self) -> None:
         """Should test if an empty DFA is empty"""
-        # This DFA has no reachable final states and
-        # therefore accepts the empty language
-        dfa1 = DFA(
-            states={"q0", "q1", "q2", "q3"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q0", "1": "q1"},
-                "q3": {"0": "q2", "1": "q1"},
-            },
-            initial_state="q0",
-            final_states={"q3"},
-        )
-        self.assertTrue(dfa1.isempty())
+        self.assertTrue(self.no_reachable_final_dfa.isempty())
 
     def test_isfinite_infinite(self) -> None:
         """Should test if an infinite DFA is finite (case #1)"""
@@ -703,21 +680,8 @@ class TestDFA(test_fa.TestFA):
 
     def test_isfinite_empty(self) -> None:
         """Should test if an empty DFA is finite"""
-        # This DFA has no reachable final states and
-        # therefore is finite.
-        dfa = DFA(
-            states={"q0", "q1", "q2", "q3"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q0", "1": "q1"},
-                "q3": {"0": "q2", "1": "q1"},
-            },
-            initial_state="q0",
-            final_states={"q3"},
-        )
-        self.assertTrue(dfa.isfinite())
+
+        self.assertTrue(self.no_reachable_final_dfa.isfinite())
 
     def test_isfinite_universe(self) -> None:
         # This DFA accepts all binary strings and
