@@ -442,11 +442,9 @@ class DFA(fa.FA):
         graph = nx.DiGraph()
         graph.add_nodes_from(self.states)
         graph.add_edges_from(
-            (
-                (start_state, end_state)
-                for start_state, transition in self.transitions.items()
-                for end_state in transition.values()
-            )
+            (start_state, end_state)
+            for start_state, transition in self.transitions.items()
+            for end_state in transition.values()
         )
 
         return graph
