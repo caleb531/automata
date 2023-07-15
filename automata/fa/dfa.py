@@ -238,7 +238,7 @@ class DFA(fa.FA):
         return self.cardinality()
 
     # Supports partial (test)
-    def as_partial(self) -> Self:
+    def to_partial(self) -> Self:
         """
         Turns a DFA (complete or not) into a partial DFA.
         Removes dead states and trap states (except the initial state)

@@ -10,6 +10,7 @@ from itertools import product
 from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
+from nose2.tools import params
 
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
@@ -21,6 +22,34 @@ class TestDFA(test_fa.TestFA):
     """A test class for testing deterministic finite automata."""
 
     temp_dir_path = tempfile.gettempdir()
+
+    partial_dfa = DFA(
+        states=set(range(4)),
+        input_symbols={"0", "1"},
+        transitions={
+            0: {"1": 1},
+            1: {"1": 2},
+            2: {"1": 3},
+            3: {},
+        },
+        initial_state=0,
+        final_states={3},
+        allow_partial=True,
+    )
+
+    # This DFA accepts all words which do not contain two
+    # consecutive occurrences of 1
+    no_consecutive_11_dfa = DFA(
+        states={"q0", "q1", "q2"},
+        input_symbols={"0", "1"},
+        transitions={
+            "q0": {"0": "q0", "1": "q1"},
+            "q1": {"0": "q0", "1": "q2"},
+            "q2": {"0": "q2", "1": "q2"},
+        },
+        initial_state="q0",
+        final_states={"q0", "q1"},
+    )
 
     def test_init_dfa(self) -> None:
         """Should copy DFA if passed into DFA constructor."""
@@ -222,19 +251,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
-        # This DFA accepts all words which do not contain two
-        # consecutive occurrences of 1
-        no_consecutive_11_dfa = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q0", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
+
         # This DFA accepts all words which contain either zero
         # or one occurrence of 1
         zero_or_one_1_dfa = DFA(
@@ -248,39 +265,19 @@ class TestDFA(test_fa.TestFA):
             initial_state="q0",
             final_states={"q0", "q1"},
         )
-        self.assertNotEqual(no_consecutive_11_dfa, zero_or_one_1_dfa)
+        self.assertNotEqual(self.no_consecutive_11_dfa, zero_or_one_1_dfa)
+
+    def test_equivalence_partials(self) -> None:
+        self.assertEqual(self.partial_dfa, self.partial_dfa.to_complete())
 
     def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
-        no_consecutive_11_dfa = DFA(
-            states={"q0", "q1", "q2", "q3"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q3", "1": "q1"},
-                "q1": {"0": "q0", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-                "q3": {"0": "q0", "1": "q1"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1", "q3"},
-        )
-        minimal_dfa = no_consecutive_11_dfa.minify()
-        self.assertEqual(no_consecutive_11_dfa, minimal_dfa)
+        minimal_dfa = self.no_consecutive_11_dfa.minify()
+        self.assertEqual(self.no_consecutive_11_dfa, minimal_dfa)
 
     def test_equivalence_two_non_minimal(self) -> None:
         """Should be equivalent even though they are non minimal."""
-        no_consecutive_11_dfa = DFA(
-            states={"q0", "q1", "q2", "q3"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q3", "1": "q1"},
-                "q1": {"0": "q0", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-                "q3": {"0": "q0", "1": "q1"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1", "q3"},
-        )
+
         other_dfa = DFA(
             states={"q0", "q1", "q2", "q3"},
             input_symbols={"0", "1"},
@@ -293,31 +290,23 @@ class TestDFA(test_fa.TestFA):
             initial_state="q0",
             final_states={"q0", "q1"},
         )
-        self.assertEqual(no_consecutive_11_dfa, other_dfa)
+        self.assertEqual(self.no_consecutive_11_dfa, other_dfa)
 
     def test_complement(self) -> None:
         """Should compute the complement of a DFA"""
-        no_consecutive_11_dfa = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q0", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
-        complement_dfa = no_consecutive_11_dfa.complement(
+
+        complement_dfa = self.no_consecutive_11_dfa.complement(
             retain_names=True, minify=False
         )
-        self.assertEqual(complement_dfa.states, no_consecutive_11_dfa.states)
+        self.assertEqual(complement_dfa.states, self.no_consecutive_11_dfa.states)
         self.assertEqual(
-            complement_dfa.input_symbols, no_consecutive_11_dfa.input_symbols
+            complement_dfa.input_symbols, self.no_consecutive_11_dfa.input_symbols
         )
-        self.assertEqual(complement_dfa.transitions, no_consecutive_11_dfa.transitions)
         self.assertEqual(
-            complement_dfa.initial_state, no_consecutive_11_dfa.initial_state
+            complement_dfa.transitions, self.no_consecutive_11_dfa.transitions
+        )
+        self.assertEqual(
+            complement_dfa.initial_state, self.no_consecutive_11_dfa.initial_state
         )
         self.assertEqual(complement_dfa.final_states, {"q2"})
 
@@ -649,19 +638,6 @@ class TestDFA(test_fa.TestFA):
 
     def test_issubset(self) -> None:
         """Should test if one DFA is a subset of another"""
-        # This DFA accepts all words which do not contain two
-        # consecutive occurrences of 1
-        no_consecutive_11_dfa = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q0", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
         # This DFA accepts all words which contain either zero
         # or one occurrence of 1
         zero_or_one_1_dfa = DFA(
@@ -676,26 +652,13 @@ class TestDFA(test_fa.TestFA):
             final_states={"q0", "q1"},
         )
         # Test both proper subset and subset with each set as left hand side
-        self.assertTrue(zero_or_one_1_dfa < no_consecutive_11_dfa)
-        self.assertTrue(zero_or_one_1_dfa <= no_consecutive_11_dfa)
-        self.assertFalse(no_consecutive_11_dfa < zero_or_one_1_dfa)
-        self.assertFalse(no_consecutive_11_dfa <= zero_or_one_1_dfa)
+        self.assertTrue(zero_or_one_1_dfa < self.no_consecutive_11_dfa)
+        self.assertTrue(zero_or_one_1_dfa <= self.no_consecutive_11_dfa)
+        self.assertFalse(self.no_consecutive_11_dfa < zero_or_one_1_dfa)
+        self.assertFalse(self.no_consecutive_11_dfa <= zero_or_one_1_dfa)
 
     def test_issuperset(self) -> None:
         """Should test if one DFA is a superset of another"""
-        # This DFA accepts all words which do not contain two
-        # consecutive occurrences of 1
-        no_consecutive_11_dfa = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q0", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
         # This DFA accepts all words which contain either zero
         # or one occurrence of 1
         zero_or_one_1_dfa = DFA(
@@ -710,26 +673,13 @@ class TestDFA(test_fa.TestFA):
             final_states={"q0", "q1"},
         )
         # Test both proper subset and subset with each set as left hand side
-        self.assertFalse(zero_or_one_1_dfa > no_consecutive_11_dfa)
-        self.assertFalse(zero_or_one_1_dfa >= no_consecutive_11_dfa)
-        self.assertTrue(no_consecutive_11_dfa > zero_or_one_1_dfa)
-        self.assertTrue(no_consecutive_11_dfa >= zero_or_one_1_dfa)
+        self.assertFalse(zero_or_one_1_dfa > self.no_consecutive_11_dfa)
+        self.assertFalse(zero_or_one_1_dfa >= self.no_consecutive_11_dfa)
+        self.assertTrue(self.no_consecutive_11_dfa > zero_or_one_1_dfa)
+        self.assertTrue(self.no_consecutive_11_dfa >= zero_or_one_1_dfa)
 
     def test_symbol_mismatch(self) -> None:
         """Should test if symbol mismatch is raised"""
-        # This DFA accepts all words which do not contain two
-        # consecutive occurrences of 1
-        no_consecutive_11_dfa = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q0", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
         # This DFA accepts all words which contain either zero
         # or one occurrence of b
         zero_or_one_b_dfa = DFA(
@@ -744,10 +694,10 @@ class TestDFA(test_fa.TestFA):
             final_states={"q0", "q1"},
         )
         with self.assertRaises(exceptions.SymbolMismatchError):
-            zero_or_one_b_dfa.issubset(no_consecutive_11_dfa)
+            zero_or_one_b_dfa.issubset(self.no_consecutive_11_dfa)
 
         with self.assertRaises(exceptions.SymbolMismatchError):
-            zero_or_one_b_dfa.difference(no_consecutive_11_dfa)
+            zero_or_one_b_dfa.difference(self.no_consecutive_11_dfa)
 
     def test_isdisjoint(self) -> None:
         """Should test if two DFAs are disjoint"""
