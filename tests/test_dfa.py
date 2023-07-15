@@ -51,6 +51,22 @@ class TestDFA(test_fa.TestFA):
         final_states={"p0", "p1"},
     )
 
+    # This DFA accepts all words which contain at least four
+    # occurrences of 1
+    at_least_four_ones = DFA(
+        states={"q0", "q1", "q2", "q3", "q4"},
+        input_symbols={"0", "1"},
+        transitions={
+            "q0": {"0": "q0", "1": "q1"},
+            "q1": {"0": "q1", "1": "q2"},
+            "q2": {"0": "q2", "1": "q3"},
+            "q3": {"0": "q3", "1": "q4"},
+            "q4": {"0": "q4", "1": "q4"},
+        },
+        initial_state="q0",
+        final_states={"q4"},
+    )
+
     def test_init_dfa(self) -> None:
         """Should copy DFA if passed into DFA constructor."""
         new_dfa = self.dfa.copy()
@@ -301,19 +317,7 @@ class TestDFA(test_fa.TestFA):
         """Should compute the union between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
-        dfa1 = DFA(
-            states={"q0", "q1", "q2", "q3", "q4"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q3"},
-                "q3": {"0": "q3", "1": "q4"},
-                "q4": {"0": "q4", "1": "q4"},
-            },
-            initial_state="q0",
-            final_states={"q4"},
-        )
+        dfa1 = self.at_least_four_ones
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         dfa2 = self.no_consecutive_11_dfa
@@ -377,19 +381,7 @@ class TestDFA(test_fa.TestFA):
         """Should compute the intersection between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
-        dfa1 = DFA(
-            states={"q0", "q1", "q2", "q3", "q4"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q3"},
-                "q3": {"0": "q3", "1": "q4"},
-                "q4": {"0": "q4", "1": "q4"},
-            },
-            initial_state="q0",
-            final_states={"q4"},
-        )
+        dfa1 = self.at_least_four_ones
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         dfa2 = self.no_consecutive_11_dfa
@@ -447,19 +439,7 @@ class TestDFA(test_fa.TestFA):
         """Should compute the difference between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
-        dfa1 = DFA(
-            states={"q0", "q1", "q2", "q3", "q4"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q3"},
-                "q3": {"0": "q3", "1": "q4"},
-                "q4": {"0": "q4", "1": "q4"},
-            },
-            initial_state="q0",
-            final_states={"q4"},
-        )
+        dfa1 = self.at_least_four_ones
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         dfa2 = self.no_consecutive_11_dfa
@@ -511,19 +491,7 @@ class TestDFA(test_fa.TestFA):
         """Should compute the symmetric difference between two DFAs"""
         # This DFA accepts all words which contain at least four
         # occurrences of 1
-        dfa1 = DFA(
-            states={"q0", "q1", "q2", "q3", "q4"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q3"},
-                "q3": {"0": "q3", "1": "q4"},
-                "q4": {"0": "q4", "1": "q4"},
-            },
-            initial_state="q0",
-            final_states={"q4"},
-        )
+        dfa1 = self.at_least_four_ones
         # This DFA accepts all words which do not contain two
         # consecutive occurrences of 1
         dfa2 = self.no_consecutive_11_dfa
@@ -1928,22 +1896,6 @@ class TestDFA(test_fa.TestFA):
             self.assertEqual(count, fib)
 
     def test_minimum_word_length(self) -> None:
-        # This DFA accepts all words which contain at least four
-        # occurrences of 1
-        at_least_four_ones = DFA(
-            states={"q0", "q1", "q2", "q3", "q4"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q3"},
-                "q3": {"0": "q3", "1": "q4"},
-                "q4": {"0": "q4", "1": "q4"},
-            },
-            initial_state="q0",
-            final_states={"q4"},
-        )
-
         # This DFA accepts all binary strings except the empty string
         at_least_one_symbol = DFA(
             states={"q0", "q1"},
@@ -1964,29 +1916,13 @@ class TestDFA(test_fa.TestFA):
             final_states=set(),
         )
 
-        self.assertEqual(at_least_four_ones.minimum_word_length(), 4)
+        self.assertEqual(self.at_least_four_ones.minimum_word_length(), 4)
         self.assertEqual(self.no_consecutive_11_dfa.minimum_word_length(), 0)
         self.assertEqual(at_least_one_symbol.minimum_word_length(), 1)
         with self.assertRaises(exceptions.EmptyLanguageException):
             empty.minimum_word_length()
 
     def test_maximum_word_length(self) -> None:
-        # This DFA accepts all words which contain at least four
-        # occurrences of 1
-        at_least_four_ones = DFA(
-            states={"q0", "q1", "q2", "q3", "q4"},
-            input_symbols={"0", "1"},
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q3"},
-                "q3": {"0": "q3", "1": "q4"},
-                "q4": {"0": "q4", "1": "q4"},
-            },
-            initial_state="q0",
-            final_states={"q4"},
-        )
-
         # This DFA accepts all binary strings except the empty string
         at_most_one_symbol = DFA(
             states={"q0", "q1", "q2"},
@@ -2008,7 +1944,7 @@ class TestDFA(test_fa.TestFA):
             final_states=set(),
         )
 
-        self.assertEqual(at_least_four_ones.maximum_word_length(), None)
+        self.assertEqual(self.at_least_four_ones.maximum_word_length(), None)
         self.assertEqual(self.no_consecutive_11_dfa.maximum_word_length(), None)
         self.assertEqual(at_most_one_symbol.maximum_word_length(), 1)
         with self.assertRaises(exceptions.EmptyLanguageException):
