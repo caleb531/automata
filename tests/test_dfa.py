@@ -1522,7 +1522,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(graph.graph_attr["size"], "3.3")
 
     @params(True, False)
-    def test_minimal_finite_language(self, allow_partial: bool) -> None:
+    def test_minimal_finite_language(self, as_partial_dfa: bool) -> None:
         """Should compute the minimal DFA accepting the given finite language"""
 
         # Same language described in the book this algorithm comes from
@@ -1560,24 +1560,27 @@ class TestDFA(test_fa.TestFA):
             final_states={4, 9},
         )
 
-        if allow_partial:
+        if as_partial_dfa:
             equiv_dfa = equiv_dfa.to_partial()
 
         minimal_dfa = DFA.from_finite_language(
-            {"a", "b"}, language, as_partial_dfa=allow_partial
+            {"a", "b"}, language, as_partial_dfa=as_partial_dfa
         )
 
         self.assertEqual(len(minimal_dfa.states), len(equiv_dfa.states))
         self.assertEqual(minimal_dfa, equiv_dfa)
 
-    def test_minimal_finite_language_large(self) -> None:
+    @params(True, False)
+    def test_minimal_finite_language_large(self, as_partial_dfa: bool) -> None:
         """Should compute the minimal DFA accepting the given finite language on
         large test case"""
         m = 50
         n = 50
         language = {("a" * i + "b" * j) for i, j in product(range(n), range(m))}
 
-        equiv_dfa = DFA.from_finite_language({"a", "b"}, language)
+        equiv_dfa = DFA.from_finite_language(
+            {"a", "b"}, language, as_partial_dfa=as_partial_dfa
+        )
         minimal_dfa = equiv_dfa.minify()
 
         self.assertEqual(equiv_dfa, minimal_dfa)
