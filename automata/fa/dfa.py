@@ -328,11 +328,6 @@ class DFA(fa.FA):
             allow_partial=False,
         )
 
-    # Supports partial (test)
-    def edge_count(self) -> int:
-        """Returns the number of DFA edges"""
-        return sum(len(lookup) for lookup in self.transitions.values())
-
     # Supports partial
     def _validate_transition_missing_symbols(
         self, start_state: DFAStateT, paths: DFAPathT
