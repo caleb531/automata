@@ -598,12 +598,15 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(self.no_consecutive_11_dfa <= self.zero_or_one_1_dfa)
 
         single_string_dfa = DFA.from_finite_language(
-            {"0", "1"}, "101", as_partial_dfa=True
+            {"0", "1"}, {"101"}, as_partial_dfa=True
         )
 
         # Test interop with partial DFA
+        self.assertFalse(self.partial_dfa < self.zero_or_one_1_dfa)
+        self.assertFalse(self.partial_dfa <= self.zero_or_one_1_dfa)
+
         self.assertTrue(single_string_dfa < self.no_consecutive_11_dfa)
-        self.assertTrue(single_string_dfa < self.zero_or_one_1_dfa)
+        self.assertTrue(single_string_dfa <= self.no_consecutive_11_dfa)
 
     def test_issuperset(self) -> None:
         """Should test if one DFA is a superset of another"""
@@ -611,8 +614,20 @@ class TestDFA(test_fa.TestFA):
         # Test both proper subset and subset with each set as left hand side
         self.assertFalse(self.zero_or_one_1_dfa > self.no_consecutive_11_dfa)
         self.assertFalse(self.zero_or_one_1_dfa >= self.no_consecutive_11_dfa)
+
         self.assertTrue(self.no_consecutive_11_dfa > self.zero_or_one_1_dfa)
         self.assertTrue(self.no_consecutive_11_dfa >= self.zero_or_one_1_dfa)
+
+        single_string_dfa = DFA.from_finite_language(
+            {"0", "1"}, {"101"}, as_partial_dfa=True
+        )
+
+        # Test interop with partial DFA
+        self.assertFalse(self.zero_or_one_1_dfa > self.partial_dfa)
+        self.assertFalse(self.zero_or_one_1_dfa >= self.partial_dfa)
+
+        self.assertTrue(self.no_consecutive_11_dfa > single_string_dfa)
+        self.assertTrue(self.no_consecutive_11_dfa >= single_string_dfa)
 
     def test_symbol_mismatch(self) -> None:
         """Should test if symbol mismatch is raised"""
@@ -647,8 +662,16 @@ class TestDFA(test_fa.TestFA):
 
         self.assertTrue(at_least_three_1.isdisjoint(self.zero_or_one_1_dfa))
         self.assertTrue(self.zero_or_one_1_dfa.isdisjoint(at_least_three_1))
+
         self.assertFalse(at_least_three_1.isdisjoint(at_least_one_1))
         self.assertFalse(self.zero_or_one_1_dfa.isdisjoint(at_least_one_1))
+
+        # Test interop with partial DFA
+        self.assertTrue(self.zero_or_one_1_dfa.isdisjoint(self.partial_dfa))
+        self.assertTrue(self.partial_dfa.isdisjoint(self.zero_or_one_1_dfa))
+
+        self.assertFalse(at_least_three_1.isdisjoint(self.partial_dfa))
+        self.assertFalse(self.partial_dfa.isdisjoint(at_least_three_1))
 
     def test_isempty_non_empty(self) -> None:
         """Should test if a non-empty DFA is empty"""
