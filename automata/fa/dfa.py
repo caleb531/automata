@@ -277,7 +277,7 @@ class DFA(fa.FA):
         return next(x for x in count(-1, -1) if x not in self.states)
 
     # Supports partial (test)
-    def to_complete(self) -> Self:
+    def to_complete(self, trap_state: Optional[DFAStateT] = None) -> Self:
         """
         Turns a DFA (complete or not) into a complete DFA.
         Might add trap state if the DFA does not have any
@@ -285,12 +285,15 @@ class DFA(fa.FA):
         if not self.allow_partial:
             return self.copy()
 
+        if trap_state is None:
+            trap_state = self.get_trap_state_id()
+
         return self._to_complete(
             input_symbols=self.input_symbols,
             transitions=self.transitions,
             initial_state=self.initial_state,
             final_states=self.final_states,
-            trap_state=self.get_trap_state_id(),
+            trap_state=trap_state,
         )
 
     @classmethod
@@ -1727,70 +1730,35 @@ class DFA(fa.FA):
         *,
         retain_names: bool = False,
         minify: bool = True,
+        as_partial: bool = True,
     ) -> Self:
         """Initialize this DFA as one equivalent to the given NFA."""
 
-        # Data structures for state renaming
+        def subset_function(current_states: FrozenSet[DFAStateT]) -> bool:
+            return not current_states.isdisjoint(target_nfa.final_states)
 
-        def get_name_original(states: FrozenSet[DFAStateT]) -> DFAStateT:
-            return states
+        def expand_state_fn(
+            current_states: FrozenSet[DFAStateT],
+        ) -> ExpandStateReturnType:
+            yield from target_nfa._iterate_through_symbol_path_pairs(current_states)
 
-        get_name = (
-            get_name_original if retain_names else get_renaming_function(count(0))
-        )
-
-        # equivalent DFA states states
-        nfa_initial_states = frozenset(
+        initial_state = frozenset(
             target_nfa._get_lambda_closures()[target_nfa.initial_state]
         )
-        dfa_initial_state = get_name(nfa_initial_states)
-        dfa_final_states = set()
 
-        dfa_states = {dfa_initial_state}
-        dfa_symbols = target_nfa.input_symbols
-        dfa_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
-
-        state_queue: Deque[FrozenSet[nfa.NFAStateT]] = deque()
-        state_queue.append(nfa_initial_states)
-        while state_queue:
-            current_states = state_queue.popleft()
-            current_state_name = get_name(current_states)
-
-            # Add NFA states to DFA as it is constructed from NFA.
-            path_dict = dfa_transitions.setdefault(current_state_name, {})
-            if not current_states.isdisjoint(target_nfa.final_states):
-                dfa_final_states.add(current_state_name)
-
-            # Enqueue the next set of current states for the generated DFA.
-            for (
-                input_symbol,
-                next_current_states,
-            ) in target_nfa._iterate_through_symbol_path_pairs(current_states):
-                next_current_states_name = get_name(next_current_states)
-                path_dict[input_symbol] = next_current_states_name
-
-                # Only enqueue a state if it has not been seen yet.
-                if next_current_states_name not in dfa_states:
-                    dfa_states.add(next_current_states_name)
-                    state_queue.append(next_current_states)
-
-        if minify:
-            return cls._minify(
-                reachable_states=dfa_states,
-                input_symbols=dfa_symbols,
-                transitions=dfa_transitions,
-                initial_state=dfa_initial_state,
-                reachable_final_states=dfa_final_states,
-                retain_names=retain_names,
-            )
-
-        return cls._to_complete(
-            input_symbols=dfa_symbols,
-            transitions=dfa_transitions,
-            initial_state=dfa_initial_state,
-            final_states=dfa_final_states,
-            trap_state=frozenset(),
+        result = cls._expand_dfa(
+            subset_function,
+            initial_state,
+            expand_state_fn,
+            target_nfa.input_symbols,
+            retain_names=retain_names,
+            minify=minify,
         )
+
+        if as_partial:
+            return result
+
+        return result.to_complete(frozenset())
 
     def iter_transitions(
         self,
