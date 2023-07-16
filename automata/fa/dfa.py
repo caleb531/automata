@@ -280,13 +280,18 @@ class DFA(fa.FA):
     def to_complete(self, trap_state: Optional[DFAStateT] = None) -> Self:
         """
         Turns a DFA (complete or not) into a complete DFA.
-        Might add trap state if the DFA does not have any
+        Will add trap_state to the state set if there are any missing transitions.
         """
         if not self.allow_partial:
             return self.copy()
 
         if trap_state is None:
             trap_state = self.get_trap_state_id()
+        elif trap_state in self.states:
+            raise exceptions.InvalidStateError(
+                f"state {trap_state} is already in the state set and "
+                "cannot be used as a label for the trap state."
+            )
 
         return self._to_complete(
             input_symbols=self.input_symbols,
@@ -306,6 +311,11 @@ class DFA(fa.FA):
         final_states: AbstractSet[DFAStateT],
         trap_state: DFAStateT,
     ) -> Self:
+        """
+        Internal helper function taking in a description of a partial DFA and
+        returning a corresponding complete DFA.
+        """
+        # TODO remove some of this logic, we now assume the DFA is partial.
         added_trap_state = False
         new_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {
             state: dict(state_path) for state, state_path in transitions.items()
@@ -877,12 +887,18 @@ class DFA(fa.FA):
         trap_a = lhs.get_trap_state_id()
         trap_b = rhs.get_trap_state_id()
 
+        # TODO if anyone ever has issues with this function being too slow,
+        # there is a way to speed this up in special cases with some complicated
+        # logic with the lhs_relevant and rhs_relevant booleans and the inner
+        # chr loop below.
+
         def expand_state_fn(state: DFAStateT) -> ExpandStateReturnType:
             q_a, q_b = state
+            # Have to use .get() here since these might be trap states
             transitions_a = lhs.transitions.get(q_a, {})
             transitions_b = rhs.transitions.get(q_b, {})
 
-            for chr in lhs.input_symbols:
+            for chr in (transitions_a.keys() | transitions_b.keys()):
                 # Equivalent to reaching the trap state, skip ahead if irrelevant
                 if not lhs_relevant and chr not in transitions_a:
                     continue
