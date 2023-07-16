@@ -30,6 +30,7 @@ class TestDFA(test_fa.TestFA):
 
     temp_dir_path = tempfile.gettempdir()
 
+    # A partial DFA that accepts the string "111" only
     partial_dfa = DFA(
         states=set(range(4)),
         input_symbols={"0", "1"},
@@ -595,6 +596,12 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(self.zero_or_one_1_dfa <= self.no_consecutive_11_dfa)
         self.assertFalse(self.no_consecutive_11_dfa < self.zero_or_one_1_dfa)
         self.assertFalse(self.no_consecutive_11_dfa <= self.zero_or_one_1_dfa)
+
+        single_string_dfa = DFA.from_finite_language({"0", "1"}, "101", as_partial_dfa=True)
+
+        # Test interop with partial DFA
+        self.assertTrue(single_string_dfa < self.no_consecutive_11_dfa)
+        self.assertTrue(single_string_dfa < self.zero_or_one_1_dfa)
 
     def test_issuperset(self) -> None:
         """Should test if one DFA is a superset of another"""
