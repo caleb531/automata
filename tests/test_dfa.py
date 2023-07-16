@@ -290,7 +290,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_to_complete_trap_state_exception(self) -> None:
         with self.assertRaises(exceptions.InvalidStateError):
-            self.dfa.to_complete("q0")
+            self.partial_dfa.to_complete(0)
 
     def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
