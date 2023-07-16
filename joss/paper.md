@@ -32,6 +32,16 @@ functionality for parsing regular expressions into their corresponding finite-st
 
 # Statement of need
 
+Although there are other packages in the Python software ecosystem that allow for working with
+various kinds of automata, they are often niche and lack things like a comprehensive test suite that
+allow for more rapid development. This leads to these packages being unable to adopt features that
+would be useful to researchers and students alike, such as sophisticated construction and manipulation
+algorithms. Moreover, Python is a popular tool for students and researchers, meaning the availability
+of a high-quality software package is likely to encourage the further exploration of these structures
+in the academic community.
+
+# The `automata` package
+
 `automata` is a Python package for the manipulation and simulation of automata from the families listed above.
 The API is designed to mimic the formal mathematical description of each automata using built-in Python data structures. As a popular high-level language, Python enables greater flexibility and easy-of-use that is difficult
 to achieve with a low-level language (e.g., Rust). The algorithms in the package have been optimized for
@@ -40,7 +50,7 @@ greater optimization by the integration of lower-level technologies (e.g., Cytho
 retaining the same high-level API, allowing for integration of more performant features as-needed by
 the user base.
 
-Of note are some sophisticated algorithms implemented in the package for finite-state automata:
+Of note are some sophisticated and useful algorithms implemented in the package for finite-state automata:
 
 - An optimized version of the Hopcroft-Karp algorithm to determine whether two deterministic finite automata (DFA) are equivalent [@AlmeidaMR10].
 
@@ -50,6 +60,9 @@ Of note are some sophisticated algorithms implemented in the package for finite-
 
 - A specialized algorithm for directly constructing a state-minimal DFA accepting a given
 finite language [@mihov_schulz_2019].
+
+- A specialized algorithm for directly constructing a minimal DFA recognizing strings containing
+a given substring [@Knuth77].
 
 To the authors knowledge, this is the only Python package implementing a number of the algorithms stated above. 
 
@@ -61,6 +74,11 @@ On the educational side, the package includes visualization logic that allows st
 interact with these structures in an exploratory manner, and has already seen usage in
 undergraduate courses. The package has already been cited in publications [@Erickson23], with more
 to come as the package matures. 
+
+The package has seen a large number of contributions by external contributors and wide adoption, 
+demonstrating the demand for a high-quality Python package providing these features. The code is
+well maintained, including a comprehensive test suite and type annotations, meaning new features
+can be incorporated from requests by the community at a rapid pace.
 
 # Example usage
 
