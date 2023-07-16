@@ -68,8 +68,7 @@ class DFA(fa.FA):
     allow_partial: bool
     _word_cache: List[DefaultDict[DFAStateT, List[str]]]
     _count_cache: List[DefaultDict[DFAStateT, int]]
-
-    # Supports partial
+    
     def __init__(
         self,
         *,
@@ -100,7 +99,6 @@ class DFA(fa.FA):
         object.__setattr__(self, "_word_cache", [])
         object.__setattr__(self, "_count_cache", [])
 
-    # Supports partial (no modification, but test)
     def __eq__(self, other: Any) -> bool:
         """
         Return True if two DFAs are equivalent. Uses an optimized version of
@@ -152,7 +150,6 @@ class DFA(fa.FA):
 
         return True
 
-    # Supports partial
     def __le__(self, other: DFA) -> bool:
         """Return True if this DFA is a subset of (or equal to) another DFA."""
         if isinstance(other, DFA):
@@ -160,7 +157,6 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    # Supports partial
     def __ge__(self, other: DFA) -> bool:
         """Return True if this DFA is a superset of another DFA."""
         if isinstance(other, DFA):
@@ -168,7 +164,6 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    # Supports partial
     def __lt__(self, other: DFA) -> bool:
         """Return True if this DFA is a strict subset of another DFA."""
         if isinstance(other, DFA):
@@ -176,7 +171,6 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    # Supports partial
     def __gt__(self, other: DFA) -> bool:
         """Return True if this DFA is a strict superset of another DFA."""
         if isinstance(other, DFA):
@@ -184,7 +178,6 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    # Supports partial
     def __sub__(self, other: DFA) -> Self:
         """Return a DFA that is the difference of this DFA and another DFA."""
         if isinstance(other, DFA):
@@ -192,7 +185,6 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    # Supports partial
     def __or__(self, other: DFA) -> Self:
         """Return the union of this DFA and another DFA."""
         if isinstance(other, DFA):
@@ -200,7 +192,6 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    # Supports partial
     def __and__(self, other: DFA) -> Self:
         """Return the intersection of this DFA and another DFA."""
         if isinstance(other, DFA):
@@ -208,7 +199,6 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    # Supports partial
     def __xor__(self, other: DFA) -> Self:
         """Return the symmetric difference of this DFA and another DFA."""
         if isinstance(other, DFA):
@@ -216,12 +206,10 @@ class DFA(fa.FA):
         else:
             return NotImplemented
 
-    # Supports partial
     def __invert__(self) -> Self:
         """Return the complement of this DFA and another DFA."""
         return self.complement()
 
-    # Supports partial
     def __iter__(self) -> Iterator[str]:
         """
         Iterates through all words in the language represented by the DFA. The
@@ -234,12 +222,10 @@ class DFA(fa.FA):
             yield from self.words_of_length(i)
             i += 1
 
-    # Supports partial
     def __len__(self) -> int:
         """Returns the cardinality of the language represented by the DFA."""
         return self.cardinality()
 
-    # Supports partial (test)
     def to_partial(self) -> Self:
         """
         Turns a DFA (complete or not) into a partial DFA.
@@ -278,7 +264,6 @@ class DFA(fa.FA):
     def get_trap_state_id(self) -> DFAStateT:
         return next(x for x in count(-1, -1) if x not in self.states)
 
-    # Supports partial (test)
     def to_complete(self, trap_state: Optional[DFAStateT] = None) -> Self:
         """
         Turns a DFA (complete or not) into a complete DFA.
@@ -337,7 +322,6 @@ class DFA(fa.FA):
             allow_partial=False,
         )
 
-    # Supports partial
     def _validate_transition_missing_symbols(
         self, start_state: DFAStateT, paths: DFAPathT
     ) -> None:
@@ -351,7 +335,6 @@ class DFA(fa.FA):
                     f'for symbol "{input_symbol}"'
                 )
 
-    # Supports partial
     def _validate_transition_invalid_symbols(
         self, start_state: DFAStateT, paths: DFAPathT
     ) -> None:
@@ -363,7 +346,6 @@ class DFA(fa.FA):
                     f' "{input_symbol}"'
                 )
 
-    # Supports partial
     def _validate_transition_start_states(self) -> None:
         """Raise an error if transition start states are missing."""
         for state in self.states:
@@ -372,7 +354,6 @@ class DFA(fa.FA):
                     f"transition start state {state} is missing"
                 )
 
-    # Supports partial
     def _validate_transition_end_states(
         self, start_state: DFAStateT, paths: DFAPathT
     ) -> None:
@@ -384,14 +365,12 @@ class DFA(fa.FA):
                     f"{start_state} is not valid"
                 )
 
-    # Supports partial
     def _validate_transitions(self, start_state: DFAStateT, paths: DFAPathT) -> None:
         """Raise an error if transitions are missing or invalid."""
         self._validate_transition_missing_symbols(start_state, paths)
         self._validate_transition_invalid_symbols(start_state, paths)
         self._validate_transition_end_states(start_state, paths)
 
-    # Supports partial
     def validate(self) -> None:
         """Return True if this DFA is internally consistent."""
         self._validate_transition_start_states()
@@ -400,7 +379,6 @@ class DFA(fa.FA):
         self._validate_initial_state()
         self._validate_final_states()
 
-    # Supports partial
     def _get_next_current_state(
         self, current_state: DFAStateT, input_symbol: str
     ) -> Optional[DFAStateT]:
@@ -416,7 +394,6 @@ class DFA(fa.FA):
             return self.transitions[current_state][input_symbol]
         return None
 
-    # Supports partial
     def _check_for_input_rejection(self, current_state: DFAStateT) -> None:
         """Raise an error if the given config indicates rejected input."""
         if current_state not in self.final_states:
@@ -424,7 +401,6 @@ class DFA(fa.FA):
                 f"the DFA stopped on a non-final state ({current_state})"
             )
 
-    # Supports partial
     def read_input_stepwise(
         self, input_str: str, ignore_rejection: bool = False
     ) -> Generator[AbstractSet[DFAStateT], None, None]:
@@ -443,7 +419,6 @@ class DFA(fa.FA):
         if not ignore_rejection:
             self._check_for_input_rejection(current_state)
 
-    # Supports partial
     @cached_method
     def _get_digraph(self) -> nx.DiGraph:
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
@@ -458,7 +433,6 @@ class DFA(fa.FA):
 
         return graph
 
-    # Supports partial
     def minify(self, retain_names: bool = False) -> Self:
         """
         Create a minimal DFA which accepts the same inputs as this DFA.
@@ -485,7 +459,6 @@ class DFA(fa.FA):
             retain_names=retain_names,
         )
 
-    # Supports partial (test)
     @classmethod
     def _minify(
         cls: Type[Self],
@@ -583,7 +556,6 @@ class DFA(fa.FA):
             allow_partial=allow_partial,
         )
 
-    # Supports partial (test)
     def union(
         self, other: DFA, *, retain_names: bool = False, minify: bool = True
     ) -> Self:
@@ -610,7 +582,6 @@ class DFA(fa.FA):
             minify=minify,
         )
 
-    # Supports partial (test)
     def intersection(
         self, other: DFA, *, retain_names: bool = False, minify: bool = True
     ) -> Self:
@@ -637,7 +608,6 @@ class DFA(fa.FA):
             minify=minify,
         )
 
-    # Supports partial (test)
     def difference(
         self, other: DFA, *, retain_names: bool = False, minify: bool = True
     ) -> Self:
@@ -664,7 +634,6 @@ class DFA(fa.FA):
             minify=minify,
         )
 
-    # Supports partial (test)
     def symmetric_difference(
         self, other: DFA, *, retain_names: bool = False, minify: bool = True
     ) -> Self:
@@ -693,7 +662,6 @@ class DFA(fa.FA):
             minify=minify,
         )
 
-    # Supports partial (test)
     def complement(self, *, retain_names: bool = False, minify: bool = True) -> Self:
         """Return the complement of this DFA."""
 
@@ -726,7 +694,6 @@ class DFA(fa.FA):
             final_states=complete_dfa.states - complete_dfa.final_states,
         )
 
-    # Supports partial
     @staticmethod
     def _bfs_edges(
         initial_state: DFAStateT,
@@ -749,7 +716,6 @@ class DFA(fa.FA):
                     visited_set.add(tgt_state)
                     queue.append(tgt_state)
 
-    # Supports partial
     @staticmethod
     def _bfs_states(
         initial_state: DFAStateT, expand_state_fn: ExpandStateFn
@@ -771,7 +737,6 @@ class DFA(fa.FA):
                     visited_set.add(tgt_state)
                     queue.append(tgt_state)
 
-    # Supports partial (test)
     @classmethod
     def _expand_dfa(
         cls: Type[Self],
@@ -848,7 +813,6 @@ class DFA(fa.FA):
             allow_partial=is_partial,
         )
 
-    # Supports partial
     @classmethod
     def _find_state(
         cls: Type[Self],
@@ -910,7 +874,6 @@ class DFA(fa.FA):
 
         return initial_state, expand_state_fn
 
-    # Supports partial (test)
     def issubset(self, other: DFA) -> bool:
         """Return True if this DFA is a subset of another DFA."""
 
@@ -928,12 +891,10 @@ class DFA(fa.FA):
             subset_state_fn, initial_state, expand_state_fn
         )
 
-    # Supports partial (test)
     def issuperset(self, other: DFA) -> bool:
         """Return True if this DFA is a superset of another DFA."""
         return other.issubset(self)
 
-    # Supports partial (test)
     def isdisjoint(self, other: DFA) -> bool:
         """Return True if this DFA has no common elements with another DFA."""
 
@@ -953,7 +914,6 @@ class DFA(fa.FA):
             expand_state_fn,
         )
 
-    # Supports partial
     @cached_method
     def isempty(self) -> bool:
         """Return True if this DFA is completely empty."""
@@ -963,7 +923,6 @@ class DFA(fa.FA):
             lambda state: iter(self.transitions[state].items()),
         )
 
-    # Supports partial
     @cached_method
     def isfinite(self) -> bool:
         """
@@ -974,7 +933,6 @@ class DFA(fa.FA):
         except exceptions.EmptyLanguageException:
             return True
 
-    # Supports partial
     def random_word(self, k: int, *, seed: Optional[int] = None) -> str:
         self._populate_count_cache_up_to_len(k)
         state = self.initial_state
@@ -998,7 +956,6 @@ class DFA(fa.FA):
         assert state in self.final_states
         return "".join(result)
 
-    # Supports partial
     def predecessor(
         self,
         input_str: str,
@@ -1018,7 +975,6 @@ class DFA(fa.FA):
             return word
         return None
 
-    # Supports partial
     def predecessors(
         self,
         input_str: str,
@@ -1037,7 +993,6 @@ class DFA(fa.FA):
         """
         yield from self.successors(input_str, strict=strict, reverse=True, key=key)
 
-    # Supports partial
     def successor(
         self,
         input_str: Optional[str],
@@ -1057,7 +1012,6 @@ class DFA(fa.FA):
             return word
         return None
 
-    # Supports partial (no modification, but need to test)
     def successors(
         self,
         input_str: Optional[str],
@@ -1154,7 +1108,6 @@ class DFA(fa.FA):
         ):
             yield "".join(char_stack)
 
-    # Supports partial
     def count_words_of_length(self, k: int) -> int:
         """
         Counts words of length `k` accepted by the DFA
@@ -1162,13 +1115,11 @@ class DFA(fa.FA):
         self._populate_count_cache_up_to_len(k)
         return self._count_cache[k][self.initial_state]
 
-    # Supports partial
     def _populate_count_cache_up_to_len(self, k: int) -> None:
         """
         Populate count cache up to length k
         """
-        # TODO this leads to bugs if the count_cache is not "continuously" populated
-        #   (same for _populate_word_cache_up_to_len)
+
         while len(self._count_cache) <= k:
             i = len(self._count_cache)
             self._count_cache.append(defaultdict(int))
@@ -1187,7 +1138,6 @@ class DFA(fa.FA):
                     }
                 )
 
-    # Supports partial
     def words_of_length(self, k: int) -> Generator[str, None, None]:
         """
         Generates all words of size k in the language represented by the DFA
@@ -1196,7 +1146,6 @@ class DFA(fa.FA):
         for word in self._word_cache[k][self.initial_state]:
             yield word
 
-    # Supports partial (test)
     def _populate_word_cache_up_to_len(self, k: int) -> None:
         """
         Populate word cache up to length k
@@ -1226,7 +1175,6 @@ class DFA(fa.FA):
                     }
                 )
 
-    # Supports partial
     @cached_method
     def cardinality(self) -> int:
         """Returns the cardinality of the language represented by the DFA."""
@@ -1241,7 +1189,6 @@ class DFA(fa.FA):
             )
         return sum(self.count_words_of_length(j) for j in range(i, limit + 1))
 
-    # Supports partial
     @cached_method
     def minimum_word_length(self) -> int:
         """
@@ -1262,7 +1209,6 @@ class DFA(fa.FA):
             "The language represented by the DFA is empty"
         )
 
-    # Supports partial (no modification, but need to test)
     @cached_method
     def maximum_word_length(self) -> Optional[int]:
         """
@@ -1290,7 +1236,6 @@ class DFA(fa.FA):
         except nx.exception.NetworkXUnfeasible:
             return None
 
-    # Supports partial (test)
     @classmethod
     def from_prefix(
         cls: Type[Self],
@@ -1327,7 +1272,6 @@ class DFA(fa.FA):
             allow_partial=as_partial,
         )
 
-    # Supports partial (but have a second look later)
     @classmethod
     def from_suffix(
         cls: Type[Self],
@@ -1345,7 +1289,6 @@ class DFA(fa.FA):
             input_symbols, suffix, contains=contains, must_be_suffix=True
         )
 
-    # Supports partial (but have a second look later)
     @classmethod
     def from_substring(
         cls: Type[Self],
@@ -1407,7 +1350,6 @@ class DFA(fa.FA):
             final_states=final_states if contains else states - final_states,
         )
 
-    # Supports partial
     @classmethod
     def from_subsequence(
         cls: Type[Self],
@@ -1438,7 +1380,6 @@ class DFA(fa.FA):
             final_states=final_states if contains else states - final_states,
         )
 
-    # Supports partial
     @classmethod
     def of_length(
         cls: Type[Self],
@@ -1482,7 +1423,6 @@ class DFA(fa.FA):
             final_states=final_states,
         )
 
-    # Supports partial
     @classmethod
     def count_mod(
         cls: Type[Self],
@@ -1519,7 +1459,6 @@ class DFA(fa.FA):
             final_states=remainders,
         )
 
-    # Supports partial
     @classmethod
     def universal_language(cls: Type[Self], input_symbols: AbstractSet[str]) -> Self:
         """
@@ -1533,7 +1472,6 @@ class DFA(fa.FA):
             final_states={0},
         )
 
-    # Supports partial
     @classmethod
     def empty_language(cls: Type[Self], input_symbols: AbstractSet[str]) -> Self:
         """
@@ -1547,7 +1485,6 @@ class DFA(fa.FA):
             final_states=frozenset(),
         )
 
-    # Supports partial
     @classmethod
     def nth_from_start(
         cls: Type[Self], input_symbols: AbstractSet[str], symbol: str, n: int
@@ -1578,7 +1515,6 @@ class DFA(fa.FA):
             allow_partial=False,
         )
 
-    # Supports partial
     @classmethod
     def nth_from_end(
         cls: Type[Self], input_symbols: AbstractSet[str], symbol: str, n: int
@@ -1620,7 +1556,6 @@ class DFA(fa.FA):
             allow_partial=False,
         )
 
-    # Supports partial (test)
     @classmethod
     def from_finite_language(
         cls: Type[Self],
@@ -1735,7 +1670,6 @@ class DFA(fa.FA):
             trap_state=0,
         )
 
-    # Supports partial
     @classmethod
     def from_nfa(
         cls: Type[Self],
