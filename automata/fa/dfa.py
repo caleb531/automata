@@ -588,11 +588,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        expand_state_fn = self.__class__._cross_product(self, other, True, True)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other, True, True)
 
         return self.__class__._expand_dfa(
             union_function,
-            (self.initial_state, other.initial_state),
+            initial_state,
             expand_state_fn,
             self.input_symbols,
             retain_names=retain_names,
@@ -613,11 +613,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        expand_state_fn = self.__class__._cross_product(self, other, False, False)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other, False, False)
 
         return self.__class__._expand_dfa(
             intersection_function,
-            (self.initial_state, other.initial_state),
+            initial_state,
             expand_state_fn,
             self.input_symbols,
             retain_names=retain_names,
@@ -638,11 +638,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        expand_state_fn = self.__class__._cross_product(self, other, False, True)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other, False, True)
 
         return self.__class__._expand_dfa(
             difference_function,
-            (self.initial_state, other.initial_state),
+            initial_state,
             expand_state_fn,
             self.input_symbols,
             retain_names=retain_names,
@@ -665,11 +665,11 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        expand_state_fn = self.__class__._cross_product(self, other, True, True)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other, True, True)
 
         return self.__class__._expand_dfa(
             symmetric_difference_function,
-            (self.initial_state, other.initial_state),
+            initial_state,
             expand_state_fn,
             self.input_symbols,
             retain_names=retain_names,
@@ -851,7 +851,7 @@ class DFA(fa.FA):
     @staticmethod
     def _cross_product(
         lhs: DFA, rhs: DFA, lhs_relevant: bool, rhs_relevant: bool
-    ) -> ExpandStateFn:
+    ) -> Tuple[DFAStateT, ExpandStateFn]:
         """
         Builds the cross product between the two DFAs.
         Keeps expanding the lhs and rhs if the trap state is encountered based on the
@@ -883,7 +883,9 @@ class DFA(fa.FA):
                     transitions_b.get(chr, trap_b),
                 )
 
-        return expand_state_fn
+        initial_state = (lhs.initial_state, rhs.initial_state)
+
+        return initial_state, expand_state_fn
 
     # Supports partial (test)
     def issubset(self, other: DFA) -> bool:
@@ -895,10 +897,10 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b not in other.final_states
 
         # TODO maybe fix this
-        expand_state_fn = self.__class__._cross_product(self, other, False, True)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other, False, True)
 
         return not self.__class__._find_state(
-            subset_state_fn, (self.initial_state, other.initial_state), expand_state_fn
+            subset_state_fn, initial_state, expand_state_fn
         )
 
     # Supports partial (test)
@@ -916,11 +918,11 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b in other.final_states
 
         # TODO maybe change this
-        expand_state_fn = self.__class__._cross_product(self, other, True, False)
+        initial_state, expand_state_fn = self.__class__._cross_product(self, other, True, False)
 
         return not self.__class__._find_state(
             disjoint_state_fn,
-            (self.initial_state, other.initial_state),
+            initial_state,
             expand_state_fn,
         )
 
