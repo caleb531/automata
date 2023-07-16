@@ -1241,7 +1241,7 @@ class DFA(fa.FA):
         prefix: str,
         *,
         contains: bool = True,
-        as_partial: bool = False,
+        as_partial: bool = True,
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings with the
