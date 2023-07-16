@@ -597,7 +597,9 @@ class TestDFA(test_fa.TestFA):
         self.assertFalse(self.no_consecutive_11_dfa < self.zero_or_one_1_dfa)
         self.assertFalse(self.no_consecutive_11_dfa <= self.zero_or_one_1_dfa)
 
-        single_string_dfa = DFA.from_finite_language({"0", "1"}, "101", as_partial_dfa=True)
+        single_string_dfa = DFA.from_finite_language(
+            {"0", "1"}, "101", as_partial_dfa=True
+        )
 
         # Test interop with partial DFA
         self.assertTrue(single_string_dfa < self.no_consecutive_11_dfa)
@@ -639,26 +641,14 @@ class TestDFA(test_fa.TestFA):
         # three occurrences of 1
         input_symbols = {"0", "1"}
         at_least_three_1 = DFA.from_subsequence(input_symbols, "111")
-        # This DFA accepts all words which contain either zero
-        # or one occurrence of 1
-        at_most_one_1 = DFA(
-            states={"q0", "q1", "q2"},
-            input_symbols=input_symbols,
-            transitions={
-                "q0": {"0": "q0", "1": "q1"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
-            },
-            initial_state="q0",
-            final_states={"q0", "q1"},
-        )
         # This DFA accepts all words which contain at least
         # one occurrence of 1
         at_least_one_1 = DFA.from_subsequence(input_symbols, "1")
-        self.assertTrue(at_least_three_1.isdisjoint(at_most_one_1))
-        self.assertTrue(at_most_one_1.isdisjoint(at_least_three_1))
+
+        self.assertTrue(at_least_three_1.isdisjoint(self.zero_or_one_1_dfa))
+        self.assertTrue(self.zero_or_one_1_dfa.isdisjoint(at_least_three_1))
         self.assertFalse(at_least_three_1.isdisjoint(at_least_one_1))
-        self.assertFalse(at_most_one_1.isdisjoint(at_least_one_1))
+        self.assertFalse(self.zero_or_one_1_dfa.isdisjoint(at_least_one_1))
 
     def test_isempty_non_empty(self) -> None:
         """Should test if a non-empty DFA is empty"""

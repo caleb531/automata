@@ -68,7 +68,7 @@ class DFA(fa.FA):
     allow_partial: bool
     _word_cache: List[DefaultDict[DFAStateT, List[str]]]
     _count_cache: List[DefaultDict[DFAStateT, int]]
-    
+
     def __init__(
         self,
         *,
@@ -882,7 +882,6 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        # TODO maybe fix this
         initial_state, expand_state_fn = self.__class__._cross_product(
             self, other, False, True
         )
@@ -903,9 +902,8 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        # TODO maybe change this
         initial_state, expand_state_fn = self.__class__._cross_product(
-            self, other, True, False
+            self, other, False, False
         )
 
         return not self.__class__._find_state(
