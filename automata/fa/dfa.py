@@ -1560,7 +1560,7 @@ class DFA(fa.FA):
         cls: Type[Self],
         input_symbols: AbstractSet[str],
         language: AbstractSet[str],
-        as_partial_dfa: bool = True,
+        as_partial: bool = True,
     ) -> Self:
         """
         Directly computes the minimal DFA corresponding to a finite language.
@@ -1651,14 +1651,14 @@ class DFA(fa.FA):
 
         compress(prev_word, "")
 
-        if as_partial_dfa:
+        if as_partial:
             return cls(
                 states=frozenset(transitions.keys()),
                 input_symbols=input_symbols,
                 transitions=transitions,
                 initial_state="",
                 final_states=final_states,
-                allow_partial=as_partial_dfa,
+                allow_partial=as_partial,
             )
 
         return cls._to_complete(
