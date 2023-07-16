@@ -17,6 +17,7 @@ date: 13 July 2023
 bibliography: paper.bib
 ---
 
+<!-- TODO include more language like https://joss.theoj.org/papers/10.21105/joss.03608, and maybe pictures and example usage. -->
 # Summary
 
 Automata are abstract machines used to represent models of computation, and are a central object of study in theoretical computer science. Given an input string of characters over a fixed alphabet, these machines either accept or reject the string. A language corresponding to an automaton is
@@ -39,34 +40,88 @@ greater optimization by the integration of lower-level technologies (e.g., Cytho
 retaining the same high-level API, allowing for integration of more performant features as-needed by
 the user base.
 
+Of note are some sophisticated algorithms implemented in the package for finite-state automata:
+
+- An optimized version of the Hopcroft-Karp algorithm to determine whether two deterministic finite automata (DFA) are equivalent [@AlmeidaMR10].
+
+- Thompson's algorithm for converting regular expressions to equivalent nondeterministic finite automata (NFA) [@AhoSU86].
+
+- Hopcroft's algorithm for DFA minimization [@Yingjie09].
+
+- A specialized algorithm for directly constructing a state-minimal DFA accepting a given
+finite language [@mihov_schulz_2019].
+
+To the authors knowledge, this is the only Python package implementing a number of the algorithms stated above. 
+
 `automata` was designed around existing theoretical models of automata, for use by both
-mathematically-oriented researchers and students learning automata theory.
+mathematically-oriented researchers and in educational contexts. The
+included functionality for parsing regular expressions and manipulating finite-state
+machines enables fast and accessible exploration of these structures by researchers.
+On the educational side, the package includes visualization logic that allows students to
+interact with these structures in an exploratory manner, and has already seen usage in
+undergraduate courses. The package has already been cited in publications [@Erickson23], with more
+to come as the package matures. 
 
+# Example usage
 
-``Gala`` is an Astropy-affiliated Python package for galactic dynamics. Python
-enables wrapping low-level languages (e.g., C) for speed without losing
-flexibility or ease-of-use in the user-interface. The API for ``Gala`` was
-designed to provide a class-based and user-friendly interface to fast (C or
-Cython-optimized) implementations of common operations such as gravitational
-potential and force evaluation, orbit integration, dynamical transformations,
-and chaos indicators for nonlinear dynamics. ``Gala`` also relies heavily on and
-interfaces well with the implementations of physical units and astronomical
-coordinate systems in the ``Astropy`` package [@astropy] (``astropy.units`` and
-``astropy.coordinates``).
+The following example is inspired by the use case described in [@Johnson_2010].
+We wish to determine which strings in a given set are within the target edit distance
+to a reference string. We will do this by using utilities provided by `automata`,
+starting by first initializing DFAs corresponding to the input set.
 
-``Gala`` was designed to be used by both astronomical researchers and by
-students in courses on gravitational dynamics or astronomy. It has already been
-used in a number of scientific publications [@Pearson:2017] and has also been
-used in graduate courses on Galactic dynamics to, e.g., provide interactive
-visualizations of textbook material [@Binney:2008]. The combination of speed,
-design, and support for Astropy functionality in ``Gala`` will enable exciting
-scientific explorations of forthcoming data releases from the *Gaia* mission
-[@gaia] by students and experts alike. The source code for ``Gala`` has been
-archived to Zenodo with the linked DOI: [@zenodo]
+```python
+from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
+import string
+
+input_symbols = set(string.ascii_lowercase)
+
+target_words = {'these', 'are', 'target', 'words', 'them', 'those'}
+
+target_words_dfa = DFA.from_finite_language(
+  input_symbols,
+  target_words,
+)
+```
+
+Next, construct NFA recognizing all strings within the given edit distance of a given
+reference string. This construction can again be done with functions provided by the library.
+We need to perform an NFA to DFA conversion for later.
+
+```python
+reference_string = 'they'
+edit_distance = 2
+
+words_within_edit_distance_dfa = DFA.from_nfa(
+  NFA.edit_distance(
+    input_symbols,
+    reference_string,
+    edit_distance,
+  )
+)
+```
+
+Finally, we take the intersection of the two DFAs we have constructed and read all of
+the words in the result. The library makes this easy.
+
+```python
+found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
+found_words = list(found_words_dfa)
+```
 
 # Acknowledgements
 
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
+Thanks to [@YtvwlD][YtvwlD], [@dengl11][dengl11], [@Tagl][Tagl],
+[@lewiuberg][lewiuberg], [@CamiloMartinezM][CamiloMartinezM],
+and [@abhinavsinha‑adrino][abhinavsinha-adrino]
+for their invaluable code contributions to this project.
+
+[YtvwlD]: https://github.com/YtvwlD
+[dengl11]: https://github.com/dengl11
+[Tagl]: https://github.com/Tagl
+[lewiuberg]: https://github.com/lewiuberg
+[CamiloMartinezM]: https://github.com/CamiloMartinezM
+[abhinavsinha-adrino]: https://github.com/abhinavsinha-adrino
+[eliotwrobson]: https://github.com/eliotwrobson
 
 # References
