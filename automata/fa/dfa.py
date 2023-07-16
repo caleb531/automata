@@ -17,6 +17,7 @@ from typing import (
     Generator,
     Iterator,
     List,
+    Literal,
     Mapping,
     Optional,
     Set,
@@ -44,6 +45,7 @@ ExpandStateReturnType = Iterator[Tuple[DFASymbolT, DFAStateT]]
 ExpandStateFn = Callable[[DFAStateT], ExpandStateReturnType]
 IsFinalStateFn = Callable[[DFAStateT], bool]
 TargetStateFn = Callable[[DFAStateT], bool]
+BooleanLiteral = Literal[True, False]
 
 
 class DFA(fa.FA):
@@ -314,28 +316,22 @@ class DFA(fa.FA):
         """
         Internal helper function taking in a description of a partial DFA and
         returning a corresponding complete DFA.
+
+        Note: This will not work with the description of a complete DFA,
+        so be sure the input describes a partial one.
         """
-        # TODO remove some of this logic, we now assume the DFA is partial.
-        added_trap_state = False
-        new_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {
-            state: dict(state_path) for state, state_path in transitions.items()
+
+        default_to_trap = {symbol: trap_state for symbol in input_symbols}
+        transitions = {
+            state: {**default_to_trap, **lookup}
+            for state, lookup in transitions.items()
         }
-
-        for new_state_path in new_transitions.values():
-            for symbol in input_symbols:
-                if symbol not in new_state_path:
-                    new_state_path[symbol] = trap_state
-                    added_trap_state = True
-
-        if added_trap_state:
-            new_transitions[trap_state] = {
-                symbol: trap_state for symbol in input_symbols
-            }
+        transitions[trap_state] = default_to_trap
 
         return cls(
-            states=frozenset(new_transitions.keys()),
+            states=frozenset(transitions.keys()),
             input_symbols=input_symbols,
-            transitions=new_transitions,
+            transitions=transitions,
             initial_state=initial_state,
             final_states=final_states,
             allow_partial=False,
@@ -871,7 +867,7 @@ class DFA(fa.FA):
 
     @staticmethod
     def _cross_product(
-        lhs: DFA, rhs: DFA, lhs_relevant: bool, rhs_relevant: bool
+        lhs: DFA, rhs: DFA, lhs_relevant: BooleanLiteral, rhs_relevant: BooleanLiteral
     ) -> Tuple[DFAStateT, ExpandStateFn]:
         """
         Builds the cross product between the two DFAs.
@@ -898,7 +894,7 @@ class DFA(fa.FA):
             transitions_a = lhs.transitions.get(q_a, {})
             transitions_b = rhs.transitions.get(q_b, {})
 
-            for chr in (transitions_a.keys() | transitions_b.keys()):
+            for chr in transitions_a.keys() | transitions_b.keys():
                 # Equivalent to reaching the trap state, skip ahead if irrelevant
                 if not lhs_relevant and chr not in transitions_a:
                     continue
@@ -1375,6 +1371,7 @@ class DFA(fa.FA):
         # Computing failure function for partial matches as is done in the
         # Knuth-Morris-Pratt string algorithm so we can quickly compute the
         # next state from another state
+        # This table only holds integers, so array.array is used to save memory.
         kmp_table = array.array("i", (-1 for _ in substring))
         candidate = 0
         for i, char in enumerate(substring):
