@@ -1252,7 +1252,8 @@ class DFA(fa.FA):
         transitions = {i: {char: i + 1} for i, char in enumerate(prefix)}
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
 
-        if not as_partial:
+        # Can't construct this as a partial if we need to take the complement
+        if not as_partial or not contains:
             err_state = -1
             for state_path in transitions.values():
                 for symbol in input_symbols:

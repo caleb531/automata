@@ -212,7 +212,7 @@ class NFA(fa.FA):
         res_dict: Dict[str, Set[NFAStateT]] = {}
 
         for input_symbol, next_states in chain.from_iterable(
-            self.transitions[state].items() for state in current_states
+            self.transitions.get(state, {}).items() for state in current_states
         ):
             # Ignore empty string and empty end states
             if input_symbol and next_states:

@@ -1998,7 +1998,7 @@ class TestDFA(test_fa.TestFA):
     def test_contains_prefix(self, as_partial_dfa: bool) -> None:
         input_symbols = {"a", "n", "o", "b"}
 
-        prefix_dfa = DFA.from_prefix(input_symbols, "nano")
+        prefix_dfa = DFA.from_prefix(input_symbols, "nano", as_partial=as_partial_dfa)
         self.assertEqual(len(prefix_dfa.states), len(prefix_dfa.minify().states))
 
         subset_dfa = DFA.from_finite_language(
@@ -2009,7 +2009,10 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(subset_dfa < prefix_dfa)
 
         self.assertEqual(
-            ~prefix_dfa, DFA.from_prefix(input_symbols, "nano", contains=False)
+            ~prefix_dfa,
+            DFA.from_prefix(
+                input_symbols, "nano", contains=False, as_partial=as_partial_dfa
+            ),
         )
 
         for word in prefix_dfa:
