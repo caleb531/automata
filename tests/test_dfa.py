@@ -288,6 +288,10 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(TypeError):
             self.dfa >= other  # type: ignore
 
+    def test_to_complete_trap_state_exception(self) -> None:
+        with self.assertRaises(exceptions.InvalidStateError):
+            self.dfa.to_complete("q0")
+
     def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
         self.assertNotEqual(self.no_consecutive_11_dfa, self.zero_or_one_1_dfa)
