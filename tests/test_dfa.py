@@ -1247,7 +1247,9 @@ class TestDFA(test_fa.TestFA):
             initial_state="q0",
             final_states={"q2"},
         )
-        dfa = DFA.from_nfa(nfa, retain_names=True, minify=False, as_partial=False)
+        dfa = DFA.from_nfa(nfa, retain_names=True, minify=False).to_complete(
+            frozenset()
+        )
         self.assertEqual(
             dfa.states,
             {
@@ -1327,7 +1329,9 @@ class TestDFA(test_fa.TestFA):
 
     def test_init_nfa_lambda_transition(self) -> None:
         """Should convert to a DFA an NFA with a lambda transition."""
-        dfa = DFA.from_nfa(self.nfa, retain_names=True, minify=False, as_partial=False)
+        dfa = DFA.from_nfa(self.nfa, retain_names=True, minify=False).to_complete(
+            frozenset()
+        )
         self.assertEqual(
             dfa.states,
             frozenset({frozenset(), frozenset(("q0",)), frozenset(("q1", "q2"))}),

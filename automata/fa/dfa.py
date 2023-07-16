@@ -1743,9 +1743,11 @@ class DFA(fa.FA):
         *,
         retain_names: bool = False,
         minify: bool = True,
-        as_partial: bool = True,
     ) -> Self:
-        """Initialize this DFA as one equivalent to the given NFA."""
+        """
+        Initialize this DFA as one equivalent to the given NFA. Note
+        that this usually returns a partial DFA by default.
+        """
 
         def subset_function(current_states: FrozenSet[DFAStateT]) -> bool:
             return not current_states.isdisjoint(target_nfa.final_states)
@@ -1754,7 +1756,7 @@ class DFA(fa.FA):
             target_nfa._get_lambda_closures()[target_nfa.initial_state]
         )
 
-        result = cls._expand_dfa(
+        return cls._expand_dfa(
             subset_function,
             initial_state,
             target_nfa._iterate_through_symbol_path_pairs,
@@ -1762,11 +1764,6 @@ class DFA(fa.FA):
             retain_names=retain_names,
             minify=minify,
         )
-
-        if as_partial:
-            return result
-
-        return result.to_complete(frozenset())
 
     def iter_transitions(
         self,
