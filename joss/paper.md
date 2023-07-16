@@ -6,9 +6,9 @@ tags:
 authors:
   - name: Caleb Evans
     affiliation: 1
+    corresponding: true
   - name: Eliot W. Robson
     orcid: 0000-0002-1476-6715
-    corresponding: true
     affiliation: 2
 affiliations:
  - name: Department of Computer Science, University of Illinois, Urbana, IL, USA
