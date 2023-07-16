@@ -1737,11 +1737,6 @@ class DFA(fa.FA):
         def subset_function(current_states: FrozenSet[DFAStateT]) -> bool:
             return not current_states.isdisjoint(target_nfa.final_states)
 
-        def expand_state_fn(
-            current_states: FrozenSet[DFAStateT],
-        ) -> ExpandStateReturnType:
-            yield from target_nfa._iterate_through_symbol_path_pairs(current_states)
-
         initial_state = frozenset(
             target_nfa._get_lambda_closures()[target_nfa.initial_state]
         )
@@ -1749,7 +1744,7 @@ class DFA(fa.FA):
         result = cls._expand_dfa(
             subset_function,
             initial_state,
-            expand_state_fn,
+            target_nfa._iterate_through_symbol_path_pairs,
             target_nfa.input_symbols,
             retain_names=retain_names,
             minify=minify,
