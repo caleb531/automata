@@ -6,12 +6,15 @@ tags:
 authors:
   - name: Caleb Evans
     corresponding: true
+    affiliation: 1 # Affiliation is required
   - name: Eliot W. Robson
     orcid: 0000-0002-1476-6715
-    affiliation: 1
+    affiliation: 2
 affiliations:
- - name: Department of Computer Science, University of Illinois, Urbana, IL, USA
+ - name: Independent Developer, USA
    index: 1
+ - name: Department of Computer Science, University of Illinois, Urbana, IL, USA
+   index: 2
 date: 16 July 2023
 bibliography: paper.bib
 ---
