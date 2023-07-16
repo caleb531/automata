@@ -102,7 +102,7 @@ words_within_edit_distance_dfa = DFA.from_nfa(
 ```
 
 Finally, we take the intersection of the two DFAs we have constructed and read all of
-the words in the result. The library makes this easy.
+the words in the result. The library makes this straightforward and idiomatic.
 
 ```python
 found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
