@@ -588,7 +588,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other, True, True)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, True, True
+        )
 
         return self.__class__._expand_dfa(
             union_function,
@@ -613,7 +615,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other, False, False)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, False, False
+        )
 
         return self.__class__._expand_dfa(
             intersection_function,
@@ -638,7 +642,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other, False, True)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, False, True
+        )
 
         return self.__class__._expand_dfa(
             difference_function,
@@ -665,7 +671,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other, True, True)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, True, True
+        )
 
         return self.__class__._expand_dfa(
             symmetric_difference_function,
@@ -897,7 +905,9 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b not in other.final_states
 
         # TODO maybe fix this
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other, False, True)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, False, True
+        )
 
         return not self.__class__._find_state(
             subset_state_fn, initial_state, expand_state_fn
@@ -918,7 +928,9 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b in other.final_states
 
         # TODO maybe change this
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other, True, False)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, True, False
+        )
 
         return not self.__class__._find_state(
             disjoint_state_fn,
