@@ -539,7 +539,7 @@ class DFA(fa.FA):
         new_transitions = {
             name: {
                 letter: back_map[transitions[next(iter(eq))][letter]]
-                for letter, tgt_state in transitions[next(iter(eq))].items()
+                for letter in transitions[next(iter(eq))].keys()
             }
             for name, eq in eq_class_name_pairs
         }
@@ -1559,7 +1559,7 @@ class DFA(fa.FA):
         cls: Type[Self],
         input_symbols: AbstractSet[str],
         language: AbstractSet[str],
-        as_partial_dfa: bool = False,
+        as_partial_dfa: bool = True,
     ) -> Self:
         """
         Directly computes the minimal DFA corresponding to a finite language.
