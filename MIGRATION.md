@@ -12,6 +12,11 @@ dropped in favor of using the `visual` optional dependency, which will install
 `pygraphviz` and `coloraide` used for generating figures. You should install
 this optional dependency if you wish to generate figures. This change was to
 allow for native support for displaying finite automaton in Jupyter notebooks.
+The style of the diagrams has been lifted from the [visual automata] package,
+so you should take a look at the diagrams generated and see if they are still
+satisfactory.
+
+[visual automata]: https://pypi.org/project/visual-automata/
 
 Other new dependencies have been added, but these will be installed automatically
 along with v8 of the package.
