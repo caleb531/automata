@@ -259,7 +259,7 @@ class DFA(fa.FA):
             allow_partial=True,
         )
 
-    def get_trap_state_id(self) -> DFAStateT:
+    def _get_trap_state_id(self) -> DFAStateT:
         return next(x for x in count(-1, -1) if x not in self.states)
 
     def to_complete(self, trap_state: Optional[DFAStateT] = None) -> Self:
@@ -271,7 +271,7 @@ class DFA(fa.FA):
             return self.copy()
 
         if trap_state is None:
-            trap_state = self.get_trap_state_id()
+            trap_state = self._get_trap_state_id()
         elif trap_state in self.states:
             raise exceptions.InvalidStateError(
                 f"state {trap_state} is already in the state set and "
@@ -842,8 +842,8 @@ class DFA(fa.FA):
                 "The input symbols between the two given DFAs do not match"
             )
 
-        trap_a = lhs.get_trap_state_id()
-        trap_b = rhs.get_trap_state_id()
+        trap_a = lhs._get_trap_state_id()
+        trap_b = rhs._get_trap_state_id()
 
         # TODO if anyone ever has issues with this function being too slow,
         # there is a way to speed this up in special cases with some complicated
