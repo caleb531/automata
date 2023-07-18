@@ -50,7 +50,7 @@ to achieve with a low-level language (e.g., Rust). The algorithms in the package
 performance against benchmarks from tasks arising in research. In addition, Python allows for
 greater optimization by the integration of lower-level technologies (e.g., Cython), while still
 retaining the same high-level API, allowing for integration of more performant features as-needed by
-the user base. In addition, the package has native display integration with Jupyter notebooks, enabling
+the user base. The package also has native display integration with Jupyter notebooks, enabling
 easy visualization.
 
 Of note are some sophisticated and useful algorithms implemented in the package for finite-state automata:
