@@ -270,7 +270,12 @@ class TestGNFA(test_fa.TestFA):
             input_symbols={"a", "b"},
             initial_state=0,
             final_states={4},
-            transitions={0: {"a": 1, "b": 2}, 1: {"a": 2, "b": 2}, 2: {"b": 4}},
+            transitions={
+                0: {"a": 1, "b": 2},
+                1: {"a": 2, "b": 2},
+                2: {"b": 4},
+                4: {},
+            },
             allow_partial=True,
         )
 

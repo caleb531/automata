@@ -2,6 +2,7 @@
 """Classes and methods for working with deterministic finite automata."""
 from __future__ import annotations
 
+import array
 from collections import defaultdict, deque
 from itertools import chain, count
 from random import Random
@@ -39,7 +40,8 @@ DFASymbolT = str
 DFAPathT = Mapping[DFASymbolT, DFAStateT]
 DFATransitionsT = Mapping[DFAStateT, DFAPathT]
 
-ExpandStateFn = Callable[[DFAStateT], Iterator[Tuple[DFASymbolT, DFAStateT]]]
+ExpandStateReturnType = Iterator[Tuple[DFASymbolT, DFAStateT]]
+ExpandStateFn = Callable[[DFAStateT], ExpandStateReturnType]
 IsFinalStateFn = Callable[[DFAStateT], bool]
 TargetStateFn = Callable[[DFAStateT], bool]
 
@@ -222,6 +224,102 @@ class DFA(fa.FA):
         """Returns the cardinality of the language represented by the DFA."""
         return self.cardinality()
 
+    def to_partial(self) -> Self:
+        """
+        Turns a DFA (complete or not) into a partial DFA.
+        Removes dead states and trap states (except the initial state)
+            and all edges leading to them.
+        """
+        if self.allow_partial:
+            return self.copy()
+
+        graph = self._get_digraph()
+        live_states = nx.descendants(graph, self.initial_state) | {self.initial_state}
+        non_trap_states = set(self.final_states).union(
+            *(nx.ancestors(graph, state) for state in self.final_states)
+        )
+
+        new_states = live_states & non_trap_states
+        new_states.add(self.initial_state)
+
+        return self.__class__(
+            states=new_states,
+            input_symbols=self.input_symbols,
+            transitions={
+                src_state: {
+                    symbol: tgt_state
+                    for symbol, tgt_state in lookup.items()
+                    if tgt_state in non_trap_states
+                }
+                for src_state, lookup in self.transitions.items()
+                if src_state in new_states
+            },
+            initial_state=self.initial_state,
+            final_states=self.final_states & new_states,
+            allow_partial=True,
+        )
+
+    def _get_trap_state_id(self) -> DFAStateT:
+        return next(x for x in count(-1, -1) if x not in self.states)
+
+    def to_complete(self, trap_state: Optional[DFAStateT] = None) -> Self:
+        """
+        Turns a DFA (complete or not) into a complete DFA.
+        Will add trap_state to the state set if there are any missing transitions.
+        """
+        if not self.allow_partial:
+            return self.copy()
+
+        if trap_state is None:
+            trap_state = self._get_trap_state_id()
+        elif trap_state in self.states:
+            raise exceptions.InvalidStateError(
+                f"state {trap_state} is already in the state set and "
+                "cannot be used as a label for the trap state."
+            )
+
+        return self._to_complete(
+            input_symbols=self.input_symbols,
+            transitions=self.transitions,
+            initial_state=self.initial_state,
+            final_states=self.final_states,
+            trap_state=trap_state,
+        )
+
+    @classmethod
+    def _to_complete(
+        cls: Type[Self],
+        *,
+        input_symbols: AbstractSet[str],
+        transitions: DFATransitionsT,
+        initial_state: DFAStateT,
+        final_states: AbstractSet[DFAStateT],
+        trap_state: DFAStateT,
+    ) -> Self:
+        """
+        Internal helper function taking in a description of a partial DFA and
+        returning a corresponding complete DFA.
+
+        Note: This will not work with the description of a complete DFA,
+        so be sure the input describes a partial one.
+        """
+
+        default_to_trap = {symbol: trap_state for symbol in input_symbols}
+        transitions = {
+            state: {**default_to_trap, **lookup}
+            for state, lookup in transitions.items()
+        }
+        transitions[trap_state] = default_to_trap
+
+        return cls(
+            states=frozenset(transitions.keys()),
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=initial_state,
+            final_states=final_states,
+            allow_partial=False,
+        )
+
     def _validate_transition_missing_symbols(
         self, start_state: DFAStateT, paths: DFAPathT
     ) -> None:
@@ -231,9 +329,8 @@ class DFA(fa.FA):
         for input_symbol in self.input_symbols:
             if input_symbol not in paths:
                 raise exceptions.MissingSymbolError(
-                    "state {} is missing transitions for symbol {}".format(
-                        start_state, input_symbol
-                    )
+                    f"state {start_state} is missing transitions "
+                    f'for symbol "{input_symbol}"'
                 )
 
     def _validate_transition_invalid_symbols(
@@ -243,19 +340,16 @@ class DFA(fa.FA):
         for input_symbol in paths.keys():
             if input_symbol not in self.input_symbols:
                 raise exceptions.InvalidSymbolError(
-                    "state {} has invalid transition symbol {}".format(
-                        start_state, input_symbol
-                    )
+                    f"state {start_state} has invalid transition symbol"
+                    f' "{input_symbol}"'
                 )
 
     def _validate_transition_start_states(self) -> None:
         """Raise an error if transition start states are missing."""
-        if self.allow_partial:
-            return
         for state in self.states:
             if state not in self.transitions:
                 raise exceptions.MissingStateError(
-                    "transition start state {} is missing".format(state)
+                    f"transition start state {state} is missing"
                 )
 
     def _validate_transition_end_states(
@@ -265,9 +359,8 @@ class DFA(fa.FA):
         for end_state in paths.values():
             if end_state not in self.states:
                 raise exceptions.InvalidStateError(
-                    "end state {} for transition on {} is not valid".format(
-                        end_state, start_state
-                    )
+                    f"end state {end_state} for transition on "
+                    f"{start_state} is not valid"
                 )
 
     def _validate_transitions(self, start_state: DFAStateT, paths: DFAPathT) -> None:
@@ -303,7 +396,7 @@ class DFA(fa.FA):
         """Raise an error if the given config indicates rejected input."""
         if current_state not in self.final_states:
             raise exceptions.RejectionException(
-                "the DFA stopped on a non-final state ({})".format(current_state)
+                f"the DFA stopped on a non-final state ({current_state})"
             )
 
     def read_input_stepwise(
@@ -327,13 +420,16 @@ class DFA(fa.FA):
     @cached_method
     def _get_digraph(self) -> nx.DiGraph:
         """Return a digraph corresponding to this DFA with transition symbols ignored"""
-        return nx.DiGraph(
-            (
-                (start_state, end_state)
-                for start_state, transition in self.transitions.items()
-                for end_state in transition.values()
-            )
+
+        graph = nx.DiGraph()
+        graph.add_nodes_from(self.states)
+        graph.add_edges_from(
+            (start_state, end_state)
+            for start_state, transition in self.transitions.items()
+            for end_state in transition.values()
         )
+
+        return graph
 
     def minify(self, retain_names: bool = False) -> Self:
         """
@@ -372,8 +468,10 @@ class DFA(fa.FA):
         reachable_final_states: AbstractSet[DFAStateT],
         retain_names: bool,
     ) -> Self:
-        """Minify helper function. DFA data passed in must have no unreachable
-        states."""
+        """
+        Minify helper function. DFA data passed in must have no unreachable states.
+        If the input DFA is partial, then the result is also a partial DFA
+        """
 
         # First, assemble backmap and equivalence class data structure
         eq_classes = PartitionRefinement(reachable_states)
@@ -383,6 +481,7 @@ class DFA(fa.FA):
             refinement[0][0] if refinement else next(iter(eq_classes.get_set_ids()))
         )
 
+        # Per input-symbol backmap (tgt -> origin states)
         transition_back_map: Dict[str, Dict[DFAStateT, List[DFAStateT]]] = {
             symbol: {end_state: list() for end_state in reachable_states}
             for symbol in input_symbols
@@ -438,17 +537,21 @@ class DFA(fa.FA):
         new_transitions = {
             name: {
                 letter: back_map[transitions[next(iter(eq))][letter]]
-                for letter in input_symbols
+                for letter in transitions[next(iter(eq))].keys()
             }
             for name, eq in eq_class_name_pairs
         }
 
+        allow_partial = any(
+            len(lookup) != len(input_symbols) for lookup in transitions.values()
+        )
         return cls(
             states=new_states,
             input_symbols=new_input_symbols,
             transitions=new_transitions,
             initial_state=new_initial_state,
             final_states=new_final_states,
+            allow_partial=allow_partial,
         )
 
     def union(
@@ -464,7 +567,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states or q_b in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, lhs_relevant=True, rhs_relevant=True
+        )
 
         return self.__class__._expand_dfa(
             union_function,
@@ -488,7 +593,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, lhs_relevant=False, rhs_relevant=False
+        )
 
         return self.__class__._expand_dfa(
             intersection_function,
@@ -512,7 +619,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, lhs_relevant=False, rhs_relevant=True
+        )
 
         return self.__class__._expand_dfa(
             difference_function,
@@ -538,7 +647,9 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, lhs_relevant=True, rhs_relevant=True
+        )
 
         return self.__class__._expand_dfa(
             symmetric_difference_function,
@@ -552,29 +663,33 @@ class DFA(fa.FA):
     def complement(self, *, retain_names: bool = False, minify: bool = True) -> Self:
         """Return the complement of this DFA."""
 
+        # We can't do much here, we must turn it into a complete DFA
+        complete_dfa: Self = self.to_complete() if self.allow_partial else self
+
         if minify:
             bfs_states = self.__class__._bfs_states(
-                self.initial_state, lambda state: iter(self.transitions[state].items())
+                complete_dfa.initial_state,
+                lambda state: iter(complete_dfa.transitions[state].items()),
             )
-            reachable_states = set(bfs_states)
-            reachable_final_states = self.final_states & reachable_states
 
-            return self.__class__._minify(
+            reachable_states = set(bfs_states)
+            reachable_final_states = complete_dfa.final_states & reachable_states
+
+            return complete_dfa.__class__._minify(
                 reachable_states=reachable_states,
-                input_symbols=self.input_symbols,
-                transitions=self.transitions,
-                initial_state=self.initial_state,
+                input_symbols=complete_dfa.input_symbols,
+                transitions=complete_dfa.transitions,
+                initial_state=complete_dfa.initial_state,
                 reachable_final_states=reachable_states - reachable_final_states,
                 retain_names=retain_names,
             )
 
-        return self.__class__(
-            states=self.states,
-            input_symbols=self.input_symbols,
-            transitions=self.transitions,
-            initial_state=self.initial_state,
-            final_states=self.states - self.final_states,
-            allow_partial=self.allow_partial,
+        return complete_dfa.__class__(
+            states=complete_dfa.states,
+            input_symbols=complete_dfa.input_symbols,
+            transitions=complete_dfa.transitions,
+            initial_state=complete_dfa.initial_state,
+            final_states=complete_dfa.states - complete_dfa.final_states,
         )
 
     @staticmethod
@@ -640,10 +755,11 @@ class DFA(fa.FA):
         is set to False, states are renamed.
         """
 
-        def get_name_original(state: DFAStateT) -> DFAStateT:
-            return state
-
         if retain_names:
+
+            def get_name_original(state: DFAStateT) -> DFAStateT:
+                return state
+
             get_name: Callable[[DFAStateT], DFAStateT] = get_name_original
         else:
             get_name = get_renaming_function(count(0))
@@ -677,12 +793,22 @@ class DFA(fa.FA):
                 reachable_final_states=final_states,
                 retain_names=retain_names,
             )
+
+        # This method is generic and is used to implement (mostly) binary
+        #   operators; we don't offer the option to return complete/partial
+        #   DFAs; instead this is inferred directly from the structure of the
+        #   resulting DFA. But for these operations, the result will be a
+        #   complete DFA if the inputs are also complete DFAs
+        is_partial = any(
+            len(lookup) != len(input_symbols) for lookup in transitions.values()
+        )
         return cls(
             states=states,
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=initial_state_name,
             final_states=final_states,
+            allow_partial=is_partial,
         )
 
     @classmethod
@@ -702,25 +828,49 @@ class DFA(fa.FA):
         return any(target_state_fn(state) for state in bfs_states)
 
     @staticmethod
-    def _cross_product(lhs: DFA, rhs: DFA) -> Tuple[DFAStateT, ExpandStateFn]:
-        """Builds the cross product between the two DFAs"""
+    def _cross_product(
+        lhs: DFA, rhs: DFA, *, lhs_relevant: bool, rhs_relevant: bool
+    ) -> Tuple[DFAStateT, ExpandStateFn]:
+        """
+        Builds the cross product between the two DFAs.
+        Keeps expanding the lhs and rhs if the trap state is encountered based on the
+        lhs_relevant and rhs_relevant booleans.
+        """
+
         if lhs.input_symbols != rhs.input_symbols:
             raise exceptions.SymbolMismatchError(
                 "The input symbols between the two given DFAs do not match"
             )
 
-        def expand_states_fn(
-            state: DFAStateT,
-        ) -> Generator[Tuple[DFASymbolT, DFAStateT], None, None]:
-            q_a, q_b = state
-            transitions_a = lhs.transitions[q_a]
-            transitions_b = rhs.transitions[q_b]
+        trap_a = lhs._get_trap_state_id()
+        trap_b = rhs._get_trap_state_id()
 
-            for chr in lhs.input_symbols:
-                yield chr, (transitions_a[chr], transitions_b[chr])
+        # TODO if anyone ever has issues with this function being too slow,
+        # there is a way to speed this up in special cases with some complicated
+        # logic with the lhs_relevant and rhs_relevant booleans and the inner
+        # chr loop below.
+
+        def expand_state_fn(state: DFAStateT) -> ExpandStateReturnType:
+            q_a, q_b = state
+            # Have to use .get() here since these might be trap states
+            transitions_a = lhs.transitions.get(q_a, {})
+            transitions_b = rhs.transitions.get(q_b, {})
+
+            for chr in transitions_a.keys() | transitions_b.keys():
+                # Equivalent to reaching the trap state, skip ahead if irrelevant
+                if not lhs_relevant and chr not in transitions_a:
+                    continue
+                elif not rhs_relevant and chr not in transitions_b:
+                    continue
+
+                yield chr, (
+                    transitions_a.get(chr, trap_a),
+                    transitions_b.get(chr, trap_b),
+                )
 
         initial_state = (lhs.initial_state, rhs.initial_state)
-        return initial_state, expand_states_fn
+
+        return initial_state, expand_state_fn
 
     def issubset(self, other: DFA) -> bool:
         """Return True if this DFA is a subset of another DFA."""
@@ -730,7 +880,10 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b not in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, lhs_relevant=False, rhs_relevant=True
+        )
+
         return not self.__class__._find_state(
             subset_state_fn, initial_state, expand_state_fn
         )
@@ -747,9 +900,14 @@ class DFA(fa.FA):
             q_a, q_b = state_pair
             return q_a in self.final_states and q_b in other.final_states
 
-        initial_state, expand_state_fn = self.__class__._cross_product(self, other)
+        initial_state, expand_state_fn = self.__class__._cross_product(
+            self, other, lhs_relevant=False, rhs_relevant=False
+        )
+
         return not self.__class__._find_state(
-            disjoint_state_fn, initial_state, expand_state_fn
+            disjoint_state_fn,
+            initial_state,
+            expand_state_fn,
         )
 
     @cached_method
@@ -957,6 +1115,7 @@ class DFA(fa.FA):
         """
         Populate count cache up to length k
         """
+
         while len(self._count_cache) <= k:
             i = len(self._count_cache)
             self._count_cache.append(defaultdict(int))
@@ -987,7 +1146,12 @@ class DFA(fa.FA):
         """
         Populate word cache up to length k
         """
-        sorted_symbols = sorted(self.input_symbols)
+
+        # Weird construction to account for partial DFAs.
+        sorted_transition_symbols = {
+            state: sorted(lookup.keys()) for state, lookup in self.transitions.items()
+        }
+
         while len(self._word_cache) <= k:
             i = len(self._word_cache)
             self._word_cache.append(defaultdict(list))
@@ -1000,7 +1164,7 @@ class DFA(fa.FA):
                     {
                         state: [
                             symbol + word
-                            for symbol in sorted_symbols
+                            for symbol in sorted_transition_symbols[state]
                             for word in prev_level[self.transitions[state][symbol]]
                         ]
                         for state in self.states
@@ -1075,23 +1239,24 @@ class DFA(fa.FA):
         prefix: str,
         *,
         contains: bool = True,
+        as_partial: bool = True,
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings with the
         given prefix.
         If contains is set to False then the complement is constructed instead.
         """
-        err_state = -1
         last_state = len(prefix)
-        transitions = {
-            i: {
-                symbol: i + 1 if symbol == char else err_state
-                for symbol in input_symbols
-            }
-            for i, char in enumerate(prefix)
-        }
+        transitions = {i: {char: i + 1} for i, char in enumerate(prefix)}
         transitions[last_state] = {symbol: last_state for symbol in input_symbols}
-        transitions[err_state] = {symbol: err_state for symbol in input_symbols}
+
+        # Can't construct this as a partial if we need to take the complement
+        if not as_partial or not contains:
+            err_state = -1
+            for state_path in transitions.values():
+                for symbol in input_symbols:
+                    state_path.setdefault(symbol, err_state)
+            transitions[err_state] = {symbol: err_state for symbol in input_symbols}
 
         states = frozenset(transitions.keys())
         final_states = {last_state}
@@ -1101,6 +1266,7 @@ class DFA(fa.FA):
             transitions=transitions,
             initial_state=0,
             final_states=final_states if contains else states - final_states,
+            allow_partial=as_partial,
         )
 
     @classmethod
@@ -1145,7 +1311,8 @@ class DFA(fa.FA):
         # Computing failure function for partial matches as is done in the
         # Knuth-Morris-Pratt string algorithm so we can quickly compute the
         # next state from another state
-        kmp_table = [-1 for _ in substring]
+        # This table only holds integers, so array.array is used to save memory.
+        kmp_table = array.array("i", (-1 for _ in substring))
         candidate = 0
         for i, char in enumerate(substring):
             if i == 0:
@@ -1300,6 +1467,7 @@ class DFA(fa.FA):
             transitions={0: {symbol: 0 for symbol in input_symbols}},
             initial_state=0,
             final_states={0},
+            allow_partial=False,
         )
 
     @classmethod
@@ -1313,6 +1481,7 @@ class DFA(fa.FA):
             transitions={0: {symbol: 0 for symbol in input_symbols}},
             initial_state=0,
             final_states=frozenset(),
+            allow_partial=False,
         )
 
     @classmethod
@@ -1342,6 +1511,7 @@ class DFA(fa.FA):
             transitions=transitions,
             initial_state=0,
             final_states={n + 1},
+            allow_partial=False,
         )
 
     @classmethod
@@ -1382,11 +1552,15 @@ class DFA(fa.FA):
             },
             initial_state=0,
             final_states=frozenset(range(state_count // 2, state_count)),
+            allow_partial=False,
         )
 
     @classmethod
     def from_finite_language(
-        cls: Type[Self], input_symbols: AbstractSet[str], language: AbstractSet[str]
+        cls: Type[Self],
+        input_symbols: AbstractSet[str],
+        language: AbstractSet[str],
+        as_partial: bool = True,
     ) -> Self:
         """
         Directly computes the minimal DFA corresponding to a finite language.
@@ -1477,20 +1651,22 @@ class DFA(fa.FA):
 
         compress(prev_word, "")
 
-        # Add dump state. Always needed since dict is finite
-        dump_state = 0
-        transitions[dump_state] = {symbol: dump_state for symbol in input_symbols}
+        if as_partial:
+            return cls(
+                states=frozenset(transitions.keys()),
+                input_symbols=input_symbols,
+                transitions=transitions,
+                initial_state="",
+                final_states=final_states,
+                allow_partial=as_partial,
+            )
 
-        for path in transitions.values():
-            for symbol in input_symbols:
-                path.setdefault(symbol, dump_state)
-
-        return cls(
-            states=frozenset(transitions.keys()),
+        return cls._to_complete(
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state="",
             final_states=final_states,
+            trap_state=0,
         )
 
     @classmethod
@@ -1501,71 +1677,25 @@ class DFA(fa.FA):
         retain_names: bool = False,
         minify: bool = True,
     ) -> Self:
-        """Initialize this DFA as one equivalent to the given NFA."""
+        """
+        Initialize this DFA as one equivalent to the given NFA. Note
+        that this usually returns a partial DFA by default.
+        """
 
-        # Data structures for state renaming
+        def subset_function(current_states: FrozenSet[DFAStateT]) -> bool:
+            return not current_states.isdisjoint(target_nfa.final_states)
 
-        def get_name_original(states: FrozenSet[DFAStateT]) -> DFAStateT:
-            return states
-
-        get_name = (
-            get_name_original if retain_names else get_renaming_function(count(0))
-        )
-
-        # equivalent DFA states states
-        nfa_initial_states = frozenset(
+        initial_state = frozenset(
             target_nfa._get_lambda_closures()[target_nfa.initial_state]
         )
-        dfa_initial_state = get_name(nfa_initial_states)
-        dfa_final_states = set()
 
-        dfa_states = {dfa_initial_state}
-        dfa_symbols = target_nfa.input_symbols
-        dfa_transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
-
-        state_queue: Deque[FrozenSet[nfa.NFAStateT]] = deque()
-        state_queue.append(nfa_initial_states)
-        while state_queue:
-            current_states = state_queue.popleft()
-            current_state_name = get_name(current_states)
-
-            # Add NFA states to DFA as it is constructed from NFA.
-            dfa_transitions[current_state_name] = {}
-            if not current_states.isdisjoint(target_nfa.final_states):
-                dfa_final_states.add(current_state_name)
-
-            # Enqueue the next set of current states for the generated DFA.
-            for input_symbol in target_nfa.input_symbols:
-                next_current_states = target_nfa._get_next_current_states(
-                    current_states, input_symbol
-                )
-
-                next_current_states_name = get_name(next_current_states)
-                dfa_transitions[current_state_name][
-                    input_symbol
-                ] = next_current_states_name
-
-                # Only enqueue a state if it has not been seen yet.
-                if next_current_states_name not in dfa_states:
-                    dfa_states.add(next_current_states_name)
-                    state_queue.append(next_current_states)
-
-        if minify:
-            return cls._minify(
-                reachable_states=dfa_states,
-                input_symbols=dfa_symbols,
-                transitions=dfa_transitions,
-                initial_state=dfa_initial_state,
-                reachable_final_states=dfa_final_states,
-                retain_names=retain_names,
-            )
-
-        return cls(
-            states=dfa_states,
-            input_symbols=dfa_symbols,
-            transitions=dfa_transitions,
-            initial_state=dfa_initial_state,
-            final_states=dfa_final_states,
+        return cls._expand_dfa(
+            subset_function,
+            initial_state,
+            target_nfa._iterate_through_symbol_path_pairs,
+            target_nfa.input_symbols,
+            retain_names=retain_names,
+            minify=minify,
         )
 
     def iter_transitions(

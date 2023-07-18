@@ -25,7 +25,9 @@ a state (the value).
 6. `allow_partial`: by default, each DFA state must have a transition to
 every input symbol; if `allow_partial` is `True`, you can disable this
 characteristic (such that any DFA state can have fewer transitions than input
-symbols)
+symbols). Note that a DFA must always have every state represented in the
+transition dictionary, even if there are no transitions on input symbols
+leaving a state (dictionary is left empty in that case).
 
 ```python
 from automata.fa.dfa import DFA
@@ -85,11 +87,30 @@ else:
 dfa.copy()  # returns deep copy of dfa
 ```
 
+## DFA.to_partial(self)
+
+Creates an equivalent partial DFA with all unnecessary transitions removed. If the DFA is
+already partial, just returns a copy.
+
+```python
+dfa.to_partial()  # returns deep copy of dfa
+```
+## DFA.to_complete(self, trap_state = None)
+
+Creates an equivalent complete DFA with `trap_state` used as the name for an added trap
+state. If `trap_state` is not passed in, defaults to the largest negative integer
+which is not already a state name. If the DFA is already complete, just returns a copy.
+
+```python
+dfa.to_partial()  # returns deep copy of dfa
+```
+
 ## DFA.minify(self, retain_names=False)
 
 Creates a minimal DFA which accepts the same inputs as the old one.
 Unreachable states are removed and equivalent states are merged.
-States are renamed by default.
+States are renamed by default. If the input DFA is partial, the
+result is also partial.
 
 ```python
 minimal_dfa = dfa.minify()
@@ -108,7 +129,8 @@ dfa1 == dfa2
 ## DFA.complement(self, retain_names=False, minify=True)
 
 Creates a DFA which accepts an input if and only if the old one does not.
-Minifies by default. Unreachable states are always removed.
+Minifies by default. Unreachable states are always removed. Partial DFAs
+are converted into complete ones.
 
 ```python
 minimal_complement_dfa = ~dfa
@@ -119,7 +141,8 @@ complement_dfa = dfa.complement(minify=False)
 
 Given two DFAs which accept the languages A and B respectively,
 creates a DFA which accepts the union of A and B. Minifies by default.
-Unreachable states are always removed.
+Unreachable states are always removed. If either input DFA is partial,
+the result is partial.
 
 ```python
 minimal_union_dfa = dfa | other_dfa
@@ -130,7 +153,8 @@ union_dfa = dfa.union(other_dfa, minify=False)
 
 Given two DFAs which accept the languages A and B respectively,
 creates a DFA which accepts the intersection of A and B. Minifies by default.
-Unreachable states are always removed.
+Unreachable states are always removed. If either input DFA is partial,
+the result is partial.
 
 ```python
 minimal_intersection_dfa = dfa & other_dfa
@@ -142,7 +166,8 @@ intersection_dfa = dfa.intersection(other_dfa, minify=False)
 Given two DFAs which accept the languages A and B respectively,
 creates a DFA which accepts the set difference of A and B, often
 denoted A \ B or A - B. Minifies by default.
-Unreachable states are always removed.
+Unreachable states are always removed. If either input DFA is partial,
+the result is partial.
 
 ```python
 minimal_difference_dfa = dfa - other_dfa
@@ -154,6 +179,7 @@ difference_dfa = dfa.difference(other_dfa, minify=False)
 Given two DFAs which accept the languages A and B respectively,
 creates a DFA which accepts the symmetric difference of A and B.
 Minifies by default. Unreachable states are always removed.
+If either input DFA is partial, the result is partial.
 
 ```python
 minimal_symmetric_difference_dfa = dfa ^ other_dfa
@@ -327,11 +353,13 @@ dfa.cardinality()
 len(dfa)
 ```
 
-## DFA.from_prefix(cls, input_symbols, prefix, contains=True)
+## DFA.from_prefix(cls, input_symbols, prefix, contains=True, as_partial=True)
 
 Directly computes the minimal DFA recognizing strings with the
 given prefix.
 If `contains` is set to `False` then the complement is constructed instead.
+If `as_partial` is set to `True` then will attempt to construct this DFA as a
+partial DFA.
 
 ```python
 contains_prefix_nano = DFA.from_prefix({'a', 'n', 'o', 'b'}, 'nano')
@@ -435,6 +463,7 @@ dfa = DFA.nth_from_end({'0', '1'}, '1', 4)
 
 Creates a DFA that is equivalent to the given NFA. States are renamed by
 default unless `retain_names` is set to `True`. Minifies by default.
+Always attempts to return a partial DFA.
 
 ```python
 from automata.fa.dfa import DFA
@@ -442,9 +471,11 @@ from automata.fa.nfa import NFA
 dfa = DFA.from_nfa(nfa)  # returns an equivalent DFA
 ```
 
-## DFA.from_finite_language(cls, input_symbols, language)
+## DFA.from_finite_language(cls, input_symbols, language, as_partial=True)
 
 Constructs the minimal DFA corresponding to the given finite language and input symbols.
+If `as_partial` is set to `True` then will attempt to construct this DFA as a
+partial DFA.
 
 ```python
 DFA.from_finite_language(

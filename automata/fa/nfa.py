@@ -201,6 +201,28 @@ class NFA(fa.FA):
         self._validate_initial_state_transitions()
         self._validate_final_states()
 
+    def _iterate_through_symbol_path_pairs(
+        self, current_states: AbstractSet[NFAStateT]
+    ) -> Generator[Tuple[str, FrozenSet[NFAStateT]], None, None]:
+        """
+        Iterate through input symbols with set of end transitions which are nonempty.
+        """
+
+        lambda_closures = self._get_lambda_closures()
+        res_dict: Dict[str, Set[NFAStateT]] = {}
+
+        for input_symbol, next_states in chain.from_iterable(
+            self.transitions.get(state, {}).items() for state in current_states
+        ):
+            # Ignore empty string and empty end states
+            if input_symbol and next_states:
+                input_symbol_set = res_dict.setdefault(input_symbol, set())
+                for end_state in next_states:
+                    input_symbol_set.update(lambda_closures[end_state])
+
+        for input_symbol, next_states in res_dict.items():
+            yield (input_symbol, frozenset(next_states))
+
     def _get_next_current_states(
         self, current_states: AbstractSet[NFAStateT], input_symbol: str
     ) -> FrozenSet[NFAStateT]:
