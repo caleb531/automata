@@ -90,7 +90,7 @@ can be incorporated from requests by the community at a rapid pace.
 The following example is inspired by the use case described in [@Johnson_2010].
 We wish to determine which strings in a given set are within the target edit distance
 to a reference string. We will do this by using utilities provided by `automata`,
-starting by first initializing DFAs corresponding to the input set.
+starting by first initializing a DFA corresponding to the input set.
 
 ```python
 from automata.fa.dfa import DFA
