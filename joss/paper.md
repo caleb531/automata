@@ -136,7 +136,8 @@ found_words = list(found_words_dfa)
 
 # Acknowledgements
 
-Thanks to GitHub users [YtvwlD](https://github.com/YtvwlD),
+Thanks (in no particular order) to GitHub user
+[YtvwlD](https://github.com/YtvwlD),
 [dengl11](https://github.com/dengl11),
 [Tagl](https://github.com/Tagl),
 [lewiuberg](https://github.com/lewiuberg),
