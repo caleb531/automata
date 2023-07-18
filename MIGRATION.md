@@ -2,8 +2,33 @@
 
 ## Backwards-incompatible changes from v7 to v8
 
+### Dependency Changes
+
 Python 3.7 support has been dropped. Please upgrade to Python 3.8 or later to
 use Automata v8.
+
+Diagrams are no longer being generated using `pydot`; this dependency has been
+dropped in favor of using the `visual` optional dependency, which will install
+`pygraphviz` and `coloraide` used for generating figures. You should install
+this optional dependency if you wish to generate figures. This change was to
+allow for native support for displaying finite automaton in Jupyter notebooks.
+
+Other new dependencies have been added, but these will be installed automatically
+along with v8 of the package.
+
+### Greater Support for Partial DFAs
+
+There is now greater support for partial DFAs, which included changing the
+`DFA.from_nfa()` function to return a partial DFA instead of a complete one.
+To obtain a complete DFA, you must now call `DFA.from_nfa().to_complete(trap_state_name)`,
+where `trap_state_name` will be used as the name for a trap state if one needs to
+be added.
+
+### Type Hints
+
+Type hints have now been added, meaning that code which previously called functions
+with incorrect types may not have been flagged. See output from your typechecker
+for more information.
 
 ## Backwards-incompatible changes from v6 to v7
 
