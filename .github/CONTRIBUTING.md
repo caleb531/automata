@@ -34,7 +34,7 @@ increased from 79 characters to 120 characters.
 to verify that your code additions function correctly and break nothing else.
 
 3. Please run `coverage run -m nose2 && coverage report` to ensure that code
-coverage remains at 100%.
+coverage remains close to 100%.
 
 4. If you are adding a new feature or changing behavior, I ask that you please
 update the README appropriately with the relevant documentation.
@@ -70,7 +70,7 @@ nose2
 
 ### Code coverage
 
-The project currently boasts 100% code coverage across all source files. New
+The project currently boasts high code coverage across all source files. New
 contributions are expected to maintain this high standard. You can view the
 current coverage report via the `coverage` command:
 
@@ -79,8 +79,8 @@ coverage run -m nose2
 coverage report
 ```
 
-If the coverage is ever less than 100%, you can generate and open a detailed
-HTML view of the coverage report like so:
+If the coverage ever decreases, you can generate and open a detailed HTML view
+of the coverage report like so:
 
 ```sh
 coverage html
