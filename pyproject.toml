@@ -3,7 +3,7 @@ name = "automata-lib"
 version = "7.1.0"
 description = "A Python library for simulating finite automata, pushdown automata, and Turing machines"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 keywords = ["automata", "finite", "non-deterministic", "pushdown", "turing", "machine", "state"]
 license = {file = 'LICENSE.txt'}
 authors = [
