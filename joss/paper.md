@@ -22,8 +22,9 @@ bibliography: paper.bib
 <!-- TODO include more language like https://joss.theoj.org/papers/10.21105/joss.03608, and maybe pictures and example usage. -->
 # Summary
 
-Automata are abstract machines used to represent models of computation, and are a central object of study in theoretical computer science. Given an input string of characters over a fixed alphabet, these machines either accept or reject the string. A language corresponding to an automaton is
-the set of all strings it accepts. Three families of automata in increasing order of generality are as follows:
+Automata are abstract machines used to represent models of computation, and are a central object of study in theoretical computer science
+[@Hopcroft06]. Given an input string of characters over a fixed alphabet, these machines either accept or reject the string. A language corresponding to an automaton is
+the set of all strings it accepts. Three important families of automata in increasing order of generality are as follows:
 
 1. Finite-state automata
 2. Pushdown automata
@@ -66,7 +67,7 @@ finite language [@mihov_schulz_2019].
 - A specialized algorithm for directly constructing a minimal DFA recognizing strings containing
 a given substring [@Knuth77].
 
-To the authors knowledge, this is the only Python package implementing a number of the algorithms stated above. 
+To the authors knowledge, this is the only Python package implementing a number of the algorithms stated above.
 
 `automata` was designed around existing theoretical models of automata, for use by both
 mathematically-oriented researchers and in educational contexts. The
@@ -75,9 +76,9 @@ machines enables fast and accessible exploration of these structures by research
 On the educational side, the package includes visualization logic that allows students to
 interact with these structures in an exploratory manner, and has already seen usage in
 undergraduate courses. The package has already been cited in publications [@Erickson23], with more
-to come as the package matures. 
+to come as the package matures.
 
-The package has seen a large number of contributions by external contributors and wide adoption, 
+The package has seen a large number of contributions by external contributors and wide adoption,
 demonstrating the demand for a high-quality Python package providing these features. The code is
 well maintained, including a comprehensive test suite and type annotations, meaning new features
 can be incorporated from requests by the community at a rapid pace.
@@ -136,7 +137,9 @@ Thanks to GitHub users [YtvwlD](https://github.com/YtvwlD),
 [Tagl](https://github.com/Tagl),
 [lewiuberg](https://github.com/lewiuberg),
 [CamiloMartinezM](https://github.com/CamiloMartinezM),
-and [abhinavsinha‑adrino](https://github.com/abhinavsinha-adrino)
+[abhinavsinha‑adrino](https://github.com/abhinavsinha-adrino),
+[@EduardoGoulart1][https://github.com/EduardoGoulart1], and
+[@khoda81][https://github.com/khoda81]
 for their invaluable code contributions to this project.
 
 # References
