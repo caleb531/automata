@@ -299,6 +299,7 @@ class TestDFA(test_fa.TestFA):
 
     def test_equivalence_partials(self) -> None:
         complete_dfa = self.partial_dfa.to_complete()
+        self.assertEqual(self.partial_dfa, self.partial_dfa)
         self.assertEqual(self.partial_dfa, complete_dfa)
         self.assertEqual(self.partial_dfa, complete_dfa.to_partial())
 

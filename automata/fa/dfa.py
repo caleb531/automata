@@ -1469,6 +1469,7 @@ class DFA(fa.FA):
             transitions={0: {symbol: 0 for symbol in input_symbols}},
             initial_state=0,
             final_states={0},
+            allow_patial=False,
         )
 
     @classmethod
@@ -1482,6 +1483,7 @@ class DFA(fa.FA):
             transitions={0: {symbol: 0 for symbol in input_symbols}},
             initial_state=0,
             final_states=frozenset(),
+            allow_partial=False,
         )
 
     @classmethod
