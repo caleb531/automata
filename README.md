@@ -44,6 +44,12 @@ You can install the latest version of Automata via pip:
 pip install automata-lib
 ```
 
+To install the optional visual dependencies, use the `visual` extra:
+
+```sh
+pip install 'automata-lib[visual]'
+```
+
 ## API
 
 Please refer to [the official API Documentation][docs] in the `docs/` directory
