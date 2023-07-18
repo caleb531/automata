@@ -32,7 +32,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     __slots__ = tuple()
 
     @staticmethod
-    def get_state_name(state_data: FAStateT) -> str:
+    def _get_state_name(state_data: FAStateT) -> str:
         """
         Get an string representation of a state. This is used for displaying and
         uses `str` for any unsupported python data types.
@@ -44,7 +44,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             return state_data
 
         elif isinstance(state_data, (frozenset, tuple)):
-            inner = ", ".join(FA.get_state_name(sub_data) for sub_data in state_data)
+            inner = ", ".join(FA._get_state_name(sub_data) for sub_data in state_data)
             if isinstance(state_data, frozenset):
                 if state_data:
                     return "{" + inner + "}"
@@ -57,7 +57,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         return str(state_data)
 
     @staticmethod
-    def get_edge_name(symbol: str) -> str:
+    def _get_edge_name(symbol: str) -> str:
         return "ε" if symbol == "" else str(symbol)
 
     @abc.abstractmethod
@@ -135,7 +135,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             shape="point",
             fontsize=font_size_str,
         )
-        initial_node = self.get_state_name(self.initial_state)
+        initial_node = self._get_state_name(self.initial_state)
         graph.add_edge(
             null_node,
             initial_node,
@@ -143,8 +143,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             arrowsize=arrow_size_str,
         )
 
-        nonfinal_states = map(self.get_state_name, self.states - self.final_states)
-        final_states = map(self.get_state_name, self.final_states)
+        nonfinal_states = map(self._get_state_name, self.states - self.final_states)
+        final_states = map(self._get_state_name, self.final_states)
         graph.add_nodes_from(nonfinal_states, shape="circle", fontsize=font_size_str)
         graph.add_nodes_from(final_states, shape="doublecircle", fontsize=font_size_str)
 
@@ -165,12 +165,12 @@ class FA(Automaton, metaclass=abc.ABCMeta):
                 input_path, start=1
             ):
                 color = interpolation(transition_index / len(input_path))
-                label = self.get_edge_name(symbol)
+                label = self._get_edge_name(symbol)
 
                 is_edge_drawn[from_state, to_state, symbol] = True
                 graph.add_edge(
-                    self.get_state_name(from_state),
-                    self.get_state_name(to_state),
+                    self._get_state_name(from_state),
+                    self._get_state_name(to_state),
                     label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
                     arrowsize=arrow_size_str,
                     fontsize=font_size_str,
@@ -183,9 +183,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             if is_edge_drawn[from_state, to_state, symbol]:
                 continue
 
-            from_node = self.get_state_name(from_state)
-            to_node = self.get_state_name(to_state)
-            label = self.get_edge_name(symbol)
+            from_node = self._get_state_name(from_state)
+            to_node = self._get_state_name(to_state)
+            label = self._get_edge_name(symbol)
             edge_labels[from_node, to_node].append(label)
 
         for (from_node, to_node), labels in edge_labels.items():

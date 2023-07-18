@@ -7,7 +7,10 @@ The `GNFA` class is a subclass of `FA` and represents a generalized
 nondeterministic finite automaton. It can be found under `automata/fa/gnfa.py`.
 Its main usage is for conversion of DFAs and NFAs to regular expressions. Note
 that because of this, the `GNFA` doesn't support any binary operators or reading
-input (e.g. `read_input_stepwise`).
+input (e.g. `read_input_stepwise`). Every GNFA can be rendered natively inside of-
+a Jupyter notebook (automatically calling `show_diagram` without any arguments)
+if installed with the `visual` optional dependency. Note that `input_str`
+cannot be set as an argument to `show_diagram`, as the `GNFA` does not read input.
 
 Every `GNFA` has the following properties: `states`, `input_symbols`,
 `transitions`, `initial_state`, and `final_state`. This is very similar to the
@@ -84,17 +87,6 @@ Convert GNFA to regular expression.
 
 ```python
 gnfa.to_regex() # returns a regular expression (string)
-```
-
-## GNFA.show_diagram(self, path=None, show_None=True):
-
-Writes a visual diagram of the GNFA to an image file.
-
-1. `path`: the path of the image to be saved
-2. `show_None`: A boolean indicating when to show or hide `None` transitions; defaults to `True`.
-
-```python
-gnfa.show_diagram(path='./gnfa.png', show_None=False)
 ```
 
 ------

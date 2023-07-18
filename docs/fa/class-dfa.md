@@ -4,7 +4,10 @@
 [Table of Contents](../README.md)
 
 The `DFA` class is a subclass of `FA` and represents a deterministic finite
-automaton. It can be found under `automata/fa/dfa.py`.
+automaton. It can be found under `automata/fa/dfa.py`. Every DFA
+can be rendered natively inside of a Jupyter notebook (automatically calling
+`show_diagram` without any arguments) if installed with the `visual` optional
+dependency.
 
 Every DFA has the following (required) properties:
 
@@ -316,6 +319,8 @@ Counts words of length `k` accepted by the DFA.
 dfa.count_words_of_length(3)
 ```
 
+__Note:__ Counts of words are cached. Use the `clear_cache` method if memory is an issue.
+
 ## DFA.words_of_length(self, k)
 
 Generates words of length `k` accepted by the DFA.
@@ -334,6 +339,8 @@ for word in dfa:
         break
     print(word)
 ```
+
+__Note:__ Generated words are cached. Use the `clear_cache` method if memory is an issue.
 
 ## DFA.clear_cache(self)
 
@@ -482,12 +489,6 @@ DFA.from_finite_language(
     language={'aa', 'aaa', 'aaba', 'aabbb', 'abaa', 'ababb', 'abbab',
               'baa', 'babb', 'bbaa', 'bbabb', 'bbbab'},
     input_symbols={'a', 'b'})
-```
-
-## DFA.show_diagram(self, path=None)
-
-```python
-dfa.show_diagram(path='./dfa1.png')
 ```
 
 ------

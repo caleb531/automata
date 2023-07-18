@@ -13,6 +13,10 @@ a single state can have more than one transition for the same symbol. Therefore,
 instead of mapping a symbol to *one* end state in each sub-dict, each symbol is
 mapped to a *set* of end states.
 
+Every NFA can be rendered natively inside of a Jupyter notebook (automatically calling
+`show_diagram` without any arguments) if installed with the `visual` optional
+dependency.
+
 ```python
 from automata.fa.nfa import NFA
 # NFA which matches strings beginning with 'a', ending with 'a', and containing
@@ -213,12 +217,6 @@ converting to a GNFA:
 ```python
 from automata.fa.gnfa import GNFA
 GNFA.from_nfa(my_nfa).to_regex()
-```
-
-## NFA.show_diagram(self, path=None)
-
-```python
-nfa1.show_diagram(path='./abc.png')
 ```
 
 ------
