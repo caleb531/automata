@@ -142,8 +142,8 @@ Thanks to GitHub users [YtvwlD](https://github.com/YtvwlD),
 [lewiuberg](https://github.com/lewiuberg),
 [CamiloMartinezM](https://github.com/CamiloMartinezM),
 [abhinavsinha‑adrino](https://github.com/abhinavsinha-adrino),
-[@EduardoGoulart1][https://github.com/EduardoGoulart1], and
-[@khoda81][https://github.com/khoda81]
+[@EduardoGoulart1](https://github.com/EduardoGoulart1), and
+[@khoda81](https://github.com/khoda81)
 for their invaluable code contributions to this project.
 
 # References
