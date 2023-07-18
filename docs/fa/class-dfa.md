@@ -463,6 +463,7 @@ dfa = DFA.nth_from_end({'0', '1'}, '1', 4)
 
 Creates a DFA that is equivalent to the given NFA. States are renamed by
 default unless `retain_names` is set to `True`. Minifies by default.
+Always attempts to return a partial DFA.
 
 ```python
 from automata.fa.dfa import DFA
