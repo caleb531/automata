@@ -35,6 +35,10 @@ Type hints have now been added, meaning that code which previously called functi
 with incorrect types may not have been flagged. See output from your typechecker
 for more information.
 
+### NFA.from_regex default input symbols
+The default set of input symbols for `NFA.from_regex` was changed to all ascii letters and digits.
+If needing to use a specific set of input symbols, use the `input_symbols` parameter.
+
 ## Backwards-incompatible changes from v6 to v7
 
 ### Immutable instances
