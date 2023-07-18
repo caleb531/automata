@@ -17,7 +17,6 @@ from typing import (
     Generator,
     Iterator,
     List,
-    Literal,
     Mapping,
     Optional,
     Set,
@@ -45,7 +44,6 @@ ExpandStateReturnType = Iterator[Tuple[DFASymbolT, DFAStateT]]
 ExpandStateFn = Callable[[DFAStateT], ExpandStateReturnType]
 IsFinalStateFn = Callable[[DFAStateT], bool]
 TargetStateFn = Callable[[DFAStateT], bool]
-BooleanLiteral = Literal[True, False]
 
 
 class DFA(fa.FA):
@@ -570,7 +568,7 @@ class DFA(fa.FA):
             return q_a in self.final_states or q_b in other.final_states
 
         initial_state, expand_state_fn = self.__class__._cross_product(
-            self, other, True, True
+            self, other, lhs_relevant=True, rhs_relevant=True
         )
 
         return self.__class__._expand_dfa(
@@ -596,7 +594,7 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b in other.final_states
 
         initial_state, expand_state_fn = self.__class__._cross_product(
-            self, other, False, False
+            self, other, lhs_relevant=False, rhs_relevant=False
         )
 
         return self.__class__._expand_dfa(
@@ -622,7 +620,7 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b not in other.final_states
 
         initial_state, expand_state_fn = self.__class__._cross_product(
-            self, other, False, True
+            self, other, lhs_relevant=False, rhs_relevant=True
         )
 
         return self.__class__._expand_dfa(
@@ -650,7 +648,7 @@ class DFA(fa.FA):
             return (q_a in self.final_states) ^ (q_b in other.final_states)
 
         initial_state, expand_state_fn = self.__class__._cross_product(
-            self, other, True, True
+            self, other, lhs_relevant=True, rhs_relevant=True
         )
 
         return self.__class__._expand_dfa(
@@ -831,7 +829,7 @@ class DFA(fa.FA):
 
     @staticmethod
     def _cross_product(
-        lhs: DFA, rhs: DFA, lhs_relevant: BooleanLiteral, rhs_relevant: BooleanLiteral
+        lhs: DFA, rhs: DFA, *, lhs_relevant: bool, rhs_relevant: bool
     ) -> Tuple[DFAStateT, ExpandStateFn]:
         """
         Builds the cross product between the two DFAs.
@@ -883,7 +881,7 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b not in other.final_states
 
         initial_state, expand_state_fn = self.__class__._cross_product(
-            self, other, False, True
+            self, other, lhs_relevant=False, rhs_relevant=True
         )
 
         return not self.__class__._find_state(
@@ -903,7 +901,7 @@ class DFA(fa.FA):
             return q_a in self.final_states and q_b in other.final_states
 
         initial_state, expand_state_fn = self.__class__._cross_product(
-            self, other, False, False
+            self, other, lhs_relevant=False, rhs_relevant=False
         )
 
         return not self.__class__._find_state(
