@@ -46,7 +46,7 @@ in the academic community.
 
 `automata` is a Python package for the manipulation and simulation of automata from the families listed above.
 The API is designed to mimic the formal mathematical description of each automata using built-in Python data structures. As a popular high-level language, Python enables greater flexibility and easy-of-use that is difficult
-to achieve with a low-level language (e.g., Rust). The algorithms in the package have been optimized for
+to achieve with a low-level language (e.g., Rust). Algorithms in the package have been optimized for
 performance against benchmarks from tasks arising in research. In addition, Python allows for
 greater optimization by the integration of lower-level technologies (e.g., Cython), while still
 retaining the same high-level API, allowing for integration of more performant features as-needed by
@@ -75,10 +75,10 @@ included functionality for parsing regular expressions and manipulating finite-s
 machines enables fast and accessible exploration of these structures by researchers.
 On the educational side, the package includes visualization logic that allows students to
 interact with these structures in an exploratory manner, and has already seen usage in
-undergraduate courses. The package has already been cited in publications [@Erickson23], with more
-to come as the package matures.
+undergraduate courses. `automata` has already been cited in publications [@Erickson23], with more
+to come as the package becomes more popular.
 
-The package has seen a large number of contributions by external contributors and wide adoption,
+`automata` has seen a large number of contributions by external contributors and wide adoption,
 demonstrating the demand for a high-quality Python package providing these features. The code is
 well maintained, including a comprehensive test suite and type annotations, meaning new features
 can be incorporated from requests by the community at a rapid pace.
