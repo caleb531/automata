@@ -1263,6 +1263,29 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(minimal_dfa.initial_state, frozenset(("q0", "q1")))
         self.assertEqual(minimal_dfa.final_states, set())
 
+    def test_minify_partial_dfa(self) -> None:
+        """Test that minifying a partial DFA removes extra states."""
+
+        # A partial DFA that accepts the string "111" only
+        partial_dfa_extra_state = DFA(
+            states=set(range(5)),
+            input_symbols={"0", "1"},
+            transitions={
+                0: {"1": 1, "0": 4},
+                1: {"1": 2},
+                2: {"1": 3},
+                3: {},
+                4: {}
+            },
+            initial_state=0,
+            final_states={3},
+            allow_partial=True,
+        )
+
+        minified_partial_dfa = partial_dfa_extra_state.minify()
+        self.assertEqual(len(minified_partial_dfa.states), 4)
+        self.assertEqual(minified_partial_dfa, partial_dfa_extra_state)
+
     def test_init_nfa_simple(self) -> None:
         """Should convert to a DFA a simple NFA."""
         nfa = NFA(

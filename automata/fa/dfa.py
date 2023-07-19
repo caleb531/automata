@@ -453,12 +453,25 @@ class DFA(fa.FA):
                           If False, new states will be named 0, ..., n-1.
         """
 
-        # Compute reachable states and final states
-        bfs_states = self.__class__._bfs_states(
-            self.initial_state, lambda state: iter(self.transitions[state].items())
-        )
-        reachable_states = set(bfs_states)
-        reachable_final_states = self.final_states & reachable_states
+        if self.allow_partial:
+            # In the case of a partial DFA, we want to try to condense possible trap states
+            # before the main minify operaton.
+            graph = self._get_digraph()
+            live_states = nx.descendants(graph, self.initial_state) | {self.initial_state}
+            non_trap_states = set(self.final_states).union(
+                *(nx.ancestors(graph, state) for state in self.final_states)
+            )
+            reachable_states = live_states & non_trap_states
+            reachable_states.add(self.initial_state)
+
+            reachable_final_states = self.final_states & reachable_states
+        else:
+            # Compute reachable states and final states
+            bfs_states = self.__class__._bfs_states(
+                self.initial_state, lambda state: iter(self.transitions[state].items())
+            )
+            reachable_states = set(bfs_states)
+            reachable_final_states = self.final_states & reachable_states
 
         return self.__class__._minify(
             reachable_states=reachable_states,
