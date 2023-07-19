@@ -6,7 +6,8 @@ tags:
 authors:
   - name: Caleb Evans
     corresponding: true
-    affiliation: 1 # Affiliation is required TODO add Caleb's orcid
+    orcid: 0009-0000-8896-6800
+    affiliation: 1 # Affiliation is required
   - name: Eliot W. Robson
     orcid: 0000-0002-1476-6715
     affiliation: 2
@@ -67,7 +68,7 @@ finite language [@mihov_schulz_2019].
 - A specialized algorithm for directly constructing a minimal DFA recognizing strings containing
 a given substring [@Knuth77].
 
-To the authors knowledge, this is the only Python package implementing a number of the algorithms stated above.
+To the author's knowledge, this is the only Python package implementing a number of the algorithms stated above.
 
 `automata` was designed around existing theoretical models of automata, for use by both
 mathematically-oriented researchers and in educational contexts. The
