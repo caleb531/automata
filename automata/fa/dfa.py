@@ -465,15 +465,14 @@ class DFA(fa.FA):
             )
             reachable_states = live_states & non_trap_states
             reachable_states.add(self.initial_state)
-
-            reachable_final_states = self.final_states & reachable_states
         else:
             # Compute reachable states and final states
             bfs_states = self.__class__._bfs_states(
                 self.initial_state, lambda state: iter(self.transitions[state].items())
             )
             reachable_states = set(bfs_states)
-            reachable_final_states = self.final_states & reachable_states
+
+        reachable_final_states = self.final_states & reachable_states
 
         return self.__class__._minify(
             reachable_states=reachable_states,
