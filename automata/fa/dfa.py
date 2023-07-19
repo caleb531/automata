@@ -454,8 +454,8 @@ class DFA(fa.FA):
         """
 
         if self.allow_partial:
-            # In the case of a partial DFA, we want to try to condense possible trap states
-            # before the main minify operaton.
+            # In the case of a partial DFA, we want to try to condense
+            # possible trap states before the main minify operation.
             graph = self._get_digraph()
             live_states = nx.descendants(graph, self.initial_state) | {
                 self.initial_state
