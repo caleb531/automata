@@ -81,7 +81,7 @@ to come as the package becomes more popular.
 
 `automata` has seen a large number of contributions by external contributors and wide adoption,
 demonstrating the demand for a high-quality Python package providing these features. The code is
-well maintained, including a comprehensive test suite and type annotations, meaning new features
+well-maintained, including a comprehensive test suite and type annotations, meaning new features
 can be incorporated from requests by the community at a rapid pace.
 
 # Example usage

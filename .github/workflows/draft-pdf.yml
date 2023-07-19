@@ -1,4 +1,8 @@
-on: [push]
+on:
+  push:
+    paths: ["joss/**"]
+  pull_request:
+    paths: ["joss/**"]
 
 jobs:
   paper:
