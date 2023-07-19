@@ -301,7 +301,7 @@ class TestDFA(test_fa.TestFA):
         complete_dfa = self.partial_dfa.to_complete()
         self.assertEqual(self.partial_dfa, self.partial_dfa)
         self.assertEqual(self.partial_dfa, complete_dfa)
-        self.assertEqual(self.partial_dfa, complete_dfa.to_partial())
+        self.assertEqual(self.partial_dfa, complete_dfa.to_partial(minify=False))
 
     def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
