@@ -79,5 +79,5 @@ exclude_lines = [
 include =["automata/*/*.py"]
 
 # Only one module in this repo
-[tool.setuptools]
-py-modules = ['automata']
+[tool.setuptools.packages.find]
+exclude = ["joss"]
