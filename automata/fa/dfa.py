@@ -457,7 +457,9 @@ class DFA(fa.FA):
             # In the case of a partial DFA, we want to try to condense possible trap states
             # before the main minify operaton.
             graph = self._get_digraph()
-            live_states = nx.descendants(graph, self.initial_state) | {self.initial_state}
+            live_states = nx.descendants(graph, self.initial_state) | {
+                self.initial_state
+            }
             non_trap_states = set(self.final_states).union(
                 *(nx.ancestors(graph, state) for state in self.final_states)
             )

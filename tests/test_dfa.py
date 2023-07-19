@@ -1270,13 +1270,7 @@ class TestDFA(test_fa.TestFA):
         partial_dfa_extra_state = DFA(
             states=set(range(5)),
             input_symbols={"0", "1"},
-            transitions={
-                0: {"1": 1, "0": 4},
-                1: {"1": 2},
-                2: {"1": 3},
-                3: {},
-                4: {}
-            },
+            transitions={0: {"1": 1, "0": 4}, 1: {"1": 2}, 2: {"1": 3}, 3: {}, 4: {}},
             initial_state=0,
             final_states={3},
             allow_partial=True,
