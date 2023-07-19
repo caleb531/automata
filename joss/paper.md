@@ -5,10 +5,10 @@ tags:
   - automata
 authors:
   - name: Caleb Evans
-    corresponding: true
     orcid: 0009-0000-8896-6800
     affiliation: 1 # Affiliation is required
   - name: Eliot W. Robson
+    corresponding: true
     orcid: 0000-0002-1476-6715
     affiliation: 2
 affiliations:
@@ -30,7 +30,7 @@ the set of all strings it accepts. Three important families of automata in incre
 2. Pushdown automata
 3. Turing machines
 
-These models are a core component of both computer science education and research, seeing applications in a wide variety of areas. In particular, the ability to manipulate finite-state automata within the context of a software package has seen attention from researchers in the past [@Sutner02a]. Similar software has also included
+These models are a core component of both computer science education and research, seeing applications in a wide variety of areas. In particular, the ability to manipulate finite-state automata within the context of a software package has seen attention from researchers in the past [@Sutner03]. Similar software has also included
 functionality for parsing regular expressions into their corresponding finite-state automata [@brics].
 
 # Statement of need
