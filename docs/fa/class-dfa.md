@@ -90,10 +90,11 @@ else:
 dfa.copy()  # returns deep copy of dfa
 ```
 
-## DFA.to_partial(self)
+## DFA.to_partial(self, retain_names = False, minify = True)
 
 Creates an equivalent partial DFA with all unnecessary transitions removed. If the DFA is
-already partial, just returns a copy.
+already partial, just returns a copy. Will minify the input DFA if `minify` is `True`,
+and retain names during this if `retain_names` is `True`.
 
 ```python
 dfa.to_partial()  # returns deep copy of dfa

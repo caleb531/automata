@@ -224,7 +224,7 @@ class DFA(fa.FA):
         """Returns the cardinality of the language represented by the DFA."""
         return self.cardinality()
 
-    def to_partial(self) -> Self:
+    def to_partial(self, *, retain_names: bool = False, minify: bool = True) -> Self:
         """
         Turns a DFA (complete or not) into a partial DFA.
         Removes dead states and trap states (except the initial state)
@@ -241,6 +241,18 @@ class DFA(fa.FA):
 
         new_states = live_states & non_trap_states
         new_states.add(self.initial_state)
+
+        if minify:
+            # No need to alter transitions here, since unused entries in
+            # that dict are removed automatically by the minify call
+            return self.__class__._minify(
+                reachable_states=new_states,
+                input_symbols=self.input_symbols,
+                transitions=self.transitions,
+                initial_state=self.initial_state,
+                reachable_final_states=self.final_states & new_states,
+                retain_names=retain_names,
+            )
 
         return self.__class__(
             states=new_states,
@@ -490,7 +502,11 @@ class DFA(fa.FA):
         for start_state, path in transitions.items():
             if start_state in reachable_states:
                 for symbol, end_state in path.items():
-                    transition_back_map[symbol][end_state].append(start_state)
+                    symbol_dict = transition_back_map[symbol]
+                    # If statement here needed to ignore certain transitions
+                    # when minifying a partial DFA.
+                    if end_state in symbol_dict:
+                        symbol_dict[end_state].append(start_state)
 
         origin_dicts = tuple(transition_back_map.values())
         processing = {final_states_id}
@@ -534,16 +550,19 @@ class DFA(fa.FA):
         new_states = frozenset(back_map.values())
         new_initial_state = back_map[initial_state]
         new_final_states = frozenset(back_map[acc] for acc in reachable_final_states)
-        new_transitions = {
-            name: {
-                letter: back_map[transitions[next(iter(eq))][letter]]
-                for letter in transitions[next(iter(eq))].keys()
+        new_transitions = {}
+
+        for name, eq in eq_class_name_pairs:
+            eq_class_rep = next(iter(eq))
+            inner_transition_dict_old = transitions[eq_class_rep]
+            new_transitions[name] = {
+                letter: back_map[inner_transition_dict_old[letter]]
+                for letter in inner_transition_dict_old.keys()
+                if inner_transition_dict_old[letter] in reachable_states
             }
-            for name, eq in eq_class_name_pairs
-        }
 
         allow_partial = any(
-            len(lookup) != len(input_symbols) for lookup in transitions.values()
+            len(lookup) != len(input_symbols) for lookup in new_transitions.values()
         )
         return cls(
             states=new_states,
