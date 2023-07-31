@@ -76,7 +76,7 @@ exclude_lines = [
 ]
 
 # Only check coverage for source files
-include =["automata/*/*.py"]
+include = ["automata/*/*.py"]
 
 # Only one module in this repo
 [tool.setuptools.packages.find]
