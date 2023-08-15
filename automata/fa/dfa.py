@@ -1859,12 +1859,12 @@ class DFA(fa.FA):
         class OutNode:
             def __init__(self, keyword: str, next_node: OutNode) -> None:
                 self.keyword: str = keyword
-                self.successor: OutNode = next_node
+                self.successor: Optional[OutNode] = next_node
 
         class Node:
             def __init__(self) -> None:
-                self.out: OutNode = None
-                self.fail: Node = None
+                self.out: Optional[OutNode] = None
+                self.fail: Optional[Node] = None
                 self.successors: Dict[str, Node] = dict()
 
         root = Node()

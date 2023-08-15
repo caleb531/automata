@@ -2137,18 +2137,18 @@ class TestDFA(test_fa.TestFA):
     def test_contains_substrings(self, as_partial: bool) -> None:
         input_symbols = {"a", "n", "o", "b"}
         substring_dfa = DFA.from_substring(input_symbols, "nano")
-        substrings_dfa = DFA.from_substrings(input_symbols, ["nano"])
+        substrings_dfa = DFA.from_substrings(input_symbols, {"nano"})
         
         self.assertEqual(substring_dfa, substrings_dfa)
 
         substring_dfa = substring_dfa | DFA.from_substring(input_symbols, "banana")
-        substrings_dfa = DFA.from_substrings(input_symbols, ["banana", "nano"])
+        substrings_dfa = DFA.from_substrings(input_symbols, {"banana", "nano"})
         
 
         self.assertEqual(substring_dfa, substrings_dfa)
         
         self.assertEqual(
-            ~substrings_dfa, DFA.from_substrings(input_symbols, ["banana", "nano"], contains=False)
+            ~substrings_dfa, DFA.from_substrings(input_symbols, {"banana", "nano"}, contains=False)
         )
 
     @params(True, False)
