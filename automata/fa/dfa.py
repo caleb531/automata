@@ -1751,7 +1751,7 @@ class DFA(fa.FA):
     def from_suffixes(
         cls: Type[Self],
         input_symbols: AbstractSet[str],
-        suffixes: str,
+        suffixes: AbstractSet[str],
         *,
         contains: bool = True,
     ) -> Self:
@@ -1857,23 +1857,23 @@ class DFA(fa.FA):
         If must_be_suffix is set to True, then the each substring must be a suffix instead.
         """
         class OutNode:
-            def __init__(self, keyword, next_node):
-                self.keyword = keyword
-                self.successor = next_node
+            def __init__(self, keyword: str, next_node: OutNode) -> None:
+                self.keyword: str = keyword
+                self.successor: OutNode = next_node
 
-        class GoNode:
-            def __init__(self):
-                self.out = None
-                self.fail = None
-                self.successors = dict()
+        class Node:
+            def __init__(self) -> None:
+                self.out: OutNode = None
+                self.fail: Node = None
+                self.successors: Dict[str, Node] = dict()
 
-        root = GoNode()
+        root = Node()
         labels = {id(root): 0}
         final_states = set()
         for substring in substrings:
             current_node = root
             for symbol in substring:
-                current_node.successors.setdefault(symbol, GoNode())
+                current_node.successors.setdefault(symbol, Node())
                 current_node = current_node.successors[symbol]
                 labels.setdefault(id(current_node), len(labels))
             current_node.out = OutNode(substring, None)
