@@ -1748,6 +1748,23 @@ class DFA(fa.FA):
         )
 
     @classmethod
+    def from_suffixes(
+        cls: Type[Self],
+        input_symbols: AbstractSet[str],
+        suffixes: str,
+        *,
+        contains: bool = True,
+    ) -> Self:
+        """
+        Directly computes a DFA recognizing strings ending with at least one of the given suffixes.
+        The implementation is based on the Aho-Corasick string-searching algorithm.
+        If contains is set to False then the complement is constructed instead.
+        """
+        return cls.from_substrings(
+            input_symbols, suffixes, contains=False, must_be_suffix=True
+        )
+
+    @classmethod
     def from_substring(
         cls: Type[Self],
         input_symbols: AbstractSet[str],
@@ -1823,6 +1840,106 @@ class DFA(fa.FA):
             initial_state=0,
             final_states=final_states if contains else states - final_states,
         )
+
+    @classmethod
+    def from_substrings(
+        cls: Type[Self],
+        input_symbols: AbstractSet[str],
+        substrings: AbstractSet[str],
+        *,
+        contains: bool = True,
+        must_be_suffix: bool = False,
+    ) -> Self:
+        """
+        Directly computes a DFA recognizing strings containing at least one of the given substring.
+        The implementation is based on the Aho-Corasick string-searching algorithm.
+        If contains is set to False then the complement is constructed instead.
+        If must_be_suffix is set to True, then the each substring must be a suffix instead.
+        """
+        class OutNode:
+            def __init__(self, keyword, next_node):
+                self.keyword = keyword
+                self.successor = next_node
+
+        class GoNode:
+            def __init__(self):
+                self.out = None
+                self.fail = None
+                self.successors = dict()
+
+        root = GoNode()
+        labels = {id(root): 0}
+        final_states = set()
+        for substring in substrings:
+            current_node = root
+            for symbol in substring:
+                current_node.successors.setdefault(symbol, GoNode())
+                current_node = current_node.successors[symbol]
+                labels.setdefault(id(current_node), len(labels))
+            current_node.out = OutNode(substring, None)
+
+        queue = deque(root.successors.values())
+        while queue:
+            current_node = queue.popleft()
+            for symbol, successor in current_node.successors.items():
+                queue.append(successor)
+
+                st = current_node.fail
+                while st is not None and symbol not in st.successors:
+                    st = st.fail
+
+                if st is None:
+                    st = root
+
+                successor.fail = st.successors.get(symbol, None)
+
+                if successor.fail is not None:
+                    if successor.out is None:
+                        successor.out = successor.fail.out
+                    else:
+                        out = successor.out
+                        while out.successor is not None:
+                            out = out.successor
+                        out.successor = successor.fail.out
+
+        transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {}
+
+        queue = deque([root])
+        while queue:
+            current_node = queue.popleft()
+            state = labels[id(current_node)]
+            if current_node.out is not None:
+                final_states.add(state)
+            current_transitions = {}
+            for symbol in input_symbols:
+                if symbol in current_node.successors:
+                    queue.append(current_node.successors[symbol])
+                parent_node = current_node
+                while parent_node is not None and symbol not in parent_node.successors:
+                    parent_node = parent_node.fail
+                if parent_node is None:
+                    parent_node = root
+                successor = parent_node.successors.get(symbol, root)
+                current_transitions[symbol] = labels[id(successor)]
+
+            transitions[state] = current_transitions
+
+        if not must_be_suffix:
+            end_state = len(transitions)
+            transitions[end_state] = {symbol: end_state for symbol in input_symbols}
+            for state in final_states:
+                transitions[state] = {symbol: end_state for symbol in input_symbols}
+            final_states.add(end_state)
+
+        states = frozenset(transitions.keys())
+        return cls(
+                states=states,
+                input_symbols=input_symbols,
+                transitions=transitions,
+                initial_state=0,
+                final_states=final_states if contains else states - final_states,
+        )
+
 
     @classmethod
     def from_subsequence(
