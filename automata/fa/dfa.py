@@ -1857,7 +1857,7 @@ class DFA(fa.FA):
         If must_be_suffix is set to True, then the each substring must be a suffix instead.
         """
         class OutNode:
-            def __init__(self, keyword: str, next_node: OutNode) -> None:
+            def __init__(self, keyword: str, next_node: Optional[OutNode]) -> None:
                 self.keyword: str = keyword
                 self.successor: Optional[OutNode] = next_node
 
