@@ -46,7 +46,9 @@ in the academic community.
 # The `automata` package
 
 `automata` is a Python package for the manipulation and simulation of automata from the families listed above.
-The API is designed to mimic the formal mathematical description of each automata using built-in Python data structures. As a popular high-level language, Python enables greater flexibility and easy-of-use that is difficult
+The API is designed to mimic the formal mathematical description of each automaton using built-in Python data structures
+(such as sets and dicts).
+As a popular high-level language, Python enables greater flexibility and ease of use that is difficult
 to achieve with a low-level language (e.g., Rust). Algorithms in the package have been optimized for
 performance against benchmarks from tasks arising in research. In addition, Python allows for
 greater optimization by the integration of lower-level technologies (e.g., Cython), while still
@@ -68,7 +70,7 @@ finite language [@mihov_schulz_2019].
 - A specialized algorithm for directly constructing a minimal DFA recognizing strings containing
 a given substring [@Knuth77].
 
-To the author's knowledge, this is the only Python package implementing a number of the algorithms stated above.
+To the authors' knowledge, this is the only Python package implementing all of the algorithms stated above.
 
 `automata` was designed around existing theoretical models of automata, for use by both
 mathematically-oriented researchers and in educational contexts. The
