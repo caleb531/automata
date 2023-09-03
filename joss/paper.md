@@ -24,7 +24,7 @@ bibliography: paper.bib
 
 Automata are abstract machines used to represent models of computation, and are a central object of study in theoretical computer science
 [@Hopcroft06]. Given an input string of characters over a fixed alphabet, these machines either accept or reject the string. A language corresponding to an automaton is
-the set of all strings it accepts. Three important families of automata in increasing order of generality are as follows:
+the set of all strings it accepts. Three important families of automata in increasing order of generality are the following:
 
 1. Finite-state automata
 2. Pushdown automata
