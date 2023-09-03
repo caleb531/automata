@@ -17,7 +17,7 @@
   author =  {Anders M\o{}ller},
   title =   {dk.brics.automaton -- Finite-State Automata
              and Regular Expressions for {Java}},
-  note =    {\texttt{http://www.brics.dk/automaton/}},
+  url =    {http://www.brics.dk/automaton/},
   year =    2021
 }
 
@@ -26,7 +26,7 @@
                   Nelma Moreira and
                   Rog{\'{e}}rio Reis},
   title        = {Testing the Equivalence of Regular Languages},
-  journal      = {J. Autom. Lang. Comb.},
+  journal      = {Journal of Automata, Languages and Combinatorics},
   volume       = {15},
   number       = {1/2},
   pages        = {7--25},
@@ -51,27 +51,29 @@
   collection={Cambridge Tracts in Theoretical Computer Science}
 }
 
-@inbook{AhoSU86,
-  author       = {Alfred V. Aho and
-                  Ravi Sethi and
-                  Jeffrey D. Ullman},
-  title        = {Compilers: Principles, Techniques, and Tools},
-  series       = {Addison-Wesley series in computer science / World student series edition},
-  publisher    = {Addison-Wesley},
-  year         = {1986},
-  url          = {https://www.worldcat.org/oclc/12285707},
-  isbn         = {0-201-10088-6},
-  timestamp    = {Fri, 17 Jul 2020 16:12:45 +0200},
-  biburl       = {https://dblp.org/rec/books/aw/AhoSU86.bib},
-  bibsource    = {dblp computer science bibliography, https://dblp.org},
-  pages        = {159–163}
+@book{AhoSU86,
+    author = {Aho, Alfred V. and Lam, Monica S. and Sethi, Ravi and Ullman, Jeffrey D.},
+    title = {Compilers: Principles, Techniques, and Tools (2nd Edition)},
+    year = {2006},
+    isbn = {0321486811},
+    publisher = {Addison-Wesley Longman Publishing Co., Inc.},
+    address = {USA},
+    pages = {152-155}
 }
 
-@inproceedings{Yingjie09,
-  title={Describing an n log n algorithm for minimizing states in deterministic finite automaton},
-  author={Xu Yingjie},
-  year={2009}
+@incollection{Hopcroft71,
+    title = {AN n log n ALGORITHM FOR MINIMIZING STATES IN A FINITE AUTOMATON},
+    editor = {Zvi Kohavi and Azaria Paz},
+    booktitle = {Theory of Machines and Computations},
+    publisher = {Academic Press},
+    pages = {189-196},
+    year = {1971},
+    isbn = {978-0-12-417750-5},
+    doi = {https://doi.org/10.1016/B978-0-12-417750-5.50022-1},
+    url = {https://www.sciencedirect.com/science/article/pii/B9780124177505500221},
+    author = {John Hopcroft},
 }
+
 
 @INPROCEEDINGS{Erickson23,
   author = {Jeff Erickson, Jason Xia, Eliot Wong Robson, Tue Do, Aidan Tzur Glickman, Zhuofan Jia, Eric Jin, Jiwon Lee, Patrick Lin, Steven Pan, Samuel Ruggerio, Tomoko Sakurayama, Andrew Yin, Yael Gertner, and Brad Solomon},
@@ -81,13 +83,12 @@
   month = {June},
   address = {Baltimore , Maryland},
   publisher = {ASEE Conferences},
-  note = {https://peer.asee.org/42347}
+  url = {https://peer.asee.org/42347}
 }
 
 @misc{Johnson_2010,
   title={Nick’s Blog},
   url={http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata},
-  journal={Damn Cool Algorithms: Levenshtein Automata - Nick’s Blog},
   author={Johnson, Nick},
   year={2010},
   month={Jul}
@@ -113,4 +114,56 @@
     isbn = {0321455363},
     publisher = {Addison-Wesley Longman Publishing Co., Inc.},
     address = {USA}
+}
+
+@book{Sipser12,
+	series = {Introduction to the {Theory} of {Computation}},
+	title = {Introduction to the {Theory} of {Computation}},
+	isbn = {978-1-133-18781-3},
+	publisher = {Cengage Learning},
+	author = {Sipser, M.},
+	year = {2012},
+	lccn = {2012938665},
+    pages = {45-47}
+}
+
+@article{Marschall11,
+	title = {Construction of minimal deterministic finite automata from biological motifs},
+	volume = {412},
+	issn = {0304-3975},
+	url = {https://www.sciencedirect.com/science/article/pii/S0304397510006948},
+	doi = {https://doi.org/10.1016/j.tcs.2010.12.003},
+	abstract = {Deterministic finite automata (DFAs) are constructed for various purposes in computational biology. Little attention, however, has been given to the efficient construction of minimal DFAs. In this article, we define simple non-deterministic finite automata (NFAs) and prove that the standard subset construction transforms NFAs of this type into minimal DFAs. Furthermore, we show how simple NFAs can be constructed from two types of pattern popular in bioinformatics, namely (sets of) generalized strings and (generalized) strings with a Hamming neighborhood.},
+	number = {8},
+	journal = {Theoretical Computer Science},
+	author = {Marschall, Tobias},
+	year = {2011},
+	keywords = {Consensus string, Deterministic finite automaton, Generalized string, Minimization, Motif},
+	pages = {922--930},
+}
+
+@article{Knuutila01,
+	title = {Re-describing an algorithm by {Hopcroft}},
+	volume = {250},
+	issn = {0304-3975},
+	url = {https://www.sciencedirect.com/science/article/pii/S0304397599001504},
+	doi = {https://doi.org/10.1016/S0304-3975(99)00150-4},
+	abstract = {J. Hopcroft introduced already in 1970 an O(nlogn)-time algorithm for minimizing a finite deterministic automaton of n states. Although the existence of the algorithm is widely known, its theoretical justification, correctness and running time analysis are not. We give here a tutorial reconstruction of Hopcroft's algorithm focusing on a firm theoretical basis, clear correctness proofs and a well-founded computational analysis. Our analysis reveals that if the size of the input alphabet m is not fixed, then Hopcroft's original algorithm does not run in time O(mnlogn) as is commonly believed in the literature. The O(mnlogn) holds, however, for the variation presented later by D. Gries and for a new variant given in this article. We also propose a new efficient routine for refining the equivalence classes constructed in the algorithm and suggest a computationally sound heuristics as an enhancement.},
+	number = {1},
+	journal = {Theoretical Computer Science},
+	author = {Knuutila, Timo},
+	year = {2001},
+	keywords = {Algorithms, Finite automata, Minimization},
+	pages = {333--363},
+}
+
+@ARTICLE{Xu16,
+  author={Xu, Chengcheng and Chen, Shuhui and Su, Jinshu and Yiu, S. M. and Hui, Lucas C. K.},
+  journal={IEEE Communications Surveys & Tutorials},
+  title={A Survey on Regular Expression Matching for Deep Packet Inspection: Applications, Algorithms, and Hardware Platforms},
+  year={2016},
+  volume={18},
+  number={4},
+  pages={2991-3029},
+  doi={10.1109/COMST.2016.2566669}
 }

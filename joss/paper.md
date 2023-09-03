@@ -24,65 +24,60 @@ bibliography: paper.bib
 
 Automata are abstract machines used to represent models of computation, and are a central object of study in theoretical computer science
 [@Hopcroft06]. Given an input string of characters over a fixed alphabet, these machines either accept or reject the string. A language corresponding to an automaton is
-the set of all strings it accepts. Three important families of automata in increasing order of generality are as follows:
+the set of all strings it accepts. Three important families of automata in increasing order of generality are the following:
 
 1. Finite-state automata
 2. Pushdown automata
 3. Turing machines
 
-These models are a core component of both computer science education and research, seeing applications in a wide variety of areas. In particular, the ability to manipulate finite-state automata within the context of a software package has seen attention from researchers in the past [@Sutner03]. Similar software has also included
-functionality for parsing regular expressions into their corresponding finite-state automata [@brics].
+The `automata` package facilitates working with these families by allowing simulation of reading input and higher-level manipulation
+of the corresponding languages using specialized algorithms.
 
 # Statement of need
 
-Although there are other packages in the Python software ecosystem that allow for working with
-various kinds of automata, they are often niche and lack things like a comprehensive test suite that
-allow for more rapid development. This leads to these packages being unable to adopt features that
-would be useful to researchers and students alike, such as sophisticated construction and manipulation
-algorithms. Moreover, Python is a popular tool for students and researchers, meaning the availability
-of a high-quality software package is likely to encourage the further exploration of these structures
-in the academic community.
+These models are a core component of both computer science education and research, seeing further theoretical work
+and applications in a wide variety of areas such as computational biology [@Marschall11] and networking [@Xu16].
+In particular, the ability to manipulate finite-state automata within the context of a software package has seen attention from
+researchers in the past [@Sutner03]. Similar software has also included
+functionality for parsing regular expressions into their corresponding finite-state automata [@brics].
+
+`automata` serves the demand for such a package in the Python software ecosystem. As a popular high-level language, Python enables
+significant flexibility and ease of use that directly benefits many users. The package includes a comprehensive test suite,
+support for modern language features (including type annotations), and has a large number of different automata,
+meeting the demands of users across a wide variety of use cases. In particular, the target audience
+is both researchers that wish to manipulate automata, and for those in educational contexts to reinforce understanding about how these
+models of computation function.
+
 
 # The `automata` package
 
-`automata` is a Python package for the manipulation and simulation of automata from the families listed above.
-The API is designed to mimic the formal mathematical description of each automata using built-in Python data structures. As a popular high-level language, Python enables greater flexibility and easy-of-use that is difficult
-to achieve with a low-level language (e.g., Rust). Algorithms in the package have been optimized for
-performance against benchmarks from tasks arising in research. In addition, Python allows for
-greater optimization by the integration of lower-level technologies (e.g., Cython), while still
-retaining the same high-level API, allowing for integration of more performant features as-needed by
-the user base. The package also has native display integration with Jupyter notebooks, enabling
-easy visualization.
+The API of the package is designed to mimic the formal mathematical description of each automaton using built-in Python data structures
+(such as sets and dicts). This is for ease of use by those that are unfamiliar with these models of computation, while also providing performance
+suitable for tasks arising in research. In particular, algorithms in the package have been written for tackling
+performance on large inputs, incorporating optimizations such as only exploring the reachable set of states
+in the construction of a new finite-state automaton. The package also has native display integration with Jupyter
+notebooks, enabling easy visualization that allows students to interact with `automata` in an exploratory manner.
 
-Of note are some sophisticated and useful algorithms implemented in the package for finite-state automata:
+Of note are some commonly used and technical algorithms implemented in the package for finite-state automata:
 
 - An optimized version of the Hopcroft-Karp algorithm to determine whether two deterministic finite automata (DFA) are equivalent [@AlmeidaMR10].
 
+- The product construction algorithm for binary set operations (union, intersection, etc.) on the languages corresponding to two input DFAs [@Sipser12].
+
 - Thompson's algorithm for converting regular expressions to equivalent nondeterministic finite automata (NFA) [@AhoSU86].
 
-- Hopcroft's algorithm for DFA minimization [@Yingjie09].
+- Hopcroft's algorithm for DFA minimization [@Hopcroft71; @Knuutila01].
 
-- A specialized algorithm for directly constructing a state-minimal DFA accepting a given
-finite language [@mihov_schulz_2019].
+- A specialized algorithm for directly constructing a state-minimal DFA accepting a given finite language [@mihov_schulz_2019].
 
 - A specialized algorithm for directly constructing a minimal DFA recognizing strings containing
 a given substring [@Knuth77].
 
-To the author's knowledge, this is the only Python package implementing a number of the algorithms stated above.
+To the authors' knowledge, this is the only Python package implementing all of the automata manipulation algorithms stated above.
 
-`automata` was designed around existing theoretical models of automata, for use by both
-mathematically-oriented researchers and in educational contexts. The
-included functionality for parsing regular expressions and manipulating finite-state
-machines enables fast and accessible exploration of these structures by researchers.
-On the educational side, the package includes visualization logic that allows students to
-interact with these structures in an exploratory manner, and has already seen usage in
-undergraduate courses. `automata` has already been cited in publications [@Erickson23], with more
-to come as the package becomes more popular.
-
-`automata` has seen a large number of contributions by external contributors and wide adoption,
-demonstrating the demand for a high-quality Python package providing these features. The code is
-well-maintained, including a comprehensive test suite and type annotations, meaning new features
-can be incorporated from requests by the community at a rapid pace.
+`automata` has already been cited in publications [@Erickson23], and has seen use in multiple large undergraduate courses in introductory
+theoretical computer science at the University of Illinois Urbana-Champaign (roughly 2000 students since Fall 2021). In this instance, the package is being used
+both as part of an autograder utility for finite-state automata created by students, and as an exploratory tool for use by students directly.
 
 # Example usage
 
@@ -90,50 +85,50 @@ can be incorporated from requests by the community at a rapid pace.
 
 The following example is inspired by the use case described in [@Johnson_2010].
 We wish to determine which strings in a given set are within the target edit distance
-to a reference string. We will do this with utilities provided by `automata`,
-first by initializing a DFA corresponding to a set of target words.
+to a reference string. We will first initialize a DFA corresponding to a fixed set of target words
+over the alphabet of all lowercase ascii characters.
 
 ```python
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 import string
 
-input_symbols = set(string.ascii_lowercase)
-
-target_words = {'these', 'are', 'target', 'words', 'them', 'those'}
-
 target_words_dfa = DFA.from_finite_language(
-  input_symbols,
-  target_words,
+  input_symbols=set(string.ascii_lowercase),
+  language={'these', 'are', 'target', 'words', 'them', 'those'},
 )
 ```
 A visualization of `target_words_dfa`, generated by the package in a Jupyter notebook,
 is depicted in \autoref{fig:target_words_dfa}.
 
-Next, we construct an NFA recognizing all strings within the given edit distance of a
-reference string. This construction can again be done with functions provided by the library.
-We need to perform an NFA to DFA conversion for later.
+Next, we construct an NFA recognizing all strings within a target edit distance of a fixed
+reference string, and then immediately convert this to an equivalent DFA. The package provides
+builtin functions to make this construction easy, and we use the same alphabet as the DFA that was just created.
 
 ```python
-reference_string = 'they'
-edit_distance = 2
-
 words_within_edit_distance_dfa = DFA.from_nfa(
   NFA.edit_distance(
-    input_symbols,
-    reference_string,
-    edit_distance,
+    input_symbols=set(string.ascii_lowercase),
+    reference_str='they',
+    max_edit_distance=2,
   )
 )
 ```
 
 Finally, we take the intersection of the two DFAs we have constructed and read all of
-the words in the result into a list. The library makes this straightforward and idiomatic.
+the words in the output DFA into a list. The library makes this straightforward and idiomatic.
 
 ```python
 found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
 found_words = list(found_words_dfa)
 ```
+
+The DFA `found_words_dfa` accepts strings in the intersection of the languages of the
+DFAs given as input, and `found_words` is a list containing this language. Note the power of this
+technique is that the DFA `words_within_edit_distance_dfa`
+has an infinite language, meaning we could not do this same computation just using the builtin
+sets in Python directly (as they always represent a finite collection), although the
+syntax used by `automata` is very similar to promote intuition.
 
 # Acknowledgements
 
