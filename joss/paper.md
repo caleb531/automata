@@ -123,11 +123,12 @@ found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
 found_words = list(found_words_dfa)
 ```
 
-The DFA `found_words_dfa` accepts the words in intersection of the languages of the
-DFAs given as input. Note the power of this technique is that the DFA `words_within_edit_distance_dfa`
+The DFA `found_words_dfa` accepts strings in the intersection of the languages of the
+DFAs given as input, and `found_words` is a list containing this language. Note the power of this
+technique is that the DFA `words_within_edit_distance_dfa`
 has an infinite language, meaning we could not do this same computation just using the builtin
 sets in Python directly (as they always represent a finite collection), although the
-syntax used by `automata` is very similar.
+syntax used by `automata` is very similar to promote intuition.
 
 # Acknowledgements
 
