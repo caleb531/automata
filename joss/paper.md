@@ -66,7 +66,7 @@ Of note are some commonly used and technical algorithms implemented in the packa
 
 - Thompson's algorithm for converting regular expressions to equivalent nondeterministic finite automata (NFA) [@AhoSU86].
 
-- Hopcroft's algorithm for DFA minimization [@Hopcroft71, @Knuutila01].
+- Hopcroft's algorithm for DFA minimization [@Hopcroft71; @Knuutila01].
 
 - A specialized algorithm for directly constructing a state-minimal DFA accepting a given finite language [@mihov_schulz_2019].
 
