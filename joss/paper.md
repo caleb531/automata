@@ -75,9 +75,9 @@ a given substring [@Knuth77].
 
 To the authors' knowledge, this is the only Python package implementing all of the automata manipulation algorithms stated above.
 
-`automata` has already been cited in publications [@Erickson23], and has seen use in multiple large undergraduate courses at
-the University of Illinois Urbana-Champaign (roughly 2000 students since Fall 2021), both as part of an autograder utility for finite-state
-automata created by students, and as an exploratory tool for use by students directly.
+`automata` has already been cited in publications [@Erickson23], and has seen use in multiple large undergraduate courses in introductory
+theoretical computer science at the University of Illinois Urbana-Champaign (roughly 2000 students since Fall 2021). In this instance, the package is being used
+both as part of an autograder utility for finite-state automata created by students, and as an exploratory tool for use by students directly.
 
 # Example usage
 
