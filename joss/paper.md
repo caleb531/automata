@@ -35,7 +35,8 @@ of the corresponding languages using specialized algorithms.
 
 # Statement of need
 
-These models are a core component of both computer science education and research, seeing applications in a wide variety of areas.
+These models are a core component of both computer science education and research, seeing further theoretical work
+and applications in a wide variety of areas such as computational biology [@Marschall11] and networking [@Xu16].
 In particular, the ability to manipulate finite-state automata within the context of a software package has seen attention from
 researchers in the past [@Sutner03]. Similar software has also included
 functionality for parsing regular expressions into their corresponding finite-state automata [@brics].
@@ -65,7 +66,7 @@ Of note are some sophisticated and useful algorithms implemented in the package 
 
 - Thompson's algorithm for converting regular expressions to equivalent nondeterministic finite automata (NFA) [@AhoSU86].
 
-- Hopcroft's algorithm for DFA minimization [@Hopcroft71].
+- Hopcroft's algorithm for DFA minimization [@Hopcroft71, @Knuutila01].
 
 - A specialized algorithm for directly constructing a state-minimal DFA accepting a given finite language [@mihov_schulz_2019].
 
