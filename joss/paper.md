@@ -42,20 +42,20 @@ researchers in the past [@Sutner03]. Similar software has also included
 functionality for parsing regular expressions into their corresponding finite-state automata [@brics].
 
 `automata` serves the demand for such a package in the Python software ecosystem. As a popular high-level language, Python enables
-significant flexibility and ease of use that of direct benefit to many users. The package includes a comprehensive test suite,
+significant flexibility and ease of use that directly benefits many users. The package includes a comprehensive test suite,
 support for modern language features (including type annotations), and has a large number of different automata,
 meeting the demands of users across a wide variety of use cases. In particular, the target audience
-is both researchers that wish to manipulate automata with more specialized algorithms and in educational contexts to
-reinforce understanding about how these models of computation function.
+is both researchers that wish to manipulate automata and in educational contexts to reinforce understanding about how these
+models of computation function.
 
 
 # The `automata` package
 
 The API of the package is designed to mimic the formal mathematical description of each automaton using built-in Python data structures
 (such as sets and dicts). This is for ease of use by those that are unfamiliar with these structures, while also providing performance
-suitable for tasks arising in research. In particular, algorithms in the package have been optimized for
-performance on large automata, incorporating algorithmic optimizations such as only exploring the reachable set of states
-in the construction of a new deterministic finite-state automaton. The package also has native display integration with Jupyter
+suitable for tasks arising in research. In particular, algorithms in the package have been written for tackling
+performance on large inputs, incorporating algorithmic optimizations such as only exploring the reachable set of states
+in the construction of a new finite-state automaton. The package also has native display integration with Jupyter
 notebooks, enabling easy visualization that allows students to interact with these structures in an exploratory manner.
 
 Of note are some sophisticated and useful algorithms implemented in the package for finite-state automata:
@@ -116,15 +116,15 @@ words_within_edit_distance_dfa = DFA.from_nfa(
 ```
 
 Finally, we take the intersection of the two DFAs we have constructed and read all of
-the words in the output DFA (which accepts the intersection of the languages of the
-DFAs given as input) into a list. The library makes this straightforward and idiomatic.
+the words in the output DFA into a list. The library makes this straightforward and idiomatic.
 
 ```python
 found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
 found_words = list(found_words_dfa)
 ```
 
-Note the power of this technique is that the DFA `words_within_edit_distance_dfa`
+The DFA `found_words_dfa` accepts the words in intersection of the languages of the
+DFAs given as input. Note the power of this technique is that the DFA `words_within_edit_distance_dfa`
 has an infinite language, meaning we could not do this same computation just using the builtin
 sets in Python directly (as they always represent a finite collection), although the
 syntax used by `automata` is very similar.
