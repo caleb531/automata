@@ -45,20 +45,20 @@ functionality for parsing regular expressions into their corresponding finite-st
 significant flexibility and ease of use that directly benefits many users. The package includes a comprehensive test suite,
 support for modern language features (including type annotations), and has a large number of different automata,
 meeting the demands of users across a wide variety of use cases. In particular, the target audience
-is both researchers that wish to manipulate automata and in educational contexts to reinforce understanding about how these
+is both researchers that wish to manipulate automata, and for those in educational contexts to reinforce understanding about how these
 models of computation function.
 
 
 # The `automata` package
 
 The API of the package is designed to mimic the formal mathematical description of each automaton using built-in Python data structures
-(such as sets and dicts). This is for ease of use by those that are unfamiliar with these structures, while also providing performance
+(such as sets and dicts). This is for ease of use by those that are unfamiliar with these models of computation, while also providing performance
 suitable for tasks arising in research. In particular, algorithms in the package have been written for tackling
-performance on large inputs, incorporating algorithmic optimizations such as only exploring the reachable set of states
+performance on large inputs, incorporating optimizations such as only exploring the reachable set of states
 in the construction of a new finite-state automaton. The package also has native display integration with Jupyter
-notebooks, enabling easy visualization that allows students to interact with these structures in an exploratory manner.
+notebooks, enabling easy visualization that allows students to interact with `automata` in an exploratory manner.
 
-Of note are some sophisticated and useful algorithms implemented in the package for finite-state automata:
+Of note are some commonly used and technical algorithms implemented in the package for finite-state automata:
 
 - An optimized version of the Hopcroft-Karp algorithm to determine whether two deterministic finite automata (DFA) are equivalent [@AlmeidaMR10].
 
