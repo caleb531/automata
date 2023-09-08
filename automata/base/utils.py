@@ -2,7 +2,7 @@
 """Miscellaneous utility functions and classes."""
 
 from collections import defaultdict
-from itertools import count
+from itertools import count, tee, zip_longest
 from typing import Any, Callable, Dict, Generic, Iterable, List, Set, Tuple, TypeVar
 
 from frozendict import frozendict
@@ -106,3 +106,14 @@ class PartitionRefinement(Generic[T]):
                 output.append((id(AintS), Aid))
 
         return output
+
+
+def pairwise(iterable: Iterable[T], final_none: bool = False) -> Iterable[Tuple[T, T]]:
+    """Based on https://docs.python.org/3/library/itertools.html#itertools.pairwise"""
+    a, b = tee(iterable)
+    next(b, None)
+
+    if final_none:
+        return zip_longest(a, b)
+
+    return zip(a, b)

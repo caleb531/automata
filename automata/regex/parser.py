@@ -5,13 +5,13 @@ from __future__ import annotations
 import copy
 import re
 from collections import deque
-from itertools import chain, count, product, repeat, zip_longest
+from itertools import chain, count, product, repeat
 from typing import AbstractSet, Deque, Dict, Iterable, List, Optional, Set, Tuple, Type
 
 from typing_extensions import NoReturn, Self
 
 import automata.base.exceptions as exceptions
-from automata.base.utils import get_renaming_function
+from automata.base.utils import get_renaming_function, pairwise
 from automata.regex.lexer import Lexer, Token
 from automata.regex.postfix import (
     InfixOperator,
@@ -515,7 +515,7 @@ def add_concat_and_empty_string_tokens(
     # Pairs of tokens to insert empty string literals between
     empty_string_pairs = [(LeftParen, RightParen)]
 
-    for curr_token, next_token in zip_longest(token_list, token_list[1:]):
+    for curr_token, next_token in pairwise(token_list, True):
         final_token_list.append(curr_token)
 
         if next_token is not None:

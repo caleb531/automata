@@ -32,7 +32,7 @@ from typing_extensions import Self
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
-from automata.base.utils import PartitionRefinement, get_renaming_function
+from automata.base.utils import PartitionRefinement, get_renaming_function, pairwise
 
 DFAStateT = fa.FAStateT
 
@@ -1072,8 +1072,7 @@ class DFA(fa.FA):
         include_input = not strict
         sorted_symbols = sorted(self.input_symbols, reverse=reverse, key=key)
         symbol_succ: Dict[str, Optional[str]] = {
-            symbol_a: symbol_b
-            for symbol_a, symbol_b in zip(sorted_symbols, sorted_symbols[1:])
+            symbol_a: symbol_b for symbol_a, symbol_b in pairwise(sorted_symbols)
         }
         symbol_succ[sorted_symbols[-1]] = None
         # Special case for None
@@ -1757,7 +1756,11 @@ class DFA(fa.FA):
         """
 
         state_history = list(self.read_input_stepwise(input_str, ignore_rejection=True))
-        path = list(zip(state_history, state_history[1:], input_str))
+
+        path = [
+            (*state_pair, char)
+            for state_pair, char in zip(pairwise(state_history), input_str)
+        ]
 
         last_state = state_history[-1] if state_history else self.initial_state
         accepted = last_state in self.final_states
