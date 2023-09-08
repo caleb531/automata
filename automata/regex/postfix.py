@@ -3,8 +3,8 @@
 
 import abc
 from collections import deque
-from itertools import zip_longest
-from typing import Deque, List, Optional, Tuple, TypeVar, cast
+from itertools import chain, zip_longest
+from typing import Deque, Iterable, List, Optional, Tuple, TypeVar, cast
 
 import automata.base.exceptions as exceptions
 from automata.regex.lexer import Token
@@ -75,7 +75,7 @@ class LeftParen(Token):
 def validate_tokens(token_list: List[Token]) -> None:
     """Validate the inputted tokens list (in infix ordering)."""
 
-    token_list_prev: List[Optional[Token]] = [None] + token_list
+    token_list_prev: Iterable[Optional[Token]] = chain([None], token_list)
 
     paren_counter = 0
 
