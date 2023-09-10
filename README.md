@@ -1,6 +1,6 @@
 # Automata
 
-*Copyright 2016-2023 Caleb Evans*
+*Copyright 2016-2023 Caleb Evans*  
 *Released under the MIT license*
 
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
