@@ -9,7 +9,8 @@
 Automata is a Python 3 library implementing structures and algorithms for manipulating finite automata,
 pushdown automata, and Turing machines. The algorithms have been optimized and are capable of
 processing large inputs. Visualization logic has also been implemented. This package is suitable for
-both researchers that wishing to manipulate automata, and for users in educational contexts.
+both researchers wishing to manipulate automata and for instructors teaching courses on theoretical
+computer science.
 
 The library requires Python 3.8 or newer.
 
