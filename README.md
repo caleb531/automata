@@ -61,3 +61,7 @@ of the GitHub repository.
 
 <!-- the below link must be an absolute URL to be functional in the PyPI README -->
 [docs]: https://github.com/caleb531/automata/blob/main/docs/README.md
+
+## Contributing
+
+Contributions are always welcome! Take a look at the [contributing guide](.github/CONTRIBUTING.md).
