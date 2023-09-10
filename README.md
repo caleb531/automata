@@ -7,8 +7,8 @@
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=main)](https://coveralls.io/r/caleb531/automata?branch=main)
 
 Automata is a Python 3 library implementing structures and algorithms for manipulating finite automata,
-pushdown automata, and Turing machines. A number of these algorithms have been optimized and are suitable
-for working with large inputs. Visualization logic has also been implemented. This package is suitable for
+pushdown automata, and Turing machines. The algorithms have been optimized and are capable of
+processing large inputs. Visualization logic has also been implemented. This package is suitable for
 both researchers that wishing to manipulate automata, and for users in educational contexts.
 
 The library requires Python 3.8 or newer.
