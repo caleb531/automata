@@ -41,7 +41,7 @@ Consequently, the manipulation of automata with software packages has seen signi
 researchers in the past. The similarly named Mathematica package `Automata` [@Sutner03] implements a number of
 algorithms for use with finite-state automata, including regular expression conversion and binary set operations.
 In Java, the Brics package [@brics] implements similar algorithms, while the JFLAP package [@Rodger06] places an emphasis
-on interactivity and simulation with more general families of automata.
+on interactivity and simulation of more general families of automata.
 
 `automata` serves the demand for such a package in the Python software ecosystem, implementing algorithms and allowing for
 simulation of automata in a manner comparable to the packages described previously. As a popular high-level language, Python enables
