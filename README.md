@@ -6,9 +6,13 @@
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=main)](https://coveralls.io/r/caleb531/automata?branch=main)
 
-Automata is a Python 3 library which implements the structures and algorithms
-for finite automata, pushdown automata, and Turing machines. The library
-requires Python 3.8 or newer.
+Automata is a Python 3 library implementing structures and algorithms for manipulating finite automata,
+pushdown automata, and Turing machines. The algorithms have been optimized and are capable of
+processing large inputs. Visualization logic has also been implemented. This package is suitable for
+both researchers wishing to manipulate automata and for instructors teaching courses on theoretical
+computer science.
+
+The library requires Python 3.8 or newer.
 
 Huge thanks to [@eliotwrobson][eliotwrobson], [@YtvwlD][YtvwlD],
 [@dengl11][dengl11], [@Tagl][Tagl], [@lewiuberg][lewiuberg],
