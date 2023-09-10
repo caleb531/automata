@@ -35,13 +35,16 @@ of the corresponding languages using specialized algorithms.
 
 # Statement of need
 
-These models are a core component of both computer science education and research, seeing further theoretical work
+Automata are a core component of both computer science education and research, seeing further theoretical work
 and applications in a wide variety of areas such as computational biology [@Marschall11] and networking [@Xu16].
-In particular, the ability to manipulate finite-state automata within the context of a software package has seen attention from
-researchers in the past [@Sutner03]. Similar software has also included
-functionality for parsing regular expressions into their corresponding finite-state automata [@brics].
+Consequently, the manipulation of automata with software packages has seen significant attention from
+researchers in the past. The similarly named Mathematica package `Automata` [@Sutner03] implements a number of
+algorithms for use with finite-state automata, including regular expression conversion and binary set operations.
+In Java, the Brics package [@brics] implements similar algorithms, while the JFLAP package [@Rodger06] places an emphasis
+on interactivity and simulation with more general families of automata.
 
-`automata` serves the demand for such a package in the Python software ecosystem. As a popular high-level language, Python enables
+`automata` serves the demand for such a package in the Python software ecosystem, implementing algorithms and allowing for
+simulation of automata in a manner comparable to the packages described previously. As a popular high-level language, Python enables
 significant flexibility and ease of use that directly benefits many users. The package includes a comprehensive test suite,
 support for modern language features (including type annotations), and has a large number of different automata,
 meeting the demands of users across a wide variety of use cases. In particular, the target audience
