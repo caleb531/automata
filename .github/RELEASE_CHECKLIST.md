@@ -8,7 +8,7 @@ properly publish a release to GitHub and PyPI.
     - [ ] All tests pass
     - [ ] Code coverage is over 90% for all files
   - [ ] Update Migration Guide with details on breaking API changes and upgrade path
-  - [ ] Update README and Migration Guide with latest major release (e.g. v7)
+  - [ ] Update README and Migration Guide with latest major release (e.g. v8)
   - [ ] Write release notes for new release
   - [ ] Check copyright line break in README (there should be two spaces after
     the *Copyright <year> Caleb Evans* line; sometimes these can get removed
