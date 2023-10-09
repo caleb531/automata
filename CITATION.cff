@@ -1,0 +1,38 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Evans
+  given-names: Caleb
+  orcid: "https://orcid.org/0009-0000-8896-6800"
+- family-names: Robson
+  given-names: Eliot W.
+  orcid: "https://orcid.org/0000-0002-1476-6715"
+contact:
+- family-names: Robson
+  given-names: Eliot W.
+  orcid: "https://orcid.org/0000-0002-1476-6715"
+doi: 10.5281/zenodo.8419571
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Evans
+    given-names: Caleb
+    orcid: "https://orcid.org/0009-0000-8896-6800"
+  - family-names: Robson
+    given-names: Eliot W.
+    orcid: "https://orcid.org/0000-0002-1476-6715"
+  date-published: 2023-10-09
+  doi: 10.21105/joss.05759
+  issn: 2475-9066
+  issue: 90
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 5759
+  title: "automata: A Python package for simulating and manipulating
+    automata"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.05759"
+  volume: 8
+title: "automata: A Python package for simulating and manipulating
+  automata"
