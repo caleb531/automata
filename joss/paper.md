@@ -86,7 +86,7 @@ both as part of an autograder utility for finite-state automata created by stude
 
 ![A visualization of `target_words_dfa`. Transitions on characters leading to immediate rejections are omitted.\label{fig:target_words_dfa}](finite_language_dfa.png){ width=100% }
 
-The following example is inspired by the use case described in [@Johnson_2010].
+The following example is inspired by the use case described in @Johnson_2010.
 We wish to determine which strings in a given set are within the target edit distance
 to a reference string. We will first initialize a DFA corresponding to a fixed set of target words
 over the alphabet of all lowercase ascii characters.
