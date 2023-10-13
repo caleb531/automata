@@ -55,6 +55,17 @@ class NPDA(pda.PDA):
             acceptance_mode=acceptance_mode,
         )
 
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[NPDAStateT, NPDAStateT, Tuple[str, str, str]], None, None]:
+        return (
+            (from_, to_, (input_symbol, stack_symbol, "".join(stack_push)))
+            for from_, input_lookup in self.transitions.items()
+            for input_symbol, stack_lookup in input_lookup.items()
+            for stack_symbol, op_ in stack_lookup.items()
+            for (to_, stack_push) in op_
+        )
+
     def _validate_transition_invalid_symbols(
         self, start_state: NPDAStateT, paths: NPDATransitionsT
     ) -> None:
