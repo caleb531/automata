@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic pushdown automata."""
 
-from typing import AbstractSet, Generator, Mapping, Set, Tuple, Union
+from collections import deque
+from typing import AbstractSet, Deque, Generator, List, Mapping, Set, Tuple, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.pda as pda
+from automata.base.utils import pairwise
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
@@ -15,6 +17,8 @@ NPDAPathT = Mapping[
     Mapping[str, AbstractSet[Tuple[NPDAStateT, Union[str, Tuple[str, ...]]]]],
 ]
 NPDATransitionsT = Mapping[NPDAStateT, NPDAPathT]
+
+InputPathListT = List[Tuple[PDAConfiguration, PDAConfiguration]]
 
 
 class NPDA(pda.PDA):
@@ -121,6 +125,44 @@ class NPDA(pda.PDA):
             )
             new_configs.add(new_config)
         return new_configs
+
+    def _get_input_path(
+        self, input_str: str
+    ) -> Tuple[List[Tuple[PDAConfiguration, PDAConfiguration]], bool]:
+        """
+        Calculate the path taken by input.
+
+        Args:
+            input_str (str): The input string to run on the NPDA.
+
+        Returns:
+            tuple[list[tuple[PDAConfiguration, PDAConfiguration], bool]]: A list
+            of all transitions taken in each step and a boolean indicating
+            whether the NPDA accepted the input.
+
+        """
+
+        steps = list(self.read_input_stepwise(input_str))
+
+        path: List[PDAConfiguration] = [steps.pop().pop()]
+
+        accepted = path[0] in self.final_states
+
+        for i in range(len(steps) - 1, -1, -1):
+            if len(steps[i]) == 1:
+                path.append(steps[i].pop())
+                continue
+
+            for curr_step in steps[i]:
+                for next_step in self._get_next_configurations(curr_step):
+                    if next_step == path[-1]:
+                        path.append(curr_step)
+                        break
+                else:
+                    continue
+                break
+
+        return list(pairwise(reversed(path))), accepted
 
     def read_input_stepwise(
         self, input_str: str

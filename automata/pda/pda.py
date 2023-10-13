@@ -7,7 +7,7 @@ import pathlib
 import random
 import uuid
 from collections import defaultdict
-from typing import AbstractSet, Generator, Literal, Optional, Tuple, Union
+from typing import AbstractSet, Generator, List, Literal, Optional, Tuple, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -77,6 +77,27 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
             + ("ε" if stack_push == "" else str(stack_push))
         )
 
+    @staticmethod
+    def _get_symbol_configuration(
+        from_state: PDAConfiguration, to_state: PDAConfiguration
+    ) -> Tuple[str, str, str]:
+        if (
+            from_state.remaining_input == to_state.remaining_input
+            or len(from_state.remaining_input) == 0
+        ):
+            input_symbol = ""
+        else:
+            input_symbol = from_state.remaining_input[0]
+
+        stack_top_symbol = from_state.stack.top()
+
+        if len(from_state.stack) == len(to_state.stack) + 1:
+            stack_push_symbols = ""
+        else:
+            stack_push_symbols = "".join(to_state.stack[len(from_state.stack) - 1 :])
+
+        return (input_symbol, stack_top_symbol, stack_push_symbols[::-1])
+
     @abc.abstractmethod
     def iter_transitions(
         self,
@@ -88,6 +109,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
 
     def show_diagram(
         self,
+        input_str: Optional[str] = None,
         path: Union[str, os.PathLike, None] = None,
         *,
         layout_method: LayoutMethod = "dot",
@@ -166,7 +188,36 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         graph.add_nodes_from(nonfinal_states, shape="circle", fontsize=font_size_str)
         graph.add_nodes_from(final_states, shape="doublecircle", fontsize=font_size_str)
 
-        is_edge_drawn = defaultdict(lambda: False)
+        is_edge_drawn: defaultdict = defaultdict(lambda: False)
+        if input_str is not None:
+            input_path, is_accepted = self._get_input_path(input_str=input_str)
+
+            start_color = coloraide.Color("#ff0")
+            end_color = (
+                coloraide.Color("#0f0") if is_accepted else coloraide.Color("#f00")
+            )
+            interpolation = coloraide.Color.interpolate(
+                [start_color, end_color], space="srgb"
+            )
+
+            # find all transitions in the finite state machine with traversal.
+            for transition_index, (from_state, to_state) in enumerate(
+                input_path, start=1
+            ):
+                color = interpolation(transition_index / len(input_path))
+
+                symbol = self._get_symbol_configuration(from_state, to_state)
+
+                is_edge_drawn[from_state.state, to_state.state, symbol] = True
+                graph.add_edge(
+                    self._get_state_name(from_state.state),
+                    self._get_state_name(to_state.state),
+                    label=f"<{self._get_edge_name(*symbol)} <b>[<i>#{transition_index}</i>]</b>>",
+                    arrowsize=arrow_size_str,
+                    fontsize=font_size_str,
+                    color=color.to_string(hex=True),
+                    penwidth="2.5",
+                )
 
         edge_labels = defaultdict(list)
         for from_state, to_state, symbol in self.iter_transitions():
@@ -246,6 +297,16 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         self, start_state: PDAStateT, paths: PDATransitionsT
     ) -> None:
         pass
+
+    @abc.abstractmethod
+    def _get_input_path(
+        self, input_str: str
+    ) -> Tuple[List[Tuple[PDAConfiguration, PDAConfiguration]], bool]:
+        """Calculate the path taken by input."""
+
+        raise NotImplementedError(
+            f"_get_input_path is not implemented for {self.__class__}"
+        )
 
     def validate(self) -> None:
         """Return True if this PDA is internally consistent."""

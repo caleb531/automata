@@ -2,6 +2,7 @@
 """Classes and methods for working with PDA configurations."""
 
 from dataclasses import dataclass
+from typing import Any
 
 from automata.base.automaton import AutomatonStateT
 from automata.pda.stack import PDAStack
@@ -27,3 +28,16 @@ class PDAConfiguration:
         return "{}({!r}, {!r}, {!r})".format(
             self.__class__.__name__, self.state, self.remaining_input, self.stack
         )
+
+    def __eq__(self, other: Any) -> bool:
+        """Return True if two PDAConfiguration are equivalent"""
+        if not isinstance(other, PDAConfiguration):
+            raise NotImplemented
+
+        if (
+            self.state == other.state
+            and self.remaining_input == other.remaining_input
+            and self.stack == other.stack
+        ):
+            return True
+        return False

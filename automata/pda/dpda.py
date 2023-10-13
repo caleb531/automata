@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic pushdown automata."""
 
-from typing import AbstractSet, Generator, Mapping, Optional, Set, Tuple, Union
+from typing import AbstractSet, Generator, List, Mapping, Optional, Set, Tuple, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import automata.pda.pda as pda
+from automata.base.utils import pairwise
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
@@ -160,6 +161,31 @@ class DPDA(pda.PDA):
             self._replace_stack_top(old_config.stack, new_stack_top),
         )
         return new_config
+
+    def _get_input_path(
+        self, input_str: str
+    ) -> Tuple[List[Tuple[PDAConfiguration, PDAConfiguration]], bool]:
+        """
+        Calculate the path taken by input.
+
+        Args:
+            input_str (str): The input string to run on the DPDA.
+
+        Returns:
+            tuple[list[tuple[PDAConfiguration, PDAConfiguration], bool]]: A list
+            of all transitions taken in each step and a boolean indicating
+            whether the DPDA accepted the input.
+
+        """
+
+        state_history = list(self.read_input_stepwise(input_str))
+
+        path = list(pairwise(state_history))
+
+        last_state = state_history[-1] if state_history else self.initial_state
+        accepted = last_state in self.final_states
+
+        return path, accepted
 
     def read_input_stepwise(
         self, input_str: str

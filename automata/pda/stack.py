@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterator, Sequence, Tuple
+from typing import Any, Iterator, Sequence, Tuple
 
 
 @dataclass(frozen=True)
@@ -49,10 +49,17 @@ class PDAStack:
         """Return an interator for the stack."""
         return iter(self.stack)
 
-    def __getitem__(self, key: int) -> str:
+    def __getitem__(self, key: int | slice) -> str | Sequence[str]:
         """Return the stack element at the given index"""
         return self.stack[key]
 
     def __repr__(self) -> str:
         """Return a string representation of the stack."""
         return "{}({})".format(self.__class__.__name__, self.stack)
+
+    def __eq__(self, other: Any) -> bool:
+        """Return True if two PDAConfiguration are equivalent"""
+        if not isinstance(other, PDAStack):
+            return NotImplemented
+
+        return self.stack == other.stack
