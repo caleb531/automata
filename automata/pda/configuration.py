@@ -32,7 +32,7 @@ class PDAConfiguration:
     def __eq__(self, other: Any) -> bool:
         """Return True if two PDAConfiguration are equivalent"""
         if not isinstance(other, PDAConfiguration):
-            raise NotImplemented
+            return NotImplemented
 
         if (
             self.state == other.state

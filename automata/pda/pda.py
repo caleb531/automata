@@ -103,8 +103,9 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         self,
     ) -> Generator[Tuple[PDAStateT, PDAStateT, Tuple[str, str, str]], None, None]:
         """
-        Iterate over all transitions in the automaton. Each transition is a tuple
-        of the form (from_state, to_state, (input_symbol, stack_top_symbol, stack_push_symbols))
+        Iterate over all transitions in the automaton.
+        Each transition is a tuple of the form
+        (from_state, to_state, (input_symbol, stack_top_symbol, stack_push_symbols))
         """
 
     def show_diagram(
@@ -207,12 +208,13 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 color = interpolation(transition_index / len(input_path))
 
                 symbol = self._get_symbol_configuration(from_state, to_state)
+                label = self._get_edge_name(*symbol)
 
                 is_edge_drawn[from_state.state, to_state.state, symbol] = True
                 graph.add_edge(
                     self._get_state_name(from_state.state),
                     self._get_state_name(to_state.state),
-                    label=f"<{self._get_edge_name(*symbol)} <b>[<i>#{transition_index}</i>]</b>>",
+                    label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
                     arrowsize=arrow_size_str,
                     fontsize=font_size_str,
                     color=color.to_string(hex=True),

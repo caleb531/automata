@@ -9,7 +9,7 @@ The `PDA` class has the following abstract methods:
 
 ## PDA.show_diagram(self, input_str = None, path = None):
 
-Constructs and returns a pygraphviz `AGraph` corresponding to this PAD. If `input_str` is
+Constructs and returns a pygraphviz `AGraph` corresponding to this PDA. If `input_str` is
 set, then shows execution of the PDA on `input_str`. If `path` is
 set, then an image of the diagram is written to the corresponding file. Other
 customization options are available, see function signature for more

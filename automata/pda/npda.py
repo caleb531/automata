@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic pushdown automata."""
 
-from collections import deque
-from typing import AbstractSet, Deque, Generator, List, Mapping, Set, Tuple, Union
+from typing import AbstractSet, Generator, List, Mapping, Set, Tuple, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.pda as pda
