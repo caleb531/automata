@@ -221,6 +221,10 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                     penwidth="2.5",
                 )
 
+            graph = self._create_stack_diagram(
+                input_path, graph, start_color, end_color, font_size_str, arrow_size_str
+            )
+
         edge_labels = defaultdict(list)
         for from_state, to_state, symbol in self.iter_transitions():
             if is_edge_drawn[from_state, to_state, symbol]:
@@ -254,6 +258,58 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
             graph.draw(
                 path=save_path_final,
                 format=format,
+            )
+
+        return graph
+
+    def _create_stack_diagram(
+        self,
+        input_path: List[Tuple[PDAConfiguration, PDAConfiguration]],
+        graph: pgv.AGraph,
+        start_color: coloraide.Color,
+        end_color: coloraide.Color,
+        font_size: str,
+        arrow_size: str,
+    ) -> pgv.AGraph:
+        """
+        Constructs stack for all the transitions in the `input_path` and
+        adds the constructed stacks into `graph`. Returns the same `graph`
+        """
+        from_node = input_path[0][0]
+        label = " | ".join(reversed(from_node.stack))  # type: ignore[arg-type]
+        graph.add_node(
+            from_node,
+            label=f" | {label}",
+            shape="record",
+            arrowsize=arrow_size,
+            fontsize=font_size,
+        )
+
+        interpolation = coloraide.Color.interpolate(
+            [start_color, end_color], space="srgb"
+        )
+
+        for i, (c, n) in enumerate(input_path, start=1):
+            from_node = n
+            label = " | ".join(reversed(from_node.stack))  # type: ignore[arg-type]
+
+            color = interpolation(i / len(input_path))
+
+            graph.add_node(
+                from_node,
+                label=f" | {label}",
+                shape="record",
+                arrowsize=arrow_size,
+                fontsize=font_size,
+            )
+            graph.add_edge(
+                c,
+                n,
+                label=f"<<b>[<i>#{i}</i>]</b>>",
+                arrowsize=arrow_size,
+                fontsize=font_size,
+                color=color.to_string(hex=True),
+                penwidth="2.5",
             )
 
         return graph
