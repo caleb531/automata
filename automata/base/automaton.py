@@ -30,7 +30,7 @@ class Automaton(metaclass=abc.ABCMeta):
     @staticmethod
     def _get_state_name(state_data: Any) -> str:
         """
-        Get an string representation of a state. This is used for displaying and
+        Get a string representation of a state. This is used for displaying and
         uses `str` for any unsupported python data types.
         """
         if isinstance(state_data, str):
