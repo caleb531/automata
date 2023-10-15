@@ -6,7 +6,17 @@ import os
 import random
 import uuid
 from collections import defaultdict
-from typing import AbstractSet, Generator, List, Literal, Optional, Tuple, Union
+from typing import (
+    AbstractSet,
+    Any,
+    DefaultDict,
+    Generator,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+)
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
@@ -25,6 +35,7 @@ except ImportError:
 PDAStateT = AutomatonStateT
 PDATransitionsT = AutomatonTransitionsT
 PDAAcceptanceModeT = Literal["final_state", "empty_stack", "both"]
+EdgeDrawnDictT = DefaultDict[Tuple[Any, Any, Tuple[str, str, str]], bool]
 
 
 class PDA(Automaton, metaclass=abc.ABCMeta):
@@ -82,6 +93,8 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
     def show_diagram(
         self,
         input_str: Optional[str] = None,
+        with_machine: bool = True,
+        with_stack: bool = True,
         path: Union[str, os.PathLike, None] = None,
         *,
         layout_method: LayoutMethod = "dot",
@@ -96,6 +109,10 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         Generates the graph associated with the given PDA.
         Args:
             - input_str (str, optional): String list of input symbols. Defaults to None.
+            - with_machine (bool, optional): Constructs the diagram with states and
+              transitions. Ignored if `input_str` is None. Default to True.
+            - with_stack (bool, optional): Constructs the diagram with stack and its
+              operations. Ignored if `input_str` is None. Default to True.
             - path (str or os.PathLike, optional): Path to output file. If
               None, the output will not be saved.
             - horizontal (bool, optional): Direction of node layout. Defaults
@@ -118,34 +135,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         font_size_str = str(font_size)
         arrow_size_str = str(arrow_size)
 
-        # we use a random uuid to make sure that the null node has a
-        # unique id to avoid colliding with other states.
-        # To be able to set the random seed, took code from:
-        # https://nathanielknight.ca/articles/consistent_random_uuids_in_python.html
-        null_node = str(
-            uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
-        )
-        graph.add_node(
-            null_node,
-            label="",
-            tooltip=".",
-            shape="point",
-            fontsize=font_size_str,
-        )
-        initial_node = self._get_state_name(self.initial_state)
-        graph.add_edge(
-            null_node,
-            initial_node,
-            tooltip="->" + initial_node,
-            arrowsize=arrow_size_str,
-        )
-
-        nonfinal_states = map(self._get_state_name, self.states - self.final_states)
-        final_states = map(self._get_state_name, self.final_states)
-        graph.add_nodes_from(nonfinal_states, shape="circle", fontsize=font_size_str)
-        graph.add_nodes_from(final_states, shape="doublecircle", fontsize=font_size_str)
-
-        is_edge_drawn: defaultdict = defaultdict(lambda: False)
+        is_edge_drawn: EdgeDrawnDictT = defaultdict(lambda: False)
         if input_str is not None:
             input_path, is_accepted = self._get_input_path(input_str=input_str)
 
@@ -153,51 +143,45 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
             end_color = (
                 coloraide.Color("#0f0") if is_accepted else coloraide.Color("#f00")
             )
-            interpolation = coloraide.Color.interpolate(
-                [start_color, end_color], space="srgb"
-            )
 
-            # find all transitions in the finite state machine with traversal.
-            for transition_index, (from_state, to_state) in enumerate(
-                input_path, start=1
-            ):
-                color = interpolation(transition_index / len(input_path))
+            if with_machine:
+                # initialize diagram with all states
+                graph = self._add_states_diagram(graph, arrow_size_str, font_size_str)
 
-                symbol = self._get_symbol_configuration(from_state, to_state)
-                label = self._get_edge_name(*symbol)
-
-                is_edge_drawn[from_state.state, to_state.state, symbol] = True
-                graph.add_edge(
-                    self._get_state_name(from_state.state),
-                    self._get_state_name(to_state.state),
-                    label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
-                    arrowsize=arrow_size_str,
-                    fontsize=font_size_str,
-                    color=color.to_string(hex=True),
-                    penwidth="2.5",
+                # add required transitions to show execution of the
+                # PDA for the given input string
+                graph = self._create_transitions_for_input_diagram(
+                    graph,
+                    input_path,
+                    is_edge_drawn,
+                    start_color,
+                    end_color,
+                    arrow_size_str,
+                    font_size_str,
                 )
 
-            graph = self._create_stack_diagram(
-                input_path, graph, start_color, end_color, font_size_str, arrow_size_str
-            )
+                # add all the necessary transitions between states
+                graph = self._add_transitions_diagram(
+                    graph, is_edge_drawn, arrow_size_str, font_size_str
+                )
 
-        edge_labels = defaultdict(list)
-        for from_state, to_state, symbol in self.iter_transitions():
-            if is_edge_drawn[from_state, to_state, symbol]:
-                continue
+            if with_stack:
+                # add the stack transitions
+                graph = self._create_stack_diagram(
+                    input_path,
+                    graph,
+                    start_color,
+                    end_color,
+                    font_size_str,
+                    arrow_size_str,
+                )
+        else:
+            # initialize diagram with all states
+            graph = self._add_states_diagram(graph, arrow_size_str, font_size_str)
 
-            from_node = self._get_state_name(from_state)
-            to_node = self._get_state_name(to_state)
-            label = self._get_edge_name(*symbol)
-            edge_labels[from_node, to_node].append(label)
-
-        for (from_node, to_node), labels in edge_labels.items():
-            graph.add_edge(
-                from_node,
-                to_node,
-                label="\n".join(sorted(labels)),
-                arrowsize=arrow_size_str,
-                fontsize=font_size_str,
+            # add all the necessary transitions between states
+            graph = self._add_transitions_diagram(
+                graph, is_edge_drawn, arrow_size_str, font_size_str
             )
 
         # Set layout
@@ -258,6 +242,115 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 color=color.to_string(hex=True),
                 penwidth="2.5",
             )
+
+        return graph
+
+    def _create_transitions_for_input_diagram(
+        self,
+        graph: pgv.AGraph,
+        input_path: List[Tuple[PDAConfiguration, PDAConfiguration]],
+        edge_drawn: EdgeDrawnDictT,
+        start_color: coloraide.Color,
+        end_color: coloraide.Color,
+        arrow_size: str,
+        font_size: str,
+    ) -> pgv.AGraph:
+        """
+        Add transitions to show execution of the PDA for the given input string
+        """
+
+        interpolation = coloraide.Color.interpolate(
+            [start_color, end_color], space="srgb"
+        )
+
+        # find all transitions in the finite state machine with traversal.
+        for transition_index, (from_state, to_state) in enumerate(input_path, start=1):
+            color = interpolation(transition_index / len(input_path))
+
+            symbol = self._get_symbol_configuration(from_state, to_state)
+            label = self._get_edge_name(*symbol)
+
+            edge_drawn[from_state.state, to_state.state, symbol] = True
+            graph.add_edge(
+                self._get_state_name(from_state.state),
+                self._get_state_name(to_state.state),
+                label=f"<{label} <b>[<i>#{transition_index}</i>]</b>>",
+                arrowsize=arrow_size,
+                fontsize=font_size,
+                color=color.to_string(hex=True),
+                penwidth="2.5",
+            )
+
+        return graph
+
+    def _add_transitions_diagram(
+        self,
+        graph: pgv.AGraph,
+        is_edge_drawn: EdgeDrawnDictT,
+        arrow_size: str,
+        font_size: str,
+    ) -> pgv.AGraph:
+        """
+        Add transitions to between states
+        """
+
+        edge_labels = defaultdict(list)
+        for from_state, to_state, symbol in self.iter_transitions():
+            if is_edge_drawn[from_state, to_state, symbol]:
+                continue
+
+            from_node = self._get_state_name(from_state)
+            to_node = self._get_state_name(to_state)
+            label = self._get_edge_name(*symbol)
+            edge_labels[from_node, to_node].append(label)
+
+        for (from_node, to_node), labels in edge_labels.items():
+            graph.add_edge(
+                from_node,
+                to_node,
+                label="\n".join(sorted(labels)),
+                arrowsize=arrow_size,
+                fontsize=font_size,
+            )
+
+        return graph
+
+    def _add_states_diagram(
+        self,
+        graph: pgv.AGraph,
+        arrow_size: str,
+        font_size: str,
+    ) -> pgv.AGraph:
+        """
+        Add all the states of the PDA
+        """
+
+        # we use a random uuid to make sure that the null node has a
+        # unique id to avoid colliding with other states.
+        # To be able to set the random seed, took code from:
+        # https://nathanielknight.ca/articles/consistent_random_uuids_in_python.html
+        null_node = str(
+            uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
+        )
+        graph.add_node(
+            null_node,
+            label="",
+            tooltip=".",
+            shape="point",
+            fontsize=font_size,
+        )
+        initial_node = self._get_state_name(self.initial_state)
+        graph.add_edge(
+            null_node,
+            initial_node,
+            tooltip="->" + initial_node,
+            arrowsize=arrow_size,
+        )
+
+        nonfinal_states = map(self._get_state_name, self.states - self.final_states)
+        final_states = map(self._get_state_name, self.final_states)
+        graph.add_nodes_from(nonfinal_states, shape="circle", fontsize=font_size)
+        graph.add_nodes_from(final_states, shape="doublecircle", fontsize=font_size)
 
         return graph
 
