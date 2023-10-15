@@ -1,11 +1,36 @@
 #!/usr/bin/env python3
 """Miscellaneous utility functions and classes."""
 
+import os
+import pathlib
 from collections import defaultdict
 from itertools import count, tee, zip_longest
-from typing import Any, Callable, Dict, Generic, Iterable, List, Set, Tuple, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterable,
+    List,
+    Literal,
+    Set,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 from frozendict import frozendict
+
+# Optional imports for use with visual functionality
+try:
+    import pygraphviz as pgv
+except ImportError:
+    _visual_imports = False
+else:
+    _visual_imports = True
+
+
+LayoutMethod = Literal["neato", "dot", "twopi", "circo", "fdp", "nop"]
 
 
 def freeze_value(value: Any) -> Any:
@@ -39,6 +64,66 @@ def get_renaming_function(counter: count) -> Callable[[Any], int]:
     """
 
     return defaultdict(counter.__next__).__getitem__
+
+
+def create_graph(
+    horizontal: bool = True,
+    reverse_orientation: bool = False,
+    fig_size: Union[Tuple[float, float], Tuple[float], None] = None,
+    state_separation: float = 0.5,
+) -> pgv.AGraph:
+    """Creates and returns a graph object
+    Args:
+        - horizontal (bool, optional): Direction of node layout. Defaults
+            to True.
+        - reverse_orientation (bool, optional): Reverse direction of node
+            layout. Defaults to False.
+        - fig_size (tuple, optional): Figure size. Defaults to None.
+        - state_separation (float, optional): Node distance. Defaults to 0.5.
+    Returns:
+        AGraph with the given configuration.
+    """
+    if not _visual_imports:
+        raise ImportError(
+            "Missing visualization packages; "
+            "please install coloraide and pygraphviz."
+        )
+
+    # Defining the graph.
+    graph = pgv.AGraph(strict=False, directed=True)
+
+    if fig_size is not None:
+        graph.graph_attr.update(size=", ".join(map(str, fig_size)))
+
+    graph.graph_attr.update(ranksep=str(state_separation))
+
+    if horizontal:
+        rankdir = "RL" if reverse_orientation else "LR"
+    else:
+        rankdir = "BT" if reverse_orientation else "TB"
+
+    graph.graph_attr.update(rankdir=rankdir)
+
+    return graph
+
+
+def save_graph(
+    graph: pgv.AGraph,
+    path: Union[str, os.PathLike],
+) -> pgv.AGraph:
+    """Write `graph` to file given by `path`. PNG, SVG, etc.
+    Returns the same graph."""
+
+    save_path_final: pathlib.Path = pathlib.Path(path)
+
+    format = save_path_final.suffix.split(".")[1] if save_path_final.suffix else None
+
+    graph.draw(
+        path=save_path_final,
+        format=format,
+    )
+
+    return graph
 
 
 T = TypeVar("T")

@@ -46,12 +46,16 @@ class PDAStack:
         return len(self.stack)
 
     def __iter__(self) -> Iterator[str]:
-        """Return an interator for the stack."""
+        """Return an iterator for the stack."""
         return iter(self.stack)
 
     def __getitem__(self, key: int | slice) -> str | Sequence[str]:
         """Return the stack element at the given index"""
         return self.stack[key]
+
+    def __reversed__(self) -> Iterator[str]:
+        """Return an iterator for the stack in reversed order"""
+        return reversed(self.stack)
 
     def __repr__(self) -> str:
         """Return a string representation of the stack."""

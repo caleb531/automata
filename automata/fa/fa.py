@@ -4,57 +4,29 @@ from __future__ import annotations
 
 import abc
 import os
-import pathlib
 import random
 import uuid
 from collections import defaultdict
-from typing import Any, Dict, Generator, List, Literal, Optional, Set, Tuple, Union
+from typing import Any, Dict, Generator, List, Optional, Set, Tuple, Union
 
 from automata.base.automaton import Automaton, AutomatonStateT
+from automata.base.utils import LayoutMethod, create_graph, save_graph
 
 # Optional imports for use with visual functionality
 try:
     import coloraide
     import pygraphviz as pgv
 except ImportError:
-    _visual_imports = False
-else:
-    _visual_imports = True
+    pass
 
 
 FAStateT = AutomatonStateT
-LayoutMethod = Literal["neato", "dot", "twopi", "circo", "fdp", "nop"]
 
 
 class FA(Automaton, metaclass=abc.ABCMeta):
     """An abstract base class for finite automata."""
 
     __slots__ = tuple()
-
-    @staticmethod
-    def _get_state_name(state_data: FAStateT) -> str:
-        """
-        Get an string representation of a state. This is used for displaying and
-        uses `str` for any unsupported python data types.
-        """
-        if isinstance(state_data, str):
-            if state_data == "":
-                return "λ"
-
-            return state_data
-
-        elif isinstance(state_data, (frozenset, tuple)):
-            inner = ", ".join(FA._get_state_name(sub_data) for sub_data in state_data)
-            if isinstance(state_data, frozenset):
-                if state_data:
-                    return "{" + inner + "}"
-                else:
-                    return "∅"
-
-            elif isinstance(state_data, tuple):
-                return "(" + inner + ")"
-
-        return str(state_data)
 
     @staticmethod
     def _get_edge_name(symbol: str) -> str:
@@ -83,7 +55,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         """
         Generates the graph associated with the given DFA.
         Args:
-            input_str (str, optional): String list of input symbols. Defaults to None.
+            - input_str (str, optional): String list of input symbols. Defaults to None.
             - path (str or os.PathLike, optional): Path to output file. If
               None, the output will not be saved.
             - horizontal (bool, optional): Direction of node layout. Defaults
@@ -98,28 +70,13 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             AGraph corresponding to the given automaton.
         """
 
-        if not _visual_imports:
-            raise ImportError(
-                "Missing visualization packages; "
-                "please install coloraide and pygraphviz."
-            )
-
         # Defining the graph.
-        graph = pgv.AGraph(strict=False, directed=True)
+        graph = create_graph(
+            horizontal, reverse_orientation, fig_size, state_separation
+        )
 
-        if fig_size is not None:
-            graph.graph_attr.update(size=", ".join(map(str, fig_size)))
-
-        graph.graph_attr.update(ranksep=str(state_separation))
         font_size_str = str(font_size)
         arrow_size_str = str(arrow_size)
-
-        if horizontal:
-            rankdir = "RL" if reverse_orientation else "LR"
-        else:
-            rankdir = "BT" if reverse_orientation else "TB"
-
-        graph.graph_attr.update(rankdir=rankdir)
 
         # we use a random uuid to make sure that the null node has a
         # unique id to avoid colliding with other states.
@@ -200,18 +157,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         # Set layout
         graph.layout(prog=layout_method)
 
-        # Write diagram to file. PNG, SVG, etc.
+        # Write diagram to file
         if path is not None:
-            save_path_final: pathlib.Path = pathlib.Path(path)
-
-            format = (
-                save_path_final.suffix.split(".")[1] if save_path_final.suffix else None
-            )
-
-            graph.draw(
-                path=save_path_final,
-                format=format,
-            )
+            graph = save_graph(graph, path)
 
         return graph
 

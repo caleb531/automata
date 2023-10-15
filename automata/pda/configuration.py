@@ -34,10 +34,8 @@ class PDAConfiguration:
         if not isinstance(other, PDAConfiguration):
             return NotImplemented
 
-        if (
+        return (
             self.state == other.state
             and self.remaining_input == other.remaining_input
             and self.stack == other.stack
-        ):
-            return True
-        return False
+        )
