@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of PDAs."""
 
+import tempfile
 import unittest
 
 from automata.pda.dpda import DPDA
@@ -12,6 +13,8 @@ class TestPDA(unittest.TestCase):
 
     dpda: DPDA
     npda: NPDA
+
+    temp_dir_path = tempfile.gettempdir()
 
     def setUp(self) -> None:
         """Reset test automata before every test function."""

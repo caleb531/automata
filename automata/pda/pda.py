@@ -137,7 +137,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
 
         is_edge_drawn: EdgeDrawnDictT = defaultdict(lambda: False)
         if input_str is not None:
-            input_path, is_accepted = self._get_input_path(input_str=input_str)
+            input_path, is_accepted = self._get_input_path(input_str)
 
             start_color = coloraide.Color("#ff0")
             end_color = (
