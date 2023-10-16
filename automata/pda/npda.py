@@ -135,7 +135,7 @@ class NPDA(pda.PDA):
             input_str (str): The input string to run on the NPDA.
 
         Returns:
-            tuple[list[tuple[PDAConfiguration, PDAConfiguration], bool]]: A list
+            Tuple[List[Tuple[PDAConfiguration, PDAConfiguration]], bool]: A list
             of all transitions taken in each step and a boolean indicating
             whether the NPDA accepted the input.
 
