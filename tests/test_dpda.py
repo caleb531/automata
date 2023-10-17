@@ -354,6 +354,17 @@ class TestDPDA(test_pda.TestPDA):
         self.assertEqual(dest, self.dpda.initial_state)
         self.assertTrue(source not in self.dpda.states)
 
+    def test_show_diagram_exception(self) -> None:
+        """Should raise exception"""
+
+        self.assertRaises(
+            exceptions.DiagramException,
+            self.dpda.show_diagram,
+            "ab",
+            with_machine=False,
+            with_stack=False,
+        )
+
     def test_show_diagram_read_input_machine_only(self) -> None:
         """
         Should construct the diagram with machine only for a DPDA reading input.

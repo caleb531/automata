@@ -3,8 +3,6 @@
 
 import abc
 import os
-import random
-import uuid
 from collections import defaultdict
 from typing import (
     AbstractSet,
@@ -21,7 +19,12 @@ from typing import (
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 from automata.base.automaton import Automaton, AutomatonStateT, AutomatonTransitionsT
-from automata.base.utils import LayoutMethod, create_graph, save_graph
+from automata.base.utils import (
+    LayoutMethod,
+    create_graph,
+    create_unique_random_id,
+    save_graph,
+)
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
@@ -90,6 +93,10 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         (from_state, to_state, (input_symbol, stack_top_symbol, stack_push_symbols))
         """
 
+        raise NotImplementedError(
+            f"iter_transitions is not implemented for {self.__class__}"
+        )
+
     def show_diagram(
         self,
         input_str: Optional[str] = None,
@@ -137,6 +144,12 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
 
         is_edge_drawn: EdgeDrawnDictT = defaultdict(lambda: False)
         if input_str is not None:
+            if not (with_machine or with_stack):
+                raise exceptions.DiagramException(
+                    "Both with_machine and with_stack cannot be False."
+                    " This will produce a empty diagram"
+                )
+
             input_path, is_accepted = self._get_input_path(input_str)
 
             start_color = coloraide.Color("#ff0")
@@ -189,7 +202,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
 
         # Write diagram to file
         if path is not None:
-            graph = save_graph(graph, path)
+            save_graph(graph, path)
 
         return graph
 
@@ -325,13 +338,9 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         Add all the states of the PDA
         """
 
-        # we use a random uuid to make sure that the null node has a
-        # unique id to avoid colliding with other states.
-        # To be able to set the random seed, took code from:
-        # https://nathanielknight.ca/articles/consistent_random_uuids_in_python.html
-        null_node = str(
-            uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
-        )
+        # create unique id to avoid colliding with other states
+        null_node = create_unique_random_id()
+
         graph.add_node(
             null_node,
             label="",

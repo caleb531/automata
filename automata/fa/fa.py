@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import abc
 import os
-import random
-import uuid
 from collections import defaultdict
 from typing import Any, Dict, Generator, List, Optional, Set, Tuple, Union
 
 from automata.base.automaton import Automaton, AutomatonStateT
-from automata.base.utils import LayoutMethod, create_graph, save_graph
+from automata.base.utils import (
+    LayoutMethod,
+    create_graph,
+    create_unique_random_id,
+    save_graph,
+)
 
 # Optional imports for use with visual functionality
 try:
@@ -78,13 +81,9 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         font_size_str = str(font_size)
         arrow_size_str = str(arrow_size)
 
-        # we use a random uuid to make sure that the null node has a
-        # unique id to avoid colliding with other states.
-        # To be able to set the random seed, took code from:
-        # https://nathanielknight.ca/articles/consistent_random_uuids_in_python.html
-        null_node = str(
-            uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
-        )
+        # create unique id to avoid colliding with other states
+        null_node = create_unique_random_id()
+
         graph.add_node(
             null_node,
             label="",
@@ -159,7 +158,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         # Write diagram to file
         if path is not None:
-            graph = save_graph(graph, path)
+            save_graph(graph, path)
 
         return graph
 

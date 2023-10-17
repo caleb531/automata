@@ -3,6 +3,8 @@
 
 import os
 import pathlib
+import random
+import uuid
 from collections import defaultdict
 from itertools import count, tee, zip_longest
 from typing import (
@@ -66,6 +68,14 @@ def get_renaming_function(counter: count) -> Callable[[Any], int]:
     return defaultdict(counter.__next__).__getitem__
 
 
+def create_unique_random_id() -> str:
+    # To be able to set the random seed, took code from:
+    # https://nathanielknight.ca/articles/consistent_random_uuids_in_python.html
+    return str(
+        uuid.UUID(bytes=bytes(random.getrandbits(8) for _ in range(16)), version=4)
+    )
+
+
 def create_graph(
     horizontal: bool = True,
     reverse_orientation: bool = False,
@@ -110,7 +120,7 @@ def create_graph(
 def save_graph(
     graph: pgv.AGraph,
     path: Union[str, os.PathLike],
-) -> pgv.AGraph:
+) -> None:
     """Write `graph` to file given by `path`. PNG, SVG, etc.
     Returns the same graph."""
 
@@ -122,8 +132,6 @@ def save_graph(
         path=save_path_final,
         format=format,
     )
-
-    return graph
 
 
 T = TypeVar("T")
