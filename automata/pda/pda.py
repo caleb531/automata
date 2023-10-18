@@ -33,7 +33,9 @@ try:
     import coloraide
     import pygraphviz as pgv
 except ImportError:
-    pass
+    _visual_imports = False
+else:
+    _visual_imports = True
 
 PDAStateT = AutomatonStateT
 PDATransitionsT = AutomatonTransitionsT
@@ -133,6 +135,12 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         Returns:
             AGraph corresponding to the given automaton.
         """
+
+        if not _visual_imports:
+            raise ImportError(
+                "Missing visualization packages; "
+                "please install coloraide and pygraphviz."
+            )
 
         # Defining the graph.
         graph = create_graph(
