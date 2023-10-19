@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Miscellaneous utility functions and classes."""
+from __future__ import annotations
 
 import os
 import pathlib
@@ -17,7 +18,6 @@ from typing import (
     Literal,
     Set,
     Tuple,
-    TypeAlias,
     TypeVar,
     Union,
 )
@@ -31,10 +31,6 @@ except ImportError:
     _visual_imports = False
 else:
     _visual_imports = True
-finally:
-    # create a type for type checker
-    # irrespective of whether the imports were successful
-    GraphT: TypeAlias = "pgv.AGraph"
 
 
 LayoutMethod = Literal["neato", "dot", "twopi", "circo", "fdp", "nop"]
@@ -86,7 +82,7 @@ def create_graph(
     reverse_orientation: bool = False,
     fig_size: Union[Tuple[float, float], Tuple[float], None] = None,
     state_separation: float = 0.5,
-) -> GraphT:
+) -> pgv.AGraph:
     """Creates and returns a graph object
     Args:
         - horizontal (bool, optional): Direction of node layout. Defaults
@@ -123,7 +119,7 @@ def create_graph(
 
 
 def save_graph(
-    graph: GraphT,
+    graph: pgv.AGraph,
     path: Union[str, os.PathLike],
 ) -> None:
     """Write `graph` to file given by `path`. PNG, SVG, etc.

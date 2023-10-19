@@ -147,12 +147,12 @@ class NPDA(pda.PDA):
 
         accepted = path[0] in self.final_states
 
-        for i in reversed(steps):
-            if len(i) == 1:
-                path.append(i.pop())
+        for step in reversed(steps):
+            if len(step) == 1:
+                path.append(step.pop())
                 continue
 
-            for curr_step in i:
+            for curr_step in step:
                 for next_step in self._get_next_configurations(curr_step):
                     if next_step == path[-1]:
                         path.append(curr_step)

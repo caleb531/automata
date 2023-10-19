@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with all pushdown automata."""
+from __future__ import annotations
 
 import abc
 import os
@@ -167,11 +168,11 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
 
             if with_machine:
                 # initialize diagram with all states
-                graph = self._add_states_diagram(graph, arrow_size_str, font_size_str)
+                self._add_states_diagram(graph, arrow_size_str, font_size_str)
 
                 # add required transitions to show execution of the
                 # PDA for the given input string
-                graph = self._create_transitions_for_input_diagram(
+                self._create_transitions_for_input_diagram(
                     graph,
                     input_path,
                     is_edge_drawn,
@@ -182,13 +183,13 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 )
 
                 # add all the necessary transitions between states
-                graph = self._add_transitions_diagram(
+                self._add_transitions_diagram(
                     graph, is_edge_drawn, arrow_size_str, font_size_str
                 )
 
             if with_stack:
                 # add the stack transitions
-                graph = self._create_stack_diagram(
+                self._create_stack_diagram(
                     input_path,
                     graph,
                     start_color,
@@ -198,10 +199,10 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 )
         else:
             # initialize diagram with all states
-            graph = self._add_states_diagram(graph, arrow_size_str, font_size_str)
+            self._add_states_diagram(graph, arrow_size_str, font_size_str)
 
             # add all the necessary transitions between states
-            graph = self._add_transitions_diagram(
+            self._add_transitions_diagram(
                 graph, is_edge_drawn, arrow_size_str, font_size_str
             )
 
@@ -222,7 +223,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         end_color: coloraide.Color,
         font_size: str,
         arrow_size: str,
-    ) -> pgv.AGraph:
+    ) -> None:
         """
         Constructs stack for all the transitions in the `input_path` and
         adds the constructed stacks into `graph`. Returns the same `graph`
@@ -275,7 +276,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         end_color: coloraide.Color,
         arrow_size: str,
         font_size: str,
-    ) -> pgv.AGraph:
+    ) -> None:
         """
         Add transitions to show execution of the PDA for the given input string
         """
@@ -302,15 +303,13 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 penwidth="2.5",
             )
 
-        return graph
-
     def _add_transitions_diagram(
         self,
         graph: pgv.AGraph,
         is_edge_drawn: EdgeDrawnDictT,
         arrow_size: str,
         font_size: str,
-    ) -> pgv.AGraph:
+    ) -> None:
         """
         Add transitions to between states
         """
@@ -334,14 +333,12 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
                 fontsize=font_size,
             )
 
-        return graph
-
     def _add_states_diagram(
         self,
         graph: pgv.AGraph,
         arrow_size: str,
         font_size: str,
-    ) -> pgv.AGraph:
+    ) -> None:
         """
         Add all the states of the PDA
         """
@@ -368,8 +365,6 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         final_states = map(self._get_state_name, self.final_states)
         graph.add_nodes_from(nonfinal_states, shape="circle", fontsize=font_size)
         graph.add_nodes_from(final_states, shape="doublecircle", fontsize=font_size)
-
-        return graph
 
     def _validate_transition_invalid_input_symbols(
         self, start_state: PDAStateT, input_symbol: str
