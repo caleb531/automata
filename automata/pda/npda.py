@@ -153,13 +153,9 @@ class NPDA(pda.PDA):
                 continue
 
             for curr_step in step:
-                for next_step in self._get_next_configurations(curr_step):
-                    if next_step == path[-1]:
-                        path.append(curr_step)
-                        break
-                else:
-                    continue
-                break
+                if path[-1] in self._get_next_configurations(curr_step):
+                    path.append(curr_step)
+                    break
 
         return list(pairwise(reversed(path))), accepted
 
