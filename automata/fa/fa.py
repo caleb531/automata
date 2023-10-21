@@ -44,6 +44,10 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         of the form (from_state, to_state, symbol)
         """
 
+        raise NotImplementedError(
+            f"iter_transitions is not implemented for {self.__class__}"
+        )
+
     def show_diagram(
         self,
         input_str: Optional[str] = None,

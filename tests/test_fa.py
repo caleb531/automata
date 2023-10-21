@@ -63,6 +63,14 @@ class TestFAAbstract(unittest.TestCase):
     def test_abstract_methods_not_implemented(self) -> None:
         """Should raise NotImplementedError when calling abstract methods."""
 
+        abstract_methods = {
+            "iter_transitions": (FA,),
+            "_get_input_path": (FA, ""),
+        }
+        for method_name, method_args in abstract_methods.items():
+            with self.assertRaises(NotImplementedError):
+                getattr(FA, method_name)(*method_args)
+
         with self.assertRaises(NotImplementedError):
             getattr(FA, "_get_input_path")(FA, "")
 
