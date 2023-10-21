@@ -36,5 +36,6 @@ class TestPDAStack(test_pda.TestPDA):
         self.assertEqual(stack, stack)
         self.assertEqual(stack, PDAStack(["a", "b"]))
 
+        self.assertNotEqual(stack, "")
         self.assertNotEqual(stack, PDAStack(["a", "a"]))
         self.assertNotEqual(stack, PDAStack(["b", "b"]))
