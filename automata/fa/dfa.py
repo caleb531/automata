@@ -1856,6 +1856,7 @@ class DFA(fa.FA):
         If contains is set to False then the complement is constructed instead.
         If must_be_suffix is set to True, then the each substring must be a suffix instead.
         """
+
         class OutNode:
             def __init__(self, keyword: str, next_node: Optional[OutNode]) -> None:
                 self.keyword: str = keyword
@@ -1933,13 +1934,12 @@ class DFA(fa.FA):
 
         states = frozenset(transitions.keys())
         return cls(
-                states=states,
-                input_symbols=input_symbols,
-                transitions=transitions,
-                initial_state=0,
-                final_states=final_states if contains else states - final_states,
+            states=states,
+            input_symbols=input_symbols,
+            transitions=transitions,
+            initial_state=0,
+            final_states=final_states if contains else states - final_states,
         )
-
 
     @classmethod
     def from_subsequence(
