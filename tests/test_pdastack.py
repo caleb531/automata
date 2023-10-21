@@ -28,3 +28,13 @@ class TestPDAStack(test_pda.TestPDA):
     def test_stack_repr(self) -> None:
         """Should create proper string representation of PDA stack."""
         self.assertEqual(repr(self.stack), "PDAStack(('a', 'b'))")
+
+    def test_stack_equality(self) -> None:
+        """Should only be equal for equal configurations."""
+        stack = PDAStack(["a", "b"])
+
+        self.assertEqual(stack, stack)
+        self.assertEqual(stack, PDAStack(["a", "b"]))
+
+        self.assertNotEqual(stack, PDAStack(["a", "a"]))
+        self.assertNotEqual(stack, PDAStack(["b", "b"]))
