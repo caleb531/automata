@@ -2133,23 +2133,37 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertIn("nano", word)
 
-    @params(True, False)
-    def test_contains_substrings(self, as_partial: bool) -> None:
+    def test_contains_substrings(self) -> None:
         input_symbols = {"a", "n", "o", "b"}
         substring_dfa = DFA.from_substring(input_symbols, "nano")
         substrings_dfa = DFA.from_substrings(input_symbols, {"nano"})
-        
+
         self.assertEqual(substring_dfa, substrings_dfa)
 
         substring_dfa = substring_dfa | DFA.from_substring(input_symbols, "banana")
         substrings_dfa = DFA.from_substrings(input_symbols, {"banana", "nano"})
-        
 
         self.assertEqual(substring_dfa, substrings_dfa)
-        
+
         self.assertEqual(
-            ~substrings_dfa, DFA.from_substrings(input_symbols, {"banana", "nano"}, contains=False)
+            ~substrings_dfa, DFA.from_substrings(input_symbols, {"banana", "nano"},
+                                                 contains=False)
         )
+
+        m = 50
+        n = 50
+        input_symbols = {"a", "b"}
+        language = {("a" * i + "b" * j) for i, j in product(range(n), range(m))}
+
+        equiv_dfa = DFA.from_substrings(
+            input_symbols, language,
+        )
+
+        res_dfa = DFA.empty_language(input_symbols)
+        for string in language:
+            res_dfa |= DFA.from_substring(input_symbols, string)
+
+        self.assertEqual(equiv_dfa, res_dfa)
 
     @params(True, False)
     def test_contains_subsequence(self, as_partial: bool) -> None:
