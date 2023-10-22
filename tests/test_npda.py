@@ -443,10 +443,16 @@ class TestNPDA(test_pda.TestPDA):
                 "q2",
             ),
         }
+
         seen_transitions = {
-            (edge[0], frozenset(edge.attr["label"].split("\n")), edge[1])
+            (
+                edge[0],
+                frozenset(map(str.strip, edge.attr["label"].split("\n"))),
+                edge[1],
+            )
             for edge in graph.edges()
         }
+
         self.assertTrue(expected_transitions.issubset(seen_transitions))
         self.assertEqual(len(expected_transitions) + 1, len(seen_transitions))
 
