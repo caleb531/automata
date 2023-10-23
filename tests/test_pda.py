@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of PDAs."""
 
+import tempfile
 import unittest
 
 from automata.pda.dpda import DPDA
 from automata.pda.npda import NPDA
+from automata.pda.pda import PDA
 
 
 class TestPDA(unittest.TestCase):
@@ -12,6 +14,8 @@ class TestPDA(unittest.TestCase):
 
     dpda: DPDA
     npda: NPDA
+
+    temp_dir_path = tempfile.gettempdir()
 
     def setUp(self) -> None:
         """Reset test automata before every test function."""
@@ -73,3 +77,15 @@ class TestPDA(unittest.TestCase):
             final_states={"q2"},
             acceptance_mode="final_state",
         )
+
+
+class TestPDAAbstract(unittest.TestCase):
+    def test_abstract_methods_not_implemented(self) -> None:
+        """Should raise NotImplementedError when calling abstract methods."""
+        abstract_methods = {
+            "iter_transitions": (PDA,),
+            "_get_input_path": (PDA, ""),
+        }
+        for method_name, method_args in abstract_methods.items():
+            with self.assertRaises(NotImplementedError):
+                getattr(PDA, method_name)(*method_args)

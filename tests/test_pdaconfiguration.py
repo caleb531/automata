@@ -22,3 +22,14 @@ class TestPDAConfiguration(test_pda.TestPDA):
             repr(config),
             "PDAConfiguration('q0', 'ab', PDAStack(('a', 'b')))",  # noqa
         )
+
+    def test_config_equality(self) -> None:
+        """Should only be equal for equal configurations."""
+        config = PDAConfiguration("q0", "ab", PDAStack(["a", "b"]))
+
+        self.assertEqual(config, config)
+        self.assertEqual(config, PDAConfiguration("q0", "ab", PDAStack(["a", "b"])))
+
+        self.assertNotEqual(config, "")
+        self.assertNotEqual(config, PDAConfiguration("q1", "ab", PDAStack(["a", "b"])))
+        self.assertNotEqual(config, PDAConfiguration("q0", "ab", PDAStack(["b", "b"])))

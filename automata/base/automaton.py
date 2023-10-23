@@ -27,6 +27,33 @@ class Automaton(metaclass=abc.ABCMeta):
     transitions: AutomatonTransitionsT
     input_symbols: AbstractSet[str]
 
+    @staticmethod
+    def _get_state_name(state_data: Any) -> str:
+        """
+        Get a string representation of a state. This is used for displaying and
+        uses `str` for any unsupported python data types.
+        """
+        if isinstance(state_data, str):
+            if state_data == "":
+                return "λ"
+
+            return state_data
+
+        elif isinstance(state_data, (frozenset, tuple)):
+            inner = ", ".join(
+                Automaton._get_state_name(sub_data) for sub_data in state_data
+            )
+            if isinstance(state_data, frozenset):
+                if state_data:
+                    return "{" + inner + "}"
+                else:
+                    return "∅"
+
+            elif isinstance(state_data, tuple):
+                return "(" + inner + ")"
+
+        return str(state_data)
+
     def __init__(self, **kwargs: Any) -> None:
         if not global_config.allow_mutable_automata:
             for attr_name, attr_value in kwargs.items():

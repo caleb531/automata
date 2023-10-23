@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Classes and methods for working with deterministic pushdown automata."""
 
-from typing import AbstractSet, Generator, Mapping, Optional, Set, Tuple, Union
+from typing import AbstractSet, Generator, List, Mapping, Optional, Set, Tuple, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.exceptions as pda_exceptions
 import automata.pda.pda as pda
+from automata.base.utils import pairwise
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
@@ -51,6 +52,16 @@ class DPDA(pda.PDA):
             initial_stack_symbol=initial_stack_symbol,
             final_states=final_states,
             acceptance_mode=acceptance_mode,
+        )
+
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[DPDAStateT, DPDAStateT, Tuple[str, str, str]], None, None]:
+        return (
+            (from_, to_, (input_symbol, stack_symbol, "".join(stack_push)))
+            for from_, input_lookup in self.transitions.items()
+            for input_symbol, stack_lookup in input_lookup.items()
+            for stack_symbol, (to_, stack_push) in stack_lookup.items()
         )
 
     def _validate_transition_invalid_symbols(
@@ -150,6 +161,31 @@ class DPDA(pda.PDA):
             self._replace_stack_top(old_config.stack, new_stack_top),
         )
         return new_config
+
+    def _get_input_path(
+        self, input_str: str
+    ) -> Tuple[List[Tuple[PDAConfiguration, PDAConfiguration]], bool]:
+        """
+        Calculate the path taken by input.
+
+        Args:
+            input_str (str): The input string to run on the DPDA.
+
+        Returns:
+            Tuple[List[Tuple[PDAConfiguration, PDAConfiguration]], bool]: A list
+            of all transitions taken in each step and a boolean indicating
+            whether the DPDA accepted the input.
+
+        """
+
+        state_history = list(self.read_input_stepwise(input_str))
+
+        path = list(pairwise(state_history))
+
+        last_state = state_history[-1] if state_history else self.initial_state
+        accepted = last_state in self.final_states
+
+        return path, accepted
 
     def read_input_stepwise(
         self, input_str: str
