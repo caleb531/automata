@@ -89,7 +89,7 @@ class InfiniteLanguageException(AutomatonException):
     pass
 
 
-class DiagramException(Exception):
+class DiagramException(AutomatonException):
     """The diagram cannot be produced"""
 
     pass
