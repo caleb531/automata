@@ -14,9 +14,9 @@ maintainers = [
     {name = 'Eliot W. Robson', email = 'eliot.robson24@gmail.com'},
 ]
 dependencies = [
-    "networkx>=3.2.1",
-    "frozendict>=2.3.8",
-    "typing-extensions>=4.8.0",
+    "networkx>=2.6.2",
+    "frozendict>=2.3.4",
+    "typing-extensions>=4.5.0",
     "cached_method>=0.1.0"
 ]
 

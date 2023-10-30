@@ -8,12 +8,12 @@ flake8==6.0.0
 flake8-black==0.3.6
 flake8-isort==6.0.0
 Flake8-pyproject==1.2.3
-frozendict==2.3.8
+frozendict==2.3.4
 isort==5.10.1
 mccabe==0.7.0
 mypy==1.1.1
 mypy-extensions==1.0.0
-networkx==3.2.1
+networkx==2.6.2
 nose2==0.12.0
 packaging==23.0
 pathspec==0.11.1
@@ -26,4 +26,4 @@ pyparsing==3.0.9
 pyproject_hooks==1.0.0
 tomli==2.0.1
 types-frozendict==2.0.9
-typing_extensions==4.8.0
+typing_extensions==4.5.0
