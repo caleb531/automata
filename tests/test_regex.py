@@ -201,6 +201,23 @@ class TestRegex(unittest.TestCase):
                 "(aa|bb^ca|cb){1,}", "(aa|bb^ca|cb)+", input_symbols=input_symbols
             )
         )
+        
+        # # Tests for multiple quantifiers
+        self.assertTrue(
+            re.isequal(
+                "a{1,2}b{1,2}", "ab|aab|ab|abb", input_symbols=input_symbols
+            )
+        )
+        self.assertTrue(
+            re.isequal(
+                "a{2,2}(c*b){3,3}", "aac*bc*bc*b", input_symbols=input_symbols
+            )
+        )
+        self.assertTrue(
+            re.isequal(
+                "a{2,2}ccb{3,3}", "aaccbbb", input_symbols=input_symbols
+            )
+        )
 
     def test_blank(self) -> None:
         """Should correctly parse blank"""
