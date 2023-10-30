@@ -57,6 +57,14 @@ plugins:
         # enabled_if_env: ENABLE_PDF_EXPORT
   - macros:
       enabled_if_env: ENABLE_PDF_EXPORT
+  - mkdocstrings:
+      enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
+      custom_templates: templates
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_source: false
 markdown_extensions:
   - toc:
       permalink: true
@@ -113,6 +121,9 @@ extra:
 #   - javascripts/extra.js
 copyright: Copyright &copy; 2016 - 2023 Caleb Evans
 nav:
+  - API:
+      - api/index.md
+      - Class Automaton: api/class-automaton.md
   - API Documentation:
       - Class Automaton:
           - class-automaton.md
