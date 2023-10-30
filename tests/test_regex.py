@@ -202,7 +202,7 @@ class TestRegex(unittest.TestCase):
             )
         )
         
-        # # Tests for multiple quantifiers
+        # Tests for multiple quantifiers
         self.assertTrue(
             re.isequal(
                 "a{1,2}b{1,2}", "ab|aab|ab|abb", input_symbols=input_symbols
