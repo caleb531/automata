@@ -551,7 +551,7 @@ def get_regex_lexer(
     lexer.register_token(KleeneStarToken.from_match, r"\*")
     lexer.register_token(KleenePlusToken.from_match, r"\+")
     lexer.register_token(OptionToken.from_match, r"\?")
-    lexer.register_token(QuantifierToken.from_match, r"\{(.*),(.*)\}")
+    lexer.register_token(QuantifierToken.from_match, r"\{(.*?),(.*?)\}")
     lexer.register_token(
         lambda match: WildcardToken(match.group(), input_symbols, state_name_counter),
         r"\.",
