@@ -19,8 +19,9 @@ Huge thanks to [@eliotwrobson][eliotwrobson], [@YtvwlD][YtvwlD],
 [@dengl11][dengl11], [@Tagl][Tagl], [@lewiuberg][lewiuberg],
 [@CamiloMartinezM][CamiloMartinezM],
 [@abhinavsinha‑adrino][abhinavsinha-adrino],
-[@EduardoGoulart1][EduardoGoulart1], and
-[@khoda81][khoda81] for their invaluable code contributions to
+[@EduardoGoulart1][EduardoGoulart1],
+[@khoda81][khoda81], and
+[@christopher-hampson][christopher-hampson] for their invaluable code contributions to
 this project! 🎉
 
 [eliotwrobson]: https://github.com/eliotwrobson
@@ -32,6 +33,7 @@ this project! 🎉
 [abhinavsinha-adrino]: https://github.com/abhinavsinha-adrino
 [EduardoGoulart1]: https://github.com/EduardoGoulart1
 [khoda81]: https://github.com/khoda81
+[christopher-hampson]: https://github.com/christopher-hampson
 
 ## Migrating to v8
 
