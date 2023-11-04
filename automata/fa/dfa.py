@@ -454,7 +454,7 @@ class DFA(fa.FA):
 
         else:
             # Compute reachable states and final states
-            transitions = self.transitions
+            transitions = cast(DFATransitionsT, self.transitions)
 
         bfs_states = self.__class__._bfs_states(
             self.initial_state, lambda state: iter(transitions[state].items())
