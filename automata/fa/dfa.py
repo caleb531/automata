@@ -465,6 +465,8 @@ class DFA(fa.FA):
             )
             reachable_states = live_states & non_trap_states
             reachable_states.add(self.initial_state)
+            # print(reachable_states)
+            # print(self.states)
         else:
             # Compute reachable states and final states
             bfs_states = self.__class__._bfs_states(
@@ -507,9 +509,11 @@ class DFA(fa.FA):
             refinement[0][0] if refinement else next(iter(eq_classes.get_set_ids()))
         )
 
+        trap_state = next(x for x in count(-1, -1) if x not in reachable_states)
+
         # Per input-symbol backmap (tgt -> origin states)
         transition_back_map: Dict[str, Dict[DFAStateT, List[DFAStateT]]] = {
-            symbol: {end_state: list() for end_state in reachable_states}
+            symbol: {end_state: [] for end_state in reachable_states}
             for symbol in input_symbols
         }
 
@@ -521,6 +525,9 @@ class DFA(fa.FA):
                     # when minifying a partial DFA.
                     if end_state in symbol_dict:
                         symbol_dict[end_state].append(start_state)
+                    else:
+                        reachable_states.add(trap_state)
+                        symbol_dict.setdefault(trap_state, []).append(start_state)
 
         origin_dicts = tuple(transition_back_map.values())
         processing = {final_states_id}

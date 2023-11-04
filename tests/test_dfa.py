@@ -303,6 +303,12 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(self.partial_dfa, complete_dfa)
         self.assertEqual(self.partial_dfa, complete_dfa.to_partial(minify=False))
 
+        dfa = DFA.from_finite_language(
+            language={"ab", "abcb"}, input_symbols={"a", "b", "c"}, as_partial=False
+        )
+
+        self.assertEqual(dfa.to_partial(), dfa)
+
     def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
         minimal_dfa = self.no_consecutive_11_dfa.minify()
