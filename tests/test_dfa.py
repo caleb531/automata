@@ -1633,7 +1633,9 @@ class TestDFA(test_fa.TestFA):
         equiv_dfa = DFA.from_finite_language(
             {"a", "b"}, language, as_partial=as_partial
         )
-        minimal_dfa = equiv_dfa.minify().to_partial()
+        minimal_dfa = equiv_dfa.minify()
+        if as_partial:
+            minimal_dfa = minimal_dfa.to_partial()
 
         self.assertEqual(equiv_dfa, minimal_dfa)
         self.assertEqual(len(equiv_dfa.states), len(minimal_dfa.states))
