@@ -224,7 +224,7 @@ class DFA(fa.FA):
         """Returns the cardinality of the language represented by the DFA."""
         return self.cardinality()
 
-    def to_partial(self, *, retain_names: bool = False, minify: bool = True) -> Self:
+    def to_partial(self, *, retain_names: bool = False) -> Self:
         """
         Turns a DFA (complete or not) into a partial DFA.
         Removes dead states and trap states (except the initial state)
@@ -241,18 +241,6 @@ class DFA(fa.FA):
 
         new_states = live_states & non_trap_states
         new_states.add(self.initial_state)
-
-        if minify:
-            # No need to alter transitions here, since unused entries in
-            # that dict are removed automatically by the minify call
-            return self.__class__._minify(
-                reachable_states=new_states,
-                input_symbols=self.input_symbols,
-                transitions=self.transitions,
-                initial_state=self.initial_state,
-                reachable_final_states=self.final_states & new_states,
-                retain_names=retain_names,
-            )
 
         return self.__class__(
             states=new_states,
@@ -454,32 +442,31 @@ class DFA(fa.FA):
         """
 
         if self.allow_partial:
-            # In the case of a partial DFA, we want to try to condense
-            # possible trap states before the main minify operation.
-            graph = self._get_digraph()
-            live_states = nx.descendants(graph, self.initial_state) | {
-                self.initial_state
+            # In the case of a partial DFA, we need to add back the trap state for
+            # minimization to work right
+            trap_state = self._get_trap_state_id()
+            default_to_trap = {symbol: trap_state for symbol in self.input_symbols}
+            transitions = {
+                state: {**default_to_trap, **lookup}
+                for state, lookup in self.transitions.items()
             }
-            non_trap_states = set(self.final_states).union(
-                *(nx.ancestors(graph, state) for state in self.final_states)
-            )
-            reachable_states = live_states & non_trap_states
-            reachable_states.add(self.initial_state)
-            # print(reachable_states)
-            # print(self.states)
+            transitions[trap_state] = default_to_trap
+
         else:
             # Compute reachable states and final states
-            bfs_states = self.__class__._bfs_states(
-                self.initial_state, lambda state: iter(self.transitions[state].items())
-            )
-            reachable_states = set(bfs_states)
+            transitions = self.transitions
+
+        bfs_states = self.__class__._bfs_states(
+            self.initial_state, lambda state: iter(transitions[state].items())
+        )
+        reachable_states = set(bfs_states)
 
         reachable_final_states = self.final_states & reachable_states
 
         return self.__class__._minify(
             reachable_states=reachable_states,
             input_symbols=self.input_symbols,
-            transitions=self.transitions,
+            transitions=transitions,
             initial_state=self.initial_state,
             reachable_final_states=reachable_final_states,
             retain_names=retain_names,
@@ -509,8 +496,6 @@ class DFA(fa.FA):
             refinement[0][0] if refinement else next(iter(eq_classes.get_set_ids()))
         )
 
-        trap_state = next(x for x in count(-1, -1) if x not in reachable_states)
-
         # Per input-symbol backmap (tgt -> origin states)
         transition_back_map: Dict[str, Dict[DFAStateT, List[DFAStateT]]] = {
             symbol: {end_state: [] for end_state in reachable_states}
@@ -522,12 +507,9 @@ class DFA(fa.FA):
                 for symbol, end_state in path.items():
                     symbol_dict = transition_back_map[symbol]
                     # If statement here needed to ignore certain transitions
-                    # when minifying a partial DFA.
+                    # from non-reachable states.
                     if end_state in symbol_dict:
                         symbol_dict[end_state].append(start_state)
-                    else:
-                        reachable_states.add(trap_state)
-                        symbol_dict.setdefault(trap_state, []).append(start_state)
 
         origin_dicts = tuple(transition_back_map.values())
         processing = {final_states_id}

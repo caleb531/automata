@@ -301,13 +301,13 @@ class TestDFA(test_fa.TestFA):
         complete_dfa = self.partial_dfa.to_complete()
         self.assertEqual(self.partial_dfa, self.partial_dfa)
         self.assertEqual(self.partial_dfa, complete_dfa)
-        self.assertEqual(self.partial_dfa, complete_dfa.to_partial(minify=False))
+        self.assertEqual(self.partial_dfa, complete_dfa.to_partial())
 
         dfa = DFA.from_finite_language(
-            language={"ab", "abcb"}, input_symbols={"a", "b", "c"}, as_partial=False
+            language={"ab", "abcb"}, input_symbols={"a", "b", "c"}, as_partial=True
         )
 
-        self.assertEqual(dfa.to_partial(), dfa)
+        self.assertEqual(dfa.minify(), dfa)
 
     def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
@@ -1282,7 +1282,7 @@ class TestDFA(test_fa.TestFA):
             allow_partial=True,
         )
 
-        minified_partial_dfa = partial_dfa_extra_state.minify()
+        minified_partial_dfa = partial_dfa_extra_state.minify().to_partial()
         self.assertEqual(len(minified_partial_dfa.states), 4)
         self.assertEqual(minified_partial_dfa, partial_dfa_extra_state)
 
@@ -1633,7 +1633,7 @@ class TestDFA(test_fa.TestFA):
         equiv_dfa = DFA.from_finite_language(
             {"a", "b"}, language, as_partial=as_partial
         )
-        minimal_dfa = equiv_dfa.minify()
+        minimal_dfa = equiv_dfa.minify().to_partial()
 
         self.assertEqual(equiv_dfa, minimal_dfa)
         self.assertEqual(len(equiv_dfa.states), len(minimal_dfa.states))
@@ -2021,7 +2021,10 @@ class TestDFA(test_fa.TestFA):
         input_symbols = {"a", "n", "o", "b"}
 
         prefix_dfa = DFA.from_prefix(input_symbols, "nano", as_partial=as_partial)
-        self.assertEqual(len(prefix_dfa.states), len(prefix_dfa.minify().states))
+        minimal_dfa = prefix_dfa.minify()
+        if as_partial:
+            minimal_dfa = minimal_dfa.to_partial()
+        self.assertEqual(len(prefix_dfa.states), len(minimal_dfa.states))
 
         subset_dfa = DFA.from_finite_language(
             input_symbols,
