@@ -599,7 +599,7 @@ class DFA(fa.FA):
             new_transitions[name] = {
                 letter: back_map[inner_transition_dict_old[letter]]
                 for letter in inner_transition_dict_old.keys()
-                if inner_transition_dict_old[letter] in reachable_states
+                if inner_transition_dict_old[letter] in back_map.keys()
             }
 
         allow_partial = any(

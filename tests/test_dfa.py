@@ -1281,11 +1281,26 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(minified_partial_dfa, partial_dfa_extra_state)
 
     def test_minify_partial_dfa_correctness(self) -> None:
+        """Test correctness of minifying partial DFAs"""
+        input_symbols = {"a", "b", "c"}
         dfa = DFA.from_finite_language(
-            language={"ab", "abcb"}, input_symbols={"a", "b", "c"}, as_partial=True
+            language={"ab", "abcb"}, input_symbols=input_symbols, as_partial=True
         )
 
         self.assertEqual(dfa.minify(), dfa)
+
+        dfa2 = DFA.from_finite_language(
+            language={"ab", "abba", "cbab"},
+            input_symbols=input_symbols,
+            as_partial=True,
+        )
+
+        self.assertEqual(dfa2.minify(), dfa2)
+
+        self.assertEqual(dfa.union(dfa2, minify=False), dfa.union(dfa2, minify=True))
+        self.assertEqual(dfa.intersection(dfa2, minify=False), dfa.intersection(dfa2, minify=True))
+        self.assertEqual(dfa.symmetric_difference(dfa2, minify=False), dfa.symmetric_difference(dfa2, minify=True))
+        self.assertEqual(dfa.difference(dfa2, minify=False), dfa.difference(dfa2, minify=True))
 
     def test_init_nfa_simple(self) -> None:
         """Should convert to a DFA a simple NFA."""
