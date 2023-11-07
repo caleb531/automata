@@ -1298,9 +1298,16 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dfa2.minify(), dfa2)
 
         self.assertEqual(dfa.union(dfa2, minify=False), dfa.union(dfa2, minify=True))
-        self.assertEqual(dfa.intersection(dfa2, minify=False), dfa.intersection(dfa2, minify=True))
-        self.assertEqual(dfa.symmetric_difference(dfa2, minify=False), dfa.symmetric_difference(dfa2, minify=True))
-        self.assertEqual(dfa.difference(dfa2, minify=False), dfa.difference(dfa2, minify=True))
+        self.assertEqual(
+            dfa.intersection(dfa2, minify=False), dfa.intersection(dfa2, minify=True)
+        )
+        self.assertEqual(
+            dfa.symmetric_difference(dfa2, minify=False),
+            dfa.symmetric_difference(dfa2, minify=True),
+        )
+        self.assertEqual(
+            dfa.difference(dfa2, minify=False), dfa.difference(dfa2, minify=True)
+        )
 
     def test_init_nfa_simple(self) -> None:
         """Should convert to a DFA a simple NFA."""
