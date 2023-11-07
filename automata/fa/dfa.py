@@ -499,6 +499,8 @@ class DFA(fa.FA):
         If the input DFA is partial, then the result is also a partial DFA
         """
 
+        reachable_states = set(reachable_states)
+
         # Per input-symbol backmap (tgt -> origin states)
         transition_back_map: Dict[str, Dict[DFAStateT, List[DFAStateT]]] = {
             symbol: {end_state: [] for end_state in reachable_states}
