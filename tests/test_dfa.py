@@ -1281,7 +1281,12 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(minified_partial_dfa, partial_dfa_extra_state)
 
     def test_minify_partial_dfa_correctness(self) -> None:
-        """Test correctness of minifying partial DFAs"""
+        """
+        Test correctness of minifying partial DFAs.
+        Test added because of issues raised here:
+        https://github.com/caleb531/automata/issues/182
+        """
+
         input_symbols = {"a", "b", "c"}
         dfa = DFA.from_finite_language(
             language={"ab", "abcb"}, input_symbols=input_symbols, as_partial=True

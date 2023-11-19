@@ -514,7 +514,6 @@ class DFA(fa.FA):
                 for symbol in input_symbols:
                     end_state = path.get(symbol)
                     if end_state is not None:
-                        # for symbol, end_state in path.items():
                         symbol_dict = transition_back_map[symbol]
                         # If statement here needed to ignore certain transitions
                         # for non-reachable states
