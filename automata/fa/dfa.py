@@ -229,6 +229,19 @@ class DFA(fa.FA):
         Turns a DFA (complete or not) into a partial DFA.
         Removes dead states and trap states (except the initial state)
             and all edges leading to them.
+
+        Parameters
+        ----------
+        minify : bool, default: True
+            Whether to perform a minify operation while converting to
+            a partial DFA.
+        retain_names : bool, default: True
+            Whether to retain state names during minification.
+
+        Returns
+        -------
+        Self
+            An equivalent partial DFA.
         """
         if self.allow_partial:
             return self.copy()

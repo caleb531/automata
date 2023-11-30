@@ -128,6 +128,9 @@ nav:
   - API:
       - api/index.md
       - Class Automaton: api/class-automaton.md
+      - Finite Automaton (FA):
+          - Deterministic (DFA):
+              - api/fa/class-dfa.md
   - API Documentation:
       - Class Automaton:
           - class-automaton.md
