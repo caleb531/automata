@@ -65,6 +65,10 @@ plugins:
         python:
           options:
             show_source: false
+            docstring_style: "numpy"
+            filters:
+            - "!^_"
+            - "!^__"
 markdown_extensions:
   - toc:
       permalink: true
