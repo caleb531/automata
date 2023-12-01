@@ -289,8 +289,21 @@ class DFA(fa.FA):
 
     def to_complete(self, trap_state: Optional[DFAStateT] = None) -> Self:
         """
-        Turns a DFA (complete or not) into a complete DFA.
-        Will add trap_state to the state set if there are any missing transitions.
+        Creates an equivalent complete DFA with trap_state used as the name
+        for an added trap state. If trap_state is not passed in, defaults to
+        the largest negative integer which is not already a state name.
+        If the DFA is already complete, just returns a copy.
+
+        Parameters
+        ----------
+        trap_state : Optional[DFAStateT], default: None
+            Name for custom trap state to be used.
+
+        Returns
+        -------
+        Self
+            An equivalent complete DFA.
+
         """
         if not self.allow_partial:
             return self.copy()
