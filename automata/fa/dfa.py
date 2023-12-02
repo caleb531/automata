@@ -1973,8 +1973,22 @@ class DFA(fa.FA):
         cls: Type[Self], input_symbols: AbstractSet[str], symbol: str, n: int
     ) -> Self:
         """
-        Directly computes the minimal DFA which accepts all words whose `n`-th
+        Directly computes the minimal DFA which accepts all words whose `n`th
         character from the start is `symbol`, where `n` is a positive integer.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        symbol : str
+            The target input symbol.
+        n : int
+            The position of the target input symbol.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         if n < 1:
             raise ValueError("Integer must be positive")
@@ -2003,8 +2017,22 @@ class DFA(fa.FA):
         cls: Type[Self], input_symbols: AbstractSet[str], symbol: str, n: int
     ) -> Self:
         """
-        Directly computes the minimal DFA which accepts all words whose `n`-th
+        Directly computes the minimal DFA which accepts all words whose `n`th
         character from the end is `symbol`, where `n` is a positive integer.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        symbol : str
+            The target input symbol.
+        n : int
+            The position of the target input symbol.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         if n < 1:
             raise ValueError("Integer must be positive")
@@ -2047,9 +2075,23 @@ class DFA(fa.FA):
         as_partial: bool = True,
     ) -> Self:
         """
-        Directly computes the minimal DFA corresponding to a finite language.
+        Directly computes the minimal DFA accepting the finite language given as input.
         Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
         Chapter 10
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        language : AbstractSet[str]
+            The language to accept.
+        as_partial : bool, default: True
+            Whether or not to construct this as a partial DFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
 
         SignatureT = Tuple[bool, FrozenSet[Tuple[str, str]]]
@@ -2164,6 +2206,20 @@ class DFA(fa.FA):
         """
         Initialize this DFA as one equivalent to the given NFA. Note
         that this usually returns a partial DFA by default.
+
+        Parameters
+        ----------
+        target_nfa : NFA
+            The NFA to construct an equivalent DFA for.
+        retain_names : bool, default: False
+            Whether or not to retain state names during processing.
+        minify : bool, default: True
+            Whether or not to minify the DFA resulting from the input NFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the language of the input NFA.
         """
 
         def subset_function(current_states: FrozenSet[DFAStateT]) -> bool:
@@ -2185,6 +2241,15 @@ class DFA(fa.FA):
     def iter_transitions(
         self,
     ) -> Generator[Tuple[DFAStateT, DFAStateT, str], None, None]:
+        """
+        Iterate over all transitions in the DFA. Each transition is a tuple
+        of the form (from_state, to_state, symbol).
+
+        Returns
+        ------
+        Generator[Tuple[DFAStateT, DFAStateT, str], None, None]
+            The desired generator over the DFA transitions.
+        """
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()
@@ -2197,13 +2262,16 @@ class DFA(fa.FA):
         """
         Calculate the path taken by input.
 
-        Args:
-            input_str (str): The input string to run on the DFA.
+        Parameters
+        ------
+        input_str : str
+            The input string to run on the DFA.
 
-        Returns:
-            tuple[list[tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]: A list
-            of all transitions taken in each step and a boolean indicating
-            whether the DFA accepted the input.
+        Returns
+        ------
+        Tuple[List[Tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]
+            A list of all transitions taken in each step and a boolean
+            indicating whether the DFA accepted the input.
 
         """
 
