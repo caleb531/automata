@@ -1059,7 +1059,19 @@ class DFA(fa.FA):
         return initial_state, expand_state_fn
 
     def issubset(self, other: DFA) -> bool:
-        """Return True if this DFA is a subset of another DFA."""
+        """
+        Returns True if the language accepted by self is a subset of that of other.
+
+        Parameters
+        ----------
+        other : DFA
+            The other DFA we are comparing our language against.
+
+        Returns
+        ------
+        bool
+            True if self is a subset of other, False otherwise.
+        """
 
         def subset_state_fn(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
             """Check for reachable state that is counterexample to subset"""
@@ -1075,11 +1087,35 @@ class DFA(fa.FA):
         )
 
     def issuperset(self, other: DFA) -> bool:
-        """Return True if this DFA is a superset of another DFA."""
+        """
+        Returns True if the language accepted by self is a superset of that of other.
+
+        Parameters
+        ----------
+        other : DFA
+            The other DFA we are comparing our language against.
+
+        Returns
+        ------
+        bool
+            True if self is a superset of other, False otherwise.
+        """
         return other.issubset(self)
 
     def isdisjoint(self, other: DFA) -> bool:
-        """Return True if this DFA has no common elements with another DFA."""
+        """
+        Returns True if the language accepted by self is disjoint from that of other.
+
+        Parameters
+        ----------
+        other : DFA
+            The other DFA we are comparing our language against.
+
+        Returns
+        ------
+        bool
+            True if self is disjoint from other, False otherwise.
+        """
 
         def disjoint_state_fn(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
             """Check for reachable state that is counterexample to disjointness"""
@@ -1098,7 +1134,14 @@ class DFA(fa.FA):
 
     @cached_method
     def isempty(self) -> bool:
-        """Return True if this DFA is completely empty."""
+        """
+        Returns True if the language accepted by self is empty.
+
+        Returns
+        ------
+        bool
+            True if self accepts the empty language, False otherwise.
+        """
         return not self.__class__._find_state(
             self.final_states.__contains__,
             self.initial_state,
@@ -1108,7 +1151,12 @@ class DFA(fa.FA):
     @cached_method
     def isfinite(self) -> bool:
         """
-        Returns True if the DFA accepts a finite language, False otherwise.
+        Returns True if the language accepted by self is finite.
+
+        Returns
+        ------
+        bool
+            True if self accepts a finite language, False otherwise.
         """
         try:
             return self.maximum_word_length() is not None
@@ -1116,6 +1164,26 @@ class DFA(fa.FA):
             return True
 
     def random_word(self, k: int, *, seed: Optional[int] = None) -> str:
+        """
+        Returns a random word of length k accepted by self.
+
+        Parameters
+        ----------
+        k : int
+            The length of the desired word.
+        seed : Optional[int], default: None
+            The random seed to use for the sampling of the random word.
+
+        Returns
+        ------
+        str
+            A uniformly random word of length k accepted by the DFA self.
+
+        Raises
+        ------
+        ValueError
+            If this DFA does not accept any words of length k.
+        """
         self._populate_count_cache_up_to_len(k)
         state = self.initial_state
         if self._count_cache[k][state] == 0:
@@ -1148,10 +1216,28 @@ class DFA(fa.FA):
         """
         Returns the first string accepted by the DFA that comes before
         the input string in lexicographical order.
-        Passing in None will generate the lexicographically last word.
-        If strict is set to False and input_str is accepted by the DFA then
-        it will be returned.
-        The value of key can be set to define a custom lexicographical ordering.
+
+        Parameters
+        ----------
+        input_str : str
+            The starting input string.
+        strict : bool, default: True
+            If set to false and input_str is accepted by the DFA, input_str will be
+            returned.
+        key : Optional[Callable], default: None
+            Function for defining custom lexicographical ordering. Defaults to using
+            the standard string ordering.
+
+        Returns
+        ------
+        str
+            The first string accepted by the DFA lexicographically before input_string.
+
+        Raises
+        ------
+        InfiniteLanguageException
+            Raised if the language accepted by self is infinite, as we cannot
+            generate predecessors in this case.
         """
         for word in self.predecessors(input_str, strict=strict, key=key):
             return word
@@ -1167,11 +1253,29 @@ class DFA(fa.FA):
         """
         Generates all strings that come before the input string
         in lexicographical order.
-        Passing in None will generate all words.
-        If strict is set to False and input_str is accepted by the DFA then
-        it will be included in the output.
-        The value of key can be set to define a custom lexicographical ordering.
-        Raises an InfiniteLanguageException for infinite languages.
+
+        Parameters
+        ----------
+        input_str : str
+            The starting input string.
+        strict : bool, default: True
+            If set to false and input_str is accepted by the DFA, input_str will be
+            returned.
+        key : Optional[Callable], default: None
+            Function for defining custom lexicographical ordering. Defaults to using
+            the standard string ordering.
+
+        Returns
+        ------
+        Generator[str, None, None]
+            A generator for all strings that come before the input string in
+            lexicographical order.
+
+        Raises
+        ------
+        InfiniteLanguageException
+            Raised if the language accepted by self is infinite, as we cannot
+            generate predecessors in this case.
         """
         yield from self.successors(input_str, strict=strict, reverse=True, key=key)
 
@@ -1185,10 +1289,22 @@ class DFA(fa.FA):
         """
         Returns the first string accepted by the DFA that comes after
         the input string in lexicographical order.
-        Passing in None will generate the lexicographically first word.
-        If strict is set to False and input_str is accepted by the DFA then
-        it will be returned.
-        The value of key can be set to define a custom lexicographical ordering.
+
+        Parameters
+        ----------
+        input_str : Optional[str]
+            The starting input string. If None, will generate all words.
+        strict : bool, default: True
+            If set to false and input_str is accepted by the DFA, input_str will be
+            returned.
+        key : Optional[Callable], default: None
+            Function for defining custom lexicographical ordering. Defaults to using
+            the standard string ordering.
+
+        Returns
+        ------
+        str
+            The first string accepted by the DFA lexicographically before input_string.
         """
         for word in self.successors(input_str, strict=strict, key=key):
             return word
@@ -1203,12 +1319,28 @@ class DFA(fa.FA):
         reverse: bool = False,
     ) -> Generator[str, None, None]:
         """
-        Generates all strings that come after the input string in
-        lexicographical order. Passing in None will generate all words. If
-        strict is set to False and input_str is accepted by the DFA then it will
-        be included in the output. If reverse is set to True then predecessors
-        will be generated instead. See the DFA.predecessors method. The value of
-        key can be set to define a custom lexicographical ordering.
+        Generates all strings that come after the input string
+        in lexicographical order.
+
+        Parameters
+        ----------
+        input_str : Optional[str]
+            The starting input string. If None, will generate all words.
+        strict : bool, default: True
+            If set to false and input_str is accepted by the DFA, input_str will be
+            returned.
+        key : Optional[Callable], default: None
+            Function for defining custom lexicographical ordering. Defaults to using
+            the standard string ordering.
+        reverse : bool, default: False
+            If True, then predecessors will be generated instead of successors.
+
+        Returns
+        ------
+        Generator[str, None, None]
+            A generator for all strings that come after the input string in
+            lexicographical order.
+
         """
         # A predecessor for a finite string may be infinite but a successor for
         # a finite string is always finite
