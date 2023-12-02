@@ -500,9 +500,19 @@ class DFA(fa.FA):
         Create a minimal DFA which accepts the same inputs as this DFA.
 
         First, non-reachable states are removed.
-        Then, similar states are merged using Hopcroft's Algorithm.
-            retain_names: If True, merged states retain names.
-                          If False, new states will be named 0, ..., n-1.
+        Then, indistinguishable states are merged using Hopcroft's Algorithm.
+
+        Parameters
+        ----------
+        retain_names : bool, default: False
+            Whether to retain original names when merging states.
+            New names are from 0 to n-1.
+
+        Returns
+        ------
+        Self
+            A state-minimal equivalent DFA. May be complete in some cases
+            if the input is partial.
         """
 
         if self.allow_partial:
@@ -646,6 +656,24 @@ class DFA(fa.FA):
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the union of L1 and L2.
+
+        Minifies by default. Unreachable states are always removed.
+        If either input DFA is partial, the result is partial.
+
+        Parameters
+        ----------
+        other : DFA
+            The DFA we want to take a union with.
+        retain_names : bool, default: False
+            Whether to retain state names through the union and optional minify.
+        minify : bool, default: True
+            Whether to minify the result of the union of the two DFAs.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the union of the two input DFAs. State minimal by
+            default.
         """
 
         def union_function(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
@@ -672,6 +700,24 @@ class DFA(fa.FA):
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the intersection of L1 and L2.
+
+        Minifies by default. Unreachable states are always removed.
+        If either input DFA is partial, the result is partial.
+
+        Parameters
+        ----------
+        other : DFA
+            The DFA we want to take a intersection with.
+        retain_names : bool, default: False
+            Whether to retain state names through the intersection and optional minify.
+        minify : bool, default: True
+            Whether to minify the result of the intersection of the two DFAs.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the intersection of the two input DFAs. State minimal by
+            default.
         """
 
         def intersection_function(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
@@ -698,6 +744,24 @@ class DFA(fa.FA):
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
+
+        Minifies by default. Unreachable states are always removed.
+        If either input DFA is partial, the result is partial.
+
+        Parameters
+        ----------
+        other : DFA
+            The DFA we want to take a difference with.
+        retain_names : bool, default: False
+            Whether to retain state names through the difference and optional minify.
+        minify : bool, default: True
+            Whether to minify the result of the difference of the two DFAs.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the difference of the two input DFAs. State minimal by
+            default.
         """
 
         def difference_function(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
@@ -724,6 +788,25 @@ class DFA(fa.FA):
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the symmetric difference of L1 and L2.
+
+        Minifies by default. Unreachable states are always removed.
+        If either input DFA is partial, the result is partial.
+
+        Parameters
+        ----------
+        other : DFA
+            The DFA we want to take a symmetric difference with.
+        retain_names : bool, default: False
+            Whether to retain state names through the symmetric difference and optional
+            minify.
+        minify : bool, default: True
+            Whether to minify the result of the symmetric difference of the two DFAs.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the symmetric difference of the two input DFAs. State
+            minimal by default.
         """
 
         def symmetric_difference_function(
@@ -746,7 +829,25 @@ class DFA(fa.FA):
         )
 
     def complement(self, *, retain_names: bool = False, minify: bool = True) -> Self:
-        """Return the complement of this DFA."""
+        """
+        Creates a DFA which accepts an input if and only if the old one does not.
+        Minifies by default. Unreachable states are always removed. Partial DFAs
+        are converted into complete ones.
+
+        Parameters
+        ----------
+        retain_names : bool, default: False
+            Whether to retain state names through the complement and optional
+            minify.
+        minify : bool, default: True
+            Whether to minify the result of the complement of the input DFA.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the complement of the input DFA. State
+            minimal by default.
+        """
 
         # We can't do much here, we must turn it into a complete DFA
         complete_dfa: Self = self.to_complete() if self.allow_partial else self
