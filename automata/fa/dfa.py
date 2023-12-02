@@ -1423,7 +1423,17 @@ class DFA(fa.FA):
 
     def count_words_of_length(self, k: int) -> int:
         """
-        Counts words of length `k` accepted by the DFA
+        Returns count of words of length k accepted by the DFA.
+
+        Parameters
+        ----------
+        k : int
+            The desired word length.
+
+        Returns
+        ------
+        int
+            The number of words of length k accepted by self.
         """
         self._populate_count_cache_up_to_len(k)
         return self._count_cache[k][self.initial_state]
@@ -1453,7 +1463,17 @@ class DFA(fa.FA):
 
     def words_of_length(self, k: int) -> Generator[str, None, None]:
         """
-        Generates all words of size k in the language represented by the DFA
+        Generates all words of length `k` in the language accepted by the DFA.
+
+        Parameters
+        ----------
+        k : int
+            The desired word length.
+
+        Returns
+        ------
+        Generator[str, None, None]
+            A generator for all words of length k accepted by the DFA.
         """
         self._populate_word_cache_up_to_len(k)
         for word in self._word_cache[k][self.initial_state]:
@@ -1490,7 +1510,19 @@ class DFA(fa.FA):
 
     @cached_method
     def cardinality(self) -> int:
-        """Returns the cardinality of the language represented by the DFA."""
+        """
+        Returns the cardinality of the language represented by the DFA.
+
+        Returns
+        ------
+        int
+            The cardinality of the language accepted by self.
+
+        Raises
+        ------
+        InfiniteLanguageException
+            Raised if self accepts an infinite language.
+        """
         try:
             i = self.minimum_word_length()
         except exceptions.EmptyLanguageException:
@@ -1505,7 +1537,17 @@ class DFA(fa.FA):
     @cached_method
     def minimum_word_length(self) -> int:
         """
-        Returns the length of the shortest word in the language represented by the DFA
+        Returns the length of the shortest word in the language accepted by the DFA.
+
+        Returns
+        ------
+        int
+            The length of the shortest word accepted by self.
+
+        Raises
+        ------
+        EmptyLanguageException
+            Raised if self accepts an empty language.
         """
         queue: Deque[DFAStateT] = deque()
         distances: Dict[DFAStateT, int] = {self.initial_state: 0}
@@ -1525,8 +1567,19 @@ class DFA(fa.FA):
     @cached_method
     def maximum_word_length(self) -> Optional[int]:
         """
-        Returns the length of the longest word in the language represented by the DFA
-        In the case of infinite languages, `None` is returned
+        Returns the length of the longest word in the language accepted by the DFA
+        In the case of infinite languages, `None` is returned.
+
+        Returns
+        ------
+        Optional[int]
+            The length of the longest word accepted by self. None if the language
+            is infinite.
+
+        Raises
+        ------
+        EmptyLanguageException
+            Raised if self accepts the empty language.
         """
         if self.isempty():
             raise exceptions.EmptyLanguageException(
@@ -1559,9 +1612,25 @@ class DFA(fa.FA):
         as_partial: bool = True,
     ) -> Self:
         """
-        Directly computes the minimal DFA recognizing strings with the
-        given prefix.
-        If contains is set to False then the complement is constructed instead.
+        Directly computes the minimal DFA accepting strings with the
+        given prefix. If `contains` is set to `False` then the complement is
+        constructed instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        prefix : str
+            The prefix of strings that are accepted by this DFA.
+        contains : bool, default: True
+            Whether or not to construct the compliment DFA.
+        as_partial : bool, default: True
+            Whether or not to construct this DFA as a partial DFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         last_state = len(prefix)
         transitions = {i: {char: i + 1} for i, char in enumerate(prefix)}
@@ -1596,8 +1665,22 @@ class DFA(fa.FA):
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings with the
-        given prefix.
-        If contains is set to False then the complement is constructed instead.
+        given suffix. If `contains` is set to `False`, then the complement
+        is constructed instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        suffix : str
+            The suffix of strings that are accepted by this DFA.
+        contains : bool, default: True
+            Whether or not to construct the compliment DFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         return cls.from_substring(
             input_symbols, suffix, contains=contains, must_be_suffix=True
@@ -1614,9 +1697,25 @@ class DFA(fa.FA):
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings containing the
-        given substring.
-        If contains is set to False then the complement is constructed instead.
-        If must_be_suffix is set to True, then the substring must be a suffix instead.
+        given substring. If `contains` is set to `False` then the complement
+        is constructed instead. If `must_be_suffix` is set to `True`, then
+        the substring must be a suffix instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        substring : str
+            The substring of strings that are accepted by this DFA.
+        contains : bool, default: True
+            Whether or to construct the compliment DFA.
+        must_be_suffix : bool, default: False
+            Whether or not the target substring must be a suffix.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {
             i: {} for i in range(len(substring))
