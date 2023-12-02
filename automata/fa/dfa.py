@@ -408,7 +408,19 @@ class DFA(fa.FA):
         self._validate_transition_end_states(start_state, paths)
 
     def validate(self) -> None:
-        """Return True if this DFA is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this DFA does has invalid states in the transition dictionary.
+        MissingStateError
+            If this DFA has states missing from the transition dictionary.
+        InvalidSymbolError
+            If this DFA has invalid symbols in the transition dictionary.
+        """
+
         self._validate_transition_start_states()
         for start_state, paths in self.transitions.items():
             self._validate_transitions(start_state, paths)
@@ -439,11 +451,25 @@ class DFA(fa.FA):
 
     def read_input_stepwise(
         self, input_str: str, ignore_rejection: bool = False
-    ) -> Generator[AbstractSet[DFAStateT], None, None]:
+    ) -> Generator[DFAStateT, None, None]:
         """
-        Check if the given string is accepted by this DFA.
+        Return a generator that yields each step while reading input.
 
-        Yield the current configuration of the DFA at each step.
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[DFAStateT, None, None]
+            A generator that yields the current configuration of the DFA
+            after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this DFA does not accept the input string.
         """
         current_state = self.initial_state
 

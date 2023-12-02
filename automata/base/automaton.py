@@ -49,7 +49,7 @@ class Automaton(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def validate(self) -> None:
         """
-        Return True if this automaton is internally consistent.
+        Raises an exception if this automaton is not internally consistent.
 
         Raises
         ------
