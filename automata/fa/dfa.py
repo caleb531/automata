@@ -1773,8 +1773,22 @@ class DFA(fa.FA):
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings containing the
-        given subsequence.
-        If contains is set to False then the complement is constructed instead.
+        given subsequence. If `contains` is set to `False`, then the complement
+        is constructed instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        subsequence : str
+            The target subsequence of strings that are accepted by this DFA.
+        contains : bool, default: True
+            Whether or to construct the compliment DFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         transitions = {0: {symbol: 0 for symbol in input_symbols}}
 
@@ -1804,8 +1818,26 @@ class DFA(fa.FA):
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings whose length is
-        between `min_length` and `max_length`, inclusive. To allow infinitely
-        long words the value `None` can be passed in for `max_length`.
+        between `min_length` and `max_length`, inclusive. To allow arbitrarily
+        long words, the value `None` can be passed in for `max_length`.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        min_length : int, default: 0
+            The minimum length of strings to be accepted by this DFA.
+        max_length : Optional[int], default: None
+            The maximum length of strings to be accepted by this DFA.
+            If set to None, there is no maximum.
+        symbols_to_count : Optional[AbstractSet[str]], default: None
+            The input symbols to count towards the length of words to accepts.
+            If set to None, counts all symbols.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         if symbols_to_count is None:
             symbols_to_count = input_symbols
@@ -1849,6 +1881,23 @@ class DFA(fa.FA):
         Directly computes a DFA that counts given symbols and accepts all strings where
         the remainder of division by k is in the set of remainders given.
         The default value of remainders is {0} and all symbols are counted by default.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        k : int
+            The number to divide the length by.
+        remainders : Optional[AbstractSet[int]], default: None
+            The remainders to accept. If set to None, defaults to {0}.
+        symbols_to_count : Optional[AbstractSet[str]], default: None
+            The input symbols to count towards the length of words to accepts.
+            If set to None, counts all symbols.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         if k <= 0:
             raise ValueError("Integer must be positive")
@@ -1876,6 +1925,15 @@ class DFA(fa.FA):
     def universal_language(cls: Type[Self], input_symbols: AbstractSet[str]) -> Self:
         """
         Directly computes the minimal DFA accepting all strings.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         return cls(
             states={0},
@@ -1890,6 +1948,16 @@ class DFA(fa.FA):
     def empty_language(cls: Type[Self], input_symbols: AbstractSet[str]) -> Self:
         """
         Directly computes the minimal DFA rejecting all strings.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         return cls(
             states={0},
