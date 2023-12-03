@@ -47,7 +47,37 @@ TargetStateFn = Callable[[DFAStateT], bool]
 
 
 class DFA(fa.FA):
-    """A deterministic finite automaton."""
+    """
+    The `DFA` class is a subclass of `FA` and represents a deterministic finite
+    automaton.
+
+    Every DFA can be rendered natively inside of a Jupyter notebook
+    (automatically calling `show_diagram` without any arguments) if installed
+    with the `visual` optional dependency.
+
+    Parameters
+    ----------
+    states : AbstractSet[DFAStateT]
+        Set of the DFA's valid states.
+    input_symbols : AbstractSet[str]
+        Set of the DFA's valid input symbols, each of which is a singleton
+        string
+    transitions : Mapping[DFAStateT, Mapping[str, DFAStateT]]
+        Dict consisting of the transitions for each state. Each key is a
+        state name, and each value is another dict which maps a symbol
+        (the key) to a state (the value).
+    initial_state : DFAStateT
+        The initial state for this DFA.
+    final_states : AbstractSet[DFAStateT]
+        A set of final states for this DFA
+    allow_partial : bool, default: True
+        By default, each DFA state must have a transition to
+        every input symbol; if this parameter is `True`, you can disable this
+        characteristic (such that any DFA state can have fewer transitions than input
+        symbols). Note that a DFA must always have every state represented in the
+        transition dictionary, even if there are no transitions on input symbols
+        leaving a state (dictionary is left empty in that case).
+    """
 
     __slots__ = (
         "states",

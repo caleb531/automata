@@ -29,7 +29,12 @@ FAStateT = AutomatonStateT
 
 
 class FA(Automaton, metaclass=abc.ABCMeta):
-    """An abstract base class for finite automata."""
+    """
+    The `FA` class is an abstract base class from which all finite automata inherit.
+    Every subclass of FA can be rendered natively inside of a Jupyter notebook
+    (automatically calling `show_diagram` without any arguments) if installed with
+    the `visual` optional dependency.
+    """
 
     __slots__ = tuple()
 
