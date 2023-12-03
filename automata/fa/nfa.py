@@ -145,15 +145,15 @@ class NFA(fa.FA):
             start_state: {
                 input_symbol: {end_state} for input_symbol, end_state in paths.items()
             }
-            for start_state, paths in dfa.transitions.items()
+            for start_state, paths in target_dfa.transitions.items()
         }
 
         return cls(
-            states=dfa.states,
-            input_symbols=dfa.input_symbols,
+            states=target_dfa.states,
+            input_symbols=target_dfa.input_symbols,
             transitions=nfa_transitions,
-            initial_state=dfa.initial_state,
-            final_states=dfa.final_states,
+            initial_state=target_dfa.initial_state,
+            final_states=target_dfa.final_states,
         )
 
     def _validate_transition_invalid_symbols(
