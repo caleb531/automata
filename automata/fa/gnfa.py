@@ -69,15 +69,27 @@ class GNFA(fa.FA):
         self.validate()
 
     @classmethod
-    def from_dfa(cls: Type[Self], dfa: dfa.DFA) -> Self:
-        """Initialize this GNFA as one equivalent to the given DFA."""
-        new_gnfa_transitions = dict()
-        gnfa_states = set(dfa.states)
+    def from_dfa(cls: Type[Self], target_dfa: dfa.DFA) -> Self:
+        """
+        Initialize this GNFA as one equivalent to the given DFA.
 
-        for state in dfa.states:
+        Parameters
+        ----------
+        target_dfa : DFA
+            The DFA to construct an equivalent GNFA for.
+
+        Returns
+        ------
+        Self
+            The GNFA accepting the language of the input DFA.
+        """
+        new_gnfa_transitions = dict()
+        gnfa_states = set(target_dfa.states)
+
+        for state in target_dfa.states:
             gnfa_transitions: Dict[GNFAStateT, Optional[str]] = dict()
-            if state in dfa.transitions:
-                for input_symbol, to_state in dfa.transitions[state].items():
+            if state in target_dfa.transitions:
+                for input_symbol, to_state in target_dfa.transitions[state].items():
                     if to_state in gnfa_transitions.keys():
                         gnfa_transitions[
                             to_state
@@ -91,9 +103,9 @@ class GNFA(fa.FA):
         new_initial_state = GNFA._add_new_state(gnfa_states)
         new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)
 
-        new_gnfa_transitions[new_initial_state] = {dfa.initial_state: ""}
+        new_gnfa_transitions[new_initial_state] = {target_dfa.initial_state: ""}
 
-        for state in dfa.final_states:
+        for state in target_dfa.final_states:
             new_gnfa_transitions[state][new_final_state] = ""
 
         for state in gnfa_states - {new_final_state}:  # pragma: no branch
@@ -104,22 +116,34 @@ class GNFA(fa.FA):
 
         return cls(
             states=gnfa_states,
-            input_symbols=dfa.input_symbols,
+            input_symbols=target_dfa.input_symbols,
             transitions=new_gnfa_transitions,
             initial_state=new_initial_state,
             final_state=new_final_state,
         )
 
     @classmethod
-    def from_nfa(cls: Type[Self], nfa: nfa.NFA) -> Self:
-        """Initialize this GNFA as one equivalent to the given NFA."""
-        new_gnfa_transitions: Dict[GNFAStateT, Dict[GNFAStateT, Optional[str]]] = dict()
-        gnfa_states = set(nfa.states)
+    def from_nfa(cls: Type[Self], target_nfa: nfa.NFA) -> Self:
+        """
+        Initialize this GNFA as one equivalent to the given NFA.
 
-        for state in nfa.states:
+        Parameters
+        ----------
+        target_nfa : NFA
+            The NFA to construct an equivalent GNFA for.
+
+        Returns
+        ------
+        Self
+            The GNFA accepting the language of the input NFA.
+        """
+        new_gnfa_transitions: Dict[GNFAStateT, Dict[GNFAStateT, Optional[str]]] = dict()
+        gnfa_states = set(target_nfa.states)
+
+        for state in target_nfa.states:
             gnfa_transitions: Dict[GNFAStateT, str] = dict()
-            if state in nfa.transitions:
-                for input_symbol, to_states in nfa.transitions[state].items():
+            if state in target_nfa.transitions:
+                for input_symbol, to_states in target_nfa.transitions[state].items():
                     for to_state in to_states:
                         if to_state in gnfa_transitions.keys():
                             if gnfa_transitions[to_state] == "" and input_symbol != "":
@@ -150,9 +174,9 @@ class GNFA(fa.FA):
         new_initial_state = GNFA._add_new_state(gnfa_states)
         new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)
 
-        new_gnfa_transitions[new_initial_state] = {nfa.initial_state: ""}
+        new_gnfa_transitions[new_initial_state] = {target_nfa.initial_state: ""}
 
-        for state in nfa.final_states:
+        for state in target_nfa.final_states:
             new_gnfa_transitions[state][new_final_state] = ""
 
         for state in gnfa_states - {new_final_state}:  # pragma: no branch
@@ -163,7 +187,7 @@ class GNFA(fa.FA):
 
         return cls(
             states=gnfa_states,
-            input_symbols=nfa.input_symbols,
+            input_symbols=target_nfa.input_symbols,
             transitions=new_gnfa_transitions,
             initial_state=new_initial_state,
             final_state=new_final_state,
