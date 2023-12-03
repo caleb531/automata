@@ -234,9 +234,12 @@ class MNTM(ntm.NTM):
     def _read_extended_tape(
         tape: str, head_symbol: str = "^", tape_separator_symbol: str = "_"
     ) -> Tuple[str, ...]:
-        """Returns a tuple with the symbols extracted from the given
+        """
+        Returns a tuple with the symbols extracted from the given
         tape, that are the virtual heads for their corresponding
-        virtual tape."""
+        virtual tape.
+        """
+
         virtual_heads = []
         heads_found = 0
         separators_found = 0

@@ -106,7 +106,21 @@ class NTM(tm.TM):
                 )
 
     def validate(self) -> None:
-        """Return True if this NTM is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this NTM has invalid states in the transition dictionary.
+        InvalidSymbolError
+            If this NTM has invalid symbols in the transition dictionary.
+        InvalidDirectionError
+            If this NTM has a transition with an invalid direction.
+        FinalStateError
+            If this NTM has a transition on any final states.
+        """
+
         self._read_input_symbol_subset()
         self._validate_blank_symbol()
         self._validate_transitions()
@@ -151,7 +165,24 @@ class NTM(tm.TM):
         Check if the given string is accepted by this Turing machine.
 
         Yield the current configurations of the machine at each step.
+
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[Set[TMConfiguration], None, None]
+            A generator that yields the current configuration of
+            the NTM after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this NTM does not accept the input string.
         """
+
         current_configurations = {
             TMConfiguration(
                 self.initial_state, TMTape(input_str, blank_symbol=self.blank_symbol)

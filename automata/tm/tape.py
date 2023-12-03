@@ -32,11 +32,32 @@ class TMTape:
         object.__setattr__(self, "current_position", current_position)
 
     def read_symbol(self) -> str:
-        """Read the symbol at the current position in the tape."""
+        """
+        Get the symbol at the current position in the tape.
+
+        Returns
+        ------
+        str
+            The symbol at the current position in the tape.
+        """
+
         return self.tape[self.current_position]
 
     def write_symbol(self, new_tape_symbol: str) -> Self:
-        """Write the given symbol at the current position in the tape."""
+        """
+        Write the given symbol at the current position in the tape.
+
+        Parameters
+        ------
+        new_tape_symbol: str
+            The new symbol to write onto the tape.
+
+        Returns
+        ------
+        TMTape
+            A copy of the TMTape with the new symbol written at the current position.
+        """
+
         tape_elements = list(self.tape)
         tape_elements[self.current_position] = new_tape_symbol
         return self.__class__(
@@ -46,7 +67,20 @@ class TMTape:
         )
 
     def move(self, direction: TMDirectionT) -> Self:
-        """Move the tape to the next symbol in the given direction."""
+        """
+        Move the tape to the next symbol in the given direction.
+
+        Parameters
+        ------
+        direction: TMDirectionT
+            The direction to move the current position of the tape.
+
+        Returns
+        ------
+        TMTape
+            A copy of the TMTape with the current position moved.
+        """
+
         # Copy stuff.
         new_tape = list(self.tape)
         new_position = self.current_position
@@ -67,6 +101,14 @@ class TMTape:
         )
 
     def copy(self) -> Self:
+        """
+        Make a copy of this TMTape.
+
+        Returns
+        ------
+        TMTape
+            A copy of the TMTape.
+        """
         return self.__class__(
             list(self.tape).copy(),
             blank_symbol=self.blank_symbol,
@@ -81,7 +123,7 @@ class TMTape:
         return len(self.tape)  # TODO: do we count the blank symbols?
 
     def __iter__(self) -> Iterator[str]:
-        """Return an interator for the tape."""
+        """Return an iterator for the tape."""
         return iter(self.tape)
 
     def __repr__(self) -> str:
