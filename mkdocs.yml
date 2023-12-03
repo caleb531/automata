@@ -129,8 +129,13 @@ nav:
       - api/index.md
       - Class Automaton: api/class-automaton.md
       - Finite Automaton (FA):
+          - api/fa/class-fa.md
           - Deterministic (DFA):
               - api/fa/class-dfa.md
+          - Non-Deterministic (NFA):
+              - api/fa/class-nfa.md
+          - Generalized Non-Deterministic (GNFA):
+              - api/fa/class-gnfa.md
   - API Documentation:
       - Class Automaton:
           - class-automaton.md
