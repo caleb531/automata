@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Methods for working with regular expressions"""
+"""Functions for working with regular expressions"""
 
 from itertools import count
 from typing import AbstractSet, Optional

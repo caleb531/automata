@@ -136,6 +136,26 @@ nav:
               - api/fa/class-nfa.md
           - Generalized Non-Deterministic (GNFA):
               - api/fa/class-gnfa.md
+      - Pushdown Automaton (PDA):
+          - api/pda/class-pda.md
+          - Deterministic (DPDA):
+              - api/pda/class-dpda.md
+          - Non-Deterministic (NPDA):
+              - api/pda/class-npda.md
+      - Turing Machine (TM):
+          - api/tm/class-tm.md
+          - Deterministic (DTM):
+              - api/tm/class-dtm.md
+          - Non-Deterministic (NTM):
+              - api/tm/class-ntm.md
+          - Multi-Tape Non-Deterministic (MNTM):
+              - api/tm/class-mntm.md
+      - Regular Expressions:
+          - api/regular-expressions.md
+      - Base exception classes:
+          - api/base-exception-classes.md
+      - Turing machine exceptions:
+          - api/tm/tm-exception-classes.md
   - API Documentation:
       - Class Automaton:
           - class-automaton.md
