@@ -105,7 +105,20 @@ class DTM(tm.TM):
                 )
 
     def validate(self) -> None:
-        """Return True if this DTM is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this DTM has invalid states in the transition dictionary.
+        InvalidSymbolError
+            If this DTM has invalid symbols in the transition dictionary.
+        InvalidDirectionError
+            If this DTM has a transition with an invalid direction.
+        FinalStateError
+            If this DTM has a transition on any final states.
+        """
         self._read_input_symbol_subset()
         self._validate_blank_symbol()
         self._validate_transitions()
@@ -151,9 +164,19 @@ class DTM(tm.TM):
         self, input_str: str
     ) -> Generator[TMConfiguration, None, None]:
         """
-        Check if the given string is accepted by this Turing machine.
+        Return a generator that yields the configuration of this DTM at each
+        step while reading input.
 
-        Yield the current configuration of the machine at each step.
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[TMConfiguration, None, None]
+            A generator that yields the current configuration of
+            the DTM after each step of reading input.
         """
         current_configuration = TMConfiguration(
             self.initial_state, TMTape(input_str, blank_symbol=self.blank_symbol)

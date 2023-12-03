@@ -258,7 +258,7 @@ class GNFA(fa.FA):
         Raises
         ------
         InvalidStateError
-            If this GNFA does has invalid states in the transition dictionary.
+            If this GNFA has invalid states in the transition dictionary.
         MissingStateError
             If this GNFA has states missing from the transition dictionary.
         InvalidRegexError

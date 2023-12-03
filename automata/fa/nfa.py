@@ -226,7 +226,7 @@ class NFA(fa.FA):
         Raises
         ------
         InvalidStateError
-            If this NFA does has invalid states in the transition dictionary.
+            If this NFA has invalid states in the transition dictionary.
         MissingStateError
             If this NFA has states missing from the transition dictionary.
         InvalidSymbolError

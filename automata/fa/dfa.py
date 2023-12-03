@@ -414,7 +414,7 @@ class DFA(fa.FA):
         Raises
         ------
         InvalidStateError
-            If this DFA does has invalid states in the transition dictionary.
+            If this DFA has invalid states in the transition dictionary.
         MissingStateError
             If this DFA has states missing from the transition dictionary.
         InvalidSymbolError

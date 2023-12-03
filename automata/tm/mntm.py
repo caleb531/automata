@@ -106,7 +106,22 @@ class MNTM(ntm.NTM):
                         raise tm_exceptions.InconsistentTapesException(error)
 
     def validate(self) -> None:
-        """Return True if this MNTM is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this MNTM has invalid states in the transition dictionary.
+        InvalidSymbolError
+            If this MNTM has invalid symbols in the transition dictionary.
+        InvalidDirectionError
+            If this MNTM has a transition with an invalid direction.
+        FinalStateError
+            If this MNTM has a transition on any final states.
+        InconsistentTapesException
+            If this MNTM has inconsistent tape contents.
+        """
         super().validate()
         self._validate_tapes_consistency()
 
@@ -160,11 +175,29 @@ class MNTM(ntm.NTM):
         return MTMConfiguration(state=current_state, tapes=tapes)
 
     def read_input_stepwise(self, input_str: str) -> Generator[Any, None, Any]:
-        # TODO Any type above should be Set[MTMConfiguration], refactor required
-        """Checks if the given string is accepted by this Turing machine,
+        """
+        Checks if the given string is accepted by this MNTM machine,
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
+
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[Set[MTMConfiguration], None, None]
+            A generator that yields the current configuration of
+            the DTM after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this MNTM does not accept the input string.
         """
+        # TODO Any type above should be Set[MTMConfiguration], refactor required
+
         tapes = self._get_tapes_for_input_str(input_str)
         queue = deque([(MTMConfiguration(state=self.initial_state, tapes=tapes))])
         while len(queue) > 0:
@@ -240,8 +273,27 @@ class MNTM(ntm.NTM):
     def read_input_as_ntm(
         self, input_str: str
     ) -> Generator[AbstractSet[TMConfiguration], None, None]:
-        """Simulates the machine as a single-tape Turing machine.
-        Yields the configuration at each step."""
+        """
+        Simulates this MNTM as a single-tape Turing machine.
+        Yields the configuration at each step.
+
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[AbstractSet[TMConfiguration], None, None]
+            A generator that yields the current configuration of
+            the MNTM as a set after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this MNTM does not accept the input string.
+
+        """
         tapes = self._get_tapes_for_input_str(input_str)
         head_symbol = "^"
         tape_separator_symbol = "_"
@@ -274,7 +326,7 @@ class MNTM(ntm.NTM):
                 next_config = self.transitions[current_state][virtual_heads]
             except KeyError:
                 raise exceptions.RejectionException(
-                    "the multitape NTM did not reach an accepting " "configuration"
+                    "the multitape NTM did not reach an accepting configuration"
                 )
             next_state, moves = next_config[0]
             for move in moves:

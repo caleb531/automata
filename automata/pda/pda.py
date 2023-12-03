@@ -73,7 +73,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         Raises
         ------
         InvalidStateError
-            If this PDA does has invalid states in the transition dictionary.
+            If this PDA has invalid states in the transition dictionary.
         MissingStateError
             If this PDA has states missing from the transition dictionary.
         InvalidSymbolError
