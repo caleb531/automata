@@ -156,7 +156,7 @@ nav:
           - api/base-exception-classes.md
       - Turing machine exceptions:
           - api/tm/tm-exception-classes.md
-  - Examples:
-
   - People: /people/
   - About: /about/
+  - Examples:
+      - examples/fa-examples.md
