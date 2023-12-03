@@ -35,6 +35,7 @@ changelog = "https://github.com/caleb531/automata/releases"
 
 [build-system]
 requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.mypy]
 exclude = ["build"]

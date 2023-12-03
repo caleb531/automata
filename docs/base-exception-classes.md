@@ -78,6 +78,9 @@ language is empty.
 Raised if the attempted operation cannot be performed because the associated
 language is infinite.
 
+## class DiagramException(AutomatonException)
+Raised if a diagram cannot be produced for an automaton.
+
 ------
 
 [Table of Contents](README.md)

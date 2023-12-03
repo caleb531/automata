@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic pushdown automata."""
 
-from typing import AbstractSet, Generator, Mapping, Set, Tuple, Union
+from typing import AbstractSet, Generator, List, Mapping, Set, Tuple, Union
 
 import automata.base.exceptions as exceptions
 import automata.pda.pda as pda
+from automata.base.utils import pairwise
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
@@ -15,6 +16,8 @@ NPDAPathT = Mapping[
     Mapping[str, AbstractSet[Tuple[NPDAStateT, Union[str, Tuple[str, ...]]]]],
 ]
 NPDATransitionsT = Mapping[NPDAStateT, NPDAPathT]
+
+InputPathListT = List[Tuple[PDAConfiguration, PDAConfiguration]]
 
 
 class NPDA(pda.PDA):
@@ -53,6 +56,17 @@ class NPDA(pda.PDA):
             initial_stack_symbol=initial_stack_symbol,
             final_states=final_states,
             acceptance_mode=acceptance_mode,
+        )
+
+    def iter_transitions(
+        self,
+    ) -> Generator[Tuple[NPDAStateT, NPDAStateT, Tuple[str, str, str]], None, None]:
+        return (
+            (from_, to_, (input_symbol, stack_symbol, "".join(stack_push)))
+            for from_, input_lookup in self.transitions.items()
+            for input_symbol, stack_lookup in input_lookup.items()
+            for stack_symbol, op_ in stack_lookup.items()
+            for (to_, stack_push) in op_
         )
 
     def _validate_transition_invalid_symbols(
@@ -110,6 +124,40 @@ class NPDA(pda.PDA):
             )
             new_configs.add(new_config)
         return new_configs
+
+    def _get_input_path(
+        self, input_str: str
+    ) -> Tuple[List[Tuple[PDAConfiguration, PDAConfiguration]], bool]:
+        """
+        Calculate the path taken by input.
+
+        Args:
+            input_str (str): The input string to run on the NPDA.
+
+        Returns:
+            Tuple[List[Tuple[PDAConfiguration, PDAConfiguration]], bool]: A list
+            of all transitions taken in each step and a boolean indicating
+            whether the NPDA accepted the input.
+
+        """
+
+        steps = list(self.read_input_stepwise(input_str))
+
+        path: List[PDAConfiguration] = [steps.pop().pop()]
+
+        accepted = path[0] in self.final_states
+
+        for step in reversed(steps):
+            if len(step) == 1:
+                path.append(step.pop())
+                continue
+
+            for curr_step in step:
+                if path[-1] in self._get_next_configurations(curr_step):
+                    path.append(curr_step)
+                    break
+
+        return list(pairwise(reversed(path))), accepted
 
     def read_input_stepwise(
         self, input_str: str

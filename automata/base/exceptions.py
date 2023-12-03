@@ -87,3 +87,9 @@ class InfiniteLanguageException(AutomatonException):
     """The operation cannot be performed because the language is infinite"""
 
     pass
+
+
+class DiagramException(AutomatonException):
+    """The diagram cannot be produced"""
+
+    pass

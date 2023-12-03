@@ -202,6 +202,17 @@ class TestRegex(unittest.TestCase):
             )
         )
 
+        # Tests for multiple quantifiers
+        self.assertTrue(
+            re.isequal("a{1,2}b{1,2}", "ab|aab|abb|aabb", input_symbols=input_symbols)
+        )
+        self.assertTrue(
+            re.isequal("a{2,2}(c*b){3,3}", "aac*bc*bc*b", input_symbols=input_symbols)
+        )
+        self.assertTrue(
+            re.isequal("a{2,2}ccb{3,3}", "aaccbbb", input_symbols=input_symbols)
+        )
+
     def test_blank(self) -> None:
         """Should correctly parse blank"""
         self.assertTrue(re.isequal("()", ""))
