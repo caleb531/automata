@@ -16,7 +16,67 @@ DTMTransitionsT = Mapping[DTMStateT, DTMPathT]
 
 
 class DTM(tm.TM):
-    """A deterministic Turing machine."""
+    """
+    The `DTM` class is a subclass of `TM` and represents a deterministic Turing
+    machine.
+
+    Parameters
+    ----------
+    states: AbstractSet[DTMStateT]
+        A set of the DTM's valid states.
+    input_symbols: AbstractSet[str]
+        Set of the DTM's valid input symbols, each of which is a singleton
+        string.
+    tape_symbols: AbstractSet[str]
+        Set of the DTM's valid tape symbols, each of which is a singleton
+        string.
+    transitions:  Mapping[DTMStateT, Mapping[str, Tuple]]
+        Dict consisting of the transitions for each state; each key is a
+        state name, and each value is a dict which maps a symbol (the key) to
+        a tuple consisting of the next state, the symbol to write on the
+        tape, and the direction to move the tape head.
+    initial_state: DTMStateT
+        The name of the initial state for this DTM.
+    blank_symbol: str
+        A symbol from `tape_symbols` to be used as the blank symbol
+        for this DTM.
+    final_states: AbstractSet[DTMStateT]
+        A set of final states for this DTM.
+
+    Example
+    ----------
+        from automata.tm.dtm import DTM
+        # DTM which matches all strings beginning with '0's, and followed by
+        # the same number of '1's
+        dtm = DTM(
+            states={'q0', 'q1', 'q2', 'q3', 'q4'},
+            input_symbols={'0', '1'},
+            tape_symbols={'0', '1', 'x', 'y', '.'},
+            transitions={
+                'q0': {
+                    '0': ('q1', 'x', 'R'),
+                    'y': ('q3', 'y', 'R')
+                },
+                'q1': {
+                    '0': ('q1', '0', 'R'),
+                    '1': ('q2', 'y', 'L'),
+                    'y': ('q1', 'y', 'R')
+                },
+                'q2': {
+                    '0': ('q2', '0', 'L'),
+                    'x': ('q0', 'x', 'R'),
+                    'y': ('q2', 'y', 'L')
+                },
+                'q3': {
+                    'y': ('q3', 'y', 'R'),
+                    '.': ('q4', '.', 'R')
+                }
+            },
+            initial_state='q0',
+            blank_symbol='.',
+            final_states={'q4'}
+        )
+    """
 
     __slots__ = (
         "states",

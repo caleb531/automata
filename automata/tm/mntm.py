@@ -20,7 +20,57 @@ MNTMTransitionsT = Mapping[str, MNTMPathT]
 
 
 class MNTM(ntm.NTM):
-    """A multitape nondeterministic Turing machine."""
+    """
+    The `MNTM` class is a subclass of `TM` and represents a multitape
+    (non)deterministic Turing machine.
+
+    Parameters
+    ----------
+    states: AbstractSet[MNTMStateT]
+        A set of the MNTM's valid states.
+    input_symbols: AbstractSet[str]
+        Set of the MNTM's valid input symbols, each of which is a singleton
+        string.
+    tape_symbols: AbstractSet[str]
+        Set of the MNTM's valid tape symbols, each of which is a singleton
+        string.
+    n_tapes: int
+        The number of tapes in this MNTM.
+    transitions: MNTMTransitionsT
+        Dict consisting of the transitions for each state; each key is a
+        state name, and each value is a dict which maps a symbol (the key) to
+        a list of tuples consisting of the next state, the symbol to write on the
+        tape, and the direction to move the tape head.
+    initial_state: MNTMStateT
+        The name of the initial state for this MNTM.
+    blank_symbol: str
+        A symbol from `tape_symbols` to be used as the blank symbol
+        for this MNTM.
+    final_states: AbstractSet[MNTMStateT]
+        A set of final states for this MNTM.
+
+    Example
+    ----------
+        from automata.tm.mntm import MNTM
+        # MNTM which accepts all strings in {0, 1}* and writes all
+        # 1's from the first tape (input) to the second tape.
+        self.mntm1 = MNTM(
+            states={'q0', 'q1'},
+            input_symbols={'0', '1'},
+            tape_symbols={'0', '1', '#'},
+            n_tapes=2,
+            transitions={
+                'q0': {
+                    ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
+                    ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
+                    ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                }
+            },
+            initial_state='q0',
+            blank_symbol='#',
+            final_states={'q1'},
+        )
+    """
 
     __slots__ = (
         "states",
