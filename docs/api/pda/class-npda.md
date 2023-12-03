@@ -4,4 +4,4 @@ author: "Eliot Robson"
 
 # class NPDA(PDA)
 
-::: automata.pda.npda.NPDA
+::: automata.pda.npda

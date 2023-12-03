@@ -4,4 +4,4 @@ author: "Eliot Robson"
 
 # class NFA(FA)
 
-::: automata.fa.nfa.NFA
+::: automata.fa.nfa
