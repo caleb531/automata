@@ -31,7 +31,45 @@ GNFATransitionsT = Mapping[GNFAStateT, GNFAPathT]
 
 
 class GNFA(fa.FA):
-    """A generalized nondeterministic finite automaton."""
+    """
+    The `GNFA` class is a subclass of `FA` and represents a generalized
+    nondeterministic finite automaton.
+
+    Its main usage is for conversion of DFAs and NFAs to regular expressions. Note
+    that because of this, the `GNFA` doesn't support any binary operators or reading
+    input (e.g. `read_input_stepwise`). Every GNFA can be rendered natively inside of-
+    a Jupyter notebook (automatically calling `show_diagram` without any arguments)
+    if installed with the `visual` optional dependency. Note that `input_str`
+    cannot be set as an argument to `show_diagram`, as the `GNFA` does not read input.
+
+    Except for `initial_state` and `final_state`, one transition goes from every state
+    to every other state, and also from each state to itself. To accommodate
+    this, transitions can be regular expressions and `None`, in addition to
+    normal input symbols.
+
+    Parameters
+    ----------
+    states : AbstractSet[GNFAStateT]
+        Set of the GNFA's valid states.
+    input_symbols : AbstractSet[str]
+        Set of the GNFA's valid input symbols, each of which is a singleton
+        string.
+    transitions : Mapping[GNFAStateT, Mapping[GNFAStateT, Optional[str]]]
+        A dict with the transitions for each state, except `final_state`.
+        Each key is a state name and each value is dict which maps a state
+        (the key) to the transition expression (the value) or None.
+        The transition expression is a regular expression (string) over
+        `input_symbols`, and the following symbols only: `*`, `|`, `?`, `()`.
+
+        This is a subset of the standard regular expressions using this package.
+    initial_state : GNFAStateT
+        The initial state for this GNFA. Has transitions going to every
+        other state, but no transitions coming in from any other state.
+    final_state : GNFAStateT
+        A single final state for this GNFA. Has transitions coming in from every
+        other state, but no transitions going to any other state.
+        Must be different from the `initial_state`.
+    """
 
     # Add __dict__ to deal with inheritance issue and the final_states attribute.
     __slots__ = (

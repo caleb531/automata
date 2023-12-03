@@ -40,7 +40,37 @@ DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
 
 class NFA(fa.FA):
-    """A nondeterministic finite automaton."""
+    """
+    The `NFA` class is a subclass of `FA` and represents a nondeterministic finite
+    automaton.
+
+    Every NFA has the same five DFA properties: `state`, `input_symbols`,
+    `transitions`, `initial_state`, and `final_states`. However, the structure of
+    the `transitions` object has been modified slightly to accommodate the fact that
+    a single state can have more than one transition for the same symbol. Therefore,
+    instead of mapping a symbol to *one* end state in each sub-dict, each symbol is
+    mapped to a *set* of end states.
+
+    Every NFA can be rendered natively inside of a Jupyter notebook (automatically
+    calling `show_diagram` without any arguments) if installed with the `visual`
+    optional dependency.
+
+    Parameters
+    ----------
+    states : AbstractSet[NFAStateT]
+        Set of the NFA's valid states.
+    input_symbols : AbstractSet[str]
+        Set of the NFA's valid input symbols, each of which is a singleton
+        string.
+    transitions : Mapping[NFAStateT, Mapping[str, AbstractSet[NFAStateT]]]
+        Dict consisting of the transitions for each state. Each key is a
+        state name, and each value is another dict which maps a symbol
+        (the key) to a set of states (the value).
+    initial_state : NFAStateT
+        The initial state for this NFA.
+    final_states : AbstractSet[NFAStateT]
+        A set of final states for this NFA.
+    """
 
     __slots__: Tuple[str, ...] = (
         "states",
