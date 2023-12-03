@@ -18,17 +18,29 @@ class PDAStack:
         object.__setattr__(self, "stack", tuple(stack))
 
     def top(self) -> str:
-        """Return the symbol at the top of the stack."""
+        """
+        Return the symbol at the top of the stack.
+
+        Returns
+        ----------
+        str
+            The symbol at the top of the stack. Returns the empty
+            string if the stack is empty.
+        """
         if self.stack:
             return self.stack[-1]
-        else:
-            return ""
+
+        return ""
 
     def pop(self) -> PDAStack:
         """
-        Pop the stack top from the stack.
+        Pop the top element from the stack and return
+        the new stack.
 
-        Return a new PDAStack with the new content.
+        Returns
+        ----------
+        PDAStack
+            A copy of the old PDAStack with the top element removed.
         """
         return self.__class__(self.stack[:-1])
 
@@ -36,8 +48,16 @@ class PDAStack:
         """
         Replace the top of the stack with the given symbols.
 
-        Return a new PDAStack with the new content.
-        The first symbol in the given sequence becomes the new stack top.
+        Parameters
+        ----------
+        symbols : Sequence[str]
+            A sequence of symbols to add to the top of the PDAStack.
+            The first symbol in the given sequence becomes the new stack top.
+
+        Returns
+        ----------
+        PDAStack
+            A copy of the old PDAStack with the top element replaced.
         """
         return self.__class__(self.stack[:-1] + tuple(reversed(symbols)))
 

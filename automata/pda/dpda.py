@@ -155,9 +155,24 @@ class DPDA(pda.PDA):
         self, input_str: str
     ) -> Generator[PDAConfiguration, None, None]:
         """
-        Check if the given string is accepted by this DPDA.
+        Return a generator that yields the configuration of this DPDA at each
+        step while reading input.
 
-        Yield the DPDA's current configuration at each step.
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[PDAConfiguration, None, None]
+            A generator that yields the current configuration of
+            the DPDA after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this DPDA does not accept the input string.
         """
         current_configuration = PDAConfiguration(
             self.initial_state, input_str, PDAStack([self.initial_stack_symbol])

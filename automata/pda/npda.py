@@ -115,9 +115,24 @@ class NPDA(pda.PDA):
         self, input_str: str
     ) -> Generator[Set[PDAConfiguration], None, None]:
         """
-        Check if the given string is accepted by this NPDA.
+        Return a generator that yields the configuration of this NPDA at each
+        step while reading input.
 
-        Yield the NPDA's current configurations at each step.
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[Set[PDAConfiguration], None, None]
+            A generator that yields the current configuration of
+            the NPDA after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this NPDA does not accept the input string.
         """
         current_configurations = set()
         current_configurations.add(

@@ -67,7 +67,20 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         pass
 
     def validate(self) -> None:
-        """Return True if this PDA is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this PDA does has invalid states in the transition dictionary.
+        MissingStateError
+            If this PDA has states missing from the transition dictionary.
+        InvalidSymbolError
+            If this PDA has invalid symbols in the transition dictionary.
+        InvalidAcceptanceModeError
+            If this PDA has an invalid acceptance mode.
+        """
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
         self._validate_initial_state()
