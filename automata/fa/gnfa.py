@@ -252,7 +252,18 @@ class GNFA(fa.FA):
             )
 
     def validate(self) -> None:
-        """Return True if this NFA is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this GNFA does has invalid states in the transition dictionary.
+        MissingStateError
+            If this GNFA has states missing from the transition dictionary.
+        InvalidRegexError
+            If this GNFA has invalid regex in the transition dictionary.
+        """
         self._validate_initial_state()
         self._validate_final_state()
         for start_state, paths in self.transitions.items():
@@ -296,6 +307,11 @@ class GNFA(fa.FA):
     def to_regex(self) -> str:
         """
         Convert GNFA to regular expression.
+
+        Returns
+        ------
+        str
+            A regular expression equivalent to the input GNFA.
         """
         new_states = set(self.states)
         new_transitions = {
@@ -353,11 +369,21 @@ class GNFA(fa.FA):
         return new_transitions[self.initial_state][self.final_state]
 
     def read_input_stepwise(self, input_str: str) -> NoReturn:
+        # No docstring because this is a dummy implementation
         raise NotImplementedError
 
     def iter_transitions(
         self,
     ) -> Generator[Tuple[GNFAStateT, GNFAStateT, str], None, None]:
+        """
+        Iterate over all transitions in the GNFA. Each transition is a tuple
+        of the form (from_state, to_state, symbol).
+
+        Returns
+        ------
+        Generator[Tuple[GNFAStateT, GNFAStateT, str], None, None]
+            The desired generator over the GNFA transitions.
+        """
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()

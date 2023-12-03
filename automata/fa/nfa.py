@@ -139,7 +139,6 @@ class NFA(fa.FA):
         ------
         Self
             The NFA accepting the language of the input DFA.
-
         """
         nfa_transitions = {
             start_state: {
