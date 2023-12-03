@@ -21,7 +21,78 @@ InputPathListT = List[Tuple[PDAConfiguration, PDAConfiguration]]
 
 
 class NPDA(pda.PDA):
-    """A nondeterministic pushdown automaton."""
+    """
+    The `NPDA` class is a subclass of `PDA` and represents a nondeterministic
+    pushdown automaton.
+
+    Parameters
+    ----------
+    states: AbstractSet[NPDAStateT]
+        A set of the NPDA's valid states
+    input_symbols: AbstractSet[str]
+        Set of the NPDA's valid input symbols, each of which is a singleton
+        string.
+    stack_symbols: AbstractSet[str]
+        Set of the NPDA's valid stack symbols, each of which is a singleton
+        string.
+    transitions: NPDATransitionsT
+        A dict consisting of the transitions for each state; see the
+        example below for the exact syntax
+    initial_state: NPDAStateT
+        The name of the initial state for this NPDA.
+    initial_stack_symbol: str
+        The name of the initial symbol on the stack for this NPDA.
+    final_states: AbstractSet[NPDAStateT]
+        A set of final states for this NPDA.
+    acceptance_mode: pda.PDAAcceptanceModeT, default: "both"
+        A string defining whether this NPDA accepts by
+        `'final_state'`, `'empty_stack'`, or `'both'`.
+
+    Example
+    ----------
+        from automata.pda.npda import NPDA
+        # NPDA which matches palindromes consisting of 'a's and 'b's
+        # (accepting by final state)
+        # q0 reads the first half of the word, q1 the other half, q2 accepts.
+        # But we have to guess when to switch.
+        npda = NPDA(
+            states={'q0', 'q1', 'q2'},
+            input_symbols={'a', 'b'},
+            stack_symbols={'A', 'B', '#'},
+            transitions={
+                'q0': {
+                    '': {
+                        '#': {('q2', '#')},  # no change to stack
+                    },
+                    'a': {
+                        '#': {('q0', ('A', '#'))},  # push 'A' to stack
+                        'A': {
+                            ('q0', ('A', 'A')),  # push 'A' to stack
+                            ('q1', ''),  # pop from stack
+                        },
+                        'B': {('q0', ('A', 'B'))},  # push 'A' to stack
+                    },
+                    'b': {
+                        '#': {('q0', ('B', '#'))},  # push 'B' to stack
+                        'A': {('q0', ('B', 'A'))},  # push 'B' to stack
+                        'B': {
+                            ('q0', ('B', 'B')),  # push 'B' to stack
+                            ('q1', ''),  # pop from stack
+                        },
+                    },
+                },
+                'q1': {
+                    '': {'#': {('q2', '#')}},  # push '#' to (currently empty) stack
+                    'a': {'A': {('q1', '')}},  # pop from stack
+                    'b': {'B': {('q1', '')}},  # pop from stack
+                },
+            },
+            initial_state='q0',
+            initial_stack_symbol='#',
+            final_states={'q2'},
+            acceptance_mode='final_state'
+        )
+    """
 
     __slots__ = (
         "states",
