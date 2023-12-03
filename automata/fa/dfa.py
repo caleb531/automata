@@ -419,6 +419,8 @@ class DFA(fa.FA):
             If this DFA has states missing from the transition dictionary.
         InvalidSymbolError
             If this DFA has invalid symbols in the transition dictionary.
+        MissingSymbolError
+            If this DFA is missing transitions on certain symbols.
         """
 
         self._validate_transition_start_states()
@@ -459,6 +461,8 @@ class DFA(fa.FA):
         ----------
         input_str : str
             The input string to read.
+        ignore_rejection : bool, default: False
+            Whether to throw an exception if the input string is rejected.
 
         Yields
         ------
