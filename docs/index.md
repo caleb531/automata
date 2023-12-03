@@ -9,32 +9,16 @@ _Released under the MIT license_
 
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=main)](https://coveralls.io/r/caleb531/automata?branch=main)
+[![status](https://joss.theoj.org/papers/fe4d8521383598038e38bc0c948718af/status.svg)](https://joss.theoj.org/papers/fe4d8521383598038e38bc0c948718af)
 
-Automata is a Python 3 library which implements the structures and algorithms
-for finite automata, pushdown automata, and Turing machines. The library
-requires Python 3.7 or newer.
 
-Huge thanks to [@YtvwlD][YtvwlD], [@dengl11][dengl11], [@Tagl][Tagl],
-[@lewiuberg][lewiuberg], [@CamiloMartinezM][CamiloMartinezM],
-[@abhinavsinha‑adrino][abhinavsinha-adrino], and [@eliotwrobson][eliotwrobson]
-for their invaluable code contributions to this project! 🎉
+Automata is a Python 3 library implementing structures and algorithms for manipulating finite automata,
+pushdown automata, and Turing machines. The algorithms have been optimized and are capable of
+processing large inputs. Visualization logic has also been implemented. This package is suitable for
+both researchers wishing to manipulate automata and for instructors teaching courses on theoretical
+computer science.
 
-[YtvwlD]: https://github.com/YtvwlD
-[dengl11]: https://github.com/dengl11
-[Tagl]: https://github.com/Tagl
-[lewiuberg]: https://github.com/lewiuberg
-[CamiloMartinezM]: https://github.com/CamiloMartinezM
-[abhinavsinha-adrino]: https://github.com/abhinavsinha-adrino
-[eliotwrobson]: https://github.com/eliotwrobson
-
-## Migrating to v7
-
-If you wish to migrate to Automata v7 from an older version, please follow the
-[migration guide][migration].
-
-<!-- the below link must be an absolute URL to be functional in the PyPI README -->
-
-[migration]: https://github.com/caleb531/automata/blob/main/MIGRATION.md
+The library requires Python 3.8 or newer.
 
 ## Installing
 
@@ -44,11 +28,8 @@ You can install the latest version of Automata via pip:
 pip install automata-lib
 ```
 
-## API
+To install the optional visual dependencies, use the `visual` extra:
 
-Please refer to [the official API Documentation][docs] in the `docs/` directory
-of the GitHub repository.
-
-<!-- the below link must be an absolute URL to be functional in the PyPI README -->
-
-[docs]: https://github.com/caleb531/automata/blob/main/docs/README.md
+```sh
+pip install 'automata-lib[visual]'
+```

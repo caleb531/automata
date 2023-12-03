@@ -101,30 +101,20 @@ markdown_extensions:
   - tables
 extra:
   social:
-    - icon: fontawesome/solid/network-wired
-      link: https://uberg.me
-      name: Author website
-    - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/in/lewiuberg/
-      name: Author on LinkedIn
-    - icon: fontawesome/brands/github
-      link: https://github.com/lewiuberg
-      name: Author on GitHub
-    - icon: fontawesome/brands/medium
-      link: https://lewiuberg.medium.com
-      name: Author on Medium
     - icon: fontawesome/brands/python
-      link: https://pypi.org/user/lewiuberg/
-      name: Author on PyPI
-    - icon: fontawesome/brands/stack-overflow
-      link: https://stackoverflow.com/users/10685529/lewi-uberg
-      name: Author on Stack Overflow
+      link: https://pypi.org/project/automata-lib/
+      name: Package on PyPI
 # extra_css:
 #   - stylesheets/extra.css
 # extra_javascript:
 #   - javascripts/extra.js
 copyright: Copyright &copy; 2016 - 2023 Caleb Evans
 nav:
+  - Introduction:
+      - index.md
+      - migration.md
+  - Examples:
+      - examples/fa-examples.md
   - API:
       - api/index.md
       - Class Automaton: api/class-automaton.md
@@ -156,7 +146,5 @@ nav:
           - api/base-exception-classes.md
       - Turing machine exceptions:
           - api/tm/tm-exception-classes.md
-  - People: /people/
-  - About: /about/
-  - Examples:
-      - examples/fa-examples.md
+  - People:
+      - people.md
