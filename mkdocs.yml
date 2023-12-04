@@ -37,6 +37,7 @@ theme:
     - navigation.top
     - navigation.indexes
     - navigation.tabs
+    - content.code.copy
   # - navigation.tabs.sticky
   # - navigation.tracking
   # - navigation.expand
@@ -73,6 +74,9 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
       # auto_title: true
       # anchor_linenums: true
       # linenums: true
@@ -111,7 +115,7 @@ extra:
 copyright: Copyright &copy; 2016 - 2023 Caleb Evans
 nav:
   - Introduction:
-      - index.md
+      - introduction.md
       - migration.md
   - Examples:
       - examples/fa-examples.md
@@ -146,5 +150,5 @@ nav:
           - api/base-exception-classes.md
       - Turing machine exceptions:
           - api/tm/tm-exception-classes.md
-  - People:
+  - Community:
       - people.md

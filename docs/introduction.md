@@ -2,7 +2,7 @@
 author: "Lewi Lie Uberg"
 ---
 
-# Automata <!-- omit in toc -->
+# Automata
 
 _Copyright 2016-2022 Caleb Evans_
 _Released under the MIT license_
