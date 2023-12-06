@@ -3,8 +3,11 @@
 *Copyright 2016-2023 Caleb Evans*  
 *Released under the MIT license*
 
+[![PyPI version](https://badge.fury.io/py/automata-lib.svg)](https://badge.fury.io/py/automata-lib)
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=main)](https://coveralls.io/r/caleb531/automata?branch=main)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![](https://img.shields.io/badge/python-3.8+-blue.svg)](https://pypi.org/project/automata-lib/)
 [![status](https://joss.theoj.org/papers/fe4d8521383598038e38bc0c948718af/status.svg)](https://joss.theoj.org/papers/fe4d8521383598038e38bc0c948718af)
 
 Automata is a Python 3 library implementing structures and algorithms for manipulating finite automata,
@@ -67,4 +70,4 @@ of the GitHub repository.
 
 ## Contributing
 
-Contributions are always welcome! Take a look at the [contributing guide](.github/CONTRIBUTING.md).
+Contributions are always welcome! Take a look at the [contributing guide](./CONTRIBUTING.md).

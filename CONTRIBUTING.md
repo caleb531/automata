@@ -1,5 +1,10 @@
 # Contributing to Automata
 
+## Code of Conduct
+
+When interacting with other users and maintainers, please be sure to abide by
+the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
 ## Submitting an issue
 
 ### Bug reports
