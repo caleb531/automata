@@ -1,7 +1,3 @@
----
-author: "Lewi Lie Uberg"
----
-
 # Automata
 
 _Copyright 2016-2022 Caleb Evans_
