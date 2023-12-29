@@ -31,7 +31,45 @@ GNFATransitionsT = Mapping[GNFAStateT, GNFAPathT]
 
 
 class GNFA(fa.FA):
-    """A generalized nondeterministic finite automaton."""
+    """
+    The `GNFA` class is a subclass of `FA` and represents a generalized
+    nondeterministic finite automaton.
+
+    Its main usage is for conversion of DFAs and NFAs to regular expressions. Note
+    that because of this, the `GNFA` doesn't support any binary operators or reading
+    input (e.g. `read_input_stepwise`). Every GNFA can be rendered natively inside of-
+    a Jupyter notebook (automatically calling `show_diagram` without any arguments)
+    if installed with the `visual` optional dependency. Note that `input_str`
+    cannot be set as an argument to `show_diagram`, as the `GNFA` does not read input.
+
+    Except for `initial_state` and `final_state`, one transition goes from every state
+    to every other state, and also from each state to itself. To accommodate
+    this, transitions can be regular expressions and `None`, in addition to
+    normal input symbols.
+
+    Parameters
+    ----------
+    states : AbstractSet[GNFAStateT]
+        Set of the GNFA's valid states.
+    input_symbols : AbstractSet[str]
+        Set of the GNFA's valid input symbols, each of which is a singleton
+        string.
+    transitions : Mapping[GNFAStateT, Mapping[GNFAStateT, Optional[str]]]
+        A dict with the transitions for each state, except `final_state`.
+        Each key is a state name and each value is dict which maps a state
+        (the key) to the transition expression (the value) or None.
+        The transition expression is a regular expression (string) over
+        `input_symbols`, and the following symbols only: `*`, `|`, `?`, `()`.
+
+        This is a subset of the standard regular expressions using this package.
+    initial_state : GNFAStateT
+        The initial state for this GNFA. Has transitions going to every
+        other state, but no transitions coming in from any other state.
+    final_state : GNFAStateT
+        A single final state for this GNFA. Has transitions coming in from every
+        other state, but no transitions going to any other state.
+        Must be different from the `initial_state`.
+    """
 
     # Add __dict__ to deal with inheritance issue and the final_states attribute.
     __slots__ = (
@@ -69,15 +107,27 @@ class GNFA(fa.FA):
         self.validate()
 
     @classmethod
-    def from_dfa(cls: Type[Self], dfa: dfa.DFA) -> Self:
-        """Initialize this GNFA as one equivalent to the given DFA."""
-        new_gnfa_transitions = dict()
-        gnfa_states = set(dfa.states)
+    def from_dfa(cls: Type[Self], target_dfa: dfa.DFA) -> Self:
+        """
+        Initialize this GNFA as one equivalent to the given DFA.
 
-        for state in dfa.states:
+        Parameters
+        ----------
+        target_dfa : DFA
+            The DFA to construct an equivalent GNFA for.
+
+        Returns
+        ------
+        Self
+            The GNFA accepting the language of the input DFA.
+        """
+        new_gnfa_transitions = dict()
+        gnfa_states = set(target_dfa.states)
+
+        for state in target_dfa.states:
             gnfa_transitions: Dict[GNFAStateT, Optional[str]] = dict()
-            if state in dfa.transitions:
-                for input_symbol, to_state in dfa.transitions[state].items():
+            if state in target_dfa.transitions:
+                for input_symbol, to_state in target_dfa.transitions[state].items():
                     if to_state in gnfa_transitions.keys():
                         gnfa_transitions[
                             to_state
@@ -91,9 +141,9 @@ class GNFA(fa.FA):
         new_initial_state = GNFA._add_new_state(gnfa_states)
         new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)
 
-        new_gnfa_transitions[new_initial_state] = {dfa.initial_state: ""}
+        new_gnfa_transitions[new_initial_state] = {target_dfa.initial_state: ""}
 
-        for state in dfa.final_states:
+        for state in target_dfa.final_states:
             new_gnfa_transitions[state][new_final_state] = ""
 
         for state in gnfa_states - {new_final_state}:  # pragma: no branch
@@ -104,22 +154,34 @@ class GNFA(fa.FA):
 
         return cls(
             states=gnfa_states,
-            input_symbols=dfa.input_symbols,
+            input_symbols=target_dfa.input_symbols,
             transitions=new_gnfa_transitions,
             initial_state=new_initial_state,
             final_state=new_final_state,
         )
 
     @classmethod
-    def from_nfa(cls: Type[Self], nfa: nfa.NFA) -> Self:
-        """Initialize this GNFA as one equivalent to the given NFA."""
-        new_gnfa_transitions: Dict[GNFAStateT, Dict[GNFAStateT, Optional[str]]] = dict()
-        gnfa_states = set(nfa.states)
+    def from_nfa(cls: Type[Self], target_nfa: nfa.NFA) -> Self:
+        """
+        Initialize this GNFA as one equivalent to the given NFA.
 
-        for state in nfa.states:
+        Parameters
+        ----------
+        target_nfa : NFA
+            The NFA to construct an equivalent GNFA for.
+
+        Returns
+        ------
+        Self
+            The GNFA accepting the language of the input NFA.
+        """
+        new_gnfa_transitions: Dict[GNFAStateT, Dict[GNFAStateT, Optional[str]]] = dict()
+        gnfa_states = set(target_nfa.states)
+
+        for state in target_nfa.states:
             gnfa_transitions: Dict[GNFAStateT, str] = dict()
-            if state in nfa.transitions:
-                for input_symbol, to_states in nfa.transitions[state].items():
+            if state in target_nfa.transitions:
+                for input_symbol, to_states in target_nfa.transitions[state].items():
                     for to_state in to_states:
                         if to_state in gnfa_transitions.keys():
                             if gnfa_transitions[to_state] == "" and input_symbol != "":
@@ -150,9 +212,9 @@ class GNFA(fa.FA):
         new_initial_state = GNFA._add_new_state(gnfa_states)
         new_final_state = GNFA._add_new_state(gnfa_states, new_initial_state)
 
-        new_gnfa_transitions[new_initial_state] = {nfa.initial_state: ""}
+        new_gnfa_transitions[new_initial_state] = {target_nfa.initial_state: ""}
 
-        for state in nfa.final_states:
+        for state in target_nfa.final_states:
             new_gnfa_transitions[state][new_final_state] = ""
 
         for state in gnfa_states - {new_final_state}:  # pragma: no branch
@@ -163,7 +225,7 @@ class GNFA(fa.FA):
 
         return cls(
             states=gnfa_states,
-            input_symbols=nfa.input_symbols,
+            input_symbols=target_nfa.input_symbols,
             transitions=new_gnfa_transitions,
             initial_state=new_initial_state,
             final_state=new_final_state,
@@ -228,7 +290,18 @@ class GNFA(fa.FA):
             )
 
     def validate(self) -> None:
-        """Return True if this NFA is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this GNFA has invalid states in the transition dictionary.
+        MissingStateError
+            If this GNFA has states missing from the transition dictionary.
+        InvalidRegexError
+            If this GNFA has invalid regex in the transition dictionary.
+        """
         self._validate_initial_state()
         self._validate_final_state()
         for start_state, paths in self.transitions.items():
@@ -272,6 +345,11 @@ class GNFA(fa.FA):
     def to_regex(self) -> str:
         """
         Convert GNFA to regular expression.
+
+        Returns
+        ------
+        str
+            A regular expression equivalent to the input GNFA.
         """
         new_states = set(self.states)
         new_transitions = {
@@ -329,11 +407,21 @@ class GNFA(fa.FA):
         return new_transitions[self.initial_state][self.final_state]
 
     def read_input_stepwise(self, input_str: str) -> NoReturn:
+        # No docstring because this is a dummy implementation
         raise NotImplementedError
 
     def iter_transitions(
         self,
     ) -> Generator[Tuple[GNFAStateT, GNFAStateT, str], None, None]:
+        """
+        Iterate over all transitions in the GNFA. Each transition is a tuple
+        of the form (from_state, to_state, symbol).
+
+        Returns
+        ------
+        Generator[Tuple[GNFAStateT, GNFAStateT, str], None, None]
+            The desired generator over the GNFA transitions.
+        """
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()

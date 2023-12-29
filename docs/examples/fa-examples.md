@@ -1,8 +1,5 @@
 # FA Examples
 
-[FA Class](class-fa.md)  
-[Table of Contents](../README.md)
-
 On this page, we give some short examples with discussion for the finite
 automata classes and methods.
 
@@ -160,7 +157,3 @@ def make_table(target_fa) -> pd.DataFrame:
     df = pd.DataFrame.from_dict(table).fillna("∅").T
     return df.reindex(sorted(df.columns), axis=1)
 ```
-
-------
-
-[Table of Contents](../README.md)

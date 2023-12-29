@@ -40,7 +40,37 @@ DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
 
 class NFA(fa.FA):
-    """A nondeterministic finite automaton."""
+    """
+    The `NFA` class is a subclass of `FA` and represents a nondeterministic finite
+    automaton.
+
+    Every NFA has the same five DFA properties: `state`, `input_symbols`,
+    `transitions`, `initial_state`, and `final_states`. However, the structure of
+    the `transitions` object has been modified slightly to accommodate the fact that
+    a single state can have more than one transition for the same symbol. Therefore,
+    instead of mapping a symbol to *one* end state in each sub-dict, each symbol is
+    mapped to a *set* of end states.
+
+    Every NFA can be rendered natively inside of a Jupyter notebook (automatically
+    calling `show_diagram` without any arguments) if installed with the `visual`
+    optional dependency.
+
+    Parameters
+    ----------
+    states : AbstractSet[NFAStateT]
+        Set of the NFA's valid states.
+    input_symbols : AbstractSet[str]
+        Set of the NFA's valid input symbols, each of which is a singleton
+        string.
+    transitions : Mapping[NFAStateT, Mapping[str, AbstractSet[NFAStateT]]]
+        Dict consisting of the transitions for each state. Each key is a
+        state name, and each value is another dict which maps a symbol
+        (the key) to a set of states (the value).
+    initial_state : NFAStateT
+        The initial state for this NFA.
+    final_states : AbstractSet[NFAStateT]
+        A set of final states for this NFA.
+    """
 
     __slots__: Tuple[str, ...] = (
         "states",
@@ -126,21 +156,33 @@ class NFA(fa.FA):
             return NotImplemented
 
     @classmethod
-    def from_dfa(cls: Type[Self], dfa: dfa.DFA) -> Self:
-        """Initialize this NFA as one equivalent to the given DFA."""
+    def from_dfa(cls: Type[Self], target_dfa: dfa.DFA) -> Self:
+        """
+        Initialize this NFA as one equivalent to the given DFA.
+
+        Parameters
+        ----------
+        target_dfa : DFA
+            The DFA to construct an equivalent NFA for.
+
+        Returns
+        ------
+        Self
+            The NFA accepting the language of the input DFA.
+        """
         nfa_transitions = {
             start_state: {
                 input_symbol: {end_state} for input_symbol, end_state in paths.items()
             }
-            for start_state, paths in dfa.transitions.items()
+            for start_state, paths in target_dfa.transitions.items()
         }
 
         return cls(
-            states=dfa.states,
-            input_symbols=dfa.input_symbols,
+            states=target_dfa.states,
+            input_symbols=target_dfa.input_symbols,
             transitions=nfa_transitions,
-            initial_state=dfa.initial_state,
-            final_states=dfa.final_states,
+            initial_state=target_dfa.initial_state,
+            final_states=target_dfa.final_states,
         )
 
     def _validate_transition_invalid_symbols(
@@ -159,7 +201,22 @@ class NFA(fa.FA):
     def from_regex(
         cls: Type[Self], regex: str, *, input_symbols: Optional[AbstractSet[str]] = None
     ) -> Self:
-        """Initialize this NFA as one equivalent to the given regular expression"""
+        """
+        Initialize this NFA as one equivalent to the given regular expression.
+
+        Parameters
+        ----------
+        regex : str
+            The regex to construct an equivalent NFA for.
+        input_symbols : Optional[AbstractSet[str]], default: None
+            The set of input symbols to create the NFA over. If not
+            set, defaults to all ascii letters and digits.
+
+        Returns
+        ------
+        Self
+            The NFA accepting the language of the input regex.
+        """
 
         if input_symbols is None:
             input_symbols = DEFAULT_REGEX_SYMBOLS
@@ -193,7 +250,18 @@ class NFA(fa.FA):
                     )
 
     def validate(self) -> None:
-        """Return True if this NFA is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this NFA has invalid states in the transition dictionary.
+        MissingStateError
+            If this NFA has states missing from the transition dictionary.
+        InvalidSymbolError
+            If this NFA has invalid symbols in the transition dictionary.
+        """
         for start_state, paths in self.transitions.items():
             self._validate_transition_invalid_symbols(start_state, paths)
             self._validate_transition_end_states(start_state, paths)
@@ -312,8 +380,14 @@ class NFA(fa.FA):
         return reachable_states, new_transitions, reachable_final_states
 
     def eliminate_lambda(self) -> Self:
-        """Removes epsilon transitions from the NFA which recognizes the same
-        language."""
+        """
+        Returns an equivalent NFA with lambda transitions removed.
+
+        Returns
+        ------
+        Self
+            The equivalent NFA with lambda transitions removed.
+        """
 
         (
             reachable_states,
@@ -344,9 +418,24 @@ class NFA(fa.FA):
         self, input_str: str
     ) -> Generator[AbstractSet[NFAStateT], None, None]:
         """
-        Check if the given string is accepted by this NFA.
+        Return a generator that yields the configuration of this NFA at each
+        step while reading input.
 
-        Yield the current configuration of the NFA at each step.
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[AbstractSet[NFAStateT], None, None]
+            A generator that yields the current configuration (a set of states) of
+            the NFA after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this NFA does not accept the input string.
         """
         current_states = self._get_lambda_closures()[self.initial_state]
 
@@ -381,6 +470,16 @@ class NFA(fa.FA):
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
         the union of L1 and L2.
+
+        Parameters
+        ----------
+        other : NFA
+            The NFA we want to take a union with.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the union of the two input NFAs.
         """
 
         # Starting at 1 because 0 is for the initial state
@@ -427,7 +526,17 @@ class NFA(fa.FA):
         """
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
-        the languages L1 concatenated with L2.
+        the language L1 concatenated with L2.
+
+        Parameters
+        ----------
+        other : NFA
+            The NFA we want to concatenate with.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the language concatenation of the two input NFAs.
         """
 
         (state_map_a, state_map_b) = self.__class__._get_state_maps(
@@ -467,8 +576,13 @@ class NFA(fa.FA):
 
     def kleene_star(self) -> Self:
         """
-        Given an NFA which accepts the language L returns
+        Given an NFA which accepts the language L, returns
         an NFA which accepts L repeated 0 or more times.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the finite repetition of the input NFA.
         """
         new_states = set(self.states)
         new_initial_state = self.__class__._add_new_state(new_states)
@@ -498,9 +612,13 @@ class NFA(fa.FA):
 
     def option(self) -> Self:
         """
-        Given an NFA which accepts the language L returns
-        an NFA which accepts L repeated 0 or 1 times. (option - ?)
-        Note: still you cannot pass empty string to the machine.
+        Given an NFA which accepts the language L, returns
+        an NFA which accepts L repeated 0 or 1 times.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the optional of the input NFA.
         """
         new_states = set(self.states)
         new_initial_state = self.__class__._add_new_state(new_states)
@@ -521,8 +639,13 @@ class NFA(fa.FA):
 
     def reverse(self) -> Self:
         """
-        Given an NFA which accepts the language L this function
+        Given an NFA which accepts the language L,
         returns an NFA which accepts the reverse of L.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the reversal of the input NFA.
         """
         new_states = set(self.states)
         new_initial_state = self.__class__._add_new_state(new_states)
@@ -555,6 +678,16 @@ class NFA(fa.FA):
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
         the intersection of L1 and L2.
+
+        Parameters
+        ----------
+        other : NFA
+            The NFA we want to take an intersection with.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the intersection of the two input NFAs.
         """
 
         new_states = set()
@@ -633,6 +766,16 @@ class NFA(fa.FA):
         Given two NFAs, M1 and M2, which accept the languages
         L1 and L2 respectively, returns an NFA which accepts
         the shuffle of L1 and L2.
+
+        Parameters
+        ----------
+        other : NFA
+            The NFA we want to take a shuffle product with.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the shuffle product of the two input NFAs.
         """
         if not isinstance(other, NFA):
             raise TypeError(f"other must be an NFA, not {other.__class__.__name__}")
@@ -675,6 +818,16 @@ class NFA(fa.FA):
 
         Construction is based off of the one described here:
         https://cs.stackexchange.com/a/102043
+
+        Parameters
+        ----------
+        other : NFA
+            The NFA we want to take a right quotient with.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the right quotient of the two input NFAs.
         """
 
         if not isinstance(other, NFA):
@@ -755,6 +908,16 @@ class NFA(fa.FA):
 
         Construction is based off of the one described here:
         https://cs.stackexchange.com/a/102043
+
+        Parameters
+        ----------
+        other : NFA
+            The NFA we want to take a left quotient with.
+
+        Returns
+        ------
+        Self
+            An NFA accepting the left quotient of the two input NFAs.
         """
 
         if not isinstance(other, NFA):
@@ -935,6 +1098,34 @@ class NFA(fa.FA):
 
         Code adapted from:
         http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the NFA over.
+        reference_str : str
+            The reference string the NFA will use to recognize other close strings.
+        max_edit_distance : int
+            The maximum edit distance from the reference string this NFA will recognize.
+            Must be positive.
+        insertion : bool, default: True
+            Whether to recognize insertion edits relative to the reference string.
+        deletion : bool, default: True
+            Whether to recognize deletion edits relative to the reference string.
+        substitution : bool, default: True
+            Whether to recognize substitution edits relative to the reference string.
+
+        Returns
+        ------
+        Self
+            An NFA accepting all strings within the given edit distance to the reference
+            string.
+
+        Raises
+        ------
+        ValueError
+            Raised if the max_edit_distance is negative or all of the error flags are
+            set to False (at least one must be True).
         """
         if max_edit_distance < 0:
             raise ValueError("max_edit_distance must be greater than zero")
@@ -1003,6 +1194,15 @@ class NFA(fa.FA):
     def iter_transitions(
         self,
     ) -> Generator[Tuple[NFAStateT, NFAStateT, str], None, None]:
+        """
+        Iterate over all transitions in the NFA. Each transition is a tuple
+        of the form (from_state, to_state, symbol).
+
+        Returns
+        ------
+        Generator[Tuple[NFAStateT, NFAStateT, str], None, None]
+            The desired generator over the NFA transitions.
+        """
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()

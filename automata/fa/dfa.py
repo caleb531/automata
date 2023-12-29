@@ -47,7 +47,37 @@ TargetStateFn = Callable[[DFAStateT], bool]
 
 
 class DFA(fa.FA):
-    """A deterministic finite automaton."""
+    """
+    The `DFA` class is a subclass of `FA` and represents a deterministic finite
+    automaton.
+
+    Every DFA can be rendered natively inside of a Jupyter notebook
+    (automatically calling `show_diagram` without any arguments) if installed
+    with the `visual` optional dependency.
+
+    Parameters
+    ----------
+    states : AbstractSet[DFAStateT]
+        Set of the DFA's valid states.
+    input_symbols : AbstractSet[str]
+        Set of the DFA's valid input symbols, each of which is a singleton
+        string
+    transitions : Mapping[DFAStateT, Mapping[str, DFAStateT]]
+        Dict consisting of the transitions for each state. Each key is a
+        state name, and each value is another dict which maps a symbol
+        (the key) to a state (the value).
+    initial_state : DFAStateT
+        The initial state for this DFA.
+    final_states : AbstractSet[DFAStateT]
+        A set of final states for this DFA
+    allow_partial : bool, default: True
+        By default, each DFA state must have a transition to
+        every input symbol; if this parameter is `True`, you can disable this
+        characteristic (such that any DFA state can have fewer transitions than input
+        symbols). Note that a DFA must always have every state represented in the
+        transition dictionary, even if there are no transitions on input symbols
+        leaving a state (dictionary is left empty in that case).
+    """
 
     __slots__ = (
         "states",
@@ -229,6 +259,19 @@ class DFA(fa.FA):
         Turns a DFA (complete or not) into a partial DFA.
         Removes dead states and trap states (except the initial state)
             and all edges leading to them.
+
+        Parameters
+        ----------
+        minify : bool, default: True
+            Whether to perform a minify operation while converting to
+            a partial DFA.
+        retain_names : bool, default: True
+            Whether to retain state names during minification.
+
+        Returns
+        -------
+        Self
+            An equivalent partial DFA.
         """
         if self.allow_partial:
             return self.copy()
@@ -276,8 +319,21 @@ class DFA(fa.FA):
 
     def to_complete(self, trap_state: Optional[DFAStateT] = None) -> Self:
         """
-        Turns a DFA (complete or not) into a complete DFA.
-        Will add trap_state to the state set if there are any missing transitions.
+        Creates an equivalent complete DFA with trap_state used as the name
+        for an added trap state. If trap_state is not passed in, defaults to
+        the largest negative integer which is not already a state name.
+        If the DFA is already complete, just returns a copy.
+
+        Parameters
+        ----------
+        trap_state : Optional[DFAStateT], default: None
+            Name for custom trap state to be used.
+
+        Returns
+        -------
+        Self
+            An equivalent complete DFA.
+
         """
         if not self.allow_partial:
             return self.copy()
@@ -382,7 +438,21 @@ class DFA(fa.FA):
         self._validate_transition_end_states(start_state, paths)
 
     def validate(self) -> None:
-        """Return True if this DFA is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this DFA has invalid states in the transition dictionary.
+        MissingStateError
+            If this DFA has states missing from the transition dictionary.
+        InvalidSymbolError
+            If this DFA has invalid symbols in the transition dictionary.
+        MissingSymbolError
+            If this DFA is missing transitions on certain symbols.
+        """
+
         self._validate_transition_start_states()
         for start_state, paths in self.transitions.items():
             self._validate_transitions(start_state, paths)
@@ -413,11 +483,27 @@ class DFA(fa.FA):
 
     def read_input_stepwise(
         self, input_str: str, ignore_rejection: bool = False
-    ) -> Generator[AbstractSet[DFAStateT], None, None]:
+    ) -> Generator[DFAStateT, None, None]:
         """
-        Check if the given string is accepted by this DFA.
+        Return a generator that yields each step while reading input.
 
-        Yield the current configuration of the DFA at each step.
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+        ignore_rejection : bool, default: False
+            Whether to throw an exception if the input string is rejected.
+
+        Yields
+        ------
+        Generator[DFAStateT, None, None]
+            A generator that yields the current configuration of the DFA
+            after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this DFA does not accept the input string.
         """
         current_state = self.initial_state
 
@@ -448,9 +534,19 @@ class DFA(fa.FA):
         Create a minimal DFA which accepts the same inputs as this DFA.
 
         First, non-reachable states are removed.
-        Then, similar states are merged using Hopcroft's Algorithm.
-            retain_names: If True, merged states retain names.
-                          If False, new states will be named 0, ..., n-1.
+        Then, indistinguishable states are merged using Hopcroft's Algorithm.
+
+        Parameters
+        ----------
+        retain_names : bool, default: False
+            Whether to retain original names when merging states.
+            New names are from 0 to n-1.
+
+        Returns
+        ------
+        Self
+            A state-minimal equivalent DFA. May be complete in some cases
+            if the input is partial.
         """
 
         if self.allow_partial:
@@ -622,6 +718,24 @@ class DFA(fa.FA):
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the union of L1 and L2.
+
+        Minifies by default. Unreachable states are always removed.
+        If either input DFA is partial, the result is partial.
+
+        Parameters
+        ----------
+        other : DFA
+            The DFA we want to take a union with.
+        retain_names : bool, default: False
+            Whether to retain state names through the union and optional minify.
+        minify : bool, default: True
+            Whether to minify the result of the union of the two DFAs.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the union of the two input DFAs. State minimal by
+            default.
         """
 
         def union_function(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
@@ -648,6 +762,24 @@ class DFA(fa.FA):
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the intersection of L1 and L2.
+
+        Minifies by default. Unreachable states are always removed.
+        If either input DFA is partial, the result is partial.
+
+        Parameters
+        ----------
+        other : DFA
+            The DFA we want to take a intersection with.
+        retain_names : bool, default: False
+            Whether to retain state names through the intersection and optional minify.
+        minify : bool, default: True
+            Whether to minify the result of the intersection of the two DFAs.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the intersection of the two input DFAs. State minimal by
+            default.
         """
 
         def intersection_function(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
@@ -674,6 +806,24 @@ class DFA(fa.FA):
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the difference of L1 and L2.
+
+        Minifies by default. Unreachable states are always removed.
+        If either input DFA is partial, the result is partial.
+
+        Parameters
+        ----------
+        other : DFA
+            The DFA we want to take a difference with.
+        retain_names : bool, default: False
+            Whether to retain state names through the difference and optional minify.
+        minify : bool, default: True
+            Whether to minify the result of the difference of the two DFAs.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the difference of the two input DFAs. State minimal by
+            default.
         """
 
         def difference_function(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
@@ -700,6 +850,25 @@ class DFA(fa.FA):
         Takes as input two DFAs M1 and M2 which
         accept languages L1 and L2 respectively.
         Returns a DFA which accepts the symmetric difference of L1 and L2.
+
+        Minifies by default. Unreachable states are always removed.
+        If either input DFA is partial, the result is partial.
+
+        Parameters
+        ----------
+        other : DFA
+            The DFA we want to take a symmetric difference with.
+        retain_names : bool, default: False
+            Whether to retain state names through the symmetric difference and optional
+            minify.
+        minify : bool, default: True
+            Whether to minify the result of the symmetric difference of the two DFAs.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the symmetric difference of the two input DFAs. State
+            minimal by default.
         """
 
         def symmetric_difference_function(
@@ -722,7 +891,25 @@ class DFA(fa.FA):
         )
 
     def complement(self, *, retain_names: bool = False, minify: bool = True) -> Self:
-        """Return the complement of this DFA."""
+        """
+        Creates a DFA which accepts an input if and only if the old one does not.
+        Minifies by default. Unreachable states are always removed. Partial DFAs
+        are converted into complete ones.
+
+        Parameters
+        ----------
+        retain_names : bool, default: False
+            Whether to retain state names through the complement and optional
+            minify.
+        minify : bool, default: True
+            Whether to minify the result of the complement of the input DFA.
+
+        Returns
+        ------
+        Self
+            A DFA accepting the complement of the input DFA. State
+            minimal by default.
+        """
 
         # We can't do much here, we must turn it into a complete DFA
         complete_dfa: Self = self.to_complete() if self.allow_partial else self
@@ -934,7 +1121,19 @@ class DFA(fa.FA):
         return initial_state, expand_state_fn
 
     def issubset(self, other: DFA) -> bool:
-        """Return True if this DFA is a subset of another DFA."""
+        """
+        Returns True if the language accepted by self is a subset of that of other.
+
+        Parameters
+        ----------
+        other : DFA
+            The other DFA we are comparing our language against.
+
+        Returns
+        ------
+        bool
+            True if self is a subset of other, False otherwise.
+        """
 
         def subset_state_fn(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
             """Check for reachable state that is counterexample to subset"""
@@ -950,11 +1149,35 @@ class DFA(fa.FA):
         )
 
     def issuperset(self, other: DFA) -> bool:
-        """Return True if this DFA is a superset of another DFA."""
+        """
+        Returns True if the language accepted by self is a superset of that of other.
+
+        Parameters
+        ----------
+        other : DFA
+            The other DFA we are comparing our language against.
+
+        Returns
+        ------
+        bool
+            True if self is a superset of other, False otherwise.
+        """
         return other.issubset(self)
 
     def isdisjoint(self, other: DFA) -> bool:
-        """Return True if this DFA has no common elements with another DFA."""
+        """
+        Returns True if the language accepted by self is disjoint from that of other.
+
+        Parameters
+        ----------
+        other : DFA
+            The other DFA we are comparing our language against.
+
+        Returns
+        ------
+        bool
+            True if self is disjoint from other, False otherwise.
+        """
 
         def disjoint_state_fn(state_pair: Tuple[DFAStateT, DFAStateT]) -> bool:
             """Check for reachable state that is counterexample to disjointness"""
@@ -973,7 +1196,14 @@ class DFA(fa.FA):
 
     @cached_method
     def isempty(self) -> bool:
-        """Return True if this DFA is completely empty."""
+        """
+        Returns True if the language accepted by self is empty.
+
+        Returns
+        ------
+        bool
+            True if self accepts the empty language, False otherwise.
+        """
         return not self.__class__._find_state(
             self.final_states.__contains__,
             self.initial_state,
@@ -983,7 +1213,12 @@ class DFA(fa.FA):
     @cached_method
     def isfinite(self) -> bool:
         """
-        Returns True if the DFA accepts a finite language, False otherwise.
+        Returns True if the language accepted by self is finite.
+
+        Returns
+        ------
+        bool
+            True if self accepts a finite language, False otherwise.
         """
         try:
             return self.maximum_word_length() is not None
@@ -991,6 +1226,26 @@ class DFA(fa.FA):
             return True
 
     def random_word(self, k: int, *, seed: Optional[int] = None) -> str:
+        """
+        Returns a random word of length k accepted by self.
+
+        Parameters
+        ----------
+        k : int
+            The length of the desired word.
+        seed : Optional[int], default: None
+            The random seed to use for the sampling of the random word.
+
+        Returns
+        ------
+        str
+            A uniformly random word of length k accepted by the DFA self.
+
+        Raises
+        ------
+        ValueError
+            If this DFA does not accept any words of length k.
+        """
         self._populate_count_cache_up_to_len(k)
         state = self.initial_state
         if self._count_cache[k][state] == 0:
@@ -1023,10 +1278,28 @@ class DFA(fa.FA):
         """
         Returns the first string accepted by the DFA that comes before
         the input string in lexicographical order.
-        Passing in None will generate the lexicographically last word.
-        If strict is set to False and input_str is accepted by the DFA then
-        it will be returned.
-        The value of key can be set to define a custom lexicographical ordering.
+
+        Parameters
+        ----------
+        input_str : str
+            The starting input string.
+        strict : bool, default: True
+            If set to false and input_str is accepted by the DFA, input_str will be
+            returned.
+        key : Optional[Callable], default: None
+            Function for defining custom lexicographical ordering. Defaults to using
+            the standard string ordering.
+
+        Returns
+        ------
+        str
+            The first string accepted by the DFA lexicographically before input_string.
+
+        Raises
+        ------
+        InfiniteLanguageException
+            Raised if the language accepted by self is infinite, as we cannot
+            generate predecessors in this case.
         """
         for word in self.predecessors(input_str, strict=strict, key=key):
             return word
@@ -1042,11 +1315,29 @@ class DFA(fa.FA):
         """
         Generates all strings that come before the input string
         in lexicographical order.
-        Passing in None will generate all words.
-        If strict is set to False and input_str is accepted by the DFA then
-        it will be included in the output.
-        The value of key can be set to define a custom lexicographical ordering.
-        Raises an InfiniteLanguageException for infinite languages.
+
+        Parameters
+        ----------
+        input_str : str
+            The starting input string.
+        strict : bool, default: True
+            If set to false and input_str is accepted by the DFA, input_str will be
+            returned.
+        key : Optional[Callable], default: None
+            Function for defining custom lexicographical ordering. Defaults to using
+            the standard string ordering.
+
+        Returns
+        ------
+        Generator[str, None, None]
+            A generator for all strings that come before the input string in
+            lexicographical order.
+
+        Raises
+        ------
+        InfiniteLanguageException
+            Raised if the language accepted by self is infinite, as we cannot
+            generate predecessors in this case.
         """
         yield from self.successors(input_str, strict=strict, reverse=True, key=key)
 
@@ -1060,10 +1351,22 @@ class DFA(fa.FA):
         """
         Returns the first string accepted by the DFA that comes after
         the input string in lexicographical order.
-        Passing in None will generate the lexicographically first word.
-        If strict is set to False and input_str is accepted by the DFA then
-        it will be returned.
-        The value of key can be set to define a custom lexicographical ordering.
+
+        Parameters
+        ----------
+        input_str : Optional[str]
+            The starting input string. If None, will generate all words.
+        strict : bool, default: True
+            If set to false and input_str is accepted by the DFA, input_str will be
+            returned.
+        key : Optional[Callable], default: None
+            Function for defining custom lexicographical ordering. Defaults to using
+            the standard string ordering.
+
+        Returns
+        ------
+        str
+            The first string accepted by the DFA lexicographically before input_string.
         """
         for word in self.successors(input_str, strict=strict, key=key):
             return word
@@ -1078,12 +1381,28 @@ class DFA(fa.FA):
         reverse: bool = False,
     ) -> Generator[str, None, None]:
         """
-        Generates all strings that come after the input string in
-        lexicographical order. Passing in None will generate all words. If
-        strict is set to False and input_str is accepted by the DFA then it will
-        be included in the output. If reverse is set to True then predecessors
-        will be generated instead. See the DFA.predecessors method. The value of
-        key can be set to define a custom lexicographical ordering.
+        Generates all strings that come after the input string
+        in lexicographical order.
+
+        Parameters
+        ----------
+        input_str : Optional[str]
+            The starting input string. If None, will generate all words.
+        strict : bool, default: True
+            If set to false and input_str is accepted by the DFA, input_str will be
+            returned.
+        key : Optional[Callable], default: None
+            Function for defining custom lexicographical ordering. Defaults to using
+            the standard string ordering.
+        reverse : bool, default: False
+            If True, then predecessors will be generated instead of successors.
+
+        Returns
+        ------
+        Generator[str, None, None]
+            A generator for all strings that come after the input string in
+            lexicographical order.
+
         """
         # A predecessor for a finite string may be infinite but a successor for
         # a finite string is always finite
@@ -1166,7 +1485,17 @@ class DFA(fa.FA):
 
     def count_words_of_length(self, k: int) -> int:
         """
-        Counts words of length `k` accepted by the DFA
+        Returns count of words of length k accepted by the DFA.
+
+        Parameters
+        ----------
+        k : int
+            The desired word length.
+
+        Returns
+        ------
+        int
+            The number of words of length k accepted by self.
         """
         self._populate_count_cache_up_to_len(k)
         return self._count_cache[k][self.initial_state]
@@ -1196,7 +1525,17 @@ class DFA(fa.FA):
 
     def words_of_length(self, k: int) -> Generator[str, None, None]:
         """
-        Generates all words of size k in the language represented by the DFA
+        Generates all words of length `k` in the language accepted by the DFA.
+
+        Parameters
+        ----------
+        k : int
+            The desired word length.
+
+        Returns
+        ------
+        Generator[str, None, None]
+            A generator for all words of length k accepted by the DFA.
         """
         self._populate_word_cache_up_to_len(k)
         for word in self._word_cache[k][self.initial_state]:
@@ -1233,7 +1572,19 @@ class DFA(fa.FA):
 
     @cached_method
     def cardinality(self) -> int:
-        """Returns the cardinality of the language represented by the DFA."""
+        """
+        Returns the cardinality of the language represented by the DFA.
+
+        Returns
+        ------
+        int
+            The cardinality of the language accepted by self.
+
+        Raises
+        ------
+        InfiniteLanguageException
+            Raised if self accepts an infinite language.
+        """
         try:
             i = self.minimum_word_length()
         except exceptions.EmptyLanguageException:
@@ -1248,7 +1599,17 @@ class DFA(fa.FA):
     @cached_method
     def minimum_word_length(self) -> int:
         """
-        Returns the length of the shortest word in the language represented by the DFA
+        Returns the length of the shortest word in the language accepted by the DFA.
+
+        Returns
+        ------
+        int
+            The length of the shortest word accepted by self.
+
+        Raises
+        ------
+        EmptyLanguageException
+            Raised if self accepts an empty language.
         """
         queue: Deque[DFAStateT] = deque()
         distances: Dict[DFAStateT, int] = {self.initial_state: 0}
@@ -1268,8 +1629,19 @@ class DFA(fa.FA):
     @cached_method
     def maximum_word_length(self) -> Optional[int]:
         """
-        Returns the length of the longest word in the language represented by the DFA
-        In the case of infinite languages, `None` is returned
+        Returns the length of the longest word in the language accepted by the DFA
+        In the case of infinite languages, `None` is returned.
+
+        Returns
+        ------
+        Optional[int]
+            The length of the longest word accepted by self. None if the language
+            is infinite.
+
+        Raises
+        ------
+        EmptyLanguageException
+            Raised if self accepts the empty language.
         """
         if self.isempty():
             raise exceptions.EmptyLanguageException(
@@ -1302,9 +1674,25 @@ class DFA(fa.FA):
         as_partial: bool = True,
     ) -> Self:
         """
-        Directly computes the minimal DFA recognizing strings with the
-        given prefix.
-        If contains is set to False then the complement is constructed instead.
+        Directly computes the minimal DFA accepting strings with the
+        given prefix. If `contains` is set to `False` then the complement is
+        constructed instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        prefix : str
+            The prefix of strings that are accepted by this DFA.
+        contains : bool, default: True
+            Whether or not to construct the compliment DFA.
+        as_partial : bool, default: True
+            Whether or not to construct this DFA as a partial DFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         last_state = len(prefix)
         transitions = {i: {char: i + 1} for i, char in enumerate(prefix)}
@@ -1339,8 +1727,22 @@ class DFA(fa.FA):
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings with the
-        given prefix.
-        If contains is set to False then the complement is constructed instead.
+        given suffix. If `contains` is set to `False`, then the complement
+        is constructed instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        suffix : str
+            The suffix of strings that are accepted by this DFA.
+        contains : bool, default: True
+            Whether or not to construct the compliment DFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         return cls.from_substring(
             input_symbols, suffix, contains=contains, must_be_suffix=True
@@ -1357,9 +1759,25 @@ class DFA(fa.FA):
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings containing the
-        given substring.
-        If contains is set to False then the complement is constructed instead.
-        If must_be_suffix is set to True, then the substring must be a suffix instead.
+        given substring. If `contains` is set to `False` then the complement
+        is constructed instead. If `must_be_suffix` is set to `True`, then
+        the substring must be a suffix instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        substring : str
+            The substring of strings that are accepted by this DFA.
+        contains : bool, default: True
+            Whether or to construct the compliment DFA.
+        must_be_suffix : bool, default: False
+            Whether or not the target substring must be a suffix.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         transitions: Dict[DFAStateT, Dict[str, DFAStateT]] = {
             i: {} for i in range(len(substring))
@@ -1417,8 +1835,22 @@ class DFA(fa.FA):
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings containing the
-        given subsequence.
-        If contains is set to False then the complement is constructed instead.
+        given subsequence. If `contains` is set to `False`, then the complement
+        is constructed instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        subsequence : str
+            The target subsequence of strings that are accepted by this DFA.
+        contains : bool, default: True
+            Whether or to construct the compliment DFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         transitions = {0: {symbol: 0 for symbol in input_symbols}}
 
@@ -1448,8 +1880,26 @@ class DFA(fa.FA):
     ) -> Self:
         """
         Directly computes the minimal DFA recognizing strings whose length is
-        between `min_length` and `max_length`, inclusive. To allow infinitely
-        long words the value `None` can be passed in for `max_length`.
+        between `min_length` and `max_length`, inclusive. To allow arbitrarily
+        long words, the value `None` can be passed in for `max_length`.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        min_length : int, default: 0
+            The minimum length of strings to be accepted by this DFA.
+        max_length : Optional[int], default: None
+            The maximum length of strings to be accepted by this DFA.
+            If set to None, there is no maximum.
+        symbols_to_count : Optional[AbstractSet[str]], default: None
+            The input symbols to count towards the length of words to accepts.
+            If set to None, counts all symbols.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         if symbols_to_count is None:
             symbols_to_count = input_symbols
@@ -1493,6 +1943,23 @@ class DFA(fa.FA):
         Directly computes a DFA that counts given symbols and accepts all strings where
         the remainder of division by k is in the set of remainders given.
         The default value of remainders is {0} and all symbols are counted by default.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        k : int
+            The number to divide the length by.
+        remainders : Optional[AbstractSet[int]], default: None
+            The remainders to accept. If set to None, defaults to {0}.
+        symbols_to_count : Optional[AbstractSet[str]], default: None
+            The input symbols to count towards the length of words to accepts.
+            If set to None, counts all symbols.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         if k <= 0:
             raise ValueError("Integer must be positive")
@@ -1520,6 +1987,15 @@ class DFA(fa.FA):
     def universal_language(cls: Type[Self], input_symbols: AbstractSet[str]) -> Self:
         """
         Directly computes the minimal DFA accepting all strings.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         return cls(
             states={0},
@@ -1534,6 +2010,16 @@ class DFA(fa.FA):
     def empty_language(cls: Type[Self], input_symbols: AbstractSet[str]) -> Self:
         """
         Directly computes the minimal DFA rejecting all strings.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         return cls(
             states={0},
@@ -1549,8 +2035,22 @@ class DFA(fa.FA):
         cls: Type[Self], input_symbols: AbstractSet[str], symbol: str, n: int
     ) -> Self:
         """
-        Directly computes the minimal DFA which accepts all words whose `n`-th
+        Directly computes the minimal DFA which accepts all words whose `n`th
         character from the start is `symbol`, where `n` is a positive integer.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        symbol : str
+            The target input symbol.
+        n : int
+            The position of the target input symbol.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         if n < 1:
             raise ValueError("Integer must be positive")
@@ -1579,8 +2079,22 @@ class DFA(fa.FA):
         cls: Type[Self], input_symbols: AbstractSet[str], symbol: str, n: int
     ) -> Self:
         """
-        Directly computes the minimal DFA which accepts all words whose `n`-th
+        Directly computes the minimal DFA which accepts all words whose `n`th
         character from the end is `symbol`, where `n` is a positive integer.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        symbol : str
+            The target input symbol.
+        n : int
+            The position of the target input symbol.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
         if n < 1:
             raise ValueError("Integer must be positive")
@@ -1623,9 +2137,23 @@ class DFA(fa.FA):
         as_partial: bool = True,
     ) -> Self:
         """
-        Directly computes the minimal DFA corresponding to a finite language.
+        Directly computes the minimal DFA accepting the finite language given as input.
         Uses the algorithm described in Finite-State Techniques by Mihov and Schulz,
         Chapter 10
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        language : AbstractSet[str]
+            The language to accept.
+        as_partial : bool, default: True
+            Whether or not to construct this as a partial DFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
 
         SignatureT = Tuple[bool, FrozenSet[Tuple[str, str]]]
@@ -1740,6 +2268,20 @@ class DFA(fa.FA):
         """
         Initialize this DFA as one equivalent to the given NFA. Note
         that this usually returns a partial DFA by default.
+
+        Parameters
+        ----------
+        target_nfa : NFA
+            The NFA to construct an equivalent DFA for.
+        retain_names : bool, default: False
+            Whether or not to retain state names during processing.
+        minify : bool, default: True
+            Whether or not to minify the DFA resulting from the input NFA.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the language of the input NFA.
         """
 
         def subset_function(current_states: FrozenSet[DFAStateT]) -> bool:
@@ -1761,6 +2303,15 @@ class DFA(fa.FA):
     def iter_transitions(
         self,
     ) -> Generator[Tuple[DFAStateT, DFAStateT, str], None, None]:
+        """
+        Iterate over all transitions in the DFA. Each transition is a tuple
+        of the form (from_state, to_state, symbol).
+
+        Returns
+        ------
+        Generator[Tuple[DFAStateT, DFAStateT, str], None, None]
+            The desired generator over the DFA transitions.
+        """
         return (
             (from_, to_, symbol)
             for from_, lookup in self.transitions.items()
@@ -1773,13 +2324,16 @@ class DFA(fa.FA):
         """
         Calculate the path taken by input.
 
-        Args:
-            input_str (str): The input string to run on the DFA.
+        Parameters
+        ------
+        input_str : str
+            The input string to run on the DFA.
 
-        Returns:
-            tuple[list[tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]: A list
-            of all transitions taken in each step and a boolean indicating
-            whether the DFA accepted the input.
+        Returns
+        ------
+        Tuple[List[Tuple[DFAStateT, DFAStateT, DFASymbolT], bool]]
+            A list of all transitions taken in each step and a boolean
+            indicating whether the DFA accepted the input.
 
         """
 

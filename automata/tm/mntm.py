@@ -20,7 +20,57 @@ MNTMTransitionsT = Mapping[str, MNTMPathT]
 
 
 class MNTM(ntm.NTM):
-    """A multitape nondeterministic Turing machine."""
+    """
+    The `MNTM` class is a subclass of `TM` and represents a multitape
+    (non)deterministic Turing machine.
+
+    Parameters
+    ----------
+    states: AbstractSet[MNTMStateT]
+        A set of the MNTM's valid states.
+    input_symbols: AbstractSet[str]
+        Set of the MNTM's valid input symbols, each of which is a singleton
+        string.
+    tape_symbols: AbstractSet[str]
+        Set of the MNTM's valid tape symbols, each of which is a singleton
+        string.
+    n_tapes: int
+        The number of tapes in this MNTM.
+    transitions: MNTMTransitionsT
+        Dict consisting of the transitions for each state; each key is a
+        state name, and each value is a dict which maps a symbol (the key) to
+        a list of tuples consisting of the next state, the symbol to write on the
+        tape, and the direction to move the tape head.
+    initial_state: MNTMStateT
+        The name of the initial state for this MNTM.
+    blank_symbol: str
+        A symbol from `tape_symbols` to be used as the blank symbol
+        for this MNTM.
+    final_states: AbstractSet[MNTMStateT]
+        A set of final states for this MNTM.
+
+    Example
+    ----------
+        from automata.tm.mntm import MNTM
+        # MNTM which accepts all strings in {0, 1}* and writes all
+        # 1's from the first tape (input) to the second tape.
+        self.mntm1 = MNTM(
+            states={'q0', 'q1'},
+            input_symbols={'0', '1'},
+            tape_symbols={'0', '1', '#'},
+            n_tapes=2,
+            transitions={
+                'q0': {
+                    ('1', '#'): [('q0', (('1', 'R'), ('1', 'R')))],
+                    ('0', '#'): [('q0', (('0', 'R'), ('#', 'N')))],
+                    ('#', '#'): [('q1', (('#', 'N'), ('#', 'N')))],
+                }
+            },
+            initial_state='q0',
+            blank_symbol='#',
+            final_states={'q1'},
+        )
+    """
 
     __slots__ = (
         "states",
@@ -106,7 +156,22 @@ class MNTM(ntm.NTM):
                         raise tm_exceptions.InconsistentTapesException(error)
 
     def validate(self) -> None:
-        """Return True if this MNTM is internally consistent."""
+        """
+        Raises an exception if this automaton is not internally consistent.
+
+        Raises
+        ------
+        InvalidStateError
+            If this MNTM has invalid states in the transition dictionary.
+        InvalidSymbolError
+            If this MNTM has invalid symbols in the transition dictionary.
+        InvalidDirectionError
+            If this MNTM has a transition with an invalid direction.
+        FinalStateError
+            If this MNTM has a transition on any final states.
+        InconsistentTapesException
+            If this MNTM has inconsistent tape contents.
+        """
         super().validate()
         self._validate_tapes_consistency()
 
@@ -160,11 +225,29 @@ class MNTM(ntm.NTM):
         return MTMConfiguration(state=current_state, tapes=tapes)
 
     def read_input_stepwise(self, input_str: str) -> Generator[Any, None, Any]:
-        # TODO Any type above should be Set[MTMConfiguration], refactor required
-        """Checks if the given string is accepted by this Turing machine,
+        """
+        Checks if the given string is accepted by this MNTM machine,
         using a BFS of every possible configuration from each configuration.
         Yields the current configuration of the machine at each step.
+
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[Set[MTMConfiguration], None, None]
+            A generator that yields the current configuration of
+            the DTM after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this MNTM does not accept the input string.
         """
+        # TODO Any type above should be Set[MTMConfiguration], refactor required
+
         tapes = self._get_tapes_for_input_str(input_str)
         queue = deque([(MTMConfiguration(state=self.initial_state, tapes=tapes))])
         while len(queue) > 0:
@@ -201,9 +284,12 @@ class MNTM(ntm.NTM):
     def _read_extended_tape(
         tape: str, head_symbol: str = "^", tape_separator_symbol: str = "_"
     ) -> Tuple[str, ...]:
-        """Returns a tuple with the symbols extracted from the given
+        """
+        Returns a tuple with the symbols extracted from the given
         tape, that are the virtual heads for their corresponding
-        virtual tape."""
+        virtual tape.
+        """
+
         virtual_heads = []
         heads_found = 0
         separators_found = 0
@@ -240,8 +326,27 @@ class MNTM(ntm.NTM):
     def read_input_as_ntm(
         self, input_str: str
     ) -> Generator[AbstractSet[TMConfiguration], None, None]:
-        """Simulates the machine as a single-tape Turing machine.
-        Yields the configuration at each step."""
+        """
+        Simulates this MNTM as a single-tape Turing machine.
+        Yields the configuration at each step.
+
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[AbstractSet[TMConfiguration], None, None]
+            A generator that yields the current configuration of
+            the MNTM as a set after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this MNTM does not accept the input string.
+
+        """
         tapes = self._get_tapes_for_input_str(input_str)
         head_symbol = "^"
         tape_separator_symbol = "_"
@@ -274,7 +379,7 @@ class MNTM(ntm.NTM):
                 next_config = self.transitions[current_state][virtual_heads]
             except KeyError:
                 raise exceptions.RejectionException(
-                    "the multitape NTM did not reach an accepting " "configuration"
+                    "the multitape NTM did not reach an accepting configuration"
                 )
             next_state, moves = next_config[0]
             for move in moves:

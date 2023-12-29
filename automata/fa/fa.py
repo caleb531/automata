@@ -29,7 +29,12 @@ FAStateT = AutomatonStateT
 
 
 class FA(Automaton, metaclass=abc.ABCMeta):
-    """An abstract base class for finite automata."""
+    """
+    The `FA` class is an abstract base class from which all finite automata inherit.
+    Every subclass of FA can be rendered natively inside of a Jupyter notebook
+    (automatically calling `show_diagram` without any arguments) if installed with
+    the `visual` optional dependency.
+    """
 
     __slots__ = tuple()
 
@@ -62,21 +67,32 @@ class FA(Automaton, metaclass=abc.ABCMeta):
         state_separation: float = 0.5,
     ) -> pgv.AGraph:
         """
-        Generates the graph associated with the given DFA.
-        Args:
-            - input_str (str, optional): String list of input symbols. Defaults to None.
-            - path (str or os.PathLike, optional): Path to output file. If
-              None, the output will not be saved.
-            - horizontal (bool, optional): Direction of node layout. Defaults
-              to True.
-            - reverse_orientation (bool, optional): Reverse direction of node
-              layout. Defaults to False.
-            - fig_size (tuple, optional): Figure size. Defaults to None.
-            - font_size (float, optional): Font size. Defaults to 14.0.
-            - arrow_size (float, optional): Arrow head size. Defaults to 0.85.
-            - state_separation (float, optional): Node distance. Defaults to 0.5.
-        Returns:
-            AGraph corresponding to the given automaton.
+        Generates a diagram of the associated automaton.
+
+        Parameters
+        ----------
+        input_str : Optional[str], default: None
+            String consisting of input symbols. If set, will add processing of
+            the input string to the diagram.
+        path : Union[str, os.PathLike, None], default: None
+            Path to output file. If None, the output will not be saved.
+        horizontal : bool, default: True
+            Direction of node layout in the output graph.
+        reverse_orientation : bool, default: False
+            Reverse direction of node layout in the output graph.
+        fig_size : Union[Tuple[float, float], Tuple[float], None], default: None
+            Figure size.
+        font_size : float, default: 14.0
+            Font size in the output graph.
+        arrow_size : float, default: 0.85
+            Arrow size in the output graph.
+        state_separation : float, default: 0.5
+            Distance between nodes in the output graph.
+
+        Returns
+        ------
+        AGraph
+            A diagram of the given automaton.
         """
 
         if not _visual_imports:

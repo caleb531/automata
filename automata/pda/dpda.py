@@ -17,7 +17,61 @@ DPDATransitionsT = Mapping[DPDAStateT, DPDAPathT]
 
 
 class DPDA(pda.PDA):
-    """A deterministic pushdown automaton."""
+    """
+    The `DPDA` class is a subclass of `PDA` and represents a deterministic pushdown
+    automaton.
+
+    Parameters
+    ----------
+    states: AbstractSet[DPDAStateT]
+        A set of the DPDA's valid states
+    input_symbols: AbstractSet[str]
+        Set of the DPDA's valid input symbols, each of which is a singleton
+        string.
+    stack_symbols: AbstractSet[str]
+        Set of the DPDA's valid stack symbols, each of which is a singleton
+        string.
+    transitions: DPDATransitionsT
+        A dict consisting of the transitions for each state; see the
+        example below for the exact syntax
+    initial_state: DPDAStateT
+        The name of the initial state for this DPDA.
+    initial_stack_symbol: str
+        The name of the initial symbol on the stack for this DPDA.
+    final_states: AbstractSet[DPDAStateT]
+        A set of final states for this DPDA.
+    acceptance_mode: pda.PDAAcceptanceModeT, default: "both"
+        A string defining whether this DPDA accepts by
+        `'final_state'`, `'empty_stack'`, or `'both'`.
+
+    Example
+    ----------
+        from automata.pda.dpda import DPDA
+        # DPDA which which matches zero or more 'a's, followed by the same
+        # number of 'b's (accepting by final state)
+        dpda = DPDA(
+            states={'q0', 'q1', 'q2', 'q3'},
+            input_symbols={'a', 'b'},
+            stack_symbols={'0', '1'},
+            transitions={
+                'q0': {
+                    'a': {'0': ('q1', ('1', '0'))}  # push '1' to stack
+                },
+                'q1': {
+                    'a': {'1': ('q1', ('1', '1'))},  # push '1' to stack
+                    'b': {'1': ('q2', '')}  # pop from stack
+                },
+                'q2': {
+                    'b': {'1': ('q2', '')},  # pop from stack
+                    '': {'0': ('q3', ('0',))}  # no change to stack
+                }
+            },
+            initial_state='q0',
+            initial_stack_symbol='0',
+            final_states={'q3'},
+            acceptance_mode='final_state'
+        )
+    """
 
     __slots__ = (
         "states",
@@ -191,9 +245,24 @@ class DPDA(pda.PDA):
         self, input_str: str
     ) -> Generator[PDAConfiguration, None, None]:
         """
-        Check if the given string is accepted by this DPDA.
+        Return a generator that yields the configuration of this DPDA at each
+        step while reading input.
 
-        Yield the DPDA's current configuration at each step.
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+
+        Yields
+        ------
+        Generator[PDAConfiguration, None, None]
+            A generator that yields the current configuration of
+            the DPDA after each step of reading input.
+
+        Raises
+        ------
+        RejectionException
+            Raised if this DPDA does not accept the input string.
         """
         current_configuration = PDAConfiguration(
             self.initial_state, input_str, PDAStack([self.initial_stack_symbol])

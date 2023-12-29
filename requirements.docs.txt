@@ -1,0 +1,5 @@
+mkdocs==1.4.2
+mkdocs-material==9.1.9
+mkdocs-macros-plugin==0.7.0
+mkdocstrings==0.23.0
+mkdocstrings-python==1.7.3
