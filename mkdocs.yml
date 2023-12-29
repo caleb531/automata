@@ -44,7 +44,7 @@ theme:
   icon:
     repo: fontawesome/brands/github
   logo: assets/img/logo.svg
-  favicon: assets/img/favicon.ico
+  favicon: assets/img/favicon.png
   language: en
 plugins:
   - search:
