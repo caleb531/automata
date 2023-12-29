@@ -11,9 +11,7 @@
       <!-- circular transition arrow on final state -->
       <use xlink:href="#automata-transition-arrow-circular" x="220" y="160"/>
     </g>
-  </defs><script xmlns=""/>
-  <!-- canvas background -->
-  <rect x="0" y="0" width="100%" height="100%" fill="#fff"/>
+  </defs>
   <use xlink:href="#automata-transition-arrows" x="0" y="0" stroke="#69f" stroke-width="7"/>
   <use xlink:href="#automata-transition-arrows" x="0" y="0" stroke="#69f" stroke-width="4"/>
   <!-- states -->
@@ -24,4 +22,4 @@
     <circle cx="220" cy="220" r="52"/>
     <circle cx="220" cy="220" r="40" stroke="#fff"/>
   </g>
-</svg>
+<script xmlns=""/></svg>
