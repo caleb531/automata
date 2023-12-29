@@ -4,8 +4,6 @@ site_url: https://automata.site.to.be.created.org
 repo_url: https://github.com/caleb531/automata
 repo_name: automata
 edit_uri: blob/main/docs/
-# author: Lewi Lie Uberg
-# multiple authors:
 authors:
   - caleb531: https://calebevans.me/
   - lewiuberg: https://github.com/lewiuberg
@@ -115,7 +113,7 @@ extra:
 copyright: Copyright &copy; 2016 - 2023 Caleb Evans
 nav:
   - Introduction:
-      - introduction.md
+      - index.md
       - migration.md
   - Examples:
       - examples/fa-examples.md
