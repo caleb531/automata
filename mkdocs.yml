@@ -115,6 +115,7 @@ nav:
   - Introduction:
       - index.md
       - migration.md
+      - characteristics.md
   - Examples:
       - examples/fa-examples.md
   - API:
