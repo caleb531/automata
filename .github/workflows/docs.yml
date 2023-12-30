@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - develop # TODO remove once we have the first version of the docs up.
 permissions:
   contents: write
 jobs:
