@@ -1,7 +1,7 @@
 # Automata
 
-_Copyright 2016-2022 Caleb Evans_
-_Released under the MIT license_
+*Copyright 2016-2024 Caleb Evans*  
+*Released under the MIT license*
 
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/caleb531/automata/badge.svg?branch=main)](https://coveralls.io/r/caleb531/automata?branch=main)
