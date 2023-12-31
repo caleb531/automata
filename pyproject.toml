@@ -29,7 +29,7 @@ visual = ["coloraide>=1.8.2", "pygraphviz>=1.10"]
 
 [project.urls]
 homepage = "https://github.com/caleb531/automata"
-documentation = "https://github.com/caleb531/automata#readme"
+documentation = "https://caleb531.github.io/automata/"
 repository = "https://github.com/caleb531/automata"
 changelog = "https://github.com/caleb531/automata/releases"
 
