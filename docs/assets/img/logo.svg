@@ -1,25 +1,20 @@
-<svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <defs>
-    <!-- diagomal transition arrow -->
-    <path id="automata-transition-arrow-diagonal" d="M 0,0 L 78,78 M 62,78 78,78 78,62"/>
-    <!-- diagomal transition arrow -->
-    <path id="automata-transition-arrow-circular" d="M -16,0 L 0,0 L 0,-16 M 0,0 L -6,-6 A 27,27 0,0,1 20,-50 A 27,27 0,0,1 42,-24 L 44,20" transform="rotate(45)"/>
-    <!-- transition arrows -->
-    <g id="automata-transition-arrows" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <!-- bottom-right transition arrow -->
-      <use xlink:href="#automata-transition-arrow-diagonal" x="100" y="100"/>
-      <!-- circular transition arrow on final state -->
-      <use xlink:href="#automata-transition-arrow-circular" x="220" y="160"/>
+<svg viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- states -->
+    <g fill="#7d4" stroke="#7d4" stroke-width="4">
+        <!-- start 1 -->
+        <circle cx="8" cy="8" r="4" />
+        <!-- final state -->
+        <mask id="final-state-mask" x="-50%" y="-50%" width="200%" height="200%">
+            <rect x="0" y="0" width="100%" height="100%" fill="#fff" />
+            <circle cx="24" cy="24" r="4" fill="transparent" stroke="#000" stroke-width="1" />
+        </mask>
+        <circle cx="24" cy="24" r="4" mask="url(#final-state-mask)" />
     </g>
-  </defs>
-  <use xlink:href="#automata-transition-arrows" x="0" y="0" stroke="#69f" stroke-width="7"/>
-  <use xlink:href="#automata-transition-arrows" x="0" y="0" stroke="#69f" stroke-width="4"/>
-  <!-- states -->
-  <g fill="#7d4" stroke="#7d4" stroke-width="4">
-    <!-- state 1 (top-left) -->
-    <circle cx="80" cy="80" r="40"/>
-    <!-- state 2 (final state; bottom-right) -->
-    <circle cx="220" cy="220" r="52"/>
-    <circle cx="220" cy="220" r="40" stroke="#fff"/>
-  </g>
-<script xmlns=""/></svg>
+    <!-- transition arrow -->
+    <g fill="none" stroke="#69f" stroke-linecap="round" stroke-linejoin="round">
+        <marker id="transition-arrowhead" markerWidth="10" markerHeight="10" refX="3" refY="3" orient="">
+            <polyline points="1,3 3,3 3,1" />
+        </marker>
+        <line x1="13" y1="13" x2="19" y2="19" stroke-width="2" marker-end="url(#transition-arrowhead)" />
+    </g>
+</svg>
