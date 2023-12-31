@@ -14,7 +14,7 @@ properly publish a release to GitHub and PyPI.
     if applicable
   - [ ] Write release notes for new release
   - [ ] Check copyright line break in README (there should be two spaces after
-    the *Copyright <year> Caleb Evans* line; sometimes these can get removed
+    the *Copyright \<year\> Caleb Evans* line; sometimes these can get removed
     while editing the README, depending on your editor's settings
   - [ ] Check copyright year (the end year in the range should always be the
     current year)
