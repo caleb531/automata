@@ -11,7 +11,7 @@
         <circle cx="24" cy="24" r="4" mask="url(#final-state-mask)" />
     </g>
     <!-- transition arrow -->
-    <g fill="none" stroke="#69f" stroke-linecap="round" stroke-linejoin="round">
+    <g fill="none" stroke="#ff9" stroke-linecap="round" stroke-linejoin="round">
         <marker id="transition-arrowhead" markerWidth="10" markerHeight="10" refX="3" refY="3" orient="">
             <polyline points="1,3 3,3 3,1" />
         </marker>
