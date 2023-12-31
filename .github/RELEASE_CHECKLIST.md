@@ -4,6 +4,7 @@ If you are an Automata collaborator, this is a checklist you can follow to
 properly publish a release to GitHub and PyPI.
 
 - [ ] Before Release
+  - [ ] Checkout `develop` branch and pull
   - [ ] Run tests and coverage report (`coverage run -m nose2`)
     - [ ] All tests pass
     - [ ] Code coverage is over 90% for all files
