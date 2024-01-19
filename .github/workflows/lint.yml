@@ -32,7 +32,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run mypy
-        run: mypy automata/**/*.py tests/*.py setup.py
+        run: mypy automata/**/*.py tests/*.py
 
       - name: Run flake8
-        run: flake8 automata/**/*.py tests/*.py setup.py
+        run: flake8 automata/**/*.py tests/*.py
