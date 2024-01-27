@@ -3,6 +3,6 @@
     "EditorConfig.EditorConfig",
     "ms-python.black-formatter",
     "matangover.mypy",
-    "kevinglasson.cornflakes-linter"
+    "ms-python.flake8"
   ]
 }
