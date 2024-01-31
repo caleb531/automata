@@ -13,15 +13,19 @@ jobs:
   lint:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-
-      - name: Install Python 3
+      - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
