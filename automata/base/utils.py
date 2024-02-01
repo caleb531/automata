@@ -6,7 +6,7 @@ import os
 import pathlib
 import random
 import uuid
-from collections import defaultdict
+from collections import defaultdict, deque
 from itertools import count, tee, zip_longest
 from typing import (
     Any,
@@ -22,6 +22,7 @@ from typing import (
     Union,
 )
 
+import networkx as nx
 from frozendict import frozendict
 
 # Optional imports for use with visual functionality
@@ -211,3 +212,33 @@ def pairwise(iterable: Iterable[T], final_none: bool = False) -> Iterable[Tuple[
         return zip_longest(a, b)
 
     return zip(a, b)
+
+
+NodeT = TypeVar("NodeT")
+
+
+def get_reachable_nodes(
+    G: nx.DiGraph,
+    sources: Iterable[NodeT],
+    reversed: bool = False,
+) -> Set[NodeT]:
+    """
+    Return a set with all descendants (or predecessors if reversed is True)
+    of the nodes in sources.
+
+    Adapted from:
+    https://networkx.org/documentation/stable/_modules/networkx/algorithms/traversal/breadth_first_search.html#generic_bfs_edges
+    """
+    seen = set(sources)
+    get_neighbors = G.predecessors if reversed else G.neighbors
+    work_deque = deque(sources)
+    while work_deque:
+        next_node = work_deque.popleft()
+        for neighbor in get_neighbors(next_node):
+            if neighbor in seen:
+                continue
+
+            seen.add(neighbor)
+            work_deque.append(neighbor)
+
+    return seen

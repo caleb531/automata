@@ -32,7 +32,12 @@ from typing_extensions import Self
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
-from automata.base.utils import PartitionRefinement, get_renaming_function, pairwise
+from automata.base.utils import (
+    PartitionRefinement,
+    get_reachable_nodes,
+    get_renaming_function,
+    pairwise,
+)
 
 DFAStateT = fa.FAStateT
 
@@ -277,10 +282,8 @@ class DFA(fa.FA):
             return self.copy()
 
         graph = self._get_digraph()
-        live_states = nx.descendants(graph, self.initial_state) | {self.initial_state}
-        non_trap_states = set(self.final_states).union(
-            *(nx.ancestors(graph, state) for state in self.final_states)
-        )
+        live_states = get_reachable_nodes(graph, [self.initial_state])
+        non_trap_states = get_reachable_nodes(graph, self.final_states, reversed=True)
 
         new_states = live_states & non_trap_states
         new_states.add(self.initial_state)
@@ -553,12 +556,11 @@ class DFA(fa.FA):
             # In the case of a partial DFA, we want to try to condense
             # possible trap states before the main minify operation.
             graph = self._get_digraph()
-            live_states = nx.descendants(graph, self.initial_state) | {
-                self.initial_state
-            }
-            non_trap_states = set(self.final_states).union(
-                *(nx.ancestors(graph, state) for state in self.final_states)
+            live_states = get_reachable_nodes(graph, [self.initial_state])
+            non_trap_states = get_reachable_nodes(
+                graph, self.final_states, reversed=True
             )
+
             reachable_states = live_states & non_trap_states
             reachable_states.add(self.initial_state)
         else:
@@ -1411,8 +1413,8 @@ class DFA(fa.FA):
                 "Predecessors cannot be computed for infinite languages"
             )
         graph = self._get_digraph()
-        coaccessible_nodes = set(self.final_states).union(
-            *(nx.ancestors(graph, state) for state in self.final_states)
+        coaccessible_nodes = get_reachable_nodes(
+            graph, self.final_states, reversed=True
         )
 
         # Precomputations and setup
@@ -1649,12 +1651,9 @@ class DFA(fa.FA):
             )
         graph = self._get_digraph()
 
-        accessible_nodes = nx.descendants(graph, self.initial_state) | {
-            self.initial_state
-        }
-
-        coaccessible_nodes = set(self.final_states).union(
-            *(nx.ancestors(graph, state) for state in self.final_states)
+        accessible_nodes = get_reachable_nodes(graph, [self.initial_state])
+        coaccessible_nodes = get_reachable_nodes(
+            graph, self.final_states, reversed=True
         )
 
         important_nodes = accessible_nodes.intersection(coaccessible_nodes)
