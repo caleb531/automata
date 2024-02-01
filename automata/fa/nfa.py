@@ -29,6 +29,7 @@ from typing_extensions import Self
 import automata.base.exceptions as exceptions
 import automata.fa.dfa as dfa
 import automata.fa.fa as fa
+from automata.base.utils import get_reachable_nodes
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
 
 NFAStateT = fa.FAStateT
@@ -129,7 +130,7 @@ class NFA(fa.FA):
 
         return frozendict(
             {
-                state: frozenset(nx.descendants(lambda_graph, state) | {state})
+                state: frozenset(get_reachable_nodes(lambda_graph, [state]))
                 for state in self.states
             }
         )
