@@ -214,12 +214,18 @@ def pairwise(iterable: Iterable[T], final_none: bool = False) -> Iterable[Tuple[
     return zip(a, b)
 
 
+NodeT = TypeVar("NodeT")
+
+
 def get_reachable_nodes(
     G: nx.DiGraph,
-    sources: Iterable[Any],
+    sources: Iterable[NodeT],
     reversed: bool = False,
-) -> Set[Any]:
+) -> Set[NodeT]:
     """
+    Return a set with all descendants (or predecessors if reversed is True)
+    of the nodes in sources.
+
     Adapted from:
     https://networkx.org/documentation/stable/_modules/networkx/algorithms/traversal/breadth_first_search.html#generic_bfs_edges
     """
