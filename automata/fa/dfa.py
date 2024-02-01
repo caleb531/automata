@@ -32,7 +32,12 @@ from typing_extensions import Self
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
 import automata.fa.nfa as nfa
-from automata.base.utils import PartitionRefinement, get_renaming_function, pairwise
+from automata.base.utils import (
+    PartitionRefinement,
+    get_reachable_nodes,
+    get_renaming_function,
+    pairwise,
+)
 
 DFAStateT = fa.FAStateT
 
@@ -277,7 +282,8 @@ class DFA(fa.FA):
             return self.copy()
 
         graph = self._get_digraph()
-        live_states = nx.descendants(graph, self.initial_state) | {self.initial_state}
+        live_states = get_reachable_nodes(graph, [self.initial_state])
+        #live_states = nx.descendants(graph, self.initial_state) | {self.initial_state}
         non_trap_states = set(self.final_states).union(
             *(nx.ancestors(graph, state) for state in self.final_states)
         )
@@ -2343,6 +2349,11 @@ class DFA(fa.FA):
             (*state_pair, char)
             for state_pair, char in zip(pairwise(state_history), input_str)
         ]
+
+        last_state = state_history[-1] if state_history else self.initial_state
+        accepted = last_state in self.final_states
+
+        return path, accepted
 
         last_state = state_history[-1] if state_history else self.initial_state
         accepted = last_state in self.final_states
