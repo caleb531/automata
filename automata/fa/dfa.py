@@ -2347,8 +2347,3 @@ class DFA(fa.FA):
         accepted = last_state in self.final_states
 
         return path, accepted
-
-        last_state = state_history[-1] if state_history else self.initial_state
-        accepted = last_state in self.final_states
-
-        return path, accepted
