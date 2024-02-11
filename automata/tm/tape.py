@@ -88,7 +88,7 @@ class TMTape:
             new_position += 1
         elif direction == "N":
             pass
-        elif direction == "L":  # pragma: no branch
+        elif direction == "L":
             new_position -= 1
         # Make sure that the cursor doesn't run off the end of the tape.
         if new_position == -1:

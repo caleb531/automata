@@ -146,8 +146,8 @@ class GNFA(fa.FA):
         for state in target_dfa.final_states:
             new_gnfa_transitions[state][new_final_state] = ""
 
-        for state in gnfa_states - {new_final_state}:  # pragma: no branch
-            if gnfa_states - new_gnfa_transitions[state].keys():  # pragma: no branch
+        for state in gnfa_states - {new_final_state}:
+            if gnfa_states - new_gnfa_transitions[state].keys():
                 for leftover_state in gnfa_states - new_gnfa_transitions[state].keys():
                     if leftover_state is not new_initial_state:
                         new_gnfa_transitions[state][leftover_state] = None
@@ -217,8 +217,8 @@ class GNFA(fa.FA):
         for state in target_nfa.final_states:
             new_gnfa_transitions[state][new_final_state] = ""
 
-        for state in gnfa_states - {new_final_state}:  # pragma: no branch
-            if gnfa_states - new_gnfa_transitions[state].keys():  # pragma: no branch
+        for state in gnfa_states - {new_final_state}:
+            if gnfa_states - new_gnfa_transitions[state].keys():
                 for leftover_state in gnfa_states - new_gnfa_transitions[state].keys():
                     if leftover_state is not new_initial_state:
                         new_gnfa_transitions[state][leftover_state] = None
@@ -252,7 +252,7 @@ class GNFA(fa.FA):
     ) -> None:
         """Raise an error if transition end states are invalid or missing"""
         if start_state == self.final_state:
-            if len(paths) != 0:  # pragma: no branch
+            if len(paths) != 0:
                 raise exceptions.InvalidStateError(
                     "No transitions should be defined for "
                     "final state {}".format(start_state)
@@ -275,7 +275,7 @@ class GNFA(fa.FA):
                     start_state, str(self.states - paths.keys() - {self.initial_state})
                 )
             )
-        for end_state in paths.keys():  # pragma: no branch
+        for end_state in paths.keys():
             if end_state not in self.states:
                 raise exceptions.InvalidStateError(
                     "end state {} for transition on {} is "
