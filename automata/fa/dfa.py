@@ -1259,7 +1259,7 @@ class DFA(fa.FA):
             total = self._count_cache[remaining][state]
             choice = rng.randint(0, total - 1)
             transition = self.transitions[state]
-            for symbol, next_state in transition.items():  # pragma: no branch
+            for symbol, next_state in transition.items():
                 next_state_count = self._count_cache[remaining - 1][next_state]
                 if choice < next_state_count:
                     result.append(symbol)

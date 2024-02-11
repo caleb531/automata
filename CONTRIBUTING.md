@@ -38,8 +38,8 @@ increased from 79 characters to 120 characters.
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests
 to verify that your code additions function correctly and break nothing else.
 
-3. Please run `coverage run -m nose2 && coverage report` to ensure that code
-coverage remains close to 100%.
+3. Please run `coverage run -m nose2 && coverage report` and ensure that your
+changes are covered.
 
 4. If you are adding a new feature or changing behavior, I ask that you please
 update the README appropriately with the relevant documentation.
