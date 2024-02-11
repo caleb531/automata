@@ -27,7 +27,7 @@ from typing import (
 
 import networkx as nx
 from cached_method import cached_method
-from typing_extensions import Self
+from typing_extensions import Self, TypeAlias
 
 import automata.base.exceptions as exceptions
 import automata.fa.fa as fa
@@ -2155,7 +2155,7 @@ class DFA(fa.FA):
             The DFA accepting the desired language.
         """
 
-        SignatureT = Tuple[bool, FrozenSet[Tuple[str, str]]]
+        SignatureT: TypeAlias = Tuple[bool, FrozenSet[Tuple[str, str]]]
 
         if not language:
             return cls.empty_language(input_symbols)

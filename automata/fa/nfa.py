@@ -24,7 +24,7 @@ from typing import (
 import networkx as nx
 from cached_method import cached_method
 from frozendict import frozendict
-from typing_extensions import Self
+from typing_extensions import Self, TypeAlias
 
 import automata.base.exceptions as exceptions
 import automata.fa.dfa as dfa
@@ -1019,7 +1019,7 @@ class NFA(fa.FA):
         https://arxiv.org/abs/0907.5058
         """
 
-        NFAStatesPairT = Tuple[FrozenSet[NFAStateT], int]
+        NFAStatesPairT: TypeAlias = Tuple[FrozenSet[NFAStateT], int]
 
         # Must be another NFA and have equal alphabets
         if not isinstance(other, NFA) or self.input_symbols != other.input_symbols:
