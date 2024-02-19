@@ -2116,9 +2116,11 @@ class DFA(fa.FA):
             input_symbols=input_symbols,
             transitions={
                 state: {
-                    sym: (2 * state + 1) % state_count
-                    if symbol == sym
-                    else (2 * state) % state_count
+                    sym: (
+                        (2 * state + 1) % state_count
+                        if symbol == sym
+                        else (2 * state) % state_count
+                    )
                     for sym in input_symbols
                 }
                 for state in range(state_count)
