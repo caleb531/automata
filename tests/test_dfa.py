@@ -2146,8 +2146,8 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(substring_dfa, substrings_dfa)
 
         self.assertEqual(
-            ~substrings_dfa, DFA.from_substrings(input_symbols, {"banana", "nano"},
-                                                 contains=False)
+            ~substrings_dfa,
+            DFA.from_substrings(input_symbols, {"banana", "nano"}, contains=False),
         )
 
         m = 50
@@ -2156,7 +2156,8 @@ class TestDFA(test_fa.TestFA):
         language = {("a" * i + "b" * j) for i, j in product(range(n), range(m))}
 
         equiv_dfa = DFA.from_substrings(
-            input_symbols, language,
+            input_symbols,
+            language,
         )
 
         res_dfa = DFA.empty_language(input_symbols)
