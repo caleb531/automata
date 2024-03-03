@@ -1851,10 +1851,26 @@ class DFA(fa.FA):
         must_be_suffix: bool = False,
     ) -> Self:
         """
-        Directly computes a DFA recognizing strings containing at least one of the given substring.
+        Directly computes a DFA recognizing strings containing at least one of the given substrings.
         The implementation is based on the Aho-Corasick string-searching algorithm.
-        If contains is set to False then the complement is constructed instead.
-        If must_be_suffix is set to True, then the each substring must be a suffix instead.
+        If `contains` is set to `False`, then the complement is constructed instead.
+        If `must_be_suffix` is set to `True`, then the each substring must be a suffix instead.
+
+        Parameters
+        ----------
+        input_symbols : AbstractSet[str]
+            The set of input symbols to construct the DFA over.
+        substrings : str
+            The set of strings to be recognized by this DFA.
+        contains : bool, default: True
+            Whether or to construct the compliment DFA.
+        must_be_suffix : bool, default: False
+            Whether or not the target substrings must be a suffix.
+
+        Returns
+        ------
+        Self
+            The DFA accepting the desired language.
         """
 
         class OutNode:
@@ -1866,7 +1882,7 @@ class DFA(fa.FA):
             def __init__(self) -> None:
                 self.out: Optional[OutNode] = None
                 self.fail: Optional[Node] = None
-                self.successors: Dict[str, Node] = dict()
+                self.successors: Dict[str, Node] = {}
 
         root = Node()
         labels = {id(root): 0}
