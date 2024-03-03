@@ -1747,7 +1747,6 @@ class DFA(fa.FA):
             input_symbols, suffix, contains=contains, must_be_suffix=True
         )
 
-
     @classmethod
     def from_substring(
         cls: Type[Self],
