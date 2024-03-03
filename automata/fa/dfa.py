@@ -1834,10 +1834,11 @@ class DFA(fa.FA):
         must_be_suffix: bool = False,
     ) -> Self:
         """
-        Directly computes a DFA recognizing strings containing at least one of the given substrings.
-        The implementation is based on the Aho-Corasick string-searching algorithm.
-        If `contains` is set to `False`, then the complement is constructed instead.
-        If `must_be_suffix` is set to `True`, then the each substring must be a suffix instead.
+        Directly computes a DFA recognizing strings containing at least one of the
+        given substrings. The implementation is based on the Aho-Corasick
+        string-searching algorithm. If `contains` is set to `False`, then the
+        complement is constructed instead. If `must_be_suffix` is set to `True`,
+        then the each substring must be a suffix instead.
 
         Parameters
         ----------
