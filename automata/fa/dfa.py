@@ -1914,7 +1914,7 @@ class DFA(fa.FA):
             for symbol in input_symbols:
                 if symbol in current_node.successors:
                     queue.append(current_node.successors[symbol])
-                parent_node = current_node
+                parent_node: Optional[Node] = current_node
                 while parent_node is not None and symbol not in parent_node.successors:
                     parent_node = parent_node.fail
                 if parent_node is None:
