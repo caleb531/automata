@@ -1747,22 +1747,6 @@ class DFA(fa.FA):
             input_symbols, suffix, contains=contains, must_be_suffix=True
         )
 
-    @classmethod
-    def from_suffixes(
-        cls: Type[Self],
-        input_symbols: AbstractSet[str],
-        suffixes: AbstractSet[str],
-        *,
-        contains: bool = True,
-    ) -> Self:
-        """
-        Directly computes a DFA recognizing strings ending with at least one of the given suffixes.
-        The implementation is based on the Aho-Corasick string-searching algorithm.
-        If contains is set to False then the complement is constructed instead.
-        """
-        return cls.from_substrings(
-            input_symbols, suffixes, contains=False, must_be_suffix=True
-        )
 
     @classmethod
     def from_substring(
