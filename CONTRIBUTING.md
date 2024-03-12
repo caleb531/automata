@@ -30,10 +30,13 @@ encouraged to modify the codebase with new fixes and enhancements. Please
 observe the following guidelines when submitting pull requests for new fixes or
 features:
 
-1. All new code must comply with PEP 8. If you install Automata with
-`virtualenv`, the `flake8` package should already be available to you for this
-purpose. The only exception to this is that the maximum line length has been
-increased from 79 characters to 120 characters.
+1. All new code must comply with PEP 8, and be formatted with black and isort.
+If you install Automata with `virtualenv`, the `black`, `isort`, and `flake8`
+packages should be available to you for this purpose with the config in `pyproject.toml`.
+The included VSCode configuration is set to run this formatting on save.
+
+In addition, new code must include type annotations and pass typechecking run with
+[mypy](https://mypy.readthedocs.io/en/stable/).
 
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests
 to verify that your code additions function correctly and break nothing else.
@@ -41,8 +44,23 @@ to verify that your code additions function correctly and break nothing else.
 3. Please run `coverage run -m nose2 && coverage report` and ensure that your
 changes are covered.
 
-4. If you are adding a new feature or changing behavior, I ask that you please
-update the README appropriately with the relevant documentation.
+4. If you are adding a new feature or changing behavior, please
+update the documentation appropriately with the relevant information. This
+includes updating docstrings for all functions in the public interface, using
+the [NumPy style](https://numpydoc.readthedocs.io/en/latest/format.html). To
+run the documentation site locally, install the documentation dependencies
+with:
+
+```sh
+pip install -r requirements.dev.txt
+```
+
+Then, start the local server with the following command:
+
+```sh
+mkdocs serve
+```
+
 
 ### Configuring a virtualenv
 
