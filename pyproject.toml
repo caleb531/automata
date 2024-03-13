@@ -20,6 +20,19 @@ dependencies = [
     "cached_method>=0.1.0"
 ]
 
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+]
+
 # Per https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
 [project.optional-dependencies]
 visual = ["coloraide>=1.8.2", "pygraphviz>=1.10"]
