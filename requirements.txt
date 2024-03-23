@@ -21,7 +21,7 @@ platformdirs==3.2.0
 pycodestyle==2.11.1
 pydot==1.4.2
 pyflakes==3.2.0
-pygraphviz==1.12
+pygraphviz==1.10
 pyparsing==3.0.9
 pyproject_hooks==1.0.0
 tomli==2.0.1
