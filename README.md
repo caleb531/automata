@@ -56,8 +56,8 @@ To install the optional visual dependencies, use the `visual` extra:
 pip install 'automata-lib[visual]'
 ```
 
-If you run into any trouble building the wheel for `pygraphviz` on macOS, try
-running:
+If you run into any trouble building the wheel for `pygraphviz` on macOS when
+installing dependencies, try running:
 
 ```sh
 brew install graphviz
@@ -65,7 +65,9 @@ python3 -m pip install -U --no-cache-dir  \
         --config-settings="--global-option=build_ext" \
         --config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
         --config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
-        pygraphviz
+        pygraphviz==1.10
+# Proceed to install other dependencies
+pip install -r requirements.txt
 ```
 
 ## Contributing
