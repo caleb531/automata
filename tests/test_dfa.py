@@ -2134,6 +2134,10 @@ class TestDFA(test_fa.TestFA):
             self.assertIn("nano", word)
 
     def test_contains_substrings(self) -> None:
+        """
+        Should compute the minimal DFA recognizing strings containing the given
+        substring
+        """
         input_symbols = {"a", "n", "o", "b"}
         substring_dfa = DFA.from_substring(input_symbols, "nano")
         substrings_dfa = DFA.from_substrings(input_symbols, {"nano"})
