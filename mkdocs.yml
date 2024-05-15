@@ -118,6 +118,7 @@ nav:
       - characteristics.md
   - Examples:
       - examples/fa-examples.md
+      - examples/perf-examples.md
   - API:
       - api/index.md
       - Class Automaton: api/class-automaton.md

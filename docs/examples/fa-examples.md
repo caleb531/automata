@@ -1,4 +1,4 @@
-# FA Examples
+# Finite Automata Examples
 
 On this page, we give some short examples with discussion for the finite
 automata classes and methods.
