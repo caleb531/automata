@@ -6,7 +6,7 @@ other implementations.
 
 ## Edit distance automaton for large dictionaries
 
-This is an extended version of the [edit distance example](fa-examples#edit-distance-automaton) on a large input. Here, we will
+This is an extended version of the [edit distance example](../fa-examples#edit-distance-automaton) on a large input. Here, we will
 return all words in the given english dictionary within the specified
 edit distance to the target word.
 
@@ -30,7 +30,7 @@ with open(word_file, "r") as wf:
     word_set = set(wf.read().splitlines())
 
 
-print("Word set size:", len(word_set))
+print(f"Word set size: {len(word_set):,}")
 
 # Create the DFA recognizing all the words we'd like
 # NOTE this DFA is minimal by construction
@@ -40,7 +40,7 @@ word_dfa = DFA.from_finite_language(input_symbols, word_set)
 end = time.perf_counter()
 
 print(f"Created recognizing DFA in {end-start:4f} seconds.")
-print("States in DFA:", len(word_dfa.states))
+print(f"States in DFA: {len(word_dfa.states):,}")
 
 # Create the automaton recognizing words close to our target
 # word from an NFA
