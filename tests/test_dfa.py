@@ -293,6 +293,13 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.InvalidStateError):
             self.partial_dfa.to_complete(0)
 
+    def test_to_complete_no_extra_state(self) -> None:
+        """Should not add an extra state if DFA is complete."""
+        alphabet = ["d", "e", "g", "h", "i", "k", "o", "t", "x"]
+        substring = "ti"
+        dfa = DFA.from_prefix(set(alphabet), substring, contains=False)
+        self.assertEqual(dfa.states, dfa.to_complete().states)
+
     def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
         self.assertNotEqual(self.no_consecutive_11_dfa, self.zero_or_one_1_dfa)
@@ -307,6 +314,29 @@ class TestDFA(test_fa.TestFA):
         """Should be equivalent after minify."""
         minimal_dfa = self.no_consecutive_11_dfa.minify()
         self.assertEqual(self.no_consecutive_11_dfa, minimal_dfa)
+
+        other_dfa = DFA(
+            states={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+            input_symbols={"a", "c", "b"},
+            transitions={
+                0: {"b": 1, "a": 2},
+                1: {"b": 3, "a": 4, "c": 5},
+                2: {"b": 6, "c": 5, "a": 4},
+                3: {"b": 7, "c": 8},
+                4: {"b": 9, "c": 10},
+                5: {"b": 9, "c": 10},
+                6: {"b": 9, "c": 10},
+                7: {"b": 7, "c": 8},
+                8: {"b": 9, "c": 10},
+                9: {"c": 10, "b": 9},
+                10: {"c": 10, "b": 9},
+            },
+            initial_state=0,
+            final_states={2, 7, 8, 9, 10},
+            allow_partial=True,
+        )
+
+        self.assertEqual(other_dfa, other_dfa.minify())
 
     def test_equivalence_two_non_minimal(self) -> None:
         """Should be equivalent even though they are non minimal."""
