@@ -5,8 +5,23 @@ automata classes and methods.
 
 ## Reading basic input
 
-The following code snippet creates a `DFA` and prints whether it accepts or
-rejects user input.
+In this example, we define a function that takes in an automata
+and asks the user for input strings, printing whether the input was
+accepted or rejected:
+
+```python
+def read_user_input(my_automaton):
+    try:
+        while True:
+            if my_automaton.accepts_input(input("Please enter your input: ")):
+                print("Accepted")
+            else:
+                print("Rejected")
+    except KeyboardInterrupt:
+        print("")
+```
+
+With this code in hand, let's define a DFA and see it in action:
 
 ```python
 from automata.fa.dfa import DFA
@@ -24,14 +39,30 @@ my_dfa = DFA(
     final_states={'q1'}
 )
 
-try:
-    while True:
-        if my_dfa.accepts_input(input('Please enter your input: ')):
-            print('Accepted')
-        else:
-            print('Rejected')
-except KeyboardInterrupt:
-    print('')
+read_user_input(my_dfa)
+```
+
+We can also do the same with an NFA we define. Note that the
+transition dictionary for the NFA has a different structure than
+that of the DFA, and that we are working over a different input
+alphabet than the previous example:
+
+```python
+# NFA which matches strings beginning with "a", ending with "a", and
+# containing no consecutive "b"s
+my_nfa = NFA(
+    states={"q0", "q1", "q2"},
+    input_symbols={"a", "b"},
+    transitions={
+        "q0": {"a": {"q1"}},
+        "q1": {"a": {"q1"}, "": {"q2"}},
+        "q2": {"b": {"q0"}},
+    },
+    initial_state="q0",
+    final_states={"q1"},
+)
+
+read_user_input(my_nfa)
 ```
 
 ## Subset for NFAs
