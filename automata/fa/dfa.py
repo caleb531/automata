@@ -682,6 +682,11 @@ class DFA(fa.FA):
             if trap_state not in eq
         }
 
+        # If only one equivalence class with the trap state,
+        # return empty language.
+        if not back_map:
+            return cls.empty_language(input_symbols)
+
         new_input_symbols = input_symbols
         new_states = frozenset(back_map.values())
         new_initial_state = back_map[initial_state]
