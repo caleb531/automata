@@ -48,6 +48,8 @@ that of the DFA, and that we are working over a different input
 alphabet than the previous example:
 
 ```python
+from automata.fa.nfa import NFA
+
 # NFA which matches strings beginning with "a", ending with "a", and
 # containing no consecutive "b"s
 my_nfa = NFA(
@@ -68,63 +70,82 @@ read_user_input(my_nfa)
 ## Subset for NFAs
 
 The `NFA` does not have a built-in method for checking whether it is a subset
-of another `NFA`. However, this can be done using existing methods.
+of another `NFA`. However, this can be done using existing methods in the
+package. See the following function and example usages:
 
 ```python
-# In the following, we have nfa1 and nfa2 and want to determine whether
-# nfa1 is a subset of nfa2.
+import string
+from automata.fa.nfa import NFA
 
-# If taking the union of nfa2 with nfa1 is equal to nfa2 again,
-# nfa1 didn't accept any strings that nfa2 did not, so it is a subset.
-if (nfa1 | nfa2) == nfa2:
-    print('nfa1 is a subset of nfa2.')
-else:
-    print('nfa1 is not a subset of nfa2.')
+def is_subset(nfa1, nfa2):
+    # In the following, we have nfa1 and nfa2 and want to determine whether
+    # nfa1 is a subset of nfa2.
 
+    # If taking the union of nfa2 with nfa1 is equal to nfa2 again,
+    # nfa1 didn't accept any strings that nfa2 did not, so it is a subset.
+    return nfa1.union(nfa2) == nfa2
+
+
+alphabet = set(string.ascii_lowercase)
+
+nfa1 = NFA.from_regex("abc", input_symbols=alphabet)
+nfa2 = NFA.from_regex("(abc)|(def)", input_symbols=alphabet)
+nfa3 = NFA.from_regex("a*bc", input_symbols=alphabet)
+
+print(is_subset(nfa1, nfa2))  # True
+print(is_subset(nfa1, nfa3))  # True
+print(is_subset(nfa2, nfa3))  # False
 ```
 
 ## Edit distance automaton
 
 The following example is inspired by [this blog post][levelshtein-article].
 Essentially, we want to determine which strings in a given set are within
-the target edit distance to a reference string.
+the target edit distance to a reference string. We do this by creating an
+edit distance NFA and intersecting it with a DFA recognizing our original
+set of strings:
 
 [levelshtein-article]: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
 
 
-
 ```python
-from automata.fa.dfa import DFA
-from automata.fa.nfa import NFA
 import string
 
-input_symbols = set(string.ascii_lowercase)
+from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
 
-# Construct DFA recognizing target words
-target_words = {'these', 'are', 'target', 'words', 'them', 'those'}
 
-target_words_dfa = DFA.from_finite_language(
-  input_symbols,
-  target_words,
-)
+def words_within_edit_distance(edit_distance, reference_string, target_words):
+    input_symbols = set(string.ascii_lowercase)
 
-# Next, construct NFA recognizing all strings
-# within given edit distance of target word
-reference_string = 'they'
+    # Construct DFA recognizing target words
+    target_words_dfa = DFA.from_finite_language(
+        input_symbols,
+        target_words,
+    )
+
+    # Next, construct NFA recognizing all strings
+    # within given edit distance of target word
+    words_within_edit_distance_dfa = DFA.from_nfa(
+        NFA.edit_distance(
+            input_symbols,
+            reference_string,
+            edit_distance,
+        )
+    )
+
+    # Take intersection and return results
+    found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
+    return set(found_words_dfa)
+
+
+target_words = {"these", "are", "target", "words", "them", "those"}
+reference_string = "they"
 edit_distance = 2
 
-words_within_edit_distance_dfa = DFA.from_nfa(
-  NFA.edit_distance(
-    input_symbols,
-    reference_string,
-    edit_distance,
-  )
-)
+found_words = words_within_edit_distance(edit_distance, reference_string, target_words)
 
-# Take intersection and print results
-found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
-found_words = list(found_words_dfa)
-
+# Set is {"these", "them"}
 print(
     f"All words within edit distance {edit_distance} of "
     f"'{reference_string}': {found_words}"
