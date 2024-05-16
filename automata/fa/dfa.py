@@ -625,7 +625,9 @@ class DFA(fa.FA):
                                 x for x in count(-1, -1) if x not in reachable_states
                             )
                             for trap_symbol in input_symbols:
-                                transition_back_map[trap_symbol][trap_state] = [trap_state]
+                                transition_back_map[trap_symbol][trap_state] = [
+                                    trap_state
+                                ]
 
                             reachable_states.add(trap_state)
 
