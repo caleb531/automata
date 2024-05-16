@@ -338,6 +338,7 @@ class DFA(fa.FA):
             An equivalent complete DFA.
 
         """
+
         if not self.allow_partial:
             return self.copy()
 
@@ -1707,13 +1708,18 @@ class DFA(fa.FA):
 
         states = frozenset(transitions.keys())
         final_states = {last_state}
+
+        is_partial = any(
+            len(lookup) != len(input_symbols) for lookup in transitions.values()
+        )
+
         return cls(
             states=states,
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=0,
             final_states=final_states if contains else states - final_states,
-            allow_partial=as_partial,
+            allow_partial=is_partial,
         )
 
     @classmethod

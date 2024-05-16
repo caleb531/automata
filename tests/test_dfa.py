@@ -293,6 +293,13 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.InvalidStateError):
             self.partial_dfa.to_complete(0)
 
+    def test_to_complete_no_extra_state(self) -> None:
+        """Should not add an extra state if DFA is complete."""
+        alphabet = ['d','e','g','h','i','k','o','t','x']
+        substring = 'ti'
+        dfa = DFA.from_prefix(set(alphabet), substring, contains=False)
+        self.assertEqual(dfa.states, dfa.to_complete().states)
+
     def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
         self.assertNotEqual(self.no_consecutive_11_dfa, self.zero_or_one_1_dfa)
