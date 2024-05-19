@@ -1872,6 +1872,10 @@ class TestDFA(test_fa.TestFA):
         self.assertIsNone(dfa.successor("110"))
         self.assertIsNone(dfa.successor("111111110101011"))
 
+        self.assertEqual(dfa.successor("", min_length=3), "000")
+        self.assertEqual(dfa.successor("", min_length=4), "010101111111101011010100")
+        self.assertEqual(dfa.successor("010", max_length=6), "100")
+
         infinite_dfa = DFA.from_nfa(NFA.from_regex("0*1*"))
         self.assertEqual(infinite_dfa.successor(""), "0")
         self.assertEqual(infinite_dfa.successor("0"), "00")
