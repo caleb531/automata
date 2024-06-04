@@ -5,7 +5,7 @@ automata classes and methods.
 
 ## Reading basic input
 
-In this example, we define a function that takes in an automata
+In this example, we define a function that takes in an automaton
 and asks the user for input strings, printing whether the input was
 accepted or rejected:
 
