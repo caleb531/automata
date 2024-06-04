@@ -7,7 +7,7 @@ other implementations.
 ## Edit distance automaton for large dictionaries
 
 This is an extended version of the [edit distance example](../fa-examples#edit-distance-automaton) on a large input. Here, we will
-return all words in the given english dictionary within the specified
+return all words in the given English dictionary within the specified
 edit distance to the target word.
 
 ```python
