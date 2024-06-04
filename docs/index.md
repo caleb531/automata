@@ -29,3 +29,6 @@ To install the optional visual dependencies, use the `visual` extra:
 ```sh
 pip install 'automata-lib[visual]'
 ```
+
+If you encounter errors building `pygraphviz`, you may need to install `graphviz`.
+See the instructions [here](https://graphviz.org/download/).
