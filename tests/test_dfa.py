@@ -323,10 +323,12 @@ class TestDFA(test_fa.TestFA):
 
         # Checking for equivalent number of states
         self.assertEqual(complete_dfa.states, complete_dfa.to_complete().states)
-        self.assertEqual(len(self.partial_dfa.states), len(test_dfa.to_partial().states))
+        self.assertEqual(
+            len(self.partial_dfa.states), len(test_dfa.to_partial().states)
+        )
 
         self.assertTrue(
-            test_dfa.to_partial(minify=False).states.issubset(complete_dfa.states)
+            set(test_dfa.to_partial(minify=False).states).issubset(complete_dfa.states)
         )
 
     def test_equivalence_minify(self) -> None:
