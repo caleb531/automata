@@ -8,15 +8,12 @@ moves between states based on a _transition function_ in response to
 reading characters from input string. The FA will _accept_ or _reject_ an
 input string depending on its current state.
 
-For a brief overview of this topic, see [the wikipedia article][wikipedia-article]
+For a detailed overview of this topic, see [this wikipedia article][wikipedia-fsm]
 or [these lecture notes][lecture-notes].
 
-[wikipedia-article]: https://en.wikipedia.org/wiki/Finite-state_machine
-[lecture-notes]: https://jeffe.cs.illinois.edu/teaching/algorithms/#models
+## Reading input
 
-## Reading basic input
-
-In this example, we define a function that takes in an automaton
+In this example, we first define a function that takes in an automaton
 and asks the user for input strings, printing whether the input was
 accepted or rejected:
 
@@ -32,7 +29,11 @@ def read_user_input(my_automaton):
         print("")
 ```
 
-With this code in hand, let's define a DFA and see it in action:
+### Deterministic finite automaton (DFA)
+
+To use this function, let's first define a DFA.
+For a detailed definiton, see [this wikipedia article on DFAs][wikipedia-dfa].
+
 
 ```python
 from automata.fa.dfa import DFA
@@ -49,14 +50,31 @@ my_dfa = DFA(
     initial_state='q0',
     final_states={'q1'}
 )
+```
+We can generate a picture of our DFA using the package:
 
+```python
+my_dfa.show_diagram()
+```
+
+This produces the following:
+
+![my dfa image](img/my_dfa.svg)
+
+
+Now that we've defined our DFA, we can see our funciton in action:
+
+```python
 read_user_input(my_dfa)
 ```
+
+### Nondeterministic finite automaton (NFA)
 
 We can also do the same with an NFA we define. Note that the
 transition dictionary for the NFA has a different structure than
 that of the DFA, and that we are working over a different input
-alphabet than the previous example:
+alphabet than the previous example. For a detailed definiton, see [this wikipedia article on NFAs][wikipedia-nfa].
+
 
 ```python
 from automata.fa.nfa import NFA
@@ -74,15 +92,30 @@ my_nfa = NFA(
     initial_state="q0",
     final_states={"q1"},
 )
+```
 
+Similar to the DFA, we can generate a picture of our NFA:
+
+```python
+my_nfa.show_diagram()
+```
+
+This produces the following:
+
+![my nfa image](img/my_nfa.svg)
+
+We can call our function as in the prior example:
+
+```python
 read_user_input(my_nfa)
 ```
+
 
 ## Subset for NFAs
 
 The `NFA` does not have a built-in method for checking whether it is a subset
 of another `NFA`. However, this can be done using existing methods in the
-package. See the following function and example usages:
+package:
 
 ```python
 import string
@@ -95,14 +128,24 @@ def is_subset(nfa1, nfa2):
     # If taking the union of nfa2 with nfa1 is equal to nfa2 again,
     # nfa1 didn't accept any strings that nfa2 did not, so it is a subset.
     return nfa1.union(nfa2) == nfa2
+```
 
+To see our function in action, we need to define some NFAs. We can
+do this easily by converting from regular expressions. For more information
+about this equivalence, see [the wikipedia article on regular languages][wikipedia-reglang]:
 
+```python
 alphabet = set(string.ascii_lowercase)
 
 nfa1 = NFA.from_regex("abc", input_symbols=alphabet)
 nfa2 = NFA.from_regex("(abc)|(def)", input_symbols=alphabet)
 nfa3 = NFA.from_regex("a*bc", input_symbols=alphabet)
+```
 
+With these NFAs, we can now call the function and check that it matches the
+expected results.
+
+```
 print(is_subset(nfa1, nfa2))  # True
 print(is_subset(nfa1, nfa3))  # True
 print(is_subset(nfa2, nfa3))  # False
@@ -115,9 +158,6 @@ Essentially, we want to determine which strings in a given set are within
 the target edit distance to a reference string. We do this by creating an
 edit distance NFA and intersecting it with a DFA recognizing our original
 set of strings:
-
-[levelshtein-article]: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
-
 
 ```python
 import string
@@ -220,3 +260,11 @@ def make_table(target_fa) -> pd.DataFrame:
     df = pd.DataFrame.from_dict(table).fillna("∅").T
     return df.reindex(sorted(df.columns), axis=1)
 ```
+
+
+[wikipedia-fsm]: https://en.wikipedia.org/wiki/Finite-state_machine
+[wikipedia-dfa]: https://en.wikipedia.org/wiki/Deterministic_finite_automaton
+[wikipedia-nfa]: https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton
+[wikipedia-reglang]: https://en.wikipedia.org/wiki/Regular_language
+[lecture-notes]: https://jeffe.cs.illinois.edu/teaching/algorithms/#models
+[levelshtein-article]: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
