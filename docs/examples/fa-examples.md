@@ -1,7 +1,18 @@
 # Finite Automata Examples
 
 On this page, we give some short examples with discussion for the finite
-automata classes and methods.
+automata (sometimes called finite state machines) classes and methods in
+this package. At a high level, a finite automata (FA) is an abstract
+machine that can be in any one of a finite number of _states_, and
+moves between states based on a _transition function_ in response to
+reading characters from input string. The FA will _accept_ or _reject_ an
+input string depending on its current state.
+
+For a brief overview of this topic, see [the wikipedia article][wikipedia-article]
+or [these lecture notes][lecture-notes].
+
+[wikipedia-article]: https://en.wikipedia.org/wiki/Finite-state_machine
+[lecture-notes]: https://jeffe.cs.illinois.edu/teaching/algorithms/#models
 
 ## Reading basic input
 
