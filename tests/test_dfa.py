@@ -310,9 +310,6 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(self.partial_dfa, complete_dfa)
         self.assertEqual(self.partial_dfa, complete_dfa.to_partial(minify=False))
 
-        # Checking for equivalent number of states
-        self.assertEqual(complete_dfa.states, complete_dfa.to_complete().states)
-
         # Make a fake partial DFA and check that the number of states is
         # still reduced
         test_dfa = DFA(
@@ -323,6 +320,11 @@ class TestDFA(test_fa.TestFA):
             final_states=complete_dfa.final_states,
             allow_partial=True,
         )
+
+        # Checking for equivalent number of states
+        self.assertEqual(complete_dfa.states, complete_dfa.to_complete().states)
+        self.assertEqual(len(self.partial_dfa.states), len(test_dfa.to_partial().states))
+
         self.assertTrue(
             test_dfa.to_partial(minify=False).states.issubset(complete_dfa.states)
         )
