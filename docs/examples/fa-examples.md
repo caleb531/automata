@@ -142,7 +142,7 @@ nfa3 = NFA.from_regex("a*bc", input_symbols=alphabet)
 With these NFAs, we can now call the function and check that it matches the
 expected results.
 
-```
+```python
 print(is_subset(nfa1, nfa2))  # True
 print(is_subset(nfa1, nfa3))  # True
 print(is_subset(nfa2, nfa3))  # False
@@ -204,7 +204,7 @@ print(
 
 The example below is adapted from the
 [visual automata](https://github.com/lewiuberg/visual-automata) library.
-This function takes in a `DFA` or `NFA` and returns the
+This function takes in a DFA or NFA and returns the
 corresponding transition table.
 
 The start state is prefixed with `→` and final states are prefixed
