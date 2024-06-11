@@ -1836,6 +1836,8 @@ class TestDFA(test_fa.TestFA):
         actual = list(dfa.predecessors("010", strict=False))
 
         self.assertEqual(dfa.predecessor("000"), "00")
+        self.assertEqual(dfa.predecessor("000", max_length=1), "0")
+        self.assertEqual(dfa.predecessor("0000", max_length=3, min_length=2), "000")
         self.assertEqual(dfa.predecessor("0100"), "010")
         self.assertEqual(dfa.predecessor("1"), "010101111111101011010100")
         self.assertEqual(
@@ -1886,6 +1888,11 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(infinite_dfa.successor("1"), "11")
         self.assertEqual(infinite_dfa.successor(100 * "0"), 101 * "0")
         self.assertEqual(infinite_dfa.successor(100 * "1"), 101 * "1")
+        self.assertEqual(infinite_dfa.successor("", min_length=5), "00000")
+        self.assertEqual(infinite_dfa.successor("000", min_length=5), "00000")
+        self.assertEqual(infinite_dfa.successor("1", min_length=5), "11111")
+        # TODO fix the test case below. It should return None, not just loop forever
+        # self.assertEqual(infinite_dfa.successor("1111", max_length=4), None)
 
     @params(True, False)
     def test_successor_and_predecessor(self, as_partial: bool) -> None:
