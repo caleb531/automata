@@ -34,7 +34,6 @@ def read_user_input(my_automaton):
 To use this function, let's first define a DFA.
 For a detailed definiton, see [this wikipedia article on DFAs][wikipedia-dfa].
 
-
 ```python
 from automata.fa.dfa import DFA
 
@@ -51,6 +50,7 @@ my_dfa = DFA(
     final_states={'q1'}
 )
 ```
+
 We can generate a picture of our DFA using the package:
 
 ```python
@@ -60,7 +60,6 @@ my_dfa.show_diagram()
 This produces the following:
 
 ![my dfa image](img/my_dfa.svg)
-
 
 Now that we've defined our DFA, we can see our funciton in action:
 
@@ -74,7 +73,6 @@ We can also do the same with an NFA we define. Note that the
 transition dictionary for the NFA has a different structure than
 that of the DFA, and that we are working over a different input
 alphabet than the previous example. For a detailed definiton, see [this wikipedia article on NFAs][wikipedia-nfa].
-
 
 ```python
 from automata.fa.nfa import NFA
@@ -109,7 +107,6 @@ We can call our function as in the prior example:
 ```python
 read_user_input(my_nfa)
 ```
-
 
 ## Subset for NFAs
 
@@ -260,7 +257,6 @@ def make_table(target_fa) -> pd.DataFrame:
     df = pd.DataFrame.from_dict(table).fillna("∅").T
     return df.reindex(sorted(df.columns), axis=1)
 ```
-
 
 [wikipedia-fsm]: https://en.wikipedia.org/wiki/Finite-state_machine
 [wikipedia-dfa]: https://en.wikipedia.org/wiki/Deterministic_finite_automaton
