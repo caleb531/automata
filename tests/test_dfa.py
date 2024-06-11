@@ -323,7 +323,9 @@ class TestDFA(test_fa.TestFA):
             final_states=complete_dfa.final_states,
             allow_partial=True,
         )
-        self.assertTrue(test_dfa.to_partial(minify=False).states.issubset(complete_dfa.states))
+        self.assertTrue(
+            test_dfa.to_partial(minify=False).states.issubset(complete_dfa.states)
+        )
 
     def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
