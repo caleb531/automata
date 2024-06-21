@@ -278,9 +278,8 @@ class DFA(fa.FA):
         Self
             An equivalent partial DFA.
         """
-        if self.allow_partial:
-            return self.copy()
 
+        # Still want to try and remove dead states in the case of a partial DFA
         graph = self._get_digraph()
         live_states = get_reachable_nodes(graph, [self.initial_state])
         non_trap_states = get_reachable_nodes(graph, self.final_states, reversed=True)
@@ -338,8 +337,12 @@ class DFA(fa.FA):
             An equivalent complete DFA.
 
         """
+        is_partial = any(
+            len(lookup) != len(self.input_symbols)
+            for lookup in self.transitions.values()
+        )
 
-        if not self.allow_partial:
+        if not is_partial:
             return self.copy()
 
         if trap_state is None:
