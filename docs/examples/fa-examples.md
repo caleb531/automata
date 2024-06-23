@@ -2,13 +2,13 @@
 
 On this page, we give some short examples with discussion for the finite
 automata (sometimes called finite state machines) classes and methods in
-this package. At a high level, a finite automata (FA) is an abstract
+this package. At a high level, a finite automaton (FA) is an abstract
 machine that can be in any one of a finite number of _states_, and
 moves between states based on a _transition function_ in response to
-reading characters from input string. The FA will _accept_ or _reject_ an
+reading characters from an input string. The FA will _accept_ or _reject_ an
 input string depending on its current state.
 
-For a detailed overview of this topic, see [this wikipedia article][wikipedia-fsm]
+For a detailed overview of this topic, see [this Wikipedia article][wikipedia-fsm]
 or [these lecture notes][lecture-notes].
 
 ## Reading input
@@ -32,7 +32,7 @@ def read_user_input(my_automaton):
 ### Deterministic finite automaton (DFA)
 
 To use this function, let's first define a DFA.
-For a detailed definiton, see [this wikipedia article on DFAs][wikipedia-dfa].
+For a detailed definiton, see [this Wikipedia article on DFAs][wikipedia-dfa].
 
 ```python
 from automata.fa.dfa import DFA
@@ -75,7 +75,7 @@ read_user_input(my_dfa)
 We can also do the same with an NFA we define. Note that the
 transition dictionary for the NFA has a different structure than
 that of the DFA, and that we are working over a different input
-alphabet than the previous example. For a detailed definiton, see [this wikipedia article on NFAs][wikipedia-nfa].
+alphabet than the previous example. For a detailed definiton, see [this Wikipedia article on NFAs][wikipedia-nfa].
 
 ```python
 from automata.fa.nfa import NFA
@@ -135,7 +135,7 @@ def is_subset(nfa1, nfa2):
 
 To see our function in action, we need to define some NFAs. We can
 do this easily by converting from regular expressions. For more information
-about this equivalence, see [the wikipedia article on regular languages][wikipedia-reglang]:
+about this equivalence, see [the Wikipedia article on regular languages][wikipedia-reglang]:
 
 ```python
 alphabet = set(string.ascii_lowercase)
