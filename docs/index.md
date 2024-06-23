@@ -14,6 +14,12 @@ processing large inputs. Visualization logic has also been implemented. This pac
 both researchers wishing to manipulate automata and for instructors teaching courses on theoretical
 computer science.
 
+For an overview on automata theory, see [this Wikipedia article][wikipedia-article], and
+for a more comprehensive introduction to each of these topics, see [these lecture notes][lecture-notes].
+
+[wikipedia-article]: https://en.wikipedia.org/wiki/Automata_theory
+[lecture-notes]: https://jeffe.cs.illinois.edu/teaching/algorithms/#models
+
 The library requires Python 3.8 or newer.
 
 ## Installing
