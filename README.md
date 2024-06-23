@@ -11,9 +11,11 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/automata-lib)
 [![status](https://joss.theoj.org/papers/fe4d8521383598038e38bc0c948718af/status.svg)](https://joss.theoj.org/papers/fe4d8521383598038e38bc0c948718af)
 
-- **Documentation**: https://caleb531.github.io/automata/
-- **Migration Guide**: https://caleb531.github.io/automata/migration/
-- **API**: https://caleb531.github.io/automata/api/
+Links:
+- [**Documentation**](https://caleb531.github.io/automata/)
+- [**Examples**](https://caleb531.github.io/automata/examples/fa-examples/)
+- [**Migration Guide**](https://caleb531.github.io/automata/migration/)
+- [**API**](https://caleb531.github.io/automata/api/)
 
 Automata is a Python 3 library implementing structures and algorithms for manipulating finite automata,
 pushdown automata, and Turing machines. The algorithms have been optimized and are capable of
