@@ -65,6 +65,9 @@ Now that we've defined our DFA, we can see our funciton in action:
 
 ```python
 read_user_input(my_dfa)
+# 001 -> Accepted
+# 011 -> Rejected
+# 000111 -> Accepted
 ```
 
 ### Nondeterministic finite automaton (NFA)
@@ -106,6 +109,9 @@ We can call our function as in the prior example:
 
 ```python
 read_user_input(my_nfa)
+# b -> Rejected
+# aa -> Accepted
+# abaa -> Accepted
 ```
 
 ## Subset for NFAs
