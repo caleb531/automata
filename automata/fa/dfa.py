@@ -1287,6 +1287,8 @@ class DFA(fa.FA):
         *,
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
+        min_length: int = 0,
+        max_length: Optional[int] = None,
     ) -> Optional[str]:
         """
         Returns the first string accepted by the DFA that comes before
@@ -1302,6 +1304,10 @@ class DFA(fa.FA):
         key : Optional[Callable], default: None
             Function for defining custom lexicographical ordering. Defaults to using
             the standard string ordering.
+        min_length : int, default: 0
+            Limits generation to words with at least the given length.
+        max_length : Optional[int], default: None
+            Limits generation to words with at most the given length.
 
         Returns
         ------
@@ -1314,7 +1320,13 @@ class DFA(fa.FA):
             Raised if the language accepted by self is infinite, as we cannot
             generate predecessors in this case.
         """
-        for word in self.predecessors(input_str, strict=strict, key=key):
+        for word in self.predecessors(
+            input_str,
+            strict=strict,
+            key=key,
+            min_length=min_length,
+            max_length=max_length,
+        ):
             return word
         return None
 
@@ -1324,6 +1336,8 @@ class DFA(fa.FA):
         *,
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
+        min_length: int = 0,
+        max_length: Optional[int] = None,
     ) -> Generator[str, None, None]:
         """
         Generates all strings that come before the input string
@@ -1339,6 +1353,10 @@ class DFA(fa.FA):
         key : Optional[Callable], default: None
             Function for defining custom lexicographical ordering. Defaults to using
             the standard string ordering.
+        min_length : int, default: 0
+            Limits generation to words with at least the given length.
+        max_length : Optional[int], default: None
+            Limits generation to words with at most the given length.
 
         Returns
         ------
@@ -1352,7 +1370,14 @@ class DFA(fa.FA):
             Raised if the language accepted by self is infinite, as we cannot
             generate predecessors in this case.
         """
-        yield from self.successors(input_str, strict=strict, reverse=True, key=key)
+        yield from self.successors(
+            input_str,
+            strict=strict,
+            reverse=True,
+            key=key,
+            min_length=min_length,
+            max_length=max_length,
+        )
 
     def successor(
         self,
@@ -1360,6 +1385,8 @@ class DFA(fa.FA):
         *,
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
+        min_length: int = 0,
+        max_length: Optional[int] = None,
     ) -> Optional[str]:
         """
         Returns the first string accepted by the DFA that comes after
@@ -1375,13 +1402,23 @@ class DFA(fa.FA):
         key : Optional[Callable], default: None
             Function for defining custom lexicographical ordering. Defaults to using
             the standard string ordering.
+        min_length : int, default: 0
+            Limits generation to words with at least the given length.
+        max_length : Optional[int], default: None
+            Limits generation to words with at most the given length.
 
         Returns
         ------
         str
             The first string accepted by the DFA lexicographically before input_string.
         """
-        for word in self.successors(input_str, strict=strict, key=key):
+        for word in self.successors(
+            input_str,
+            strict=strict,
+            key=key,
+            min_length=min_length,
+            max_length=max_length,
+        ):
             return word
         return None
 
@@ -1392,6 +1429,8 @@ class DFA(fa.FA):
         strict: bool = True,
         key: Optional[Callable[[Any], Any]] = None,
         reverse: bool = False,
+        min_length: int = 0,
+        max_length: Optional[int] = None,
     ) -> Generator[str, None, None]:
         """
         Generates all strings that come after the input string
@@ -1409,6 +1448,10 @@ class DFA(fa.FA):
             the standard string ordering.
         reverse : bool, default: False
             If True, then predecessors will be generated instead of successors.
+        min_length : int, default: 0
+            Limits generation to words with at least the given length.
+        max_length : Optional[int], default: None
+            Limits generation to words with at most the given length.
 
         Returns
         ------
@@ -1457,6 +1500,8 @@ class DFA(fa.FA):
             if (
                 not reverse
                 and should_yield
+                and min_length <= len(char_stack)
+                and (max_length is None or len(char_stack) <= max_length)
                 and candidate == first_symbol
                 and state in self.final_states
             ):
@@ -1467,7 +1512,9 @@ class DFA(fa.FA):
                 else self._get_next_current_state(state, candidate)
             )
             # Traverse to child if candidate is viable
-            if candidate_state in coaccessible_nodes:
+            if candidate_state in coaccessible_nodes and (
+                max_length is None or len(char_stack) < max_length
+            ):
                 state_stack.append(candidate_state)
                 char_stack.append(cast(str, candidate))
                 candidate = first_symbol
@@ -1476,6 +1523,8 @@ class DFA(fa.FA):
                 if (
                     reverse
                     and should_yield
+                    and min_length <= len(char_stack)
+                    and (max_length is None or len(char_stack) <= max_length)
                     and candidate is None
                     and state in self.final_states
                 ):
@@ -1491,6 +1540,8 @@ class DFA(fa.FA):
         if (
             reverse
             and should_yield
+            and min_length <= len(char_stack)
+            and (max_length is None or len(char_stack) <= max_length)
             and candidate is None
             and state in self.final_states
         ):
