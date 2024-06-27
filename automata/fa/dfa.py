@@ -1501,7 +1501,9 @@ class DFA(fa.FA):
                 else self._get_next_current_state(state, candidate)
             )
             # Traverse to child if candidate is viable
-            if candidate_state in coaccessible_nodes:
+            if (candidate_state in coaccessible_nodes
+                and (max_length is None or len(char_stack) < max_length)
+            ):
                 state_stack.append(candidate_state)
                 char_stack.append(cast(str, candidate))
                 candidate = first_symbol
