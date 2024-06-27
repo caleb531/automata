@@ -1837,7 +1837,8 @@ class TestDFA(test_fa.TestFA):
 
         self.assertEqual(dfa.predecessor("000"), "00")
         self.assertEqual(dfa.predecessor("000", max_length=1), "0")
-        self.assertEqual(dfa.predecessor("0000", max_length=3, min_length=2), "000")
+        self.assertEqual(dfa.predecessor("0", min_length=2), None)
+        self.assertEqual(dfa.predecessor("0000", min_length=2, max_length=3), "000")
         self.assertEqual(dfa.predecessor("0100"), "010")
         self.assertEqual(dfa.predecessor("1"), "010101111111101011010100")
         self.assertEqual(
