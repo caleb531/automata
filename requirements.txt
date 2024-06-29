@@ -1,4 +1,4 @@
-black==24.2.0
+black==24.4.2
 build==1.0.3
 cached_method==0.1.0
 click==8.1.3
