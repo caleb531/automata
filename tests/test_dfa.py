@@ -293,6 +293,13 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.InvalidStateError):
             self.partial_dfa.to_complete(0)
 
+    def test_to_complete_no_extra_state(self) -> None:
+        """Should not add an extra state if DFA is complete."""
+        alphabet = ["d", "e", "g", "h", "i", "k", "o", "t", "x"]
+        substring = "ti"
+        dfa = DFA.from_prefix(set(alphabet), substring, contains=False)
+        self.assertEqual(dfa.states, dfa.to_complete().states)
+
     def test_equivalence_not_equal(self) -> None:
         """Should not be equal."""
         self.assertNotEqual(self.no_consecutive_11_dfa, self.zero_or_one_1_dfa)
@@ -303,10 +310,54 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(self.partial_dfa, complete_dfa)
         self.assertEqual(self.partial_dfa, complete_dfa.to_partial(minify=False))
 
+        # Make a fake partial DFA and check that the number of states is
+        # still reduced
+        test_dfa = DFA(
+            states=complete_dfa.states,
+            input_symbols=complete_dfa.input_symbols,
+            transitions=complete_dfa.transitions,
+            initial_state=complete_dfa.initial_state,
+            final_states=complete_dfa.final_states,
+            allow_partial=True,
+        )
+
+        # Checking for equivalent number of states
+        self.assertEqual(complete_dfa.states, complete_dfa.to_complete().states)
+        self.assertEqual(
+            len(self.partial_dfa.states), len(test_dfa.to_partial().states)
+        )
+
+        self.assertTrue(
+            set(test_dfa.to_partial(minify=False).states).issubset(complete_dfa.states)
+        )
+
     def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
         minimal_dfa = self.no_consecutive_11_dfa.minify()
         self.assertEqual(self.no_consecutive_11_dfa, minimal_dfa)
+
+        other_dfa = DFA(
+            states={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+            input_symbols={"a", "c", "b"},
+            transitions={
+                0: {"b": 1, "a": 2},
+                1: {"b": 3, "a": 4, "c": 5},
+                2: {"b": 6, "c": 5, "a": 4},
+                3: {"b": 7, "c": 8},
+                4: {"b": 9, "c": 10},
+                5: {"b": 9, "c": 10},
+                6: {"b": 9, "c": 10},
+                7: {"b": 7, "c": 8},
+                8: {"b": 9, "c": 10},
+                9: {"c": 10, "b": 9},
+                10: {"c": 10, "b": 9},
+            },
+            initial_state=0,
+            final_states={2, 7, 8, 9, 10},
+            allow_partial=True,
+        )
+
+        self.assertEqual(other_dfa, other_dfa.minify())
 
     def test_equivalence_two_non_minimal(self) -> None:
         """Should be equivalent even though they are non minimal."""
@@ -1836,6 +1887,9 @@ class TestDFA(test_fa.TestFA):
         actual = list(dfa.predecessors("010", strict=False))
 
         self.assertEqual(dfa.predecessor("000"), "00")
+        self.assertEqual(dfa.predecessor("000", max_length=1), "0")
+        self.assertEqual(dfa.predecessor("0", min_length=2), None)
+        self.assertEqual(dfa.predecessor("0000", min_length=2, max_length=3), "000")
         self.assertEqual(dfa.predecessor("0100"), "010")
         self.assertEqual(dfa.predecessor("1"), "010101111111101011010100")
         self.assertEqual(
@@ -1872,6 +1926,10 @@ class TestDFA(test_fa.TestFA):
         self.assertIsNone(dfa.successor("110"))
         self.assertIsNone(dfa.successor("111111110101011"))
 
+        self.assertEqual(dfa.successor("", min_length=3), "000")
+        self.assertEqual(dfa.successor("", min_length=4), "010101111111101011010100")
+        self.assertEqual(dfa.successor("010", max_length=6), "100")
+
         infinite_dfa = DFA.from_nfa(NFA.from_regex("0*1*"))
         self.assertEqual(infinite_dfa.successor(""), "0")
         self.assertEqual(infinite_dfa.successor("0"), "00")
@@ -1882,6 +1940,10 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(infinite_dfa.successor("1"), "11")
         self.assertEqual(infinite_dfa.successor(100 * "0"), 101 * "0")
         self.assertEqual(infinite_dfa.successor(100 * "1"), 101 * "1")
+        self.assertEqual(infinite_dfa.successor("", min_length=5), "00000")
+        self.assertEqual(infinite_dfa.successor("000", min_length=5), "00000")
+        self.assertEqual(infinite_dfa.successor("1", min_length=5), "11111")
+        self.assertEqual(infinite_dfa.successor("1111", max_length=4), None)
 
     @params(True, False)
     def test_successor_and_predecessor(self, as_partial: bool) -> None:

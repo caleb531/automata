@@ -10,10 +10,13 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/automata-lib)
 [![status](https://joss.theoj.org/papers/fe4d8521383598038e38bc0c948718af/status.svg)](https://joss.theoj.org/papers/fe4d8521383598038e38bc0c948718af)
+[![pyOpenSci](https://tinyurl.com/y22nb8up)](https://github.com/pyOpenSci/software-submission/issues/152)
 
-- **Documentation**: https://caleb531.github.io/automata/
-- **Migration Guide**: https://caleb531.github.io/automata/migration/
-- **API**: https://caleb531.github.io/automata/api/
+Links:
+- [**Documentation**](https://caleb531.github.io/automata/)
+- [**Examples**](https://caleb531.github.io/automata/examples/fa-examples/)
+- [**Migration Guide**](https://caleb531.github.io/automata/migration/)
+- [**API**](https://caleb531.github.io/automata/api/)
 
 Automata is a Python 3 library implementing structures and algorithms for manipulating finite automata,
 pushdown automata, and Turing machines. The algorithms have been optimized and are capable of
@@ -56,6 +59,9 @@ To install the optional visual dependencies, use the `visual` extra:
 ```sh
 pip install 'automata-lib[visual]'
 ```
+
+If you encounter errors building `pygraphviz`, you may need to install `graphviz`.
+See the instructions [here](https://graphviz.org/download/).
 
 ## Contributing
 

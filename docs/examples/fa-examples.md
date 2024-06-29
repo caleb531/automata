@@ -1,12 +1,38 @@
-# FA Examples
+# Finite Automata Examples
 
 On this page, we give some short examples with discussion for the finite
-automata classes and methods.
+automata (sometimes called finite state machines) classes and methods in
+this package. At a high level, a finite automaton (FA) is an abstract
+machine that can be in any one of a finite number of _states_, and
+moves between states based on a _transition function_ in response to
+reading characters from an input string. The FA will _accept_ or _reject_ an
+input string depending on its current state.
 
-## Reading basic input
+For a detailed overview of this topic, see [this Wikipedia article][wikipedia-fsm]
+or [these lecture notes][lecture-notes].
 
-The following code snippet creates a `DFA` and prints whether it accepts or
-rejects user input.
+## Reading input
+
+In this example, we first define a function that takes in an automaton
+and asks the user for input strings, printing whether the input was
+accepted or rejected:
+
+```python
+def read_user_input(my_automaton):
+    try:
+        while True:
+            if my_automaton.accepts_input(input("Please enter your input: ")):
+                print("Accepted")
+            else:
+                print("Rejected")
+    except KeyboardInterrupt:
+        print("")
+```
+
+### Deterministic finite automaton (DFA)
+
+To use this function, let's first define a DFA.
+For a detailed definiton, see [this Wikipedia article on DFAs][wikipedia-dfa].
 
 ```python
 from automata.fa.dfa import DFA
@@ -23,77 +49,157 @@ my_dfa = DFA(
     initial_state='q0',
     final_states={'q1'}
 )
+```
 
-try:
-    while True:
-        if my_dfa.accepts_input(input('Please enter your input: ')):
-            print('Accepted')
-        else:
-            print('Rejected')
-except KeyboardInterrupt:
-    print('')
+We can generate a picture of our DFA using the package:
+
+```python
+my_dfa.show_diagram()
+```
+
+This produces the following:
+
+![my dfa image](img/my_dfa.svg)
+
+Now that we've defined our DFA, we can see our funciton in action:
+
+```python
+read_user_input(my_dfa)
+# 001 -> Accepted
+# 011 -> Rejected
+# 000111 -> Accepted
+```
+
+### Nondeterministic finite automaton (NFA)
+
+We can also do the same with an NFA we define. Note that the
+transition dictionary for the NFA has a different structure than
+that of the DFA, and that we are working over a different input
+alphabet than the previous example. For a detailed definiton, see [this Wikipedia article on NFAs][wikipedia-nfa].
+
+```python
+from automata.fa.nfa import NFA
+
+# NFA which matches strings beginning with "a", ending with "a", and
+# containing no consecutive "b"s
+my_nfa = NFA(
+    states={"q0", "q1", "q2"},
+    input_symbols={"a", "b"},
+    transitions={
+        "q0": {"a": {"q1"}},
+        "q1": {"a": {"q1"}, "": {"q2"}},
+        "q2": {"b": {"q0"}},
+    },
+    initial_state="q0",
+    final_states={"q1"},
+)
+```
+
+Similar to the DFA, we can generate a picture of our NFA:
+
+```python
+my_nfa.show_diagram()
+```
+
+This produces the following:
+
+![my nfa image](img/my_nfa.svg)
+
+We can call our function as in the prior example:
+
+```python
+read_user_input(my_nfa)
+# b -> Rejected
+# aa -> Accepted
+# abaa -> Accepted
 ```
 
 ## Subset for NFAs
 
 The `NFA` does not have a built-in method for checking whether it is a subset
-of another `NFA`. However, this can be done using existing methods.
+of another `NFA`. However, this can be done using existing methods in the
+package:
 
 ```python
-# In the following, we have nfa1 and nfa2 and want to determine whether
-# nfa1 is a subset of nfa2.
+import string
+from automata.fa.nfa import NFA
 
-# If taking the union of nfa2 with nfa1 is equal to nfa2 again,
-# nfa1 didn't accept any strings that nfa2 did not, so it is a subset.
-if (nfa1 | nfa2) == nfa2:
-    print('nfa1 is a subset of nfa2.')
-else:
-    print('nfa1 is not a subset of nfa2.')
+def is_subset(nfa1, nfa2):
+    # In the following, we have nfa1 and nfa2 and want to determine whether
+    # nfa1 is a subset of nfa2.
 
+    # If taking the union of nfa2 with nfa1 is equal to nfa2 again,
+    # nfa1 didn't accept any strings that nfa2 did not, so it is a subset.
+    return nfa1.union(nfa2) == nfa2
+```
+
+To see our function in action, we need to define some NFAs. We can
+do this easily by converting from regular expressions. For more information
+about this equivalence, see [the Wikipedia article on regular languages][wikipedia-reglang]:
+
+```python
+alphabet = set(string.ascii_lowercase)
+
+nfa1 = NFA.from_regex("abc", input_symbols=alphabet)
+nfa2 = NFA.from_regex("(abc)|(def)", input_symbols=alphabet)
+nfa3 = NFA.from_regex("a*bc", input_symbols=alphabet)
+```
+
+With these NFAs, we can now call the function and check that it matches the
+expected results.
+
+```python
+print(is_subset(nfa1, nfa2))  # True
+print(is_subset(nfa1, nfa3))  # True
+print(is_subset(nfa2, nfa3))  # False
 ```
 
 ## Edit distance automaton
 
 The following example is inspired by [this blog post][levelshtein-article].
 Essentially, we want to determine which strings in a given set are within
-the target edit distance to a reference string.
-
-[levelshtein-article]: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
-
-
+the target edit distance to a reference string. We do this by creating an
+edit distance NFA and intersecting it with a DFA recognizing our original
+set of strings:
 
 ```python
-from automata.fa.dfa import DFA
-from automata.fa.nfa import NFA
 import string
 
-input_symbols = set(string.ascii_lowercase)
+from automata.fa.dfa import DFA
+from automata.fa.nfa import NFA
 
-# Construct DFA recognizing target words
-target_words = {'these', 'are', 'target', 'words', 'them', 'those'}
 
-target_words_dfa = DFA.from_finite_language(
-  input_symbols,
-  target_words,
-)
+def words_within_edit_distance(edit_distance, reference_string, target_words):
+    input_symbols = set(string.ascii_lowercase)
 
-# Next, construct NFA recognizing all strings
-# within given edit distance of target word
-reference_string = 'they'
+    # Construct DFA recognizing target words
+    target_words_dfa = DFA.from_finite_language(
+        input_symbols,
+        target_words,
+    )
+
+    # Next, construct NFA recognizing all strings
+    # within given edit distance of target word
+    words_within_edit_distance_dfa = DFA.from_nfa(
+        NFA.edit_distance(
+            input_symbols,
+            reference_string,
+            edit_distance,
+        )
+    )
+
+    # Take intersection and return results
+    found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
+    return set(found_words_dfa)
+
+
+target_words = {"these", "are", "target", "words", "them", "those"}
+reference_string = "they"
 edit_distance = 2
 
-words_within_edit_distance_dfa = DFA.from_nfa(
-  NFA.edit_distance(
-    input_symbols,
-    reference_string,
-    edit_distance,
-  )
-)
+found_words = words_within_edit_distance(edit_distance, reference_string, target_words)
 
-# Take intersection and print results
-found_words_dfa = target_words_dfa & words_within_edit_distance_dfa
-found_words = list(found_words_dfa)
-
+# Set is {"these", "them"}
 print(
     f"All words within edit distance {edit_distance} of "
     f"'{reference_string}': {found_words}"
@@ -104,7 +210,7 @@ print(
 
 The example below is adapted from the
 [visual automata](https://github.com/lewiuberg/visual-automata) library.
-This function takes in a `DFA` or `NFA` and returns the
+This function takes in a DFA or NFA and returns the
 corresponding transition table.
 
 The start state is prefixed with `→` and final states are prefixed
@@ -157,3 +263,10 @@ def make_table(target_fa) -> pd.DataFrame:
     df = pd.DataFrame.from_dict(table).fillna("∅").T
     return df.reindex(sorted(df.columns), axis=1)
 ```
+
+[wikipedia-fsm]: https://en.wikipedia.org/wiki/Finite-state_machine
+[wikipedia-dfa]: https://en.wikipedia.org/wiki/Deterministic_finite_automaton
+[wikipedia-nfa]: https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton
+[wikipedia-reglang]: https://en.wikipedia.org/wiki/Regular_language
+[lecture-notes]: https://jeffe.cs.illinois.edu/teaching/algorithms/#models
+[levelshtein-article]: http://blog.notdot.net/2010/07/Damn-Cool-Algorithms-Levenshtein-Automata
