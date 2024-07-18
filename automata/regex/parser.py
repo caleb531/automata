@@ -542,9 +542,6 @@ def get_regex_lexer(
 
     lexer.register_token(LeftParen.from_match, r"\(")
     lexer.register_token(RightParen.from_match, r"\)")
-    lexer.register_token(
-        lambda match: StringToken(match.group(), state_name_counter), r"[A-Za-z0-9]"
-    )
     lexer.register_token(UnionToken.from_match, r"\|")
     lexer.register_token(IntersectionToken.from_match, r"\&")
     lexer.register_token(ShuffleToken.from_match, r"\^")
@@ -555,6 +552,9 @@ def get_regex_lexer(
     lexer.register_token(
         lambda match: WildcardToken(match.group(), input_symbols, state_name_counter),
         r"\.",
+    )
+    lexer.register_token(
+        lambda match: StringToken(match.group(), state_name_counter), r"\S"
     )
 
     return lexer
