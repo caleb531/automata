@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 A set of tools for working with regular expressions. Can recognize regular expressions
-over the alphabet of ascii letters (lower and upper case), ascii digits, and subsets of
-these.
+over the alphabet of unicode characters and subsets of these, excluding blanks.
 
 A regular expression with the following operations only are supported in this library:
 
