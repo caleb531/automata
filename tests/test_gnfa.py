@@ -426,7 +426,6 @@ class TestGNFA(test_fa.TestFA):
     def test_show_diagram(self) -> None:
         """
         Should construct the diagram for a GNFA.
-
         """
 
         graph = self.gnfa.show_diagram()
