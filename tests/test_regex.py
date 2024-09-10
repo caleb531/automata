@@ -47,6 +47,11 @@ class TestRegex(unittest.TestCase):
         """Should pass validation for regular expressions with unicode characters."""
         re.validate("(µ|🤖ù)*")
 
+    def test_unicode_input_symbols(self) -> None:
+        """Should have correct unicode input symbols."""
+        nfa = NFA.from_regex("(µ🔥|🔥✨?)*")
+        self.assertEqual(nfa.input_symbols, {"µ", "🔥", "✨"})
+
     def test_isequal(self) -> None:
         """Should correctly check equivalence of two regular expressions"""
 
