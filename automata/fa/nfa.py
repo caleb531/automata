@@ -2,7 +2,6 @@
 """Classes and methods for working with nondeterministic finite automata."""
 from __future__ import annotations
 
-import string
 from collections import deque
 from itertools import chain, count, product, repeat
 from typing import (
@@ -37,7 +36,6 @@ NFAStateT = fa.FAStateT
 NFAPathT = Mapping[str, AbstractSet[NFAStateT]]
 NFATransitionsT = Mapping[NFAStateT, NFAPathT]
 InputPathListT = List[Tuple[NFAStateT, NFAStateT, str]]
-DEFAULT_REGEX_SYMBOLS = frozenset(chain(string.ascii_letters, string.digits))
 
 
 class NFA(fa.FA):
@@ -211,7 +209,7 @@ class NFA(fa.FA):
             The regex to construct an equivalent NFA for.
         input_symbols : Optional[AbstractSet[str]], default: None
             The set of input symbols to create the NFA over. If not
-            set, defaults to all ascii letters and digits.
+            set, defaults to all non-reserved characters found in the regex.
 
         Returns
         ------
@@ -220,7 +218,7 @@ class NFA(fa.FA):
         """
 
         if input_symbols is None:
-            input_symbols = DEFAULT_REGEX_SYMBOLS
+            input_symbols = frozenset(regex) - RESERVED_CHARACTERS
         else:
             conflicting_symbols = RESERVED_CHARACTERS & input_symbols
             if conflicting_symbols:
