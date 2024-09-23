@@ -209,7 +209,7 @@ class NFA(fa.FA):
             The regex to construct an equivalent NFA for.
         input_symbols : Optional[AbstractSet[str]], default: None
             The set of input symbols to create the NFA over. If not
-            set, defaults to all letters found in the regex.
+            set, defaults to all non-reserved characters found in the regex.
 
         Returns
         ------
