@@ -393,9 +393,50 @@ class TestMNTM(test_tm.TestTM):
             str(last_config.tape), "TMTape('#0000#^_#0000#^_#XYYY#^_', '#', 23)"
         )
 
+        # Test that it throws a RejectionException
         with self.assertRaises(exceptions.RejectionException):
             for _ in self.mntm2.read_input_as_ntm("#00"):
                 pass
+
+        # Thoroughly test the MNTM as an NTM and check that the final tapes are the same
+        # regardless of whether the MNTM is run as an NTM or an MNTM
+        mntms = [self.mntm1, self.mntm2, self.mntm3]
+        inputs = ["0110", "#0000", "0101"]
+
+        for mntm, input_str in zip(mntms, inputs):
+            # Test that it doesn't throw a RejectionException
+            self.assertTrue(mntm.accepts_input(input_str))
+            configs = list(mntm.read_input_stepwise(input_str))
+            final_mntm_config = configs[-1].pop()
+
+            # Test that the final tape of the MNTM is the same as the final tape of the
+            # MNTM ran as an NTM.
+            # First, join the tapes of the MNTM, as they would (and should) be in the
+            # NTM version ^ being the head symbol, _ being the tape separator
+            final_mntm_tape = ""
+            for tape in final_mntm_config.tapes:
+                curr_tape = "".join(tape.tape)
+
+                # Add a ^ after the current position, for the head symbol
+                curr_tape_pos = tape.current_position + 1
+
+                # For self.mntm1 with input 0110, the final tape of the MNTM should be
+                # 0110#^_11#^_ in the end as a result of concatenating:
+                # MTMConfig... ('q1', (TMTape('0110#', '#', 4), TMTape('11#', '#', 2)))
+                final_mntm_tape += (
+                    curr_tape[:curr_tape_pos] + "^" + curr_tape[curr_tape_pos:] + "_"
+                )
+
+            # Now, run the MNTM as an NTM
+            configs = list(mntm.read_input_as_ntm(input_str))
+            final_ntm_config = configs[-1].pop()
+
+            # e.g., 0110#^_11#^_ for self.mntm1 with input 0110 as a result of:
+            # TMConfiguration('q1', TMTape('0110#^_11#^_', '#', 11))
+            final_ntm_tape = "".join(final_ntm_config.tape.tape)
+
+            # Finally, assert that the final tapes are the same
+            self.assertEqual(final_mntm_tape, final_ntm_tape)
 
     def test_read_input_accepted(self) -> None:
         """Should return correct state if acceptable TM input is given."""
