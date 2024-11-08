@@ -2,6 +2,7 @@
   "recommendations": [
     "EditorConfig.EditorConfig",
     "ms-python.black-formatter",
+    "ms-python.isort",
     "matangover.mypy",
     "ms-python.flake8"
   ]

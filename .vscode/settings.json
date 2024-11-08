@@ -3,6 +3,7 @@
   "[python]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.rulers": [88],
     "editor.codeActionsOnSave": {
       "source.organizeImports": "explicit"
     }
