@@ -352,87 +352,88 @@ class MNTM(ntm.NTM):
         tape_separator_symbol = "_"
 
         # Make string from all tapes
-        extended_tape = "".join(
+        initial_tape = "".join(
             chain.from_iterable(
                 (tape.tape[0], head_symbol, *tape.tape[1:], tape_separator_symbol)
                 for tape in tapes
             )
         )
 
-        current_state = self.initial_state
-        yield {
-            TMConfiguration(
+        # Use a queue for BFS to handle non-determinism
+        # (state, tape, position)
+        queue = deque([(self.initial_state, initial_tape, 0)])
+
+        while queue:
+            current_state, extended_tape, pos = queue.popleft()
+            current_config = TMConfiguration(
                 current_state,
                 TMTape(
-                    extended_tape, blank_symbol=self.blank_symbol, current_position=0
+                    extended_tape, blank_symbol=self.blank_symbol, current_position=pos
                 ),
             )
-        }
 
-        # If the machine has not reached an accepting state.
-        while current_state not in self.final_states:
-            i = 0  # current position
+            yield {current_config}
+
+            if current_state in self.final_states:
+                return
+
+            # Read virtual heads from the tape
             virtual_heads = self._read_extended_tape(
                 extended_tape, head_symbol, tape_separator_symbol
             )
+
+            # Get all possible transitions
             try:
-                next_config = self.transitions[current_state][virtual_heads]
+                possible_configs = self.transitions[current_state][virtual_heads]
             except KeyError:
-                raise exceptions.RejectionException(
-                    "the multitape NTM did not reach an accepting configuration"
-                )
-            next_state, moves = next_config[0]
-            for move in moves:
-                new_head, direction = move
-                executing_changes = True
+                continue  # No valid transition, try other paths
 
-                while executing_changes:
-                    if extended_tape[i] == head_symbol:
-                        # Head has been found (previous symbol is the head).
-                        # This replaces the previous symbol with the new_head.
-                        extended_tape = (
-                            extended_tape[: i - 1] + new_head + extended_tape[i:]
-                        )
-                        extended_tape = extended_tape[:i] + "" + extended_tape[i + 1 :]
+            # Process each possible next configuration
+            for next_config in possible_configs:
+                next_state, moves = next_config
+                new_tape = extended_tape
+                i = 0  # current position
 
-                        # After replacing, the machine must change the
-                        # position of the virtual head of the current virtual
-                        # tape.
-                        if direction == "R":
-                            i += 1
-                        elif direction == "L":
-                            i -= 1
-                        else:  # direction == 'N'
-                            i += 0
+                # Apply the moves to get the next tape configuration
+                for move in moves:
+                    new_head, direction = move
+                    executing_changes = True
 
-                        if extended_tape[i - 1] == tape_separator_symbol:
-                            i -= 1
-                            extended_tape = (
-                                extended_tape[:i]
-                                + self.blank_symbol
-                                + head_symbol
-                                + extended_tape[i:]
-                            )
+                    while executing_changes:
+                        if new_tape[i] == head_symbol:
+                            # Update the tape symbol before the head
+                            new_tape = new_tape[: i - 1] + new_head + new_tape[i:]
+                            # Remove the old head
+                            new_tape = new_tape[:i] + "" + new_tape[i + 1 :]
 
-                            i += 1
-                        else:
-                            extended_tape = (
-                                extended_tape[:i] + head_symbol + extended_tape[i:]
-                            )
+                            # Move the head according to direction
+                            if direction == "R":
+                                i += 1
+                            elif direction == "L":
+                                i -= 1
+                            # else direction == 'N', i stays the same
 
-                    elif extended_tape[i] == tape_separator_symbol:
-                        executing_changes = False
+                            # Handle edge cases with tape separator
+                            if i > 0 and new_tape[i - 1] == tape_separator_symbol:
+                                i -= 1
+                                new_tape = (
+                                    new_tape[:i]
+                                    + self.blank_symbol
+                                    + head_symbol
+                                    + new_tape[i:]
+                                )
+                                i += 1
+                            else:
+                                new_tape = new_tape[:i] + head_symbol + new_tape[i:]
 
-                    i += 1
+                        elif new_tape[i] == tape_separator_symbol:
+                            executing_changes = False
 
-            current_state = next_state
-            yield {
-                TMConfiguration(
-                    current_state,
-                    TMTape(
-                        extended_tape,
-                        blank_symbol=self.blank_symbol,
-                        current_position=i - 1,
-                    ),
-                )
-            }
+                        i += 1
+
+                # Add the new configuration to the queue
+                queue.append((next_state, new_tape, i - 1))
+
+        raise exceptions.RejectionException(
+            "the multitape NTM did not reach an accepting configuration"
+        )
