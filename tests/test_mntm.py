@@ -4,6 +4,7 @@
 import math
 import random
 import types
+from typing import Set, cast
 from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
@@ -407,7 +408,7 @@ class TestMNTM(test_tm.TestTM):
             # Test that it doesn't throw a RejectionException
             self.assertTrue(mntm.accepts_input(input_str))
             configs = list(mntm.read_input_stepwise(input_str))
-            final_mntm_config = configs[-1].pop()
+            final_mntm_config = cast(Set, configs[-1]).pop()
 
             # Test that the final tape of the MNTM is the same as the final tape of the
             # MNTM ran as an NTM.
@@ -429,7 +430,7 @@ class TestMNTM(test_tm.TestTM):
 
             # Now, run the MNTM as an NTM
             configs = list(mntm.read_input_as_ntm(input_str))
-            final_ntm_config = configs[-1].pop()
+            final_ntm_config = cast(Set, configs[-1]).pop()
 
             # e.g., 0110#^_11#^_ for self.mntm1 with input 0110 as a result of:
             # TMConfiguration('q1', TMTape('0110#^_11#^_', '#', 11))
