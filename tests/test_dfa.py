@@ -13,6 +13,7 @@ from unittest.mock import MagicMock, patch
 from frozendict import frozendict
 from nose2.tools import params
 
+import automata.base.config as global_config
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
@@ -2538,3 +2539,29 @@ class TestDFA(test_fa.TestFA):
         dfa.clear_cache()
         self.assertEqual(len(dfa._word_cache), 0)
         self.assertEqual(len(dfa._count_cache), 0)
+
+    def test_frozenset_compatibility(self) -> None:
+        # Make sure that this is a set before beginning the test
+        self.assertTrue(isinstance(self.dfa.input_symbols, frozenset))
+
+        # Change global config to prevent freezing
+        global_config.allow_mutable_automata = True
+
+        dfa_other = DFA(
+            states=self.dfa.states,
+            input_symbols=set(self.dfa.input_symbols),
+            transitions=self.dfa.transitions,
+            initial_state=self.dfa.initial_state,
+            final_states=self.dfa.final_states,
+            allow_partial=True,
+        )
+
+        global_config.allow_mutable_automata = False
+
+        self.assertTrue(isinstance(dfa_other.input_symbols, set))
+
+        self.assertEqual(dfa_other, self.dfa)
+        difference = dfa_other - self.dfa
+        self.assertTrue(difference.isempty())
+        other_difference = self.dfa - dfa_other
+        self.assertTrue(other_difference.isempty())
