@@ -82,6 +82,10 @@ select = [
     "F",
     # isort
     "I",
+    # Perflint
+    "PERF",
+    # flake8-executable
+    "EXE",
 ]
 
 
