@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Classes and methods for working with generalized non-deterministic finite
 automata."""
+
 from __future__ import annotations
 
 from itertools import product
@@ -254,8 +255,9 @@ class GNFA(fa.FA):
         if start_state == self.final_state:
             if len(paths) != 0:
                 raise exceptions.InvalidStateError(
-                    "No transitions should be defined for "
-                    "final state {}".format(start_state)
+                    "No transitions should be defined for final state {}".format(
+                        start_state
+                    )
                 )
         elif (
             start_state == self.initial_state
@@ -278,8 +280,9 @@ class GNFA(fa.FA):
         for end_state in paths.keys():
             if end_state not in self.states:
                 raise exceptions.InvalidStateError(
-                    "end state {} for transition on {} is "
-                    "not valid".format(end_state, start_state)
+                    "end state {} for transition on {} is not valid".format(
+                        end_state, start_state
+                    )
                 )
 
     def _validate_final_state(self) -> None:

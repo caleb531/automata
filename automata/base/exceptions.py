@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exception classes shared by all automata."""
+
 from dataclasses import dataclass
 
 

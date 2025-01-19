@@ -297,7 +297,7 @@ class MNTM(ntm.NTM):
             if symbol == head_symbol:
                 if i - 1 < 0:
                     raise tm_exceptions.MalformedExtendedTapeError(
-                        "head symbol was found on leftmost end of the " "extended tape"
+                        "head symbol was found on leftmost end of the extended tape"
                     )
                 else:
                     previous_symbol = tape[i - 1]
@@ -310,7 +310,7 @@ class MNTM(ntm.NTM):
                     )
                 elif heads_found > 1:
                     raise tm_exceptions.MalformedExtendedTapeError(
-                        "more than one head symbol found on one of the " "virtual tapes"
+                        "more than one head symbol found on one of the virtual tapes"
                     )
                 else:
                     heads_found = 0

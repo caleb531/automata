@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with nondeterministic finite automata."""
+
 from __future__ import annotations
 
 from collections import deque
@@ -244,8 +245,9 @@ class NFA(fa.FA):
             for end_state in end_states:
                 if end_state not in self.states:
                     raise exceptions.InvalidStateError(
-                        "end state {} for transition on {} is "
-                        "not valid".format(end_state, start_state)
+                        "end state {} for transition on {} is not valid".format(
+                            end_state, start_state
+                        )
                     )
 
     def validate(self) -> None:

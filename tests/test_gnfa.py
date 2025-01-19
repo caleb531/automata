@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Classes and functions for testing the behavior of GNFAs."""
+
 import os
 import tempfile
 from unittest.mock import MagicMock, patch

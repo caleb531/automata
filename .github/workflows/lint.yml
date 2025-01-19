@@ -38,5 +38,7 @@ jobs:
       - name: Run mypy
         run: mypy automata/**/*.py tests/*.py
 
-      - name: Run flake8
-        run: flake8 automata/**/*.py tests/*.py
+      - name: Run ruff
+        run: |
+          ruff check .
+          ruff format --check .

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Miscellaneous utility functions and classes."""
+
 from __future__ import annotations
 
 import os
@@ -97,8 +98,7 @@ def create_graph(
     """
     if not _visual_imports:
         raise ImportError(
-            "Missing visualization packages; "
-            "please install coloraide and pygraphviz."
+            "Missing visualization packages; please install coloraide and pygraphviz."
         )
 
     # Defining the graph.

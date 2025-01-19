@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Classes and methods for working with all pushdown automata."""
+
 from __future__ import annotations
 
 import abc

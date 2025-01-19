@@ -4,20 +4,26 @@ version = "8.4.0"
 description = "A Python library for simulating finite automata, pushdown automata, and Turing machines"
 readme = "README.md"
 requires-python = ">=3.8"
-keywords = ["automata", "finite", "non-deterministic", "pushdown", "turing", "machine", "state"]
-license = {file = 'LICENSE.txt'}
-authors = [
-    {name = 'Caleb Evans', email = 'caleb@calebevans.me'}
+keywords = [
+    "automata",
+    "finite",
+    "non-deterministic",
+    "pushdown",
+    "turing",
+    "machine",
+    "state",
 ]
+license = { file = 'LICENSE.txt' }
+authors = [{ name = 'Caleb Evans', email = 'caleb@calebevans.me' }]
 maintainers = [
-    {name = 'Caleb Evans', email = 'caleb@calebevans.me'},
-    {name = 'Eliot W. Robson', email = 'eliot.robson24@gmail.com'},
+    { name = 'Caleb Evans', email = 'caleb@calebevans.me' },
+    { name = 'Eliot W. Robson', email = 'eliot.robson24@gmail.com' },
 ]
 dependencies = [
     "networkx>=2.6.2",
     "frozendict>=2.3.4",
     "typing-extensions>=4.5.0",
-    "cached_method>=0.1.0"
+    "cached_method>=0.1.0",
 ]
 
 classifiers = [
@@ -56,22 +62,27 @@ disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = [
-  "setuptools.*",
-  "networkx.*",
-  "pygraphviz.*",
-  "cached_method.*",
-  "nose2.tools.*"
+    "setuptools.*",
+    "networkx.*",
+    "pygraphviz.*",
+    "cached_method.*",
+    "nose2.tools.*",
 ]
 ignore_missing_imports = true
 
-[tool.flake8]
-# Black compatibility
-max-line-length = 88
-extend-ignore = ["E203", "W503"]
+[tool.ruff]
+include = ["**/*.py"]
 
-# Per <https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#profile>
-[tool.isort]
-profile = "black"
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    "W",
+    # Pyflakes
+    "F",
+    # isort
+    "I",
+]
 
 
 # Configuration for coverage.py (https://pypi.python.org/pypi/coverage)
