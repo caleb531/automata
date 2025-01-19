@@ -1,6 +1,6 @@
 # Automata
 
-*Copyright 2016-2024 Caleb Evans*  
+*Copyright 2016-2025 Caleb Evans*  
 *Released under the MIT license*
 
 [![tests](https://github.com/caleb531/automata/actions/workflows/tests.yml/badge.svg)](https://github.com/caleb531/automata/actions/workflows/tests.yml)
@@ -21,7 +21,7 @@ for a more comprehensive introduction to each of these topics, see [these lectur
 [wikipedia-article]: https://en.wikipedia.org/wiki/Automata_theory
 [lecture-notes]: https://jeffe.cs.illinois.edu/teaching/algorithms/#models
 
-The library requires Python 3.8 or newer.
+The library requires Python 3.9 or newer.
 
 ## Installing
 

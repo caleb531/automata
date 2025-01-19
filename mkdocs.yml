@@ -110,7 +110,7 @@ extra:
 #   - stylesheets/extra.css
 # extra_javascript:
 #   - javascripts/extra.js
-copyright: Copyright &copy; 2016 - 2024 Caleb Evans
+copyright: Copyright &copy; 2016 - 2025 Caleb Evans
 nav:
   - Introduction:
       - index.md
