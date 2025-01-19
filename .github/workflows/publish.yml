@@ -25,7 +25,7 @@ jobs:
     - name: Install Python 3
       uses: actions/setup-python@v3
       with:
-        python-version: "3.12"
+        python-version: "3.13"
 
     - name: Setup Graphviz
       uses: ts-graphviz/setup-graphviz@v1
