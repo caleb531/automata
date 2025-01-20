@@ -12,7 +12,6 @@ nose2==0.14.1
 packaging==23.0
 pathspec==0.11.1
 platformdirs==3.2.0
-pydot==1.4.2
 pygraphviz==1.10
 pyparsing==3.0.9
 pyproject_hooks==1.0.0

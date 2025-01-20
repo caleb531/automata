@@ -1,10 +1,17 @@
 # Automata Migration Guide
 
+## Backwards-incompatible changes from v8 to v9
+
+### Dependency Changes
+
+Python 3.8 support has been dropped. Please upgrade to Python 3.9 or later to
+use Automata v9.
+
 ## Backwards-incompatible changes from v7 to v8
 
 ### Dependency Changes
 
-Python 3.7 support has been dropped. Please upgrade to Python 3.9 or later to
+Python 3.7 support has been dropped. Please upgrade to Python 3.8 or later to
 use Automata v8.
 
 Diagrams are no longer being generated using `pydot`; this dependency has been
