@@ -30,9 +30,9 @@ encouraged to modify the codebase with new fixes and enhancements. Please
 observe the following guidelines when submitting pull requests for new fixes or
 features:
 
-1. All new code must comply with PEP 8, and be formatted with black and isort.
-If you install Automata with `virtualenv`, the `black`, `isort`, and `flake8`
-packages should be available to you for this purpose with the config in `pyproject.toml`.
+1. All new code must comply with the enabled ruff lint rules.
+If you install Automata with `virtualenv`, the `ruff`
+package should be available to you for this purpose with the config in `pyproject.toml`.
 The included VSCode configuration is set to run this formatting on save.
 
 In addition, new code must include type annotations and pass typechecking run with
