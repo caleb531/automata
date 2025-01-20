@@ -66,8 +66,8 @@ plugins:
             show_source: false
             docstring_style: "numpy"
             filters:
-            - "!^_"
-            - "!^__"
+              - "!^_"
+              - "!^__"
 markdown_extensions:
   - toc:
       permalink: true
