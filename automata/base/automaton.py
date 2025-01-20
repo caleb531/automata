@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes for working with all automata, including Turing machines."""
 
 import abc

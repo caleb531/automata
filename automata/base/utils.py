@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Miscellaneous utility functions and classes."""
 
 from __future__ import annotations

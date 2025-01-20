@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Functions for displaying and maniuplating Turing machines."""
 
 from typing import Sequence

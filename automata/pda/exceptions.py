@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Exception classes specific to pushdown automata."""
 
 from automata.base.exceptions import AutomatonException

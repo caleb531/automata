@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and methods for working with nondeterministic pushdown automata."""
 
 from typing import AbstractSet, Generator, List, Mapping, Set, Tuple, Union

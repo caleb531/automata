@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 A set of tools for working with regular expressions. Can recognize regular expressions
 over the alphabet of unicode characters and subsets of these, excluding blanks.
