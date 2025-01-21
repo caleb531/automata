@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
 """Classes and methods for parsing regexes into NFAs."""
+
 from __future__ import annotations
 
 import copy

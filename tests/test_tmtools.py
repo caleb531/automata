@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and functions for testing the Turing machine utility functions."""
 
 import contextlib

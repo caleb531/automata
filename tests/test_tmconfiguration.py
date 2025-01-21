@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and functions for testing the behavior of PDAConfigurations."""
 
 import tests.test_pda as test_pda

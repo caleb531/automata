@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and functions for testing the behavior of DTMs."""
 
 import unittest

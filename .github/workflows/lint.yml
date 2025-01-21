@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v3
@@ -38,5 +38,7 @@ jobs:
       - name: Run mypy
         run: mypy automata/**/*.py tests/*.py
 
-      - name: Run flake8
-        run: flake8 automata/**/*.py tests/*.py
+      - name: Run ruff
+        run: |
+          ruff check .
+          ruff format --check .

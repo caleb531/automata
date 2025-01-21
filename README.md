@@ -24,7 +24,7 @@ processing large inputs. Visualization logic has also been implemented. This pac
 both researchers wishing to manipulate automata and for instructors teaching courses on theoretical
 computer science.
 
-The library requires Python 3.8 or newer.
+The library requires Python 3.9 or newer.
 
 Huge thanks to [@eliotwrobson][eliotwrobson], [@YtvwlD][YtvwlD],
 [@dengl11][dengl11], [@Tagl][Tagl], [@lewiuberg][lewiuberg],

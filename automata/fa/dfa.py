@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
 """Classes and methods for working with deterministic finite automata."""
+
 from __future__ import annotations
 
 import array
@@ -885,7 +885,7 @@ class DFA(fa.FA):
         """
 
         def symmetric_difference_function(
-            state_pair: Tuple[DFAStateT, DFAStateT]
+            state_pair: Tuple[DFAStateT, DFAStateT],
         ) -> bool:
             q_a, q_b = state_pair
             return (q_a in self.final_states) ^ (q_b in other.final_states)
@@ -1124,9 +1124,12 @@ class DFA(fa.FA):
                 elif not rhs_relevant and chr not in transitions_b:
                     continue
 
-                yield chr, (
-                    transitions_a.get(chr, trap_a),
-                    transitions_b.get(chr, trap_b),
+                yield (
+                    chr,
+                    (
+                        transitions_a.get(chr, trap_a),
+                        transitions_b.get(chr, trap_b),
+                    ),
                 )
 
         initial_state = (lhs.initial_state, rhs.initial_state)

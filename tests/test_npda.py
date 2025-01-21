@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and functions for testing the behavior of NPDAs."""
 
 import os
@@ -199,7 +198,7 @@ class TestNPDA(test_pda.TestPDA):
             acceptance_mode="empty_stack",
         )
         with self.assertRaises(exceptions.RejectionException):
-            npda.read_input("abaaba"),
+            (npda.read_input("abaaba"),)
 
     def test_read_input_valid_accept_by_empty_stack(self) -> None:
         """Should return correct config if NPDA accepts by empty stack."""

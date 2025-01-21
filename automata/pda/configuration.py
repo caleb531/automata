@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and methods for working with PDA configurations."""
 
 from dataclasses import dataclass

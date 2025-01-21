@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and methods for working with nondeterministic Turing machines."""
 
 from typing import AbstractSet, Generator, Mapping, Set, Tuple

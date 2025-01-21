@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and methods for working with deterministic Turing machines."""
 
 from typing import AbstractSet, Generator, Mapping, Optional, Tuple

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and methods for working with deterministic pushdown automata."""
 
 from typing import AbstractSet, Generator, List, Mapping, Optional, Set, Tuple, Union
@@ -174,8 +173,7 @@ class DPDA(pda.PDA):
         """Raise an error if the given config indicates rejected input."""
         if not self._has_accepted(current_configuration):
             raise exceptions.RejectionException(
-                "the DPDA stopped in a non-accepting configuration "
-                "({}, {})".format(
+                "the DPDA stopped in a non-accepting configuration ({}, {})".format(
                     current_configuration.state, current_configuration.stack
                 )
             )

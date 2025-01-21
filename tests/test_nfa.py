@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
 """Classes and functions for testing the behavior of NFAs."""
+
 import os
 import string
 import tempfile

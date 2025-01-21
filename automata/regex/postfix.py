@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Classes and methods for converting lists of tokens to postfix ordering."""
 
 import abc

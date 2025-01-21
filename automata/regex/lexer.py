@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Classes and methods for lexing expressions into lists of tokens.
 
