@@ -45,6 +45,11 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository_url: https://test.pypi.org/legacy/
+          # The pypa/gh-action-pypi-publish action sources attestations from the
+          # same source, so leaving attestations enabled (the default behavior)
+          # for both steps will cause the production PyPI step to fail; however,
+          # disabling attestations on the test PyPI step should allow the
+          # production PyPI step to succeed
           attestations: false
 
       - name: Publish distribution to PyPI
