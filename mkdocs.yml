@@ -4,15 +4,6 @@ site_url: https://automata.site.to.be.created.org
 repo_url: https://github.com/caleb531/automata
 repo_name: automata
 edit_uri: blob/main/docs/
-authors:
-  - caleb531: https://calebevans.me/
-  - lewiuberg: https://github.com/lewiuberg
-  - eliotwrobson: https://github.com/eliotwrobson
-  - YtvwlD: https://github.com/YtvwlD
-  - dengl11: https://github.com/dengl11
-  - Tagl: https://github.com/Tagl
-  - CamiloMartinezM: https://github.com/CamiloMartinezM
-  - abhinavsinha-adrino: https://github.com/abhinavsinha-adrino
 theme:
   name: material
   palette:
@@ -58,7 +49,6 @@ plugins:
       enabled_if_env: ENABLE_PDF_EXPORT
   - mkdocstrings:
       enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
-      custom_templates: templates
       default_handler: python
       handlers:
         python:
