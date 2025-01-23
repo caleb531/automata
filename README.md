@@ -15,6 +15,7 @@
 Links:
 - [**Documentation**](https://caleb531.github.io/automata/)
 - [**Examples**](https://caleb531.github.io/automata/examples/fa-examples/)
+- [**Example Notebooks**](https://github.com/caleb531/automata/tree/main/example_notebooks)
 - [**Migration Guide**](https://caleb531.github.io/automata/migration/)
 - [**API**](https://caleb531.github.io/automata/api/)
 
