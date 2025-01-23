@@ -56,7 +56,6 @@ plugins:
         # enabled_if_env: ENABLE_PDF_EXPORT
   - macros:
       enabled_if_env: ENABLE_PDF_EXPORT
-  - mkdocs-jupyter
   - mkdocstrings:
       enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
       custom_templates: templates
@@ -117,8 +116,6 @@ nav:
       - index.md
       - migration.md
       - characteristics.md
-  - Theory:
-      - DFA Introduction: notebooks/DFA.ipynb
   - Examples:
       - examples/fa-examples.md
       - examples/perf-examples.md
