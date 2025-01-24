@@ -342,7 +342,7 @@ class GNFA(fa.FA):
                     if to_state != final_state:
                         state_degree[to_state] += 1
 
-        return min(state_degree, key=lambda x: state_degree.get(x, -1))
+        return min(state_degree, key=lambda x: (state_degree.get(x, -1), x))
 
     def to_regex(self) -> str:
         """
