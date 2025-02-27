@@ -75,7 +75,7 @@ class DFA(fa.FA):
         The initial state for this DFA.
     final_states : AbstractSet[DFAStateT]
         A set of final states for this DFA
-    allow_partial : bool, default: True
+    allow_partial : bool, default: False
         By default, each DFA state must have a transition to
         every input symbol; if this parameter is `True`, you can disable this
         characteristic (such that any DFA state can have fewer transitions than input
