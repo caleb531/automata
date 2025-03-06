@@ -220,44 +220,57 @@ class NFA(fa.FA):
         Self
             The NFA accepting the language of the input regex.
         """
-        if input_symbols is None:
-            input_symbols_set = set()
-
-            range_pattern = re.compile(r"\[([^\]]*)\]")
-            for match in range_pattern.finditer(regex):
-                class_content = match.group(1)
-                pos = 0
-                while pos < len(class_content):
-                    if pos + 2 < len(class_content) and class_content[pos + 1] == "-":
-                        start_char, end_char = (
-                            class_content[pos],
-                            class_content[pos + 2],
-                        )
-                        if ord(start_char) <= ord(end_char):
-                            for i in range(ord(start_char), ord(end_char) + 1):
-                                input_symbols_set.add(chr(i))
-                        pos += 3
-                    else:
-                        if class_content[pos] != "^":
-                            input_symbols_set.add(class_content[pos])
-                        pos += 1
-            for char in regex:
-                if char not in RESERVED_CHARACTERS:
-                    input_symbols_set.add(char)
-
-            input_symbols = frozenset(input_symbols_set)
-        else:
+        # First check user-provided input_symbols for reserved characters
+        if input_symbols is not None:
             conflicting_symbols = RESERVED_CHARACTERS & input_symbols
             if conflicting_symbols:
                 raise exceptions.InvalidSymbolError(
                     f"Invalid input symbols: {conflicting_symbols}"
                 )
 
-        nfa_builder = parse_regex(regex, input_symbols)
+        # Extract all characters from character classes
+        class_symbols = set()
+        range_pattern = re.compile(r"\[([^\]]*)\]")
+        for match in range_pattern.finditer(regex):
+            class_content = match.group(1)
+            pos = 0
+            while pos < len(class_content):
+                if pos + 2 < len(class_content) and class_content[pos + 1] == "-":
+                    start_char, end_char = (
+                        class_content[pos],
+                        class_content[pos + 2],
+                    )
+                    if ord(start_char) <= ord(end_char):
+                        for i in range(ord(start_char), ord(end_char) + 1):
+                            class_symbols.add(chr(i))
+                    pos += 3
+                else:
+                    if class_content[pos] != "^":  # Skip negation symbol
+                        class_symbols.add(class_content[pos])
+                    pos += 1
+
+        # Set up the final input symbols
+        if input_symbols is None:
+            # If no input_symbols provided, collect all non-reserved chars from regex
+            input_symbols_set = set()
+            for char in regex:
+                if char not in RESERVED_CHARACTERS:
+                    input_symbols_set.add(char)
+
+            # Include all character class symbols
+            input_symbols_set.update(class_symbols)
+            final_input_symbols = frozenset(input_symbols_set)
+        else:
+            # For user-provided input_symbols, we need to update with character class
+            # Create a copy to avoid modifying the original input_symbols
+            final_input_symbols = frozenset(input_symbols).union(class_symbols)
+
+        # Build the NFA
+        nfa_builder = parse_regex(regex, final_input_symbols)
 
         return cls(
             states=frozenset(nfa_builder._transitions.keys()),
-            input_symbols=input_symbols,
+            input_symbols=final_input_symbols,
             transitions=nfa_builder._transitions,
             initial_state=nfa_builder._initial_state,
             final_states=nfa_builder._final_states,
