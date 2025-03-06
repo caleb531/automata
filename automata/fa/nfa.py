@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections import deque
 from itertools import chain, count, product, repeat
 from typing import (
@@ -21,7 +22,6 @@ from typing import (
 )
 
 import networkx as nx
-import re
 from cached_method import cached_method
 from frozendict import frozendict
 from typing_extensions import Self, TypeAlias
@@ -222,26 +222,29 @@ class NFA(fa.FA):
         """
         if input_symbols is None:
             input_symbols_set = set()
-            
-            range_pattern = re.compile(r'\[([^\]]*)\]')
+
+            range_pattern = re.compile(r"\[([^\]]*)\]")
             for match in range_pattern.finditer(regex):
                 class_content = match.group(1)
                 pos = 0
                 while pos < len(class_content):
-                    if pos + 2 < len(class_content) and class_content[pos+1] == '-':
-                        start_char, end_char = class_content[pos], class_content[pos+2]
+                    if pos + 2 < len(class_content) and class_content[pos + 1] == "-":
+                        start_char, end_char = (
+                            class_content[pos],
+                            class_content[pos + 2],
+                        )
                         if ord(start_char) <= ord(end_char):
                             for i in range(ord(start_char), ord(end_char) + 1):
                                 input_symbols_set.add(chr(i))
                         pos += 3
                     else:
-                        if class_content[pos] != '^':  
+                        if class_content[pos] != "^":
                             input_symbols_set.add(class_content[pos])
                         pos += 1
             for char in regex:
                 if char not in RESERVED_CHARACTERS:
                     input_symbols_set.add(char)
-            
+
             input_symbols = frozenset(input_symbols_set)
         else:
             conflicting_symbols = RESERVED_CHARACTERS & input_symbols
@@ -249,7 +252,7 @@ class NFA(fa.FA):
                 raise exceptions.InvalidSymbolError(
                     f"Invalid input symbols: {conflicting_symbols}"
                 )
-        
+
         nfa_builder = parse_regex(regex, input_symbols)
 
         return cls(
