@@ -367,7 +367,7 @@ class TestRegex(unittest.TestCase):
     def test_unicode_character_classes(self) -> None:
         """Should correctly handle Unicode character ranges in character classes"""
 
-        def create_range(start_char, end_char):
+        def create_range(start_char: str, end_char: str) -> set[str]:
             return {chr(i) for i in range(ord(start_char), ord(end_char) + 1)}
 
         latin_ext_chars = create_range("¡", "ƿ")
