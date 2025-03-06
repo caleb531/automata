@@ -279,6 +279,14 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(nfa3.accepts_input("ab"))
         self.assertFalse(nfa3.accepts_input("abc"))
 
+        # Test character class with provided input symbols
+        nfa4 = NFA.from_regex("[a-zA-Z]+")
+        self.assertTrue(nfa4.accepts_input("Hello"))
+        self.assertTrue(nfa4.accepts_input("world"))
+        self.assertFalse(nfa4.accepts_input("123"))
+        self.assertFalse(nfa4.accepts_input("123abc"))
+        self.assertFalse(nfa4.accepts_input("abc123"))
+
         input_symbols = {"a", "b", "c", "d", "e", "0", "1", "2", "3"}
         # Character class with quantifiers
         self.assertTrue(
