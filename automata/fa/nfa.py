@@ -220,30 +220,82 @@ class NFA(fa.FA):
         Self
             The NFA accepting the language of the input regex.
         """
-        # First check user-provided input_symbols for reserved characters
         if input_symbols is not None:
-            conflicting_symbols = RESERVED_CHARACTERS & input_symbols
+            # Create a modified set of reserved characters that doesn't include
+            # whitespace
+            whitespace_chars = {" ", "\t", "\n", "\r", "\f", "\v"}
+            non_whitespace_reserved = RESERVED_CHARACTERS - whitespace_chars
+
+            conflicting_symbols = non_whitespace_reserved & input_symbols
             if conflicting_symbols:
                 raise exceptions.InvalidSymbolError(
                     f"Invalid input symbols: {conflicting_symbols}"
                 )
 
-        # Extract all characters from character classes
+        # Extract escaped sequences from the regex
+        escape_chars = set()
+        i = 0
+        while i < len(regex):
+            if regex[i] == "\\" and i + 1 < len(regex):
+                from automata.regex.parser import _handle_escape_sequences
+
+                escaped_char = _handle_escape_sequences(regex[i + 1])
+                escape_chars.add(escaped_char)
+                i += 2
+            else:
+                i += 1
+
         class_symbols = set()
         range_pattern = re.compile(r"\[([^\]]*)\]")
         for match in range_pattern.finditer(regex):
             class_content = match.group(1)
             pos = 0
             while pos < len(class_content):
-                if pos + 2 < len(class_content) and class_content[pos + 1] == "-":
-                    start_char, end_char = (
-                        class_content[pos],
-                        class_content[pos + 2],
-                    )
-                    if ord(start_char) <= ord(end_char):
+                if class_content[pos] == "\\" and pos + 1 < len(class_content):
+                    # Handle escape sequence in character class
+                    from automata.regex.parser import _handle_escape_sequences
+
+                    escaped_char = _handle_escape_sequences(class_content[pos + 1])
+                    class_symbols.add(escaped_char)
+
+                    # Check if this is part of a range
+                    if (
+                        pos + 2 < len(class_content)
+                        and class_content[pos + 2] == "-"
+                        and pos + 3 < len(class_content)
+                    ):
+                        # Handle range with escaped start character
+                        start_char = escaped_char
+
+                        # Check if end character is also escaped
+                        if class_content[pos + 3] == "\\" and pos + 4 < len(
+                            class_content
+                        ):
+                            end_char = _handle_escape_sequences(class_content[pos + 4])
+                            pos += 5
+                        else:
+                            end_char = class_content[pos + 3]
+                            pos += 4
+
+                        # Add all characters in the range to input symbols
                         for i in range(ord(start_char), ord(end_char) + 1):
                             class_symbols.add(chr(i))
-                    pos += 3
+                        continue
+
+                    pos += 2
+                elif pos + 2 < len(class_content) and class_content[pos + 1] == "-":
+                    # Handle normal range
+                    start_char = class_content[pos]
+
+                    if class_content[pos + 2] == "\\" and pos + 3 < len(class_content):
+                        end_char = _handle_escape_sequences(class_content[pos + 3])
+                        pos += 4
+                    else:
+                        end_char = class_content[pos + 2]
+                        pos += 3
+
+                    for i in range(ord(start_char), ord(end_char) + 1):
+                        class_symbols.add(chr(i))
                 else:
                     if class_content[pos] != "^":  # Skip negation symbol
                         class_symbols.add(class_content[pos])
@@ -257,13 +309,16 @@ class NFA(fa.FA):
                 if char not in RESERVED_CHARACTERS:
                     input_symbols_set.add(char)
 
-            # Include all character class symbols
+            # Include all character class symbols and escape sequences
             input_symbols_set.update(class_symbols)
+            input_symbols_set.update(escape_chars)
             final_input_symbols = frozenset(input_symbols_set)
         else:
-            # For user-provided input_symbols, we need to update with character class
-            # Create a copy to avoid modifying the original input_symbols
-            final_input_symbols = frozenset(input_symbols).union(class_symbols)
+            # For user-provided input_symbols, we need to update
+            # with character class symbols and escape sequences
+            final_input_symbols = (
+                frozenset(input_symbols).union(class_symbols).union(escape_chars)
+            )
 
         # Build the NFA
         nfa_builder = parse_regex(regex, final_input_symbols)

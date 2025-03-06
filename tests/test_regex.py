@@ -453,3 +453,89 @@ class TestRegex(unittest.TestCase):
             self.assertFalse(
                 ascii_range_nfa.accepts_input(char), f"Should reject {char}"
             )
+
+    def test_escape_characters(self) -> None:
+        """Should correctly handle escape sequences in regex patterns"""
+        # Basic escape sequences
+        nfa_newline = NFA.from_regex("\\n")
+        self.assertTrue(nfa_newline.accepts_input("\n"))
+        self.assertFalse(nfa_newline.accepts_input("n"))
+        self.assertFalse(nfa_newline.accepts_input("\\n"))
+
+        nfa_carriage = NFA.from_regex("\\r")
+        self.assertTrue(nfa_carriage.accepts_input("\r"))
+        self.assertFalse(nfa_carriage.accepts_input("r"))
+
+        nfa_tab = NFA.from_regex("\\t")
+        self.assertTrue(nfa_tab.accepts_input("\t"))
+        self.assertFalse(nfa_tab.accepts_input("t"))
+
+        # Escaping special regex characters
+        nfa_plus = NFA.from_regex("\\+")
+        self.assertTrue(nfa_plus.accepts_input("+"))
+        self.assertFalse(nfa_plus.accepts_input("\\+"))
+
+        nfa_star = NFA.from_regex("\\*")
+        self.assertTrue(nfa_star.accepts_input("*"))
+        self.assertFalse(nfa_star.accepts_input("\\*"))
+
+        # Multiple escape sequences
+        nfa_multi = NFA.from_regex("\\n\\r\\t")
+        self.assertTrue(nfa_multi.accepts_input("\n\r\t"))
+        self.assertFalse(nfa_multi.accepts_input("\n\r"))
+
+        # Character classes with escape sequences
+        nfa_class = NFA.from_regex("[\\n\\r\\t]")
+        self.assertTrue(nfa_class.accepts_input("\n"))
+        self.assertTrue(nfa_class.accepts_input("\r"))
+        self.assertTrue(nfa_class.accepts_input("\t"))
+        self.assertFalse(nfa_class.accepts_input("n"))
+
+        # Character class ranges with escape sequences
+        nfa_range = NFA.from_regex("[\\n-\\r]")
+        self.assertTrue(nfa_range.accepts_input("\n"))
+        self.assertTrue(nfa_range.accepts_input("\r"))
+        self.assertTrue(nfa_range.accepts_input("\013"))
+        self.assertFalse(nfa_range.accepts_input("\t"))
+
+        # Escape sequences with repetition operators
+        nfa_repeat = NFA.from_regex("\\n+")
+        self.assertTrue(nfa_repeat.accepts_input("\n"))
+        self.assertTrue(nfa_repeat.accepts_input("\n\n"))
+        self.assertTrue(nfa_repeat.accepts_input("\n\n\n"))
+        self.assertFalse(nfa_repeat.accepts_input(""))
+
+        # Complex patterns with escape sequences
+        nfa_complex = NFA.from_regex("a\\nb+\\r(c|d)*")
+        self.assertTrue(nfa_complex.accepts_input("a\nb\r"))
+        self.assertTrue(nfa_complex.accepts_input("a\nbb\r"))
+        self.assertTrue(nfa_complex.accepts_input("a\nb\rcd"))
+        self.assertTrue(nfa_complex.accepts_input("a\nb\rcddc"))
+        self.assertFalse(nfa_complex.accepts_input("anb\r"))
+
+        # Backslash escaping itself
+        nfa_backslash = NFA.from_regex("\\\\")
+        self.assertTrue(nfa_backslash.accepts_input("\\"))
+        self.assertFalse(nfa_backslash.accepts_input("\\\\"))
+
+        # Testing another regex
+        nfa_complex2 = NFA.from_regex("a\\nb+\\r(c|d)*")
+        self.assertTrue(nfa_complex2.accepts_input("a\nb\r"))
+        self.assertTrue(nfa_complex2.accepts_input("a\nbb\r"))
+        self.assertTrue(nfa_complex2.accepts_input("a\nb\rcd"))
+        self.assertTrue(nfa_complex2.accepts_input("a\nb\rcddc"))
+        self.assertFalse(nfa_complex2.accepts_input("anb\r"))
+
+        # Escaped whitespace in character classes
+        nfa_whitespace = NFA.from_regex("[\\n\\r\\t ]+")
+        self.assertTrue(nfa_whitespace.accepts_input("\n\r\t "))
+        self.assertTrue(nfa_whitespace.accepts_input(" \n"))
+        self.assertTrue(nfa_whitespace.accepts_input("\t\r"))
+        self.assertFalse(nfa_whitespace.accepts_input("a"))
+
+        # Common escape sequences with input symbols
+        input_symbols = set("abc\n\r\t ")
+        nfa_with_symbols = NFA.from_regex("a\\nb[\\r\\t]c", input_symbols=input_symbols)
+        self.assertTrue(nfa_with_symbols.accepts_input("a\nb\rc"))
+        self.assertTrue(nfa_with_symbols.accepts_input("a\nb\tc"))
+        self.assertFalse(nfa_with_symbols.accepts_input("a\nbc"))
