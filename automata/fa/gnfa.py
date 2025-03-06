@@ -129,9 +129,9 @@ class GNFA(fa.FA):
             if state in target_dfa.transitions:
                 for input_symbol, to_state in target_dfa.transitions[state].items():
                     if to_state in gnfa_transitions.keys():
-                        gnfa_transitions[
-                            to_state
-                        ] = f"{gnfa_transitions[to_state]}|{input_symbol}"
+                        gnfa_transitions[to_state] = (
+                            f"{gnfa_transitions[to_state]}|{input_symbol}"
+                        )
                     else:
                         gnfa_transitions[to_state] = input_symbol
                 new_gnfa_transitions[state] = gnfa_transitions
@@ -190,17 +190,17 @@ class GNFA(fa.FA):
                                 gnfa_transitions[to_state] != "" and input_symbol == ""
                             ):
                                 if cls._isbracket_req(gnfa_transitions[to_state]):
-                                    gnfa_transitions[
-                                        to_state
-                                    ] = f"({gnfa_transitions[to_state]})?"
+                                    gnfa_transitions[to_state] = (
+                                        f"({gnfa_transitions[to_state]})?"
+                                    )
                                 else:
-                                    gnfa_transitions[
-                                        to_state
-                                    ] = f"{gnfa_transitions[to_state]}?"
+                                    gnfa_transitions[to_state] = (
+                                        f"{gnfa_transitions[to_state]}?"
+                                    )
                             else:
-                                gnfa_transitions[
-                                    to_state
-                                ] = f"{gnfa_transitions[to_state]}|{input_symbol}"
+                                gnfa_transitions[to_state] = (
+                                    f"{gnfa_transitions[to_state]}|{input_symbol}"
+                                )
                         else:
                             gnfa_transitions[to_state] = input_symbol
                 new_gnfa_transitions[state] = cast(

@@ -337,6 +337,12 @@ class TestRegex(unittest.TestCase):
         nfa2 = NFA.from_regex("(a|b|c)(a|b|c)((a|b|c)*)", input_symbols=input_symbols)
         self.assertEqual(nfa1, nfa2)
 
+        # Test character class with reserved characters
+        nfa1 = NFA.from_regex("[a+]")
+        self.assertTrue(nfa1.accepts_input("a"))
+        self.assertTrue(nfa1.accepts_input("+"))
+        self.assertFalse(nfa1.accepts_input("b"))
+
     def test_unicode_character_classes(self) -> None:
         """Should correctly handle Unicode character ranges in character classes"""
 
