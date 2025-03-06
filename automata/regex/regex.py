@@ -12,6 +12,10 @@ A regular expression with the following operations only are supported in this li
 - `&`: Intersection. Ex: `a&b`
 - `.`: Wildcard. Ex: `a.b`
 - `^`: Shuffle. Ex: `a^b`
+- `[...]`: Character class, matching any single character from the class.
+    Ex: `[abc]`, `[0-9]`
+- `[^...]`: Negated character class, matching any single character not in the class.
+    Ex: `[^abc]`
 - `{}`: Quantifiers expressing finite repetitions. Ex: `a{1,2}`,`a{3,}`
 - `()`: The empty string.
 - `(...)`: Grouping.

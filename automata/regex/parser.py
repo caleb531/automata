@@ -27,7 +27,7 @@ from automata.regex.postfix import (
 BuilderTransitionsT = Dict[int, Dict[str, Set[int]]]
 
 RESERVED_CHARACTERS = frozenset(
-    ("*", "|", "(", ")", "?", " ", "\t", "&", "+", ".", "^", "{", "}")
+    ("*", "|", "(", ")", "?", " ", "\t", "&", "+", ".", "^", "{", "}", "[", "]")
 )
 
 
@@ -414,12 +414,52 @@ class QuantifierToken(PostfixOperator[NFARegexBuilder]):
         self.upper_bound = upper_bound
 
     @classmethod
-    def from_match(cls: Type[Self], match: re.Match) -> QuantifierToken:
+    def from_match(cls: Type[Self], match: re.Match) -> Self:
         lower_bound_str = match.group(1)
         upper_bound_str = match.group(2)
 
-        lower_bound = 0 if not lower_bound_str else int(lower_bound_str)
-        upper_bound = None if not upper_bound_str else int(upper_bound_str)
+        # Parse lower bound
+        if not lower_bound_str:
+            lower_bound = 0
+        else:
+            try:
+                lower_bound = int(lower_bound_str)
+                if lower_bound < 0:
+                    raise exceptions.InvalidRegexError(
+                        f"Lower bound cannot be negative: {lower_bound}"
+                    )
+            except ValueError:
+                # This shouldn't happen with our regex pattern, but just in case
+                raise exceptions.InvalidRegexError(
+                    f"Invalid lower bound: {lower_bound_str}"
+                )
+
+        # Parse upper bound
+        if upper_bound_str is None:
+            # Format {n}
+            upper_bound = lower_bound
+        elif not upper_bound_str:
+            # Format {n,}
+            upper_bound = None
+        else:
+            try:
+                upper_bound = int(upper_bound_str)
+                if upper_bound < 0:
+                    raise exceptions.InvalidRegexError(
+                        f"Upper bound cannot be negative: {upper_bound}"
+                    )
+            except ValueError:
+                # This shouldn't happen with our regex pattern, but just in case
+                raise exceptions.InvalidRegexError(
+                    f"Invalid upper bound: {upper_bound_str}"
+                )
+
+        # Validate bounds relationship
+        if upper_bound is not None and lower_bound > upper_bound:
+            raise exceptions.InvalidRegexError(
+                f"Lower bound {lower_bound} cannot be "
+                "greater than upper bound {upper_bound}"
+            )
 
         return cls(match.group(), lower_bound, upper_bound)
 
@@ -494,6 +534,40 @@ class WildcardToken(Literal[NFARegexBuilder]):
         return NFARegexBuilder.wildcard(self.input_symbols, self.counter)
 
 
+class CharacterClassToken(Literal[NFARegexBuilder]):
+    """Subclass of literal token defining a character class."""
+
+    __slots__: Tuple[str, ...] = ("input_symbols", "class_chars", "negated", "counter")
+
+    def __init__(
+        self,
+        text: str,
+        class_chars: Set[str],
+        negated: bool,
+        input_symbols: AbstractSet[str],
+        counter: count,
+    ) -> None:
+        super().__init__(text)
+        self.class_chars = class_chars
+        self.negated = negated
+        self.input_symbols = input_symbols
+        self.counter = counter
+
+    @classmethod
+    def from_match(cls: Type[Self], match: re.Match) -> NoReturn:
+        raise NotImplementedError
+
+    def val(self) -> NFARegexBuilder:
+        if self.negated:
+            # For negated class, create an NFA accepting any character
+            # not in class_chars
+            acceptable_chars = self.input_symbols - self.class_chars
+            return NFARegexBuilder.wildcard(acceptable_chars, self.counter)
+        else:
+            # Create an NFA accepting any character in the set
+            return NFARegexBuilder.wildcard(self.class_chars, self.counter)
+
+
 def add_concat_and_empty_string_tokens(
     token_list: List[Token[NFARegexBuilder]],
     state_name_counter: count,
@@ -501,7 +575,6 @@ def add_concat_and_empty_string_tokens(
     """Add concat tokens to list of parsed infix tokens."""
 
     final_token_list = []
-
     # Pairs of token types to insert concat tokens in between
     concat_pairs = [
         (Literal, Literal),
@@ -524,7 +597,6 @@ def add_concat_and_empty_string_tokens(
                     next_token, secondClass
                 ):
                     final_token_list.append(ConcatToken(""))
-
             for firstClass, secondClass in empty_string_pairs:
                 if isinstance(curr_token, firstClass) and isinstance(
                     next_token, secondClass
@@ -548,11 +620,27 @@ def get_regex_lexer(
     lexer.register_token(KleeneStarToken.from_match, r"\*")
     lexer.register_token(KleenePlusToken.from_match, r"\+")
     lexer.register_token(OptionToken.from_match, r"\?")
-    lexer.register_token(QuantifierToken.from_match, r"\{(.*?),(.*?)\}")
+    # Match both {n}, {n,m}, and {,m} formats for quantifiers
+    lexer.register_token(QuantifierToken.from_match, r"\{(-?\d*)(?:,(-?\d*))?\}")
+    # Register wildcard and character classes next
     lexer.register_token(
         lambda match: WildcardToken(match.group(), input_symbols, state_name_counter),
         r"\.",
     )
+
+    # Add character class token
+    def character_class_factory(match: re.Match) -> CharacterClassToken:
+        class_str = match.group()
+        negated, class_chars = process_char_class(class_str)
+        return CharacterClassToken(
+            class_str, class_chars, negated, input_symbols, state_name_counter
+        )
+
+    lexer.register_token(
+        character_class_factory,
+        r"\[[^\]]*\]",  # Match anything between [ and ]
+    )
+
     lexer.register_token(
         lambda match: StringToken(match.group(), state_name_counter), r"\S"
     )
@@ -577,3 +665,50 @@ def parse_regex(regexstr: str, input_symbols: AbstractSet[str]) -> NFARegexBuild
     postfix = tokens_to_postfix(tokens_with_concats)
 
     return parse_postfix_tokens(postfix)
+
+
+def process_char_class(class_str: str) -> Tuple[bool, Set[str]]:
+    """Process a character class string into a set of characters and negation flag.
+
+    Parameters
+    ----------
+    class_str : str
+        The character class string including brackets, e.g., '[a-z]' or '[^abc]'
+
+    Returns
+    -------
+    Tuple[bool, Set[str]]
+        A tuple containing (is_negated, set_of_characters)
+    """
+    content = class_str[1:-1]
+
+    if not content:
+        raise exceptions.InvalidRegexError("Empty character class '[]' is not allowed")
+
+    negated = content.startswith("^")
+    if negated:
+        content = content[1:]
+
+        if not content:
+            raise exceptions.InvalidRegexError(
+                "Empty negated character class '[^]' is not allowed"
+            )
+
+    chars = set()
+    i = 0
+    while i < len(content):
+        # Special case: - at the beginning or end is treated as literal
+        if content[i] == "-" and (i == 0 or i == len(content) - 1):
+            chars.add("-")
+            i += 1
+        # Handle ranges - but only when there are characters on both sides
+        elif i + 2 < len(content) and content[i + 1] == "-":
+            # Range like a-z
+            start, end = content[i], content[i + 2]
+            chars.update(chr(c) for c in range(ord(start), ord(end) + 1))
+            i += 3
+        else:
+            chars.add(content[i])
+            i += 1
+
+    return negated, chars

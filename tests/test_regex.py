@@ -1,6 +1,7 @@
 """Classes and functions for testing the behavior of Regex tools"""
 
 import re as regex
+import string
 import unittest
 
 import automata.base.exceptions as exceptions
@@ -232,3 +233,190 @@ class TestRegex(unittest.TestCase):
         """Should throw exception if reserved character is in input symbols"""
         with self.assertRaises(exceptions.InvalidSymbolError):
             NFA.from_regex("a+", input_symbols={"a", "+"})
+
+    def test_character_class(self) -> None:
+        """Should correctly handle character classes"""
+        # Basic equivalence
+        self.assertTrue(re.isequal("[abc]", "a|b|c"))
+        self.assertTrue(re.isequal("a[bc]d", "abd|acd"))
+        # With NFA construction
+        nfa1 = NFA.from_regex("[abc]")
+        nfa2 = NFA.from_regex("a|b|c")
+        self.assertEqual(nfa1, nfa2)
+        # Character class with repetition
+        self.assertTrue(re.isequal("[abc]*", "(a|b|c)*"))
+
+        input_symbols = {"a", "b", "c", "d", "e"}
+        # Simple range
+        self.assertTrue(re.isequal("[a-c]", "a|b|c", input_symbols=input_symbols))
+        # Multiple ranges
+        self.assertTrue(re.isequal("[a-ce-e]", "a|b|c|e", input_symbols=input_symbols))
+        # Range with individual characters
+        self.assertTrue(re.isequal("[a-cd]", "a|b|c|d", input_symbols=input_symbols))
+        # Create NFAs with negated character classes
+        nfa1 = NFA.from_regex("[^abc]", input_symbols=input_symbols)
+        nfa2 = NFA.from_regex("[^a-c]", input_symbols=input_symbols)
+        nfa3 = NFA.from_regex("a[^abc]+", input_symbols=input_symbols)
+        # Test acceptance/rejection patterns for simple negation
+        self.assertTrue(nfa1.accepts_input("d"))
+        self.assertTrue(nfa1.accepts_input("e"))
+        self.assertFalse(nfa1.accepts_input("a"))
+        self.assertFalse(nfa1.accepts_input("b"))
+        self.assertFalse(nfa1.accepts_input("c"))
+        # Test acceptance/rejection patterns for negated range
+        self.assertTrue(nfa2.accepts_input("d"))
+        self.assertTrue(nfa2.accepts_input("e"))
+        self.assertFalse(nfa2.accepts_input("a"))
+        self.assertFalse(nfa2.accepts_input("b"))
+        self.assertFalse(nfa2.accepts_input("c"))
+        # Test negated class with kleene plus
+        self.assertTrue(nfa3.accepts_input("ad"))
+        self.assertTrue(nfa3.accepts_input("ae"))
+        self.assertTrue(nfa3.accepts_input("ade"))
+        self.assertTrue(nfa3.accepts_input("aedd"))
+        self.assertFalse(nfa3.accepts_input("a"))
+        self.assertFalse(nfa3.accepts_input("aa"))
+        self.assertFalse(nfa3.accepts_input("ab"))
+        self.assertFalse(nfa3.accepts_input("abc"))
+
+        input_symbols = {"a", "b", "c", "d", "e", "0", "1", "2", "3"}
+        # Character class with quantifiers
+        self.assertTrue(
+            re.isequal(
+                "[abc]{2}", "aa|ab|ac|ba|bb|bc|ca|cb|cc", input_symbols=input_symbols
+            )
+        )
+        # Character class with operators
+        self.assertTrue(
+            re.isequal("[abc]|[0-3]", "a|b|c|0|1|2|3", input_symbols=input_symbols)
+        )
+        # Intersection with character classes
+        self.assertTrue(re.isequal("[abc]&[bc0]", "b|c", input_symbols=input_symbols))
+        # Shuffle with character classes
+        self.assertTrue(
+            re.isequal(
+                "[ab]^[cd]", "ac|ad|bc|bd|ca|cb|da|db", input_symbols=input_symbols
+            )
+        )
+
+        # Empty character class should raise error
+        with self.assertRaises(exceptions.InvalidRegexError):
+            re.validate("[]")
+        # Special character as range boundary
+        input_symbols = {"a", "b", "c", "-", "#"}
+        self.assertTrue(re.isequal("[a-c-]", "a|b|c|-", input_symbols=input_symbols))
+        # Hyphen at the beginning of class (literal interpretation)
+        self.assertTrue(re.isequal("[-abc]", "-|a|b|c", input_symbols=input_symbols))
+        # Hyphen at both beginning and end
+        self.assertTrue(re.isequal("[-abc-]", "-|a|b|c", input_symbols=input_symbols))
+        # Special character with literal interpretation
+        input_symbols = {"a", "b", "c", "#"}
+        self.assertTrue(re.isequal("[a#c]", "a|#|c", input_symbols=input_symbols))
+
+        input_symbols = {"a", "b", "c"}
+        # Exact repetition {n}
+        self.assertTrue(
+            re.isequal("[abc]{2}", "(a|b|c)(a|b|c)", input_symbols=input_symbols)
+        )
+        # Range repetition {n,m}
+        self.assertTrue(
+            re.isequal(
+                "[abc]{1,2}", "(a|b|c)|(a|b|c)(a|b|c)", input_symbols=input_symbols
+            )
+        )
+        # Lower bound only {n,}
+        nfa1 = NFA.from_regex("[abc]{2,}", input_symbols=input_symbols)
+        nfa2 = NFA.from_regex("(a|b|c)(a|b|c)((a|b|c)*)", input_symbols=input_symbols)
+        self.assertEqual(nfa1, nfa2)
+
+    def test_unicode_character_classes(self) -> None:
+        """Should correctly handle Unicode character ranges in character classes"""
+
+        def create_range(start_char, end_char):
+            return {chr(i) for i in range(ord(start_char), ord(end_char) + 1)}
+
+        latin_ext_chars = create_range("¡", "ƿ")
+        greek_chars = create_range("Ͱ", "Ͽ")
+        cyrillic_chars = create_range("Ѐ", "ӿ")
+
+        input_symbols = set()
+        input_symbols.update(latin_ext_chars)
+        input_symbols.update(greek_chars)
+        input_symbols.update(cyrillic_chars)
+
+        ascii_chars = set(string.printable)
+        input_symbols.update(ascii_chars)
+
+        from automata.fa.nfa import RESERVED_CHARACTERS
+
+        input_symbols = input_symbols - RESERVED_CHARACTERS
+
+        latin_nfa = NFA.from_regex("[¡-ƿ]+", input_symbols=input_symbols)
+        greek_nfa = NFA.from_regex("[Ͱ-Ͽ]+", input_symbols=input_symbols)
+        cyrillic_nfa = NFA.from_regex("[Ѐ-ӿ]+", input_symbols=input_symbols)
+
+        latin_samples = ["¡", "£", "Ā", "ŕ", "ƿ"]
+        greek_samples = ["Ͱ", "Α", "Θ", "Ͽ"]
+        cyrillic_samples = ["Ѐ", "Ё", "Џ", "ӿ"]
+
+        for char in latin_samples:
+            self.assertTrue(latin_nfa.accepts_input(char), f"Should accept {char}")
+        self.assertTrue(latin_nfa.accepts_input("¡Āŕƿ"))  # Multiple characters
+        self.assertFalse(latin_nfa.accepts_input("a"))  # ASCII - not in range
+        self.assertFalse(latin_nfa.accepts_input("Α"))  # Greek - not in range
+        self.assertFalse(latin_nfa.accepts_input("Ё"))  # Cyrillic - not in range
+        self.assertFalse(latin_nfa.accepts_input("¡a"))  # Mixed with non-matching
+
+        for char in greek_samples:
+            self.assertTrue(greek_nfa.accepts_input(char), f"Should accept {char}")
+        self.assertTrue(greek_nfa.accepts_input("ͰΑΘϿ"))  # Multiple characters
+        self.assertFalse(greek_nfa.accepts_input("a"))  # ASCII - not in range
+        self.assertFalse(greek_nfa.accepts_input("Ā"))  # Latin Ext - not in range
+        self.assertFalse(greek_nfa.accepts_input("Ё"))  # Cyrillic - not in range
+        self.assertFalse(greek_nfa.accepts_input("Αa"))  # Mixed with non-matching
+
+        for char in cyrillic_samples:
+            self.assertTrue(cyrillic_nfa.accepts_input(char), f"Should accept {char}")
+        self.assertTrue(cyrillic_nfa.accepts_input("ЀЁЏӿ"))  # Multiple characters
+        self.assertFalse(cyrillic_nfa.accepts_input("a"))  # ASCII - not in range
+        self.assertFalse(cyrillic_nfa.accepts_input("Ā"))  # Latin Ext - not in range
+        self.assertFalse(cyrillic_nfa.accepts_input("Α"))  # Greek - not in range
+        self.assertFalse(cyrillic_nfa.accepts_input("Ёa"))  # Mixed with non-matching
+
+        combined_regex = "Latin-Extension[¡-ƿ]+Greek[Ͱ-Ͽ]+Cyrillic[Ѐ-ӿ]+"
+        combined_nfa = NFA.from_regex(combined_regex, input_symbols=input_symbols)
+
+        self.assertTrue(combined_nfa.accepts_input("Latin-Extension¡GreekͰCyrillicЀ"))
+        self.assertTrue(
+            combined_nfa.accepts_input("Latin-ExtensionĀāGreekΑΒΓCyrillicЀЁЂ")
+        )
+
+        self.assertFalse(combined_nfa.accepts_input("Latin-ExtensionaGreekͰCyrillicЀ"))
+        self.assertFalse(combined_nfa.accepts_input("Latin-Extension¡GreekACyrillicЀ"))
+        self.assertFalse(combined_nfa.accepts_input("Latin-Extension¡GreekͰCyrillicA"))
+
+        non_latin_nfa = NFA.from_regex("[^¡-ƿ]+", input_symbols=input_symbols)
+        self.assertTrue(non_latin_nfa.accepts_input("abc"))
+        self.assertTrue(non_latin_nfa.accepts_input("ЀЁЏӿ"))
+        self.assertTrue(non_latin_nfa.accepts_input("ͰΑΘ"))
+        self.assertFalse(non_latin_nfa.accepts_input("¡"))
+        self.assertFalse(non_latin_nfa.accepts_input("Ā"))
+        self.assertFalse(non_latin_nfa.accepts_input("a¡"))
+
+        alphabet = set("abcdefghijklmnopqrstuvwxyz")
+        alphabet = alphabet - RESERVED_CHARACTERS
+        safe_input_symbols = input_symbols.union(alphabet)
+
+        ascii_range_nfa = NFA.from_regex("[i-p]+", input_symbols=safe_input_symbols)
+        for char in "ijklmnop":
+            self.assertTrue(
+                ascii_range_nfa.accepts_input(char), f"Should accept {char}"
+            )
+        for char in "abcdefgh":
+            self.assertFalse(
+                ascii_range_nfa.accepts_input(char), f"Should reject {char}"
+            )
+        for char in "qrstuvwxyz":
+            self.assertFalse(
+                ascii_range_nfa.accepts_input(char), f"Should reject {char}"
+            )
