@@ -554,8 +554,33 @@ class CharacterClassToken(Literal[NFARegexBuilder]):
         self.counter = counter
 
     @classmethod
-    def from_match(cls: Type[Self], match: re.Match) -> NoReturn:
-        raise NotImplementedError
+    def from_match(cls: Type[Self], match: re.Match) -> Self:
+        range_pattern = re.compile(r"([^\\])-([^\\])")
+        content = match.group(1)
+        
+        # Process character ranges and build full content
+        pos = 0
+        expanded_content = ""
+        while pos < len(content):
+            if pos + 2 < len(content) and content[pos+1] == '-':
+                start_char, end_char = content[pos], content[pos+2]
+                if ord(start_char) <= ord(end_char):
+                    # Include all characters in the range
+                    expanded_content += ''.join(chr(i) for i in range(ord(start_char), ord(end_char) + 1))
+                    pos += 3
+                else:
+                    # Invalid range - just add characters as is
+                    expanded_content += content[pos]
+                    pos += 1
+            else:
+                expanded_content += content[pos]
+                pos += 1
+        
+        is_negated = content.startswith("^")
+        if is_negated:
+            expanded_content = expanded_content[1:]  # Remove ^ from the content
+        
+        return cls(match.group(), expanded_content, is_negated)
 
     def val(self) -> NFARegexBuilder:
         if self.negated:
