@@ -6,7 +6,7 @@ import unittest
 
 import automata.base.exceptions as exceptions
 import automata.regex.regex as re
-from automata.fa.nfa import NFA
+from automata.fa.nfa import NFA, RESERVED_CHARACTERS
 from automata.regex.parser import StringToken, WildcardToken
 
 
@@ -343,6 +343,27 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(nfa1.accepts_input("+"))
         self.assertFalse(nfa1.accepts_input("b"))
 
+        # One more more complex test with and without input symbols
+        input_symbols = set(string.printable) - RESERVED_CHARACTERS
+        nfa1 = NFA.from_regex("[a-zA-Z0-9._%+-]+", input_symbols=input_symbols)
+        self.assertTrue(nfa1.accepts_input("a"))
+        self.assertTrue(nfa1.accepts_input("1"))
+        self.assertTrue(nfa1.accepts_input("."))
+        self.assertTrue(nfa1.accepts_input("%"))
+        self.assertTrue(nfa1.accepts_input("+"))
+        self.assertFalse(nfa1.accepts_input(""))
+        self.assertFalse(nfa1.accepts_input("$"))
+        self.assertFalse(nfa1.accepts_input("{"))
+        nfa2 = NFA.from_regex("[a-zA-Z0-9._%+-]+")
+        self.assertTrue(nfa2.accepts_input("a"))
+        self.assertTrue(nfa2.accepts_input("1"))
+        self.assertTrue(nfa2.accepts_input("."))
+        self.assertTrue(nfa2.accepts_input("%"))
+        self.assertTrue(nfa2.accepts_input("+"))
+        self.assertFalse(nfa2.accepts_input(""))
+        self.assertFalse(nfa2.accepts_input("$"))
+        self.assertFalse(nfa2.accepts_input("{"))
+
     def test_unicode_character_classes(self) -> None:
         """Should correctly handle Unicode character ranges in character classes"""
 
@@ -360,8 +381,6 @@ class TestRegex(unittest.TestCase):
 
         ascii_chars = set(string.printable)
         input_symbols.update(ascii_chars)
-
-        from automata.fa.nfa import RESERVED_CHARACTERS
 
         input_symbols = input_symbols - RESERVED_CHARACTERS
 
