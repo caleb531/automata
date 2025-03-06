@@ -638,6 +638,13 @@ def get_regex_lexer(
     """Get lexer for parsing regular expressions."""
     lexer: Lexer[NFARegexBuilder] = Lexer()
 
+    # Process the input string first to handle escape sequences
+    def process_string_factory(match: re.Match) -> StringToken:
+        text = match.group()
+        if text.startswith("\\") and len(text) > 1:
+            return StringToken(_handle_escape_sequences(text[1]), state_name_counter)
+        return StringToken(text, state_name_counter)
+
     lexer.register_token(LeftParen.from_match, r"\(")
     lexer.register_token(RightParen.from_match, r"\)")
     lexer.register_token(UnionToken.from_match, r"\|")
@@ -648,13 +655,11 @@ def get_regex_lexer(
     lexer.register_token(OptionToken.from_match, r"\?")
     # Match both {n}, {n,m}, and {,m} formats for quantifiers
     lexer.register_token(QuantifierToken.from_match, r"\{(-?\d*)(?:,(-?\d*))?\}")
-    # Register wildcard and character classes next
     lexer.register_token(
         lambda match: WildcardToken(match.group(), input_symbols, state_name_counter),
         r"\.",
     )
 
-    # Add character class token
     def character_class_factory(match: re.Match) -> CharacterClassToken:
         class_str = match.group()
         negated, class_chars = process_char_class(class_str)
@@ -667,11 +672,48 @@ def get_regex_lexer(
         r"\[[^\]]*\]",  # Match anything between [ and ]
     )
 
+    # Handle escaped sequences first - must come before general character match
+    lexer.register_token(
+        process_string_factory,
+        r"\\.",
+    )
     lexer.register_token(
         lambda match: StringToken(match.group(), state_name_counter), r"\S"
     )
 
     return lexer
+
+
+def _handle_escape_sequences(char: str) -> str:
+    """Convert escape sequences to their actual character representation."""
+    escape_map = {
+        "n": "\n",
+        "r": "\r",
+        "t": "\t",
+        "v": "\v",
+        "f": "\f",
+        "a": "\a",
+        "b": "\b",
+        "\\": "\\",
+        "+": "+",
+        "*": "*",
+        "?": "?",
+        ".": ".",
+        "|": "|",
+        "(": "(",
+        ")": ")",
+        "[": "[",
+        "]": "]",
+        "{": "{",
+        "}": "}",
+        "^": "^",
+        "$": "$",
+        "&": "&",
+    }
+
+    if char in escape_map:
+        return escape_map[char]
+    return char
 
 
 def parse_regex(regexstr: str, input_symbols: AbstractSet[str]) -> NFARegexBuilder:
@@ -723,16 +765,46 @@ def process_char_class(class_str: str) -> Tuple[bool, Set[str]]:
     chars = set()
     i = 0
     while i < len(content):
+        # Handle escape sequences
+        if content[i] == "\\" and i + 1 < len(content):
+            escaped_char = _handle_escape_sequences(content[i + 1])
+
+            if i + 2 < len(content) and content[i + 2] == "-" and i + 3 < len(content):
+                start_char = escaped_char
+
+                if content[i + 3] == "\\" and i + 4 < len(content):
+                    end_char = _handle_escape_sequences(content[i + 4])
+                    i += 5
+                else:
+                    end_char = content[i + 3]
+                    i += 4
+
+                for code in range(ord(start_char), ord(end_char) + 1):
+                    chars.add(chr(code))
+            else:
+                chars.add(escaped_char)
+                i += 2
         # Special case: - at the beginning or end is treated as literal
-        if content[i] == "-" and (i == 0 or i == len(content) - 1):
+        elif content[i] == "-" and (i == 0 or i == len(content) - 1):
             chars.add("-")
             i += 1
         # Handle ranges - but only when there are characters on both sides
         elif i + 2 < len(content) and content[i + 1] == "-":
-            # Range like a-z
-            start, end = content[i], content[i + 2]
-            chars.update(chr(c) for c in range(ord(start), ord(end) + 1))
-            i += 3
+            # Check if end is an escape sequence
+            if content[i + 2] == "\\" and i + 3 < len(content):
+                start_char = content[i]
+                end_char = _handle_escape_sequences(content[i + 3])
+                # Add all characters in the range
+                for code in range(ord(start_char), ord(end_char) + 1):
+                    chars.add(chr(code))
+                i += 4
+            else:
+                # Regular range like a-z
+                start_char, end_char = content[i], content[i + 2]
+                # Add all characters in the range
+                for code in range(ord(start_char), ord(end_char) + 1):
+                    chars.add(chr(code))
+                i += 3
         else:
             chars.add(content[i])
             i += 1
