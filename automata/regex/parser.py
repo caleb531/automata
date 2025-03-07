@@ -648,7 +648,7 @@ def get_regex_lexer(
     input_symbols: AbstractSet[str], state_name_counter: count
 ) -> Lexer[NFARegexBuilder]:
     """Get lexer for parsing regular expressions."""
-    lexer: Lexer[NFARegexBuilder] = Lexer()
+    lexer: Lexer[NFARegexBuilder] = Lexer(blank_chars=set())
 
     # Register all token types
     lexer.register_token(LeftParen.from_match, r"\(")
@@ -721,6 +721,12 @@ def get_regex_lexer(
             _handle_escape_sequences(match.group()[1]), state_name_counter
         ),
         r"\\.",  # Match any escaped character
+    )
+
+    # Add specific token for space character - this is the key fix
+    lexer.register_token(
+        lambda match: StringToken(match.group(), state_name_counter),
+        r" ",  # Match a space character
     )
 
     # Handle regular characters

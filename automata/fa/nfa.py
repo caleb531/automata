@@ -220,18 +220,6 @@ class NFA(fa.FA):
         Self
             The NFA accepting the language of the input regex.
         """
-        if input_symbols is not None:
-            # Create a modified set of reserved characters that doesn't include
-            # whitespace
-            whitespace_chars = {" ", "\t", "\n", "\r", "\f", "\v"}
-            non_whitespace_reserved = RESERVED_CHARACTERS - whitespace_chars
-
-            conflicting_symbols = non_whitespace_reserved & input_symbols
-            if conflicting_symbols:
-                raise exceptions.InvalidSymbolError(
-                    f"Invalid input symbols: {conflicting_symbols}"
-                )
-
         # Import the shorthand character classes
         from automata.regex.parser import (
             DIGIT_CHARS,
