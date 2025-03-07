@@ -785,7 +785,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(
             nfa2,
             NFA.from_regex(
-                "(((01) | 1)*)((0*1) | (1*0))(((10) | 0)*)", input_symbols=input_symbols
+                "(((01)|1)*)((0*1)|(1*0))(((10)|0)*)", input_symbols=input_symbols
             ),
         )
 
@@ -807,7 +807,7 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(
             nfa3,
-            NFA.from_regex("(0(0 | 1)*0) | (1(0 | 1)*1)", input_symbols=input_symbols),
+            NFA.from_regex("(0(0|1)*0)|(1(0|1)*1)", input_symbols=input_symbols),
         )
 
         nfa4 = NFA(
@@ -828,7 +828,7 @@ class TestNFA(test_fa.TestFA):
 
         self.assertEqual(
             nfa4,
-            NFA.from_regex("((0 | 1)*00) | ((0 | 1)*11)", input_symbols=input_symbols),
+            NFA.from_regex("((0|1)*00)|((0|1)*11)", input_symbols=input_symbols),
         )
 
         input_symbols_2 = {"0", "1", "2"}
@@ -853,7 +853,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(
             nfa5,
             NFA.from_regex(
-                "((((01)*0) | 2)(100)*1)*(1* | (0*2*))", input_symbols=input_symbols_2
+                "((((01)*0)|2)(100)*1)*(1*|(0*2*))", input_symbols=input_symbols_2
             ),
         )
 
