@@ -232,12 +232,44 @@ class NFA(fa.FA):
                     f"Invalid input symbols: {conflicting_symbols}"
                 )
 
+        # Import the shorthand character classes
+        from automata.regex.parser import (
+            DIGIT_CHARS,
+            NON_DIGIT_CHARS,
+            NON_WHITESPACE_CHARS,
+            NON_WORD_CHARS,
+            WHITESPACE_CHARS,
+            WORD_CHARS,
+        )
+
+        # Create a set for additional symbols from shorthand classes
+        additional_symbols = set()
+
+        # Check for shorthand classes in the regex
+        if "\\s" in regex:
+            additional_symbols.update(WHITESPACE_CHARS)
+        if "\\S" in regex:
+            additional_symbols.update(NON_WHITESPACE_CHARS)
+        if "\\d" in regex:
+            additional_symbols.update(DIGIT_CHARS)
+        if "\\D" in regex:
+            additional_symbols.update(NON_DIGIT_CHARS)
+        if "\\w" in regex:
+            additional_symbols.update(WORD_CHARS)
+        if "\\W" in regex:
+            additional_symbols.update(NON_WORD_CHARS)
+
         # Extract escaped sequences from the regex
         escape_chars = set()
         i = 0
         while i < len(regex):
             if regex[i] == "\\" and i + 1 < len(regex):
                 from automata.regex.parser import _handle_escape_sequences
+
+                # Skip shorthand classes
+                if regex[i + 1] in "sSwWdD":
+                    i += 2
+                    continue
 
                 escaped_char = _handle_escape_sequences(regex[i + 1])
                 escape_chars.add(escaped_char)
@@ -252,6 +284,32 @@ class NFA(fa.FA):
             pos = 0
             while pos < len(class_content):
                 if class_content[pos] == "\\" and pos + 1 < len(class_content):
+                    # Check for shorthand classes in character classes
+                    if class_content[pos + 1] == "s":
+                        additional_symbols.update(WHITESPACE_CHARS)
+                        pos += 2
+                        continue
+                    elif class_content[pos + 1] == "d":
+                        additional_symbols.update(DIGIT_CHARS)
+                        pos += 2
+                        continue
+                    elif class_content[pos + 1] == "w":
+                        additional_symbols.update(WORD_CHARS)
+                        pos += 2
+                        continue
+                    elif class_content[pos + 1] in "S":
+                        additional_symbols.update(NON_WHITESPACE_CHARS)
+                        pos += 2
+                        continue
+                    elif class_content[pos + 1] in "D":
+                        additional_symbols.update(NON_DIGIT_CHARS)
+                        pos += 2
+                        continue
+                    elif class_content[pos + 1] in "W":
+                        additional_symbols.update(NON_WORD_CHARS)
+                        pos += 2
+                        continue
+
                     # Handle escape sequence in character class
                     from automata.regex.parser import _handle_escape_sequences
 
@@ -312,12 +370,19 @@ class NFA(fa.FA):
             # Include all character class symbols and escape sequences
             input_symbols_set.update(class_symbols)
             input_symbols_set.update(escape_chars)
+
+            # Add the shorthand characters
+            input_symbols_set.update(additional_symbols)
+
             final_input_symbols = frozenset(input_symbols_set)
         else:
             # For user-provided input_symbols, we need to update
             # with character class symbols and escape sequences
             final_input_symbols = (
-                frozenset(input_symbols).union(class_symbols).union(escape_chars)
+                frozenset(input_symbols)
+                .union(class_symbols)
+                .union(escape_chars)
+                .union(additional_symbols)
             )
 
         # Build the NFA

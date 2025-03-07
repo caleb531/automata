@@ -539,3 +539,89 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(nfa_with_symbols.accepts_input("a\nb\rc"))
         self.assertTrue(nfa_with_symbols.accepts_input("a\nb\tc"))
         self.assertFalse(nfa_with_symbols.accepts_input("a\nbc"))
+
+    def test_shorthand_character_classes(self) -> None:
+        """Should correctly handle shorthand character classes"""
+
+        # \s - Any whitespace character
+        whitespace_nfa = NFA.from_regex("\\s+")
+        self.assertTrue(whitespace_nfa.accepts_input(" "))
+        self.assertTrue(whitespace_nfa.accepts_input("\t"))
+        self.assertTrue(whitespace_nfa.accepts_input("\n"))
+        self.assertTrue(whitespace_nfa.accepts_input("\r"))
+        self.assertTrue(whitespace_nfa.accepts_input("\f"))  # form feed
+        self.assertTrue(whitespace_nfa.accepts_input(" \t\n"))  # multiple whitespace
+        self.assertFalse(whitespace_nfa.accepts_input("a"))
+        self.assertFalse(whitespace_nfa.accepts_input("1"))
+        self.assertFalse(whitespace_nfa.accepts_input("a "))  # contains non-whitespace
+
+        # \S - Any non-whitespace character
+        non_whitespace_nfa = NFA.from_regex("\\S+")
+        self.assertTrue(non_whitespace_nfa.accepts_input("a"))
+        self.assertTrue(non_whitespace_nfa.accepts_input("1"))
+        self.assertTrue(non_whitespace_nfa.accepts_input("abc123"))
+        self.assertTrue(non_whitespace_nfa.accepts_input("!@#$%^&*()"))
+        self.assertFalse(non_whitespace_nfa.accepts_input(" "))
+        self.assertFalse(non_whitespace_nfa.accepts_input("\t"))
+        self.assertFalse(non_whitespace_nfa.accepts_input("a "))  # contains whitespace
+
+        # \d - Any digit
+        digit_nfa = NFA.from_regex("\\d+")
+        self.assertTrue(digit_nfa.accepts_input("0"))
+        self.assertTrue(digit_nfa.accepts_input("9"))
+        self.assertTrue(digit_nfa.accepts_input("0123456789"))
+        self.assertFalse(digit_nfa.accepts_input("a"))
+        self.assertFalse(digit_nfa.accepts_input("a1"))  # contains non-digit
+
+        # \D - Any non-digit
+        non_digit_nfa = NFA.from_regex("\\D+")
+        self.assertTrue(non_digit_nfa.accepts_input("a"))
+        self.assertTrue(non_digit_nfa.accepts_input("xyz"))
+        self.assertTrue(non_digit_nfa.accepts_input("!@#$%^&*()"))
+        self.assertTrue(non_digit_nfa.accepts_input(" \t\n"))  # whitespace is non-digit
+        self.assertFalse(non_digit_nfa.accepts_input("0"))
+        self.assertFalse(non_digit_nfa.accepts_input("12345"))
+        self.assertFalse(non_digit_nfa.accepts_input("a1"))  # contains digit
+
+        # \w - Any word character (alphanumeric or underscore)
+        word_nfa = NFA.from_regex("\\w+")
+        self.assertTrue(word_nfa.accepts_input("a"))
+        self.assertTrue(word_nfa.accepts_input("Z"))
+        self.assertTrue(word_nfa.accepts_input("0"))
+        self.assertTrue(word_nfa.accepts_input("_"))
+        self.assertTrue(word_nfa.accepts_input("a1_Z"))
+        self.assertFalse(word_nfa.accepts_input("!"))
+        self.assertFalse(word_nfa.accepts_input(" "))
+        self.assertFalse(word_nfa.accepts_input("a!"))  # contains non-word
+
+        # \W - Any non-word character
+        non_word_nfa = NFA.from_regex("\\W+")
+        self.assertTrue(non_word_nfa.accepts_input("!"))
+        self.assertTrue(non_word_nfa.accepts_input("@#$%^&*()"))
+        self.assertTrue(non_word_nfa.accepts_input(" \t\n"))  # whitespace is non-word
+        self.assertFalse(non_word_nfa.accepts_input("a"))
+        self.assertFalse(non_word_nfa.accepts_input("Z"))
+        self.assertFalse(non_word_nfa.accepts_input("0"))
+        self.assertFalse(non_word_nfa.accepts_input("_"))
+        self.assertFalse(non_word_nfa.accepts_input("!a"))  # contains word
+
+        # Combinations
+        mixed_nfa = NFA.from_regex("\\d+\\s+\\w+")
+        self.assertTrue(mixed_nfa.accepts_input("123 abc"))
+        self.assertTrue(mixed_nfa.accepts_input("456\t_7"))
+        self.assertFalse(mixed_nfa.accepts_input("abc 123"))  # wrong order
+        self.assertFalse(mixed_nfa.accepts_input("123abc"))  # missing whitespace
+
+        # Inside character classes
+        class_nfa = NFA.from_regex("[\\d\\s]+")
+        self.assertTrue(class_nfa.accepts_input("123"))
+        self.assertTrue(class_nfa.accepts_input(" \t\n"))
+        self.assertTrue(class_nfa.accepts_input("1 2\t3\n"))
+        self.assertFalse(class_nfa.accepts_input("a"))
+
+        # With other escape sequences
+        complex_nfa = NFA.from_regex("\\w+\\t\\d+\\n")
+        self.assertTrue(complex_nfa.accepts_input("abc\t123\n"))
+        self.assertTrue(complex_nfa.accepts_input("_\t0\n"))
+        self.assertFalse(complex_nfa.accepts_input("abc 123\n"))  # space instead of tab
+        self.assertFalse(complex_nfa.accepts_input("abc\t123"))  # missing newline
