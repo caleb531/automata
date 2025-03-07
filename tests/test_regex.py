@@ -6,7 +6,7 @@ import unittest
 
 import automata.base.exceptions as exceptions
 import automata.regex.regex as re
-from automata.fa.nfa import NFA, RESERVED_CHARACTERS
+from automata.fa.nfa import NFA
 from automata.regex.parser import StringToken, WildcardToken
 
 
@@ -114,13 +114,13 @@ class TestRegex(unittest.TestCase):
         # Test intersection subset
         regex_3 = "bcdaaa"
         nfa_5 = NFA.from_regex(regex_3)
-        nfa_6 = NFA.from_regex(f"({regex_3}) & (bcda*)")
+        nfa_6 = NFA.from_regex(f"({regex_3})&(bcda*)")
 
         self.assertEqual(nfa_5, nfa_6)
 
         # Test distributive law
-        regex_4 = f"{regex_1} & (({regex_2}) | ({regex_3}))"
-        regex_5 = f"(({regex_1}) & ({regex_2})) | (({regex_1}) & ({regex_3}))"
+        regex_4 = f"{regex_1}&(({regex_2})|({regex_3}))"
+        regex_5 = f"(({regex_1})&({regex_2}))|(({regex_1})&({regex_3}))"
         nfa_7 = NFA.from_regex(regex_4)
         nfa_8 = NFA.from_regex(regex_5)
 
@@ -159,7 +159,7 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(
             re.isequal(
                 "ab^cd",
-                "abcd | acbd | cabd | acdb | cadb | cdab",
+                "abcd|acbd|cabd|acdb|cadb|cdab",
                 input_symbols=input_symbols,
             )
         )
@@ -167,10 +167,10 @@ class TestRegex(unittest.TestCase):
             re.isequal("(a*)^(b*)^(c*)^(d*)", ".*", input_symbols=input_symbols)
         )
         self.assertTrue(
-            re.isequal("ca^db", "(c^db)a | (ca^d)b", input_symbols=input_symbols)
+            re.isequal("ca^db", "(c^db)a|(ca^d)b", input_symbols=input_symbols)
         )
         self.assertTrue(
-            re.isequal("a^(b|c)", "ab | ac | ba | ca", input_symbols=input_symbols)
+            re.isequal("a^(b|c)", "ab|ac|ba|ca", input_symbols=input_symbols)
         )
 
         reference_nfa = NFA.from_regex("a*^ba")
@@ -229,10 +229,14 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(re.isequal("a()", "a"))
         self.assertTrue(re.isequal("a()b()()c()", "abc"))
 
-    def test_invalid_symbols(self) -> None:
+    def test_reserved_characters_handled_correctly(self) -> None:
         """Should throw exception if reserved character is in input symbols"""
-        with self.assertRaises(exceptions.InvalidSymbolError):
-            NFA.from_regex("a+", input_symbols={"a", "+"})
+        nfa = NFA.from_regex("a+", input_symbols={"a", "+"})
+        self.assertTrue(nfa.accepts_input("a"))
+        self.assertTrue(nfa.accepts_input("aa"))
+        self.assertFalse(nfa.accepts_input("a+"))
+        self.assertFalse(nfa.accepts_input(""))
+        self.assertFalse(nfa.accepts_input("+"))
 
     def test_character_class(self) -> None:
         """Should correctly handle character classes"""
@@ -344,7 +348,7 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(nfa1.accepts_input("b"))
 
         # One more more complex test with and without input symbols
-        input_symbols = set(string.printable) - RESERVED_CHARACTERS
+        input_symbols = set(string.printable)
         nfa1 = NFA.from_regex("[a-zA-Z0-9._%+-]+", input_symbols=input_symbols)
         self.assertTrue(nfa1.accepts_input("a"))
         self.assertTrue(nfa1.accepts_input("1"))
@@ -381,8 +385,6 @@ class TestRegex(unittest.TestCase):
 
         ascii_chars = set(string.printable)
         input_symbols.update(ascii_chars)
-
-        input_symbols = input_symbols - RESERVED_CHARACTERS
 
         latin_nfa = NFA.from_regex("[¡-ƿ]+", input_symbols=input_symbols)
         greek_nfa = NFA.from_regex("[Ͱ-Ͽ]+", input_symbols=input_symbols)
@@ -437,7 +439,7 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(non_latin_nfa.accepts_input("a¡"))
 
         alphabet = set("abcdefghijklmnopqrstuvwxyz")
-        alphabet = alphabet - RESERVED_CHARACTERS
+        alphabet = alphabet
         safe_input_symbols = input_symbols.union(alphabet)
 
         ascii_range_nfa = NFA.from_regex("[i-p]+", input_symbols=safe_input_symbols)
@@ -625,3 +627,224 @@ class TestRegex(unittest.TestCase):
         self.assertTrue(complex_nfa.accepts_input("_\t0\n"))
         self.assertFalse(complex_nfa.accepts_input("abc 123\n"))  # space instead of tab
         self.assertFalse(complex_nfa.accepts_input("abc\t123"))  # missing newline
+
+    def test_negated_class_with_period(self) -> None:
+        """Test that negated character classes can match the period character"""
+
+        # Create an NFA with a negated character class
+        nfa = NFA.from_regex(r"[.]+.", input_symbols={"a"})
+        self.assertTrue(nfa.accepts_input(".a"))
+        self.assertFalse(nfa.accepts_input("<a"))
+
+        # Create an NFA with a negated character class
+        nfa = NFA.from_regex(r"[^<>]+", input_symbols={"a", "."})
+        self.assertTrue(nfa.accepts_input("."))
+        self.assertTrue(nfa.accepts_input("..."))
+
+        nfa = NFA.from_regex(r"[^<>]+", input_symbols=set(string.printable))
+        # This should match any character except < and >
+        self.assertTrue(nfa.accepts_input("abc"))
+        self.assertTrue(nfa.accepts_input("123"))
+        self.assertTrue(nfa.accepts_input('!@#$%^&*()_+{}|:",./?`~'))
+
+        # These should not match
+        self.assertFalse(nfa.accepts_input("<"))
+        self.assertFalse(nfa.accepts_input(">"))
+        self.assertFalse(nfa.accepts_input("a<b"))  # contains <
+        self.assertFalse(nfa.accepts_input("a>b"))  # contains >
+
+    def test_slash_character(self) -> None:
+        """Should correctly handle the slash character"""
+        nfa = NFA.from_regex(r"/", input_symbols=set(string.printable))
+        self.assertTrue(nfa.accepts_input("/"))
+        self.assertFalse(nfa.accepts_input("a/b"))
+
+    def test_email_like_regexes(self) -> None:
+        """Should correctly handle email-like regexes"""
+        input_symbols = set(string.printable)
+
+        # Pattern for bracketed email content: ">content<something"
+        bracketed_nfa = NFA.from_regex(r">[^<>]+<.*", input_symbols=input_symbols)
+        self.assertTrue(bracketed_nfa.accepts_input(">user@example.com<"))
+        self.assertTrue(bracketed_nfa.accepts_input(">John Doe<john@example.com"))
+        self.assertFalse(bracketed_nfa.accepts_input("user@example.com"))  # missing >
+        self.assertFalse(bracketed_nfa.accepts_input("><"))  # empty content
+
+        # Pattern for "To:" header field
+        to_header_nfa = NFA.from_regex(r"to:[^\r\n]+\r\n", input_symbols=input_symbols)
+        self.assertTrue(to_header_nfa.accepts_input("to:user@example.com\r\n"))
+        self.assertTrue(
+            to_header_nfa.accepts_input(
+                "to:Multiple Recipients <group@example.com>\r\n"
+            )
+        )
+        self.assertFalse(
+            to_header_nfa.accepts_input("to:user@example.com")
+        )  # missing newline
+        self.assertFalse(
+            to_header_nfa.accepts_input("from:user@example.com\r\n")
+        )  # wrong header
+
+        # Pattern for "Subject:" header field
+        subject_nfa = NFA.from_regex(
+            r"\)subject:[^\r\n]+\r\n", input_symbols=input_symbols
+        )
+        self.assertTrue(subject_nfa.accepts_input(")subject:Hello World\r\n"))
+        self.assertTrue(
+            subject_nfa.accepts_input(")subject:Re: Meeting Tomorrow at 10AM\r\n")
+        )
+        self.assertFalse(
+            subject_nfa.accepts_input("subject:Hello World\r\n")
+        )  # missing )
+
+        # Pattern for standard email address
+        email_nfa = NFA.from_regex(
+            r"[A-Za-z0-9!#$%&'*+=?\-\^_`{|}~.\/]+@[A-Za-z0-9.\-@]+",
+            input_symbols=input_symbols,
+        )
+        self.assertTrue(email_nfa.accepts_input("user@example.com"))
+        self.assertTrue(email_nfa.accepts_input("user.name+tag@sub.example-site.co.uk"))
+        self.assertTrue(email_nfa.accepts_input("unusual!#$%&'*character@example.com"))
+        self.assertFalse(email_nfa.accepts_input("@example.com"))  # missing local part
+        self.assertFalse(email_nfa.accepts_input("user@"))  # missing domain
+
+        # Pattern for DKIM signature with Base64 hash
+        dkim_bh_nfa = NFA.from_regex(
+            r"dkim-signature:([a-z]+=[^;]+; )+bh=[a-zA-Z0-9+/=]+;",
+            input_symbols=input_symbols,
+        )
+        self.assertTrue(
+            dkim_bh_nfa.accepts_input(
+                "dkim-signature:v=1; a=rsa-sha256; bh=47DEQpj8HBSa+/TImW+5JCeuQeR;"
+            )
+        )
+        self.assertTrue(
+            dkim_bh_nfa.accepts_input(
+                "dkim-signature:v=1; a=rsa-sha256; d=example.org; bh=base64+/hash=;"
+            )
+        )
+        self.assertFalse(
+            dkim_bh_nfa.accepts_input("dkim-signature:v=1; bh=;")
+        )  # empty hash
+
+        # Pattern for alternative email address format
+        alt_email_nfa = NFA.from_regex(
+            r"[A-Za-z0-9!#$%&'*+=?\-\^_`{|}~.\/@]+@[A-Za-z0-9.\-]+",
+            input_symbols=input_symbols,
+        )
+        self.assertTrue(alt_email_nfa.accepts_input("user@example.com"))
+        self.assertTrue(
+            alt_email_nfa.accepts_input("user/dept@example.com")
+        )  # with slash
+        self.assertFalse(alt_email_nfa.accepts_input("user@"))  # missing domain
+
+        # Pattern for "From:" header field
+        from_header_nfa = NFA.from_regex(
+            r"from:[^\r\n]+\r\n", input_symbols=input_symbols
+        )
+        self.assertTrue(from_header_nfa.accepts_input("from:sender@example.com\r\n"))
+        self.assertTrue(
+            from_header_nfa.accepts_input("from:John Doe <john@example.com>\r\n")
+        )
+        self.assertFalse(
+            from_header_nfa.accepts_input("from:sender@example.com")
+        )  # missing newline
+
+        # Pattern for DKIM signature with timestamp
+        dkim_time_nfa = NFA.from_regex(
+            r"dkim-signature:([a-z]+=[^;]+; )+t=[0-9]+;", input_symbols=input_symbols
+        )
+        self.assertTrue(
+            dkim_time_nfa.accepts_input(
+                "dkim-signature:v=1; a=rsa-sha256; t=1623456789;"
+            )
+        )
+        self.assertTrue(
+            dkim_time_nfa.accepts_input(
+                "dkim-signature:v=1; a=rsa-sha256; s=selector; t=1623456789;"
+            )
+        )
+        self.assertFalse(
+            dkim_time_nfa.accepts_input("dkim-signature:v=1; t=;")
+        )  # empty timestamp
+
+        # Pattern for Message-ID header
+        msgid_nfa = NFA.from_regex(
+            r"message-id:<[A-Za-z0-9=@\.\+_-]+>\r\n", input_symbols=input_symbols
+        )
+        self.assertTrue(msgid_nfa.accepts_input("message-id:<123abc@example.com>\r\n"))
+        self.assertTrue(
+            msgid_nfa.accepts_input("message-id:<msg-123.456@mail.example.co.uk>\r\n")
+        )
+        self.assertFalse(
+            msgid_nfa.accepts_input("message-id:<invalid chars!>\r\n")
+        )  # invalid chars
+        self.assertFalse(
+            msgid_nfa.accepts_input("message-id:<valid@example.com>")
+        )  # missing newline
+
+    def test_repeating_group_with_space(self) -> None:
+        """Test a simpler version of the DKIM signature pattern to isolate the issue"""
+        input_symbols = set(string.printable)
+
+        # Try another variation without the space in the pattern
+        no_space = NFA.from_regex(r"([a-z]+=[^;]+;)+", input_symbols=input_symbols)
+        self.assertTrue(no_space.accepts_input("v=1;"))
+        self.assertTrue(no_space.accepts_input("v=1;a=2;"))
+
+        # Test with explicit space character instead of relying on character class
+        explicit_space = NFA.from_regex(
+            r"([a-z]+=[^;]+; )+", input_symbols=input_symbols
+        )
+        self.assertTrue(explicit_space.accepts_input("v=1; "))
+
+        # Simplified version of the problematic pattern
+        simple_repeat = NFA.from_regex(
+            r"([a-z]+=[^;]+; )+", input_symbols=input_symbols
+        )
+        self.assertTrue(simple_repeat.accepts_input("v=1; "))
+        self.assertTrue(simple_repeat.accepts_input("v=1; a=2; "))
+
+        # Test the full pattern but simplified
+        full_simple = NFA.from_regex(
+            r"header:([a-z]+=[^;]+; )+value;", input_symbols=input_symbols
+        )
+        self.assertTrue(full_simple.accepts_input("header:v=1; value;"))
+        self.assertTrue(full_simple.accepts_input("header:v=1; a=2; value;"))
+
+    def test_space_in_patterns(self) -> None:
+        """Test different patterns with spaces to isolate the issue"""
+        input_symbols = set(string.printable)
+
+        # Test 1: Basic pattern with space at the end
+        basic = NFA.from_regex(r"a ", input_symbols=input_symbols)
+        self.assertTrue(basic.accepts_input("a "))
+
+        # Test 2: Character class with space
+        with_class = NFA.from_regex(r"a[b ]", input_symbols=input_symbols)
+        self.assertTrue(with_class.accepts_input("a "))
+        self.assertTrue(with_class.accepts_input("ab"))
+
+        # Test 3: Simple repetition with space
+        simple_repeat = NFA.from_regex(r"(a )+", input_symbols=input_symbols)
+        self.assertTrue(simple_repeat.accepts_input("a "))
+        self.assertTrue(simple_repeat.accepts_input("a a "))
+
+        # Test 4: Specific repeating pattern without the semicolon
+        no_semicolon = NFA.from_regex(r"([a-z]+=. )+", input_symbols=input_symbols)
+        self.assertTrue(no_semicolon.accepts_input("v=1 "))
+        self.assertTrue(no_semicolon.accepts_input("v=1 a=2 "))
+
+        # Test 5: With semicolon but space before
+        space_before = NFA.from_regex(r"([a-z]+=[^;]+ ;)+", input_symbols=input_symbols)
+        self.assertTrue(space_before.accepts_input("v=1 ;"))
+        self.assertTrue(space_before.accepts_input("v=1 ;a=2 ;"))
+
+        # Test 6: Space as part of negated class
+        space_in_neg = NFA.from_regex(r"([a-z]+=[^; ]+;)+", input_symbols=input_symbols)
+        self.assertTrue(space_in_neg.accepts_input("v=1;"))
+
+        # Test 7: Bare minimum to reproduce
+        minimal = NFA.from_regex(r"(a; )+", input_symbols=input_symbols)
+        self.assertTrue(minimal.accepts_input("a; "))
+        self.assertTrue(minimal.accepts_input("a; a; "))
