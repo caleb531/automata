@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import re
+import string
 from collections import deque
 from itertools import chain, count, product, repeat
 from typing import AbstractSet, Deque, Dict, Iterable, List, Optional, Set, Tuple, Type
@@ -23,6 +24,17 @@ from automata.regex.postfix import (
     tokens_to_postfix,
     validate_tokens,
 )
+
+# Add these at the top of the file to define our shorthand character sets
+ASCII_PRINTABLE_CHARS = frozenset(string.printable)
+WHITESPACE_CHARS = frozenset(" \t\n\r\f\v")
+NON_WHITESPACE_CHARS = ASCII_PRINTABLE_CHARS - WHITESPACE_CHARS
+DIGIT_CHARS = frozenset("0123456789")
+NON_DIGIT_CHARS = ASCII_PRINTABLE_CHARS - DIGIT_CHARS
+WORD_CHARS = frozenset(
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+)
+NON_WORD_CHARS = ASCII_PRINTABLE_CHARS - WORD_CHARS
 
 BuilderTransitionsT = Dict[int, Dict[str, Set[int]]]
 
@@ -638,13 +650,7 @@ def get_regex_lexer(
     """Get lexer for parsing regular expressions."""
     lexer: Lexer[NFARegexBuilder] = Lexer()
 
-    # Process the input string first to handle escape sequences
-    def process_string_factory(match: re.Match) -> StringToken:
-        text = match.group()
-        if text.startswith("\\") and len(text) > 1:
-            return StringToken(_handle_escape_sequences(text[1]), state_name_counter)
-        return StringToken(text, state_name_counter)
-
+    # Register all token types
     lexer.register_token(LeftParen.from_match, r"\(")
     lexer.register_token(RightParen.from_match, r"\)")
     lexer.register_token(UnionToken.from_match, r"\|")
@@ -653,13 +659,50 @@ def get_regex_lexer(
     lexer.register_token(KleeneStarToken.from_match, r"\*")
     lexer.register_token(KleenePlusToken.from_match, r"\+")
     lexer.register_token(OptionToken.from_match, r"\?")
-    # Match both {n}, {n,m}, and {,m} formats for quantifiers
     lexer.register_token(QuantifierToken.from_match, r"\{(-?\d*)(?:,(-?\d*))?\}")
     lexer.register_token(
         lambda match: WildcardToken(match.group(), input_symbols, state_name_counter),
         r"\.",
     )
 
+    # Add specific handlers for shorthand character classes
+    # These need to come BEFORE the general escape handler
+    lexer.register_token(
+        lambda match: WildcardToken(
+            match.group(), WHITESPACE_CHARS, state_name_counter
+        ),
+        r"\\s",
+    )
+    lexer.register_token(
+        lambda match: WildcardToken(
+            match.group(),
+            frozenset(input_symbols) - WHITESPACE_CHARS,
+            state_name_counter,
+        ),
+        r"\\S",
+    )
+    lexer.register_token(
+        lambda match: WildcardToken(match.group(), DIGIT_CHARS, state_name_counter),
+        r"\\d",
+    )
+    lexer.register_token(
+        lambda match: WildcardToken(
+            match.group(), frozenset(input_symbols) - DIGIT_CHARS, state_name_counter
+        ),
+        r"\\D",
+    )
+    lexer.register_token(
+        lambda match: WildcardToken(match.group(), WORD_CHARS, state_name_counter),
+        r"\\w",
+    )
+    lexer.register_token(
+        lambda match: WildcardToken(
+            match.group(), frozenset(input_symbols) - WORD_CHARS, state_name_counter
+        ),
+        r"\\W",
+    )
+
+    # Character class tokenizer
     def character_class_factory(match: re.Match) -> CharacterClassToken:
         class_str = match.group()
         negated, class_chars = process_char_class(class_str)
@@ -672,11 +715,15 @@ def get_regex_lexer(
         r"\[[^\]]*\]",  # Match anything between [ and ]
     )
 
-    # Handle escaped sequences first - must come before general character match
+    # Handle escaped sequences (must come AFTER shorthand handlers)
     lexer.register_token(
-        process_string_factory,
-        r"\\.",
+        lambda match: StringToken(
+            _handle_escape_sequences(match.group()[1]), state_name_counter
+        ),
+        r"\\.",  # Match any escaped character
     )
+
+    # Handle regular characters
     lexer.register_token(
         lambda match: StringToken(match.group(), state_name_counter), r"\S"
     )
@@ -767,11 +814,29 @@ def process_char_class(class_str: str) -> Tuple[bool, Set[str]]:
     while i < len(content):
         # Handle escape sequences
         if content[i] == "\\" and i + 1 < len(content):
+            # Check for shorthand character classes
+            if content[i + 1] == "s":
+                chars.update(WHITESPACE_CHARS)
+                i += 2
+                continue
+            elif content[i + 1] == "d":
+                chars.update(DIGIT_CHARS)
+                i += 2
+                continue
+            elif content[i + 1] == "w":
+                chars.update(WORD_CHARS)
+                i += 2
+                continue
+
+            # Process regular escape sequence
             escaped_char = _handle_escape_sequences(content[i + 1])
 
+            # Check if this is part of a range
             if i + 2 < len(content) and content[i + 2] == "-" and i + 3 < len(content):
+                # Handle range with escaped start character
                 start_char = escaped_char
 
+                # Check if end character is also escaped
                 if content[i + 3] == "\\" and i + 4 < len(content):
                     end_char = _handle_escape_sequences(content[i + 4])
                     i += 5
@@ -779,29 +844,30 @@ def process_char_class(class_str: str) -> Tuple[bool, Set[str]]:
                     end_char = content[i + 3]
                     i += 4
 
+                # Add all characters in the range
                 for code in range(ord(start_char), ord(end_char) + 1):
                     chars.add(chr(code))
             else:
                 chars.add(escaped_char)
                 i += 2
-        # Special case: - at the beginning or end is treated as literal
+        # Handle hyphen at the beginning or end
         elif content[i] == "-" and (i == 0 or i == len(content) - 1):
             chars.add("-")
             i += 1
-        # Handle ranges - but only when there are characters on both sides
+        # Handle ranges
         elif i + 2 < len(content) and content[i + 1] == "-":
             # Check if end is an escape sequence
             if content[i + 2] == "\\" and i + 3 < len(content):
                 start_char = content[i]
                 end_char = _handle_escape_sequences(content[i + 3])
-                # Add all characters in the range
+
                 for code in range(ord(start_char), ord(end_char) + 1):
                     chars.add(chr(code))
                 i += 4
             else:
-                # Regular range like a-z
+                # Regular range
                 start_char, end_char = content[i], content[i + 2]
-                # Add all characters in the range
+
                 for code in range(ord(start_char), ord(end_char) + 1):
                     chars.add(chr(code))
                 i += 3
