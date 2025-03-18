@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from collections import deque
+from dataclasses import dataclass
 from itertools import chain, count, product, repeat
+from operator import itemgetter
 from typing import (
     AbstractSet,
     Any,
@@ -30,6 +32,9 @@ import automata.fa.dfa as dfa
 import automata.fa.fa as fa
 from automata.base.utils import get_reachable_nodes
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
+
+if fa._visual_imports:
+    from automata.base.animation import Animate, ManimInput
 
 NFAStateT = fa.FAStateT
 
@@ -1275,3 +1280,144 @@ class NFA(fa.FA):
                     )
 
         return last_non_accepting_input, False
+
+    def animate_reading_input(self, input_str: str, preview: bool = False) -> None:
+        if not fa._visual_imports:
+            raise ImportError(
+                "Missing visualization packages; "
+                "please install pygraphviz, coloraide, and manim."
+            )
+        NFAAnimation(self, input_str).render(preview)
+
+
+if fa._visual_imports:
+
+    @dataclass
+    class NFAAnimation(fa.FAAnimation):
+        """
+        The `NFAAnimation` class is the class to generate the animation of a NFA identifying
+        an input string.
+
+        To generate the animation, use `DFAAnimation.render`, which will call the `setup`
+        method inherited from `FAAnimation` and the `construct` method.
+
+        Parameters
+        ----------
+        nfa : NFA
+            The NFA object.
+        input_str : str
+            The string to identify.
+        fa_graph : FAGraph
+            The graph of the `dfa`.
+        fa_input : FAInput
+            The element in animation to show the current symbol of the `input_str`.
+        """
+
+        nfa: NFA
+        input_str: str
+
+        def __init__(self, nfa: NFA, input_str: str, **kwargs: Any) -> None:
+            """
+            Parameters
+            ----------
+            dfa : NFA
+                `self.nfa`
+            input_str : str
+                `self.input_str`
+            **kwargs
+                The arguments for the `Scene`. Better to keep the default.
+            """
+            super().__init__(**kwargs)
+            self.nfa = nfa
+            self.fa_graph = fa.FAGraph(nfa)
+            self.input_str = input_str
+            self.fa_input = ManimInput(self.input_str)
+
+        def construct(self) -> None:
+            """Construct the animation of `self.nfa` identifying `self.input_str`."""
+            self.play(Animate.highlight(self.fa_graph[None, self.nfa.initial_state]))
+            self.play(
+                Animate.to_default_color(self.fa_graph[None]),
+                Animate.highlight(self.fa_graph[self.nfa.initial_state]),
+            )
+            current_transitions: tuple[tuple[Optional[NFAStateT], NFAStateT], ...] = (
+                (None, self.nfa.initial_state),
+            )
+            current_states = {self.nfa.initial_state}
+
+            def add_lambda_transitions() -> Iterable[tuple[NFAStateT, NFAStateT]]:
+                """
+                Add states reachable with lambda transitions into `current_states` and
+
+                Returns
+                -------
+                Iterable[tuple[NFAStateT, NFAStateT]]
+                    The lambda transitions that can reach new states from one of
+                    `current_states`.
+                """
+                states_queue = deque(current_states)
+                while states_queue:
+                    state = states_queue.popleft()
+                    if next_states := self.nfa.transitions[state].get(""):
+                        for next_state in next_states:
+                            if next_state not in current_states:
+                                current_states.add(next_state)
+                                states_queue.append(next_state)
+                                yield (state, next_state)
+
+            if lambda_transitions := tuple(add_lambda_transitions()):
+                self.play(
+                    *self.fa_graph.change_transitions(
+                        current_transitions, lambda_transitions
+                    ),
+                    *self.fa_graph.highlight_states(
+                        map(itemgetter(1), lambda_transitions)
+                    ),
+                )
+                current_transitions = lambda_transitions
+            self.wait()
+            for input_index in range(len(self.input_str)):
+                new_transitions = tuple(
+                    (current_state, next_state)
+                    for current_state in current_states
+                    if (
+                        next_states := self.nfa.transitions[current_state].get(
+                            self.input_str[input_index]
+                        )
+                    )
+                    for next_state in next_states
+                )
+                new_states = set(map(itemgetter(1), new_transitions))
+                new_states = set(transition[1] for transition in new_transitions)
+                self.play(
+                    *self.fa_graph.change_transitions(
+                        current_transitions, new_transitions
+                    ),
+                    *self.fa_input.change_symbol(input_index),
+                )
+                current_transitions = new_transitions
+                self.play(*self.fa_graph.change_states(current_states, new_states))
+                self.wait()
+                current_states = new_states
+                if not current_states:
+                    break
+                if lambda_transitions := tuple(add_lambda_transitions()):
+                    self.play(
+                        *self.fa_graph.change_transitions(
+                            current_transitions, lambda_transitions
+                        ),
+                        *self.fa_graph.highlight_states(
+                            map(itemgetter(1), lambda_transitions)
+                        ),
+                    )
+                    self.wait()
+                    current_transitions = lambda_transitions
+            self.play(
+                *self.clean(current_transitions, input_index),
+                self.fa_input.show_result(
+                    any(
+                        current_state in self.nfa.final_states
+                        for current_state in current_states
+                    )
+                ),
+            )

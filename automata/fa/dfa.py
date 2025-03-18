@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import array
 from collections import defaultdict, deque
+from dataclasses import dataclass
 from itertools import chain, count
 from random import Random
 from typing import (
@@ -38,6 +39,9 @@ from automata.base.utils import (
     get_renaming_function,
     pairwise,
 )
+
+if fa._visual_imports:
+    from automata.base.animation import ManimInput
 
 DFAStateT = fa.FAStateT
 
@@ -521,6 +525,15 @@ class DFA(fa.FA):
 
         if not ignore_rejection:
             self._check_for_input_rejection(current_state)
+
+    def animate_reading_input(self, input_str: str, preview: bool = False) -> None:
+        """Render the process of reading input stepwise."""
+        if not fa._visual_imports:
+            raise ImportError(
+                "Missing visualization packages; "
+                "please install pygraphviz, coloraide, and manim."
+            )
+        DFAAnimation(self, input_str).render(preview)
 
     @cached_method
     def _get_digraph(self) -> nx.DiGraph:
@@ -2536,3 +2549,83 @@ class DFA(fa.FA):
         accepted = last_state in self.final_states
 
         return path, accepted
+
+
+if fa._visual_imports:
+
+    @dataclass
+    class DFAAnimation(fa.FAAnimation):
+        """
+        The `DFAAnimation` class is the class to generate the animation of a DFA
+        identifying an input string.
+
+        To generate the animation, use `DFAAnimation.render`, which will call the
+        `setup` method inherited from `FAAnimation` and the `construct` method.
+
+        Parameters
+        ----------
+        dfa : DFA
+            The DFA object.
+        input_str : str
+            The string to identify.
+        fa_graph : FAGraph
+            The graph of the `dfa`.
+        fa_input : FAInput
+            The element in animation to show the current symbol of the `input_str`.
+        """
+
+        dfa: DFA
+        input_str: str
+
+        def __init__(self, dfa: DFA, input_str: str, **kwargs: Any) -> None:
+            """
+            Parameters
+            ----------
+            dfa : DFA
+                `self.dfa`
+            input_str : str
+                `self.input_str`
+            **kwargs
+                The arguments for the `Scene`. Better to keep the default.
+            """
+            super().__init__(**kwargs)
+            self.dfa = dfa
+            self.fa_graph = fa.FAGraph(self.dfa)
+            self.input_str = input_str
+            self.fa_input = ManimInput(self.input_str)
+
+        def construct(self) -> None:
+            """Construct the animation of `self.dfa` identifying `self.input_str`."""
+            states_queue: deque[Optional[DFAStateT]] = deque(maxlen=3)
+            states_queue.append(None)
+            try:
+                for symbol_index, next_state in enumerate(
+                    self.dfa.read_input_stepwise(self.input_str), start=-1
+                ):
+                    states_queue.append(next_state)
+                    self.play(
+                        *self.fa_graph.change_transitions(
+                            (
+                                ((states_queue[0], states_queue[1]),)
+                                if len(states_queue) >= 3
+                                else ()
+                            ),
+                            ((states_queue[-2], states_queue[-1]),),
+                        ),
+                        *self.fa_input.change_symbol(symbol_index),
+                    )
+                    self.play(
+                        *self.fa_graph.change_states(
+                            (states_queue[-2],), (states_queue[-1],)
+                        )
+                    )
+                    self.wait()
+                    if next_state is None:
+                        raise exceptions.RejectionException
+                accepts_input = True
+            except exceptions.RejectionException:
+                accepts_input = False
+            self.play(
+                *self.clean(((states_queue[-2], states_queue[-1]),), symbol_index),
+                self.fa_input.show_result(accepts_input),
+            )
