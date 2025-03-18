@@ -41,7 +41,9 @@ from automata.base.utils import (
 )
 
 if fa._visual_imports:
-    from automata.base.animation import ManimInput
+    import manim
+
+    from automata.base.animation import Animate, _ManimInput
 
 DFAStateT = fa.FAStateT
 
@@ -527,13 +529,23 @@ class DFA(fa.FA):
             self._check_for_input_rejection(current_state)
 
     def animate_reading_input(self, input_str: str, preview: bool = False) -> None:
-        """Render the process of reading input stepwise."""
+        """
+        Render the animation of the DFA reading the input string stepwise and save the
+        animation in the media/ folder.
+
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+        preview : bool, default: False
+            If true, opens scene in a file viewer.
+        """
         if not fa._visual_imports:
             raise ImportError(
                 "Missing visualization packages; "
                 "please install pygraphviz, coloraide, and manim."
             )
-        DFAAnimation(self, input_str).render(preview)
+        _DFAAnimation(self, input_str).render(preview)
 
     @cached_method
     def _get_digraph(self) -> nx.DiGraph:
@@ -2553,14 +2565,14 @@ class DFA(fa.FA):
 
 if fa._visual_imports:
 
-    @dataclass
-    class DFAAnimation(fa.FAAnimation):
+    @dataclass(eq=False)
+    class _DFAAnimation(manim.Scene):
         """
-        The `DFAAnimation` class is the class to generate the animation of a DFA
+        The `_DFAAnimation` class is the class to generate the animation of a DFA
         identifying an input string.
 
-        To generate the animation, use `DFAAnimation.render`, which will call the
-        `setup` method inherited from `FAAnimation` and the `construct` method.
+        To generate the animation, use `_DFAAnimation.render`, which will call the
+        `setup` method and the `construct` method.
 
         Parameters
         ----------
@@ -2568,14 +2580,16 @@ if fa._visual_imports:
             The DFA object.
         input_str : str
             The string to identify.
-        fa_graph : FAGraph
-            The graph of the `dfa`.
-        fa_input : FAInput
+        dfa_graph : _FAGraph
+            The graph of the DFA.
+        input_symbols : _ManimInput
             The element in animation to show the current symbol of the `input_str`.
         """
 
         dfa: DFA
         input_str: str
+        dfa_graph: fa._FAGraph
+        input_symbols: _ManimInput
 
         def __init__(self, dfa: DFA, input_str: str, **kwargs: Any) -> None:
             """
@@ -2590,9 +2604,15 @@ if fa._visual_imports:
             """
             super().__init__(**kwargs)
             self.dfa = dfa
-            self.fa_graph = fa.FAGraph(self.dfa)
+            self.dfa_graph = fa._FAGraph(self.dfa)
             self.input_str = input_str
-            self.fa_input = ManimInput(self.input_str)
+            self.input_symbols = _ManimInput(self.input_str)
+
+        def setup(self) -> None:
+            """Put the diagram and the input string on the screen."""
+            self.add(self.dfa_graph)
+            self.add(self.input_symbols)
+            self.dfa_graph[None].set_color(Animate.HIGHLIGHT_COLOR)
 
         def construct(self) -> None:
             """Construct the animation of `self.dfa` identifying `self.input_str`."""
@@ -2604,7 +2624,7 @@ if fa._visual_imports:
                 ):
                     states_queue.append(next_state)
                     self.play(
-                        *self.fa_graph.change_transitions(
+                        *self.dfa_graph.change_transitions(
                             (
                                 ((states_queue[0], states_queue[1]),)
                                 if len(states_queue) >= 3
@@ -2612,10 +2632,10 @@ if fa._visual_imports:
                             ),
                             ((states_queue[-2], states_queue[-1]),),
                         ),
-                        *self.fa_input.change_symbol(symbol_index),
+                        *self.input_symbols.change_symbol(symbol_index),
                     )
                     self.play(
-                        *self.fa_graph.change_states(
+                        *self.dfa_graph.change_states(
                             (states_queue[-2],), (states_queue[-1],)
                         )
                     )
@@ -2626,6 +2646,7 @@ if fa._visual_imports:
             except exceptions.RejectionException:
                 accepts_input = False
             self.play(
-                *self.clean(((states_queue[-2], states_queue[-1]),), symbol_index),
-                self.fa_input.show_result(accepts_input),
+                *self.dfa_graph.clean(((states_queue[-2], states_queue[-1]),)),
+                *self.input_symbols.clean(symbol_index),
+                self.input_symbols.show_result(accepts_input),
             )
