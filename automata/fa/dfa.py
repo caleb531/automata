@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import array
 from collections import defaultdict, deque
-from dataclasses import dataclass
 from itertools import chain, count
 from random import Random
 from typing import (
@@ -41,10 +40,7 @@ from automata.base.utils import (
 )
 
 if fa._visual_imports:
-    import manim
-
-    from automata.base.animation import Animate, _ManimInput
-
+    from automata.fa.animation import _DFAAnimation
 DFAStateT = fa.FAStateT
 
 DFASymbolT = str
@@ -2561,92 +2557,3 @@ class DFA(fa.FA):
         accepted = last_state in self.final_states
 
         return path, accepted
-
-
-if fa._visual_imports:
-
-    @dataclass(eq=False)
-    class _DFAAnimation(manim.Scene):
-        """
-        The `_DFAAnimation` class is the class to generate the animation of a DFA
-        identifying an input string.
-
-        To generate the animation, use `_DFAAnimation.render`, which will call the
-        `setup` method and the `construct` method.
-
-        Parameters
-        ----------
-        dfa : DFA
-            The DFA object.
-        input_str : str
-            The string to identify.
-        dfa_graph : _FAGraph
-            The graph of the DFA.
-        input_symbols : _ManimInput
-            The element in animation to show the current symbol of the `input_str`.
-        """
-
-        dfa: DFA
-        input_str: str
-        dfa_graph: fa._FAGraph
-        input_symbols: _ManimInput
-
-        def __init__(self, dfa: DFA, input_str: str, **kwargs: Any) -> None:
-            """
-            Parameters
-            ----------
-            dfa : DFA
-                `self.dfa`
-            input_str : str
-                `self.input_str`
-            **kwargs
-                The arguments for the `Scene`. Better to keep the default.
-            """
-            super().__init__(**kwargs)
-            self.dfa = dfa
-            self.dfa_graph = fa._FAGraph(self.dfa)
-            self.input_str = input_str
-            self.input_symbols = _ManimInput(self.input_str)
-
-        def setup(self) -> None:
-            """Put the diagram and the input string on the screen."""
-            self.add(self.dfa_graph)
-            self.add(self.input_symbols)
-            self.dfa_graph[None].set_color(Animate.HIGHLIGHT_COLOR)
-
-        def construct(self) -> None:
-            """Construct the animation of `self.dfa` identifying `self.input_str`."""
-            states_queue: deque[Optional[DFAStateT]] = deque(maxlen=3)
-            states_queue.append(None)
-            try:
-                for symbol_index, next_state in enumerate(
-                    self.dfa.read_input_stepwise(self.input_str), start=-1
-                ):
-                    states_queue.append(next_state)
-                    self.play(
-                        *self.dfa_graph.change_transitions(
-                            (
-                                ((states_queue[0], states_queue[1]),)
-                                if len(states_queue) >= 3
-                                else ()
-                            ),
-                            ((states_queue[-2], states_queue[-1]),),
-                        ),
-                        *self.input_symbols.change_symbol(symbol_index),
-                    )
-                    self.play(
-                        *self.dfa_graph.change_states(
-                            (states_queue[-2],), (states_queue[-1],)
-                        )
-                    )
-                    self.wait()
-                    if next_state is None:
-                        raise exceptions.RejectionException
-                accepts_input = True
-            except exceptions.RejectionException:
-                accepts_input = False
-            self.play(
-                *self.dfa_graph.clean(((states_queue[-2], states_queue[-1]),)),
-                *self.input_symbols.clean(symbol_index),
-                self.input_symbols.show_result(accepts_input),
-            )

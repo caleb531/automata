@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 from collections import deque
-from dataclasses import dataclass
 from itertools import chain, count, product, repeat
-from operator import itemgetter
 from typing import (
     AbstractSet,
     Any,
@@ -34,9 +32,7 @@ from automata.base.utils import get_reachable_nodes
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
 
 if fa._visual_imports:
-    import manim
-
-    from automata.base.animation import Animate, _ManimInput
+    from automata.fa.animation import _NFAAnimation
 
 NFAStateT = fa.FAStateT
 
@@ -1301,147 +1297,3 @@ class NFA(fa.FA):
                 "please install pygraphviz, coloraide, and manim."
             )
         _NFAAnimation(self, input_str).render(preview)
-
-
-if fa._visual_imports:
-
-    @dataclass(eq=False)
-    class _NFAAnimation(manim.Scene):
-        """
-        The `_NFAAnimation` class is the class to generate the animation of a NFA
-        identifying an input string.
-
-        To generate the animation, use `_NFAAnimation.render`, which will call the
-        `setup` method and the `construct` method.
-
-        Parameters
-        ----------
-        nfa : NFA
-            The NFA object.
-        input_str : str
-            The string to identify.
-        nfa_graph : _FAGraph
-            The graph of the NFA.
-        input_symbols : _ManimInput
-            The element in animation to show the current symbol of the `input_str`.
-        """
-
-        nfa: NFA
-        input_str: str
-        nfa_graph: fa._FAGraph
-        input_symbols: _ManimInput
-
-        def __init__(self, nfa: NFA, input_str: str, **kwargs: Any) -> None:
-            """
-            Parameters
-            ----------
-            dfa : NFA
-                `self.nfa`
-            input_str : str
-                `self.input_str`
-            **kwargs
-                The arguments for the `Scene`. Better to keep the default.
-            """
-            super().__init__(**kwargs)
-            self.nfa = nfa
-            self.nfa_graph = fa._FAGraph(nfa)
-            self.input_str = input_str
-            self.input_symbols = _ManimInput(self.input_str)
-
-        def setup(self) -> None:
-            """Put the diagram and the input string on the screen."""
-            self.add(self.nfa_graph)
-            self.add(self.input_symbols)
-            self.nfa_graph[None].set_color(Animate.HIGHLIGHT_COLOR)
-
-        def construct(self) -> None:
-            """Construct the animation of `self.nfa` identifying `self.input_str`."""
-            self.play(Animate.highlight(self.nfa_graph[None, self.nfa.initial_state]))
-            self.play(
-                Animate.to_default_color(self.nfa_graph[None]),
-                Animate.highlight(self.nfa_graph[self.nfa.initial_state]),
-            )
-            current_transitions: tuple[tuple[Optional[NFAStateT], NFAStateT], ...] = (
-                (None, self.nfa.initial_state),
-            )
-            current_states = {self.nfa.initial_state}
-
-            def add_lambda_transitions() -> Iterable[tuple[NFAStateT, NFAStateT]]:
-                """
-                Add states reachable with lambda transitions into `current_states` and
-
-                Returns
-                -------
-                Iterable[tuple[NFAStateT, NFAStateT]]
-                    The lambda transitions that can reach new states from one of
-                    `current_states`.
-                """
-                states_queue = deque(current_states)
-                while states_queue:
-                    state = states_queue.popleft()
-                    if next_states := self.nfa.transitions[state].get(""):
-                        for next_state in next_states:
-                            if next_state not in current_states:
-                                current_states.add(next_state)
-                                states_queue.append(next_state)
-                                yield (state, next_state)
-
-            if lambda_transitions := tuple(add_lambda_transitions()):
-                self.play(
-                    *self.nfa_graph.change_transitions(
-                        current_transitions, lambda_transitions
-                    ),
-                    *self.nfa_graph.highlight_states(
-                        map(itemgetter(1), lambda_transitions)
-                    ),
-                )
-                current_transitions = lambda_transitions
-            self.wait()
-            input_index = 0
-            while input_index < len(self.input_str):
-                new_transitions = tuple(
-                    (current_state, next_state)
-                    for current_state in current_states
-                    if (
-                        next_states := self.nfa.transitions[current_state].get(
-                            self.input_str[input_index]
-                        )
-                    )
-                    for next_state in next_states
-                )
-                new_states = set(map(itemgetter(1), new_transitions))
-                new_states = set(transition[1] for transition in new_transitions)
-                self.play(
-                    *self.nfa_graph.change_transitions(
-                        current_transitions, new_transitions
-                    ),
-                    *self.input_symbols.change_symbol(input_index),
-                )
-                current_transitions = new_transitions
-                self.play(*self.nfa_graph.change_states(current_states, new_states))
-                self.wait()
-                current_states = new_states
-                if not current_states:
-                    break
-                if lambda_transitions := tuple(add_lambda_transitions()):
-                    self.play(
-                        *self.nfa_graph.change_transitions(
-                            current_transitions, lambda_transitions
-                        ),
-                        *self.nfa_graph.highlight_states(
-                            map(itemgetter(1), lambda_transitions)
-                        ),
-                    )
-                    self.wait()
-                    current_transitions = lambda_transitions
-                input_index += 1
-            self.play(
-                *self.nfa_graph.clean(current_transitions),
-                *self.input_symbols.clean(input_index),
-                self.input_symbols.show_result(
-                    any(
-                        current_state in self.nfa.final_states
-                        for current_state in current_states
-                    )
-                ),
-            )
