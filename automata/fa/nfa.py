@@ -28,10 +28,10 @@ from typing_extensions import Self, TypeAlias
 import automata.base.exceptions as exceptions
 import automata.fa.dfa as dfa
 import automata.fa.fa as fa
-from automata.base.utils import get_reachable_nodes
+from automata.base.utils import _missing_animation_imports, get_reachable_nodes
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
 
-if fa._visual_imports:
+if not _missing_animation_imports:
     from automata.fa.animation import _NFAAnimation
 
 NFAStateT = fa.FAStateT
@@ -1291,9 +1291,6 @@ class NFA(fa.FA):
         preview : bool, default: False
             If true, opens scene in a file viewer.
         """
-        if not fa._visual_imports:
-            raise ImportError(
-                "Missing visualization packages; "
-                "please install pygraphviz, coloraide, and manim."
-            )
+        if _missing_animation_imports:
+            raise _missing_animation_imports
         _NFAAnimation(self, input_str).render(preview)

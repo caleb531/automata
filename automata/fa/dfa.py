@@ -34,12 +34,13 @@ import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 from automata.base.utils import (
     PartitionRefinement,
+    _missing_animation_imports,
     get_reachable_nodes,
     get_renaming_function,
     pairwise,
 )
 
-if fa._visual_imports:
+if not _missing_animation_imports:
     from automata.fa.animation import _DFAAnimation
 DFAStateT = fa.FAStateT
 
@@ -536,11 +537,8 @@ class DFA(fa.FA):
         preview : bool, default: False
             If true, opens scene in a file viewer.
         """
-        if not fa._visual_imports:
-            raise ImportError(
-                "Missing visualization packages; "
-                "please install pygraphviz, coloraide, and manim."
-            )
+        if _missing_animation_imports:
+            raise _missing_animation_imports
         _DFAAnimation(self, input_str).render(preview)
 
     @cached_method

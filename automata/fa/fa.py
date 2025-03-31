@@ -10,20 +10,16 @@ from typing import Any, Dict, Generator, List, Optional, Set, Tuple, Union
 from automata.base.automaton import Automaton, AutomatonStateT
 from automata.base.utils import (
     LayoutMethod,
+    _missing_visual_imports,
     create_graph,
     create_unique_random_id,
     save_graph,
 )
 
 # Optional imports for use with visual functionality
-try:
+if not _missing_visual_imports:
     import coloraide
     import pygraphviz as pgv
-except ImportError:
-    _visual_imports = False
-else:
-    _visual_imports = True
-
 
 FAStateT = AutomatonStateT
 
@@ -95,11 +91,8 @@ class FA(Automaton, metaclass=abc.ABCMeta):
             A diagram of the given automaton.
         """
 
-        if not _visual_imports:
-            raise ImportError(
-                "Missing visualization packages; "
-                "please install coloraide and pygraphviz."
-            )
+        if _missing_visual_imports:
+            raise _missing_visual_imports
 
         # Defining the graph.
         graph = create_graph(
