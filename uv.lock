@@ -27,11 +27,13 @@ visual = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "cached-method" },
+    { name = "coloraide" },
     { name = "coverage" },
     { name = "mypy" },
     { name = "mypy-extensions" },
     { name = "nose2" },
+    { name = "pygraphviz", version = "1.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "pygraphviz", version = "1.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "ruff" },
     { name = "types-frozendict" },
 ]
@@ -56,11 +58,12 @@ provides-extras = ["visual"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "cached-method", specifier = "==0.1.0" },
+    { name = "coloraide", specifier = ">=1.8.2" },
     { name = "coverage", specifier = "==7.4.1" },
     { name = "mypy", specifier = "==1.8.0" },
     { name = "mypy-extensions", specifier = "==1.0.0" },
     { name = "nose2", specifier = "==0.14.1" },
+    { name = "pygraphviz", specifier = ">=1.10" },
     { name = "ruff", specifier = "==0.11.2" },
     { name = "types-frozendict", specifier = "==2.0.9" },
 ]
@@ -329,7 +332,7 @@ name = "importlib-metadata"
 version = "8.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp" },
+    { name = "zipp", marker = "python_full_version < '3.10'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/33/08/c1395a292bb23fd03bdf572a1357c5a733d3eecbab877641ceacab23db6e/importlib_metadata-8.6.1.tar.gz", hash = "sha256:310b41d755445d74569f993ccfc22838295d9fe005425094fad953d7f15c8580", size = 55767 }
 wheels = [
