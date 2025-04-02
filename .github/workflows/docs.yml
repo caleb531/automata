@@ -11,13 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Check lockfile
+        run: uv lock --check
+
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
       - uses: actions/cache@v3
         with:
@@ -25,5 +30,5 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install -r requirements.docs.txt
-      - run: mkdocs gh-deploy --force
+      - run: uv install --group docs
+      - run: uv run mkdocs gh-deploy --force
