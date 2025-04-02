@@ -58,11 +58,12 @@ build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
-    "cached_method==0.1.0",
+    "coloraide>=1.8.2",
     "coverage==7.4.1",
     "mypy==1.8.0",
     "mypy-extensions==1.0.0",
     "nose2==0.14.1",
+    "pygraphviz>=1.10",
     "ruff==0.11.2",
     "types-frozendict==2.0.9",
 ]

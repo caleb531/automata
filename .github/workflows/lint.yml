@@ -27,16 +27,13 @@ jobs:
       - name: Check lockfile
         run: uv lock --check
 
-      - name: Set Python version
-        run: uv venv --python ${{ matrix.python-version }}
-
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
 
       - name: Run mypy
-        run: uv run mypy automata/**/*.py tests/*.py
+        run: uv run --python ${{ matrix.python-version }} mypy automata/**/*.py tests/*.py
 
       - name: Run ruff
         run: |
-          uv run ruff check .
-          uv run ruff format --check .
+          uv run --python ${{ matrix.python-version }} ruff check .
+          uv run --python ${{ matrix.python-version }} ruff format --check .
