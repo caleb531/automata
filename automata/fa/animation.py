@@ -332,8 +332,8 @@ class _NFAAnimation(manim.Scene):
             )
             current_transitions = lambda_transitions
         self.wait()
-        input_index = 0
-        while input_index < len(self.input_str):
+        input_index = -1
+        for input_index in range(len(self.input_str)):
             new_transitions = tuple(
                 (current_state, next_state)
                 for current_state in current_states
@@ -345,7 +345,6 @@ class _NFAAnimation(manim.Scene):
                 for next_state in next_states
             )
             new_states = set(map(itemgetter(1), new_transitions))
-            new_states = set(transition[1] for transition in new_transitions)
             self.play(
                 *self.nfa_graph.change_transitions(
                     current_transitions, new_transitions
@@ -369,7 +368,6 @@ class _NFAAnimation(manim.Scene):
                 )
                 self.wait()
                 current_transitions = lambda_transitions
-            input_index += 1
         self.play(
             *self.nfa_graph.clean(current_transitions),
             *self.input_symbols.clean(input_index),
