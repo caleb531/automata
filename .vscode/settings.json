@@ -1,12 +1,19 @@
 {
-  "python.analysis.extraPaths": [".virtualenv"],
+  "python.analysis.extraPaths": [
+    ".virtualenv"
+  ],
   "[python]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.rulers": [88],
+    "editor.rulers": [
+      88
+    ],
     "editor.codeActionsOnSave": {
       "source.fixAll": "explicit",
       "source.organizeImports": "explicit"
     }
+  },
+  "[yaml][toml]": {
+    "editor.formatOnSave": true
   },
 }
