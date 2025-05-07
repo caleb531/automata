@@ -5,6 +5,7 @@ from __future__ import annotations
 import abc
 import os
 from collections import defaultdict
+from functools import cached_property
 from typing import Any, Dict, Generator, List, Optional, Set, Tuple, Union
 
 from automata.base.automaton import Automaton, AutomatonStateT
@@ -28,7 +29,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     """
     The `FA` class is an abstract base class from which all finite automata inherit.
     Every subclass of FA can be rendered natively inside of a Jupyter notebook
-    (automatically calling `show_diagram` without any arguments) if installed with
+    (automatically calling `diagram` property) if installed with
     the `visual` optional dependency.
     """
 
@@ -183,6 +184,16 @@ class FA(Automaton, metaclass=abc.ABCMeta):
 
         return graph
 
+    @cached_property
+    def diagram(self) -> pgv.AGraph:
+        """
+        Returns
+        -------
+        AGraph
+            A diagram of this automaton.
+        """
+        return self.show_diagram()
+
     @abc.abstractmethod
     def _get_input_path(
         self, input_str: str
@@ -196,7 +207,7 @@ class FA(Automaton, metaclass=abc.ABCMeta):
     def _repr_mimebundle_(
         self, *args: Any, **kwargs: Any
     ) -> Dict[str, Union[bytes, str]]:
-        return self.show_diagram()._repr_mimebundle_(*args, **kwargs)
+        return self.diagram._repr_mimebundle_(*args, **kwargs)
 
     @staticmethod
     def _add_new_state(state_set: Set[FAStateT], start: int = 0) -> int:

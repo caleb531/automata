@@ -227,24 +227,6 @@ class _ManimInput(manim.VGroup):
         """
         if current_index >= 0:
             yield Animate.highlight(self[current_index])
-            if current_index >= 1:
-                yield Animate.to_default_color(self[current_index - 1])
-
-    def clean(self, current_index: int) -> Iterable[manim.ApplyMethod]:
-        """
-        Cancel all the highlighted elements.
-
-        Parameters
-        ----------
-        current_index : int
-            The highlighted symbol to cancel highlight.
-
-        Returns
-        -------
-        The animations (maybe none) for `Scene` object to `play`.
-        """
-        if 0 <= current_index < len(self):
-            yield Animate.to_default_color(self[current_index])
 
     def show_result(self, accept: bool) -> manim.Write:
         """
