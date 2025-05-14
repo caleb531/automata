@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import partial
@@ -18,7 +20,7 @@ class Animate:
 
     @classmethod
     def default_init(cls, mobject_class: type[M]) -> type[M]:
-        return partial(mobject_class, color=cls.DEFAULT_COLOR)
+        return partial(mobject_class, color=cls.DEFAULT_COLOR)  # type: ignore
 
     @classmethod
     def to_default_color(cls, mobject: manim.VMobject) -> manim.ApplyMethod:

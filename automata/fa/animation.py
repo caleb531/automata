@@ -236,6 +236,7 @@ class _DFAAnimation(manim.Scene):
             *self.dfa_graph.clean(((states_queue[-2], states_queue[-1]),)),
             self.input_symbols.show_result(accepts_input),
         )
+        self.wait()
 
 
 @dataclass(eq=False)
@@ -372,3 +373,4 @@ class _NFAAnimation(manim.Scene):
                 not current_states.isdisjoint(self.nfa.final_states)
             ),
         )
+        self.wait()

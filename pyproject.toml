@@ -101,6 +101,7 @@ module = [
     "pygraphviz.*",
     "cached_method.*",
     "nose2.tools.*",
+    "manim.*",
 ]
 ignore_missing_imports = true
 
