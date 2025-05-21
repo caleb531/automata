@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from dataclasses import dataclass
 from functools import partial
-from typing import Optional, TypeVar
+from typing import TypeVar
 
 import manim
 import pygraphviz as pgv
@@ -54,7 +53,6 @@ class Animate:
         return manim.FadeToColor(mobject, cls.HIGHLIGHT_COLOR)
 
 
-@dataclass(eq=False)
 class _ManimNode(manim.VGroup):
     """
     The `ManimNode` class represents a `Node` object in the `AGraph` object with manim.
@@ -72,7 +70,7 @@ class _ManimNode(manim.VGroup):
     """
 
     shape: manim.Dot | manim.Circle | manim.VGroup
-    label: Optional[manim.Text]
+    label: manim.Text | None
 
     def __init__(self, node: pgv.Node) -> None:
         """
@@ -83,30 +81,34 @@ class _ManimNode(manim.VGroup):
 
             `node`'s label is its `attr['label']` if given, otherwise its
             `name` property. Its `attr` contains:
-            - 'fontsize': float str,
-            - 'height': float str,
-            - 'pos': f'{float str},{float str}',
+            - 'fontsize': %f,
+            - 'height': %f,
+            - 'pos': '%f,%f',
             - 'shape': 'point' or 'circle' or 'doublecircle',
-            - 'width': float str (possibly equals to 'height')
+            - 'width': %f (possibly equals to 'height')
         """
         super().__init__(name=node.name)
         radius = float(node.attr["height"]) / 2
-        if node.attr["shape"] == "point":
-            self.shape = Animate.default_init(manim.Dot)(radius=radius)
-            self.add(self.shape)
-        elif node.attr["shape"].endswith("circle"):
-            circle = Animate.default_init(manim.Circle)(radius=radius)
-            self.shape = (
-                manim.VGroup(
+        match node.attr["shape"]:
+            case "point":
+                self.shape = Animate.default_init(manim.Dot)(radius=radius)
+            case "circle":
+                self.shape = Animate.default_init(manim.Circle)(radius=radius)
+            case "doublecircle":
+                circle = Animate.default_init(manim.Circle)(radius=radius)
+                self.shape = manim.VGroup(
                     circle,
                     Animate.default_init(manim.Circle)().surround(
                         circle, buffer_factor=0.8
                     ),
                 )
-                if node.attr["shape"].startswith("double")
-                else circle
-            )
-            self.add(self.shape)
+            case _:
+                raise ValueError(
+                    f"Invalid node shape: {node.attr['shape']}. "
+                    "Only 'point', 'circle' and 'doublecircle' are supported."
+                )
+        self.add(self.shape)
+        if node.attr["shape"] != "point":
             self.label = Animate.default_init(manim.Text)(
                 node.name, font_size=float(node.attr["fontsize"])
             )
@@ -116,7 +118,6 @@ class _ManimNode(manim.VGroup):
         self.set_y(y)
 
 
-@dataclass(eq=False)
 class _ManimEdge(manim.VGroup):
     """
     The `ManimEdge` class represents an `Edge` object in the `AGraph` object with manim.
@@ -133,7 +134,7 @@ class _ManimEdge(manim.VGroup):
     """
 
     edge: manim.VGroup
-    label: Optional[manim.Text]
+    label: manim.Text | None
 
     def __init__(self, edge: pgv.Edge) -> None:
         r"""
@@ -142,11 +143,11 @@ class _ManimEdge(manim.VGroup):
         edge : `pygraphviz.Edge`
             which to based on to construct a FA transition.<br>
             `edge.attr` may contain:
-            - 'arrowsize': float str
-            - 'fontsize': float str (not exists when 'label' not exists)
+            - 'arrowsize': %f
+            - 'fontsize': %f (not exists when 'label' not exists)
             - 'label': str (may not exists)
-            - 'lp': f'{float str},{float str}'
-            - 'pos': f'e,{float str},{float str}(\s+{float str},{float str})*'
+            - 'lp': '%f,%f'
+            - 'pos': 'e,%f,%f(\s+%f,%f)*'
         """
         super().__init__()
         self.edge = self.__parse_spline(edge.attr["pos"].replace("\\\r", ""))

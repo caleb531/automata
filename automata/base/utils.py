@@ -17,7 +17,6 @@ from typing import (
     Iterable,
     List,
     Literal,
-    Optional,
     Set,
     Tuple,
     TypeVar,
@@ -28,14 +27,14 @@ import networkx as nx
 from frozendict import frozendict
 
 # Optional imports for use with visual functionality
-_missing_visual_imports: Optional[ImportError] = (
+_missing_visual_imports: ImportError | None = (
     None
     if find_spec("pygraphviz") and find_spec("coloraide")
     else ImportError(
         "Missing visualization packages; please install coloraide and pygraphviz."
     )
 )
-_missing_animation_imports: Optional[ImportError] = (
+_missing_animation_imports: ImportError | None = (
     None
     if not _missing_visual_imports and find_spec("manim")
     else ImportError(
