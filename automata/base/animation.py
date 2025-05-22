@@ -89,30 +89,31 @@ class _ManimNode(manim.VGroup):
         """
         super().__init__(name=node.name)
         radius = float(node.attr["height"]) / 2
-        match node.attr["shape"]:
-            case "point":
-                self.shape = Animate.default_init(manim.Dot)(radius=radius)
-            case "circle":
-                self.shape = Animate.default_init(manim.Circle)(radius=radius)
-            case "doublecircle":
-                circle = Animate.default_init(manim.Circle)(radius=radius)
-                self.shape = manim.VGroup(
+        if node.attr["shape"] == "point":
+            self.shape = Animate.default_init(manim.Dot)(radius=radius)
+            self.add(self.shape)
+        elif node.attr["shape"].endswith("circle"):
+            circle = Animate.default_init(manim.Circle)(radius=radius)
+            self.shape = (
+                manim.VGroup(
                     circle,
                     Animate.default_init(manim.Circle)().surround(
                         circle, buffer_factor=0.8
                     ),
                 )
-            case _:
-                raise ValueError(
-                    f"Invalid node shape: {node.attr['shape']}. "
-                    "Only 'point', 'circle' and 'doublecircle' are supported."
-                )
-        self.add(self.shape)
-        if node.attr["shape"] != "point":
+                if node.attr["shape"].startswith("double")
+                else circle
+            )
+            self.add(self.shape)
             self.label = Animate.default_init(manim.Text)(
                 node.name, font_size=float(node.attr["fontsize"])
             )
             self.add(self.label)
+        else:
+            raise ValueError(
+                f"Invalid node shape: {node.attr['shape']}. "
+                "Only 'point', 'circle' and 'doublecircle' are supported."
+            )
         x, y = (float(pt) / _POINTS_IN_INCH for pt in node.attr["pos"].split(","))
         self.set_x(x)
         self.set_y(y)
