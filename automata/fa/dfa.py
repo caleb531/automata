@@ -616,11 +616,10 @@ class DFA(fa.FA):
                 for symbol in input_symbols:
                     end_state = path.get(symbol)
 
+                    # If statement here needed to ignore certain transitions
+                    # for non-reachable states
                     if end_state in reachable_states:
                         symbol_dict = transition_back_map[symbol]
-                        # If statement here needed to ignore certain transitions
-                        # for non-reachable states
-                        # if end_state in symbol_dict:
                         symbol_dict[end_state].append(start_state)
                     else:
                         # Add trap state if needed
