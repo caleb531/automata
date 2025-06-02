@@ -330,6 +330,27 @@ class TestDFA(test_fa.TestFA):
             set(test_dfa.to_partial(minify=False).states).issubset(complete_dfa.states)
         )
 
+    def test_equivalence_complete(self) -> None:
+        """
+        Example test case from https://github.com/caleb531/automata/issues/257
+        """
+        frag = DFA(
+            states={0, 1, 2, 3, 4},
+            input_symbols={"0", "1"},
+            transitions={
+                0: {"1": 0, "0": 0},
+                1: {"1": 0, "0": 3},
+                3: {"1": 1, "0": 4},
+                2: {"1": 0, "0": 4},
+                4: {"1": 2, "0": 3},
+            },
+            initial_state=3,
+            final_states={1, 4},
+        )
+
+        self.assertEqual(frag, frag.minify())
+        self.assertEqual(frag, frag.to_partial())
+
     def test_equivalence_minify(self) -> None:
         """Should be equivalent after minify."""
         minimal_dfa = self.no_consecutive_11_dfa.minify()
