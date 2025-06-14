@@ -342,7 +342,7 @@ class GNFA(fa.FA):
                     if to_state != final_state:
                         state_degree[to_state] += 1
 
-        return min(state_degree, key=lambda x: state_degree.get(x, -1))
+        return min(state_degree, key=lambda x: (state_degree.get(x, -1), str(x)))
 
     def to_regex(self) -> str:
         """
@@ -363,9 +363,20 @@ class GNFA(fa.FA):
                 new_states, new_transitions, self.initial_state, self.final_state
             )
             new_states.remove(q_rip)
-            for q_i, q_j in product(
-                new_states - {self.final_state}, new_states - {self.initial_state}
-            ):
+
+            # Sort the pairs to ensure consistent order of processing
+            # this is important to ensure the same regex is generated
+            # for the same GNFA, regardless of the order of state removal.
+            # Uses the string representation of the states
+            # to ensure consistent ordering.
+            sorted_state_pairs = sorted(
+                product(
+                    new_states - {self.final_state}, new_states - {self.initial_state}
+                ),
+                key=str,
+            )
+
+            for q_i, q_j in sorted_state_pairs:
                 r1 = new_transitions[q_i][q_rip]
                 r2 = new_transitions[q_rip][q_rip]
                 r3 = new_transitions[q_rip][q_j]

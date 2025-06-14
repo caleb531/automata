@@ -387,6 +387,41 @@ class TestGNFA(test_fa.TestFA):
             # Test equality through DFA regex conversion
             self.assertEqual(dfa_1, dfa_2)
 
+    def test_gnfa_deterministic(self) -> None:
+        """
+        Check for deterministic conversion to GNFA.
+        From https://github.com/caleb531/automata/issues/231
+        """
+
+        gt_symbols = {"Connect": "0", "Send_msg": "1", "Ack": "2", "Close": "3"}
+        gt_dfa = DFA.from_nfa(
+            NFA(
+                states={"q0", "q1", "q2"},
+                input_symbols={
+                    gt_symbols["Connect"],
+                    gt_symbols["Send_msg"],
+                    gt_symbols["Close"],
+                    gt_symbols["Ack"],
+                },
+                transitions={
+                    "q0": {gt_symbols["Connect"]: {"q1"}},
+                    "q1": {gt_symbols["Close"]: {"q0"}, gt_symbols["Send_msg"]: {"q2"}},
+                    "q2": {gt_symbols["Ack"]: {"q1", "q0"}},
+                },
+                initial_state="q0",
+                final_states={"q0", "q1", "q2"},
+            ),
+            retain_names=True,
+        )
+
+        # Repeat the test multiple times to account for possible non-determinism.
+        num_reps = 1_000
+        starting_gnfa = GNFA.from_dfa(gt_dfa)
+
+        for _ in range(num_reps):
+            regex = starting_gnfa.to_regex()
+            self.assertEqual("(0(12(12)*(30|0)|30)*(12(12)*(3|1?)|(3|1?)))?", regex)
+
     def test_show_diagram(self) -> None:
         """
         Should construct the diagram for a GNFA.
