@@ -30,10 +30,10 @@ jobs:
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
 
-      - name: Install manim dependencies
-        run: |
-          sudo apt update
-          sudo apt install build-essential python3-dev libcairo2-dev libpango1.0-dev
+      # - name: Install manim dependencies
+      #   run: |
+      #     sudo apt update
+      #     sudo apt install build-essential python3-dev libcairo2-dev libpango1.0-dev
 
       - name: Run mypy
         run: uv run --python ${{ matrix.python-version }} mypy automata/**/*.py tests/*.py
