@@ -31,11 +31,6 @@ jobs:
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
 
-      # - name: Install manim dependencies
-      #   run: |
-      #     sudo apt update
-      #     sudo apt install build-essential python3-dev libcairo2-dev libpango1.0-dev
-
       - name: Build a binary wheel and a source tarball
         run: uv build --python ${{ matrix.python-version }}
 
