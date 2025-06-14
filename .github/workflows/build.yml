@@ -33,3 +33,6 @@ jobs:
 
       - name: Build a binary wheel and a source tarball
         run: uv build --python ${{ matrix.python-version }}
+
+      - name: Check wheel contents
+        run: uv run check-wheel-contents dist/*.whl

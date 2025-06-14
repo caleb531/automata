@@ -53,11 +53,18 @@ repository = "https://github.com/caleb531/automata"
 changelog = "https://github.com/caleb531/automata/releases"
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["automata"]
+# Explicitly exclude other top-level items
+exclude = ["docs", "tests", "joss", "example_notebooks"]
 
 [dependency-groups]
 dev = [
+    "check-wheel-contents",
     "coloraide>=1.8.2",
     "coverage==7.4.1",
     "mypy==1.8.0",
@@ -129,7 +136,3 @@ exclude_lines = [
 
 # Only check coverage for source files
 include = ["automata/*/*.py"]
-
-# Only one module in this repo
-[tool.setuptools.packages.find]
-exclude = ["joss"]
