@@ -13,7 +13,8 @@ keywords = [
     "machine",
     "state",
 ]
-license = { file = 'LICENSE.txt' }
+license = "MIT"
+license-files = ["LICENSE.txt"]
 authors = [{ name = 'Caleb Evans', email = 'caleb@calebevans.me' }]
 maintainers = [
     { name = 'Caleb Evans', email = 'caleb@calebevans.me' },
