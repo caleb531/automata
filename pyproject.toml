@@ -53,8 +53,13 @@ repository = "https://github.com/caleb531/automata"
 changelog = "https://github.com/caleb531/automata/releases"
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["automata*"]
+exclude = ["docs*", "tests*"] # Explicitly exclude other top-level items
 
 [dependency-groups]
 dev = [
