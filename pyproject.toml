@@ -58,8 +58,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["automata*"]
-exclude = ["docs*", "tests*"] # Explicitly exclude other top-level items
+include = ["automata"]
+# Explicitly exclude other top-level items
+exclude = ["docs", "tests", "joss", "example_notebooks"]
 
 [dependency-groups]
 dev = [
@@ -135,7 +136,3 @@ exclude_lines = [
 
 # Only check coverage for source files
 include = ["automata/*/*.py"]
-
-# Only one module in this repo
-[tool.setuptools.packages.find]
-exclude = ["joss"]
