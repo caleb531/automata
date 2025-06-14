@@ -410,7 +410,8 @@ class TestGNFA(test_fa.TestFA):
                 },
                 initial_state="q0",
                 final_states={"q0", "q1", "q2"},
-            )
+            ),
+            retain_names=True,
         )
 
         # Repeat the test multiple times to account for possible non-determinism.
@@ -419,9 +420,7 @@ class TestGNFA(test_fa.TestFA):
 
         for _ in range(num_reps):
             regex = starting_gnfa.to_regex()
-            self.assertEqual(
-                "(012(012|12)*(03|3)|03)*(012(012|12)*(01?|1?)|(01?)?)", regex
-            )
+            self.assertEqual("(0(12(12)*(30|0)|30)*(12(12)*(3|1?)|(3|1?)))?", regex)
 
     def test_show_diagram(self) -> None:
         """
