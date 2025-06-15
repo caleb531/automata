@@ -41,7 +41,11 @@ classifiers = [
 
 # Per https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
 [project.optional-dependencies]
-visual = ["coloraide>=1.8.2", "pygraphviz>=1.10"]
+visual = [
+    "coloraide>=1.8.2",
+    "manim>=0.19.0",
+    "pygraphviz>=1.10",
+]
 
 [tool.setuptools.package-data]
 "automata" = ["py.typed"]
@@ -97,6 +101,7 @@ module = [
     "pygraphviz.*",
     "cached_method.*",
     "nose2.tools.*",
+    "manim.*",
 ]
 ignore_missing_imports = true
 

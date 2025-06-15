@@ -34,11 +34,14 @@ import automata.fa.fa as fa
 import automata.fa.nfa as nfa
 from automata.base.utils import (
     PartitionRefinement,
+    _missing_animation_imports,
     get_reachable_nodes,
     get_renaming_function,
     pairwise,
 )
 
+if not _missing_animation_imports:
+    from automata.fa.animation import _DFAAnimation
 DFAStateT = fa.FAStateT
 
 DFASymbolT = str
@@ -521,6 +524,22 @@ class DFA(fa.FA):
 
         if not ignore_rejection:
             self._check_for_input_rejection(current_state)
+
+    def animate_reading_input(self, input_str: str, preview: bool = False) -> None:
+        """
+        Render the animation of the DFA reading the input string stepwise and save the
+        animation in the media/ folder.
+
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+        preview : bool, default: False
+            If true, opens scene in a file viewer.
+        """
+        if _missing_animation_imports:
+            raise _missing_animation_imports
+        _DFAAnimation(self, input_str).render(preview)
 
     @cached_method
     def _get_digraph(self) -> nx.DiGraph:

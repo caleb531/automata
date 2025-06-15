@@ -22,6 +22,7 @@ import automata.pda.exceptions as pda_exceptions
 from automata.base.automaton import Automaton, AutomatonStateT, AutomatonTransitionsT
 from automata.base.utils import (
     LayoutMethod,
+    _missing_visual_imports,
     create_graph,
     create_unique_random_id,
     save_graph,
@@ -30,13 +31,9 @@ from automata.pda.configuration import PDAConfiguration
 from automata.pda.stack import PDAStack
 
 # Optional imports for use with visual functionality
-try:
+if not _missing_visual_imports:
     import coloraide
     import pygraphviz as pgv
-except ImportError:
-    _visual_imports = False
-else:
-    _visual_imports = True
 
 PDAStateT = AutomatonStateT
 PDATransitionsT = AutomatonTransitionsT
@@ -137,11 +134,8 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
             AGraph corresponding to the given automaton.
         """
 
-        if not _visual_imports:
-            raise ImportError(
-                "Missing visualization packages; "
-                "please install coloraide and pygraphviz."
-            )
+        if _missing_visual_imports:
+            raise _missing_visual_imports
 
         # Defining the graph.
         graph = create_graph(

@@ -28,8 +28,11 @@ from typing_extensions import Self, TypeAlias
 import automata.base.exceptions as exceptions
 import automata.fa.dfa as dfa
 import automata.fa.fa as fa
-from automata.base.utils import get_reachable_nodes
+from automata.base.utils import _missing_animation_imports, get_reachable_nodes
 from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
+
+if not _missing_animation_imports:
+    from automata.fa.animation import _NFAAnimation
 
 NFAStateT = fa.FAStateT
 
@@ -1275,3 +1278,19 @@ class NFA(fa.FA):
                     )
 
         return last_non_accepting_input, False
+
+    def animate_reading_input(self, input_str: str, preview: bool = False) -> None:
+        """
+        Render the animation of the NFA reading the input string stepwise and save the
+        animation in the media/ folder.
+
+        Parameters
+        ----------
+        input_str : str
+            The input string to read.
+        preview : bool, default: False
+            If true, opens scene in a file viewer.
+        """
+        if _missing_animation_imports:
+            raise _missing_animation_imports
+        _NFAAnimation(self, input_str).render(preview)

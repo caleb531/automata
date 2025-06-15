@@ -24,3 +24,7 @@ nosetests.xml
 
 # MyPy
 .mypy_cache
+
+# manim generated files
+media/
+

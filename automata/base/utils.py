@@ -7,6 +7,7 @@ import pathlib
 import random
 import uuid
 from collections import defaultdict, deque
+from importlib.util import find_spec
 from itertools import count, tee, zip_longest
 from typing import (
     Any,
@@ -26,12 +27,24 @@ import networkx as nx
 from frozendict import frozendict
 
 # Optional imports for use with visual functionality
-try:
+_missing_visual_imports: ImportError | None = (
+    None
+    if find_spec("pygraphviz") and find_spec("coloraide")
+    else ImportError(
+        "Missing visualization packages; please install coloraide and pygraphviz."
+    )
+)
+_missing_animation_imports: ImportError | None = (
+    None
+    if not _missing_visual_imports and find_spec("manim")
+    else ImportError(
+        "Missing visualization packages; "
+        "please install pygraphviz, coloraide, and manim."
+    )
+)
+
+if not _missing_visual_imports:
     import pygraphviz as pgv
-except ImportError:
-    _visual_imports = False
-else:
-    _visual_imports = True
 
 
 LayoutMethod = Literal["neato", "dot", "twopi", "circo", "fdp", "nop"]
@@ -95,10 +108,8 @@ def create_graph(
     Returns:
         AGraph with the given configuration.
     """
-    if not _visual_imports:
-        raise ImportError(
-            "Missing visualization packages; please install coloraide and pygraphviz."
-        )
+    if _missing_visual_imports:
+        raise _missing_visual_imports
 
     # Defining the graph.
     graph = pgv.AGraph(strict=False, directed=True)
