@@ -335,15 +335,12 @@ class _NFAAnimation(manim.Scene):
             )
             current_transitions = lambda_transitions
         self.wait()
-        input_index = -1
-        for input_index in range(len(self.input_str)):
+        for input_index, input_symbol in enumerate(self.input_str):
             new_transitions = tuple(
                 (current_state, next_state)
                 for current_state in current_states
                 if (
-                    next_states := self.nfa.transitions[current_state].get(
-                        self.input_str[input_index]
-                    )
+                    next_states := self.nfa.transitions[current_state].get(input_symbol)
                 )
                 for next_state in next_states
             )

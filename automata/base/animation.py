@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 from collections.abc import Iterable
 from functools import partial
 from typing import TypeVar
@@ -179,7 +180,7 @@ class _ManimEdge(manim.VGroup):
         points = edge_pos.split()
         control_points = tuple(
             (*(float(pt) / _POINTS_IN_INCH for pt in point.split(",")), 0)
-            for point in points[1:]
+            for point in itertools.islice(points, 1, None)
         )
         result = manim.VGroup()
         for i in range(0, len(control_points) - 1, 3):
