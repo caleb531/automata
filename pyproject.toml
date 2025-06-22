@@ -15,10 +15,10 @@ keywords = [
 ]
 license = "MIT"
 license-files = ["LICENSE.txt"]
-authors = [{ name = 'Caleb Evans', email = 'caleb@calebevans.me' }]
+authors = [{ name = "Caleb Evans", email = "caleb@calebevans.me" }]
 maintainers = [
-    { name = 'Caleb Evans', email = 'caleb@calebevans.me' },
-    { name = 'Eliot W. Robson', email = 'eliot.robson24@gmail.com' },
+    { name = "Caleb Evans", email = "caleb@calebevans.me" },
+    { name = "Eliot W. Robson", email = "eliot.robson24@gmail.com" },
 ]
 dependencies = [
     "networkx>=2.6.2",
