@@ -31,7 +31,7 @@ observe the following guidelines when submitting pull requests for new fixes or
 features:
 
 1. All new code must comply with the enabled ruff lint rules.
-If you install Automata with `virtualenv`, the `ruff`
+If you install Automata dependencies with [`uv`](https://github.com/astral-sh/uv), the `ruff`
 package should be available to you for this purpose with the config in `pyproject.toml`.
 The included VSCode configuration is set to run this formatting on save.
 
@@ -41,7 +41,7 @@ In addition, new code must include type annotations and pass typechecking run wi
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests
 to verify that your code additions function correctly and break nothing else.
 
-3. Please run `coverage run -m nose2 && coverage report` and ensure that your
+3. Please run `uv run -- coverage run -m nose2 && uv run -- coverage report` and ensure that your
 changes are covered.
 
 4. If you are adding a new feature or changing behavior, please
@@ -52,30 +52,35 @@ run the documentation site locally, install the documentation dependencies
 with:
 
 ```sh
-pip install -r requirements.dev.txt
+uv sync --group docs
 ```
 
 Then, start the local server with the following command:
 
 ```sh
-mkdocs serve
+uv run -- mkdocs serve
 ```
 
 
-### Configuring a virtualenv
+### Setting up your environment
 
-The dependencies for the project and best run inside a `virtualenv`. For
-instructions on how to configure virtual environments in Python, please see the
-[Virtual Environments](https://docs.python-guide.org/dev/virtualenvs/)
-section of the Hitchhiker's Guide to Python.
+The dependencies for the project are best managed with [`uv`][uv]. For
+instructions on how to install `uv`, see the [uv documentation][installation].
 
-### Installing project dependencies
+[uv]: https://github.com/astral-sh/uv
+[installation]: https://github.com/astral-sh/uv#installation
 
-You can install all project dependencies via `pip` (assuming your project
-virtualenv is active):
+To create a virtual environment and install all project dependencies (including
+dev dependencies), run:
 
 ```sh
-pip install -r requirements.txt
+uv sync
+```
+
+To install all dependencies related to the documentation site, run:
+
+```sh
+uv sync --group docs
 ```
 
 #### Troubleshooting pygraphviz
@@ -90,18 +95,17 @@ python3 -m pip install -U --no-cache-dir  \
         --config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
         --config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
         pygraphviz==1.10
-# Proceed to install other dependencies
-pip install -r requirements.txt
+# Proceed to install dependencies
+uv sync
 ```
 
 ### Running unit tests
 
 The project's unit tests are written using [unittest][unittest] and run using
-the [nose2][nose2] Python package. You can run all unit tests via the `nose2`
-command.
+the [nose2][nose2] Python package. You can run all unit tests via the following command:
 
 ```sh
-nose2
+uv run -- nose2
 ```
 
 [unittest]: https://docs.python.org/3/library/unittest.html
@@ -111,17 +115,17 @@ nose2
 
 The project currently boasts high code coverage across all source files. New
 contributions are expected to maintain this high standard. You can view the
-current coverage report via the `coverage` command:
+current coverage report via the following commands:
 
 ```sh
-coverage run -m nose2
-coverage report
+uv run -- coverage run -m nose2
+uv run -- coverage report
 ```
 
 If the coverage ever decreases, you can generate and open a detailed HTML view
 of the coverage report like so:
 
 ```sh
-coverage html
+uv run -- coverage html
 open htmlcov/index.html
 ```
