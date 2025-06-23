@@ -41,7 +41,7 @@ In addition, new code must include type annotations and pass typechecking run wi
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests
 to verify that your code additions function correctly and break nothing else.
 
-3. Please run `uv run -- coverage run -m nose2 && uv run -- coverage report` and ensure that your
+3. Please run `uv run coverage run -m nose2 && uv run coverage report` and ensure that your
 changes are covered.
 
 4. If you are adding a new feature or changing behavior, please
@@ -58,7 +58,7 @@ uv sync --group docs
 Then, start the local server with the following command:
 
 ```sh
-uv run -- mkdocs serve
+uv run mkdocs serve
 ```
 
 
@@ -105,7 +105,7 @@ The project's unit tests are written using [unittest][unittest] and run using
 the [nose2][nose2] Python package. You can run all unit tests via the following command:
 
 ```sh
-uv run -- nose2
+uv run nose2
 ```
 
 [unittest]: https://docs.python.org/3/library/unittest.html
@@ -118,14 +118,14 @@ contributions are expected to maintain this high standard. You can view the
 current coverage report via the following commands:
 
 ```sh
-uv run -- coverage run -m nose2
-uv run -- coverage report
+uv run coverage run -m nose2
+uv run coverage report
 ```
 
 If the coverage ever decreases, you can generate and open a detailed HTML view
 of the coverage report like so:
 
 ```sh
-uv run -- coverage html
+uv run coverage html
 open htmlcov/index.html
 ```
