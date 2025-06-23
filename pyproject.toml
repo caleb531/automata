@@ -41,11 +41,7 @@ classifiers = [
 
 # Per https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
 [project.optional-dependencies]
-visual = [
-    "coloraide>=1.8.2",
-    "manim>=0.19.0",
-    "pygraphviz>=1.10",
-]
+visual = ["coloraide>=1.8.2", "manim>=0.19.0", "pygraphviz>=1.10"]
 
 [tool.setuptools.package-data]
 "automata" = ["py.typed"]
@@ -119,8 +115,6 @@ select = [
     "I",
     # Perflint
     "PERF",
-    # flake8-executable
-    "EXE",
 ]
 
 
