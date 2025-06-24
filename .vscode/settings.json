@@ -1,7 +1,5 @@
 {
-  "python.analysis.extraPaths": [
-    ".virtualenv"
-  ],
+  "python.analysis.extraPaths": [".virtualenv"],
   "[python]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "charliermarsh.ruff",
