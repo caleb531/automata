@@ -90,11 +90,6 @@ installing dependencies, try running:
 
 ```sh
 brew install graphviz
-python3 -m pip install -U --no-cache-dir  \
-        --config-settings="--global-option=build_ext" \
-        --config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
-        --config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
-        pygraphviz==1.10
 # Proceed to install dependencies
 uv sync
 ```
