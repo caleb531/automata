@@ -29,7 +29,11 @@ jobs:
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
 
-      - name: Build and publish to pypi
-        run: |
-          uv build
-          uv publish
+      - name: Build a binary wheel and a source tarball
+        run: uv build
+
+      - name: Publish distribution to Test PyPI
+        run: uv publish --publish-url https://test.pypi.org/legacy/
+
+      - name: Publish distribution to PyPI
+        run: uv publish
