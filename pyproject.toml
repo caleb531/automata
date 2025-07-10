@@ -91,7 +91,6 @@ disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = [
-    "setuptools.*",
     "networkx.*",
     "pygraphviz.*",
     "cached_method.*",
