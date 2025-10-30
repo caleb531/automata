@@ -53,7 +53,7 @@ repository = "https://github.com/caleb531/automata"
 changelog = "https://github.com/caleb531/automata/releases"
 
 [build-system]
-requires = ["uv_build>=0.8.22,<0.9.0"]
+requires = ["uv_build>=0.9.6,<0.10.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
@@ -121,6 +121,8 @@ select = [
 [tool.coverage.run]
 # Enable branch coverage
 branch = true
+# Only check coverage for source files
+include = ["automata/*/*.py"]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
@@ -130,6 +132,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "pass",
 ]
-
-# Only check coverage for source files
-include = ["automata/*/*.py"]
