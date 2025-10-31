@@ -4,6 +4,7 @@ import os
 import string
 import tempfile
 import types
+import unittest
 from itertools import product
 from unittest.mock import MagicMock, patch
 
@@ -13,6 +14,7 @@ import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
+from tests.optional import VISUAL_OK, VISUAL_SKIP_REASON
 
 
 class TestNFA(test_fa.TestFA):
@@ -585,6 +587,7 @@ class TestNFA(test_fa.TestFA):
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "a(*)")
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "ab(|)")
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_initial_final_same(self) -> None:
         """
         Should construct the diagram for a NFA whose initial state
@@ -621,6 +624,7 @@ class TestNFA(test_fa.TestFA):
         self.assertEqual(dest, self.nfa.initial_state)
         self.assertTrue(source not in self.nfa.states)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_read_input(self) -> None:
         """
         Should construct the diagram for a NFA reading input.
@@ -642,6 +646,7 @@ class TestNFA(test_fa.TestFA):
 
             self.assertEqual(edge_pairs, colored_edges)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a NFA

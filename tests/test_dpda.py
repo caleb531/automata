@@ -1,6 +1,7 @@
 """Classes and functions for testing the behavior of DPDAs."""
 
 import os
+import unittest
 
 from frozendict import frozendict
 
@@ -10,6 +11,7 @@ import tests.test_pda as test_pda
 from automata.pda.configuration import PDAConfiguration
 from automata.pda.dpda import DPDA
 from automata.pda.stack import PDAStack
+from tests.optional import VISUAL_OK, VISUAL_SKIP_REASON
 
 
 class TestDPDA(test_pda.TestPDA):
@@ -321,6 +323,7 @@ class TestDPDA(test_pda.TestPDA):
         )
         self.assertTrue(dpda.accepts_input(""))
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram(self) -> None:
         """Should construct the diagram for a DPDA"""
         graph = self.dpda.show_diagram()
@@ -353,6 +356,7 @@ class TestDPDA(test_pda.TestPDA):
         self.assertEqual(dest, self.dpda.initial_state)
         self.assertTrue(source not in self.dpda.states)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_exception(self) -> None:
         """Should raise exception"""
 
@@ -364,6 +368,7 @@ class TestDPDA(test_pda.TestPDA):
             with_stack=False,
         )
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_read_input_machine_only(self) -> None:
         """
         Should construct the diagram with machine only for a DPDA reading input.
@@ -384,6 +389,7 @@ class TestDPDA(test_pda.TestPDA):
             ]
             self.assertEqual(edge_pairs, colored_edges)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_read_input_stack_only(self) -> None:
         """
         Should construct the diagram with stack only for a DPDA reading input.
@@ -414,6 +420,7 @@ class TestDPDA(test_pda.TestPDA):
             self.assertEqual(nodes, stack_content)
             self.assertEqual(edge_pairs, colored_edges)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a DPDA
@@ -429,6 +436,7 @@ class TestDPDA(test_pda.TestPDA):
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_orientations(self) -> None:
         graph = self.dpda.show_diagram()
         self.assertEqual(graph.graph_attr["rankdir"], "LR")
@@ -439,6 +447,7 @@ class TestDPDA(test_pda.TestPDA):
         graph = self.dpda.show_diagram(horizontal=False, reverse_orientation=True)
         self.assertEqual(graph.graph_attr["rankdir"], "BT")
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_fig_size(self) -> None:
         """
         Testing figure size. Just need to make sure it matches the input
