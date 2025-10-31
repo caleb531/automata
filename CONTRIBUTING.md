@@ -74,13 +74,7 @@ To create a virtual environment and install all project dependencies (including
 dev dependencies), run:
 
 ```sh
-uv sync
-```
-
-To install all dependencies related to the documentation site, run:
-
-```sh
-uv sync --group docs
+uv sync --group docs --dev --extra visual
 ```
 
 #### Troubleshooting pygraphviz
@@ -90,8 +84,8 @@ installing dependencies, try running:
 
 ```sh
 brew install graphviz
-# Proceed to install dependencies
-uv sync
+# Proceed to install and build dependencies
+uv sync --group docs --dev --extra visual
 ```
 
 ### Running unit tests
