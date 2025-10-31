@@ -5,6 +5,7 @@ import os.path
 import random
 import tempfile
 import types
+import unittest
 from itertools import permutations, product
 from typing import Iterable, Tuple, TypeVar, cast
 from unittest.mock import MagicMock, patch
@@ -16,6 +17,7 @@ import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
+from tests.optional import VISUAL_OK, VISUAL_SKIP_REASON
 
 ArgT = TypeVar("ArgT")
 
@@ -1532,6 +1534,7 @@ class TestDFA(test_fa.TestFA):
         )
         self.assertEqual(dfa.read_input("aa"), "aa")
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_initial_final_different(self) -> None:
         """
         Should construct the diagram for a DFA whose initial state
@@ -1568,6 +1571,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dest, self.dfa.initial_state)
         self.assertTrue(source not in self.dfa.states)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_read_input(self) -> None:
         """
         Should construct the diagram for a DFA reading input.
@@ -1588,6 +1592,7 @@ class TestDFA(test_fa.TestFA):
             ]
             self.assertEqual(edge_pairs, colored_edges)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_initial_final_same(self) -> None:
         """
         Should construct the diagram for a DFA whose initial state
@@ -1625,6 +1630,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(dest, dfa.initial_state)
         self.assertTrue(source not in dfa.states)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a DFA
@@ -1640,6 +1646,7 @@ class TestDFA(test_fa.TestFA):
         self.assertTrue(os.path.exists(diagram_path))
         os.remove(diagram_path)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_repr_mimebundle_same(self) -> None:
         """
         Check that the mimebundle is the same.
@@ -1651,6 +1658,7 @@ class TestDFA(test_fa.TestFA):
         second_repr = self.dfa.show_diagram()._repr_mimebundle_()
         self.assertEqual(first_repr, second_repr)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_orientations(self) -> None:
         graph = self.dfa.show_diagram()
         self.assertEqual(graph.graph_attr["rankdir"], "LR")
@@ -1661,6 +1669,7 @@ class TestDFA(test_fa.TestFA):
         graph = self.dfa.show_diagram(horizontal=False, reverse_orientation=True)
         self.assertEqual(graph.graph_attr["rankdir"], "BT")
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_fig_size(self) -> None:
         """
         Testing figure size. Just need to make sure it matches the input

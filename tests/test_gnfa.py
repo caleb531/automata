@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+import unittest
 from unittest.mock import MagicMock, patch
 
 import automata.base.exceptions as exceptions
@@ -9,6 +10,7 @@ import tests.test_fa as test_fa
 from automata.fa.dfa import DFA
 from automata.fa.gnfa import GNFA
 from automata.fa.nfa import NFA
+from tests.optional import VISUAL_OK, VISUAL_SKIP_REASON
 
 
 class TestGNFA(test_fa.TestFA):
@@ -422,6 +424,7 @@ class TestGNFA(test_fa.TestFA):
             regex = starting_gnfa.to_regex()
             self.assertEqual("(0(12(12)*(30|0)|30)*(12(12)*(3|1?)|(3|1?)))?", regex)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram(self) -> None:
         """
         Should construct the diagram for a GNFA.
@@ -460,6 +463,7 @@ class TestGNFA(test_fa.TestFA):
         self.assertEqual(dest, self.gnfa.initial_state)
         self.assertTrue(source not in self.gnfa.states)
 
+    @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_write_file(self) -> None:
         """
         Should construct the diagram for a NFA
