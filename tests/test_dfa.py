@@ -11,7 +11,7 @@ from typing import Iterable, Tuple, TypeVar, cast
 from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
-from nose2.tools import params
+from parameterized import parameterized  # type: ignore
 
 import automata.base.exceptions as exceptions
 import tests.test_fa as test_fa
@@ -804,15 +804,15 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.universal_language({"0", "1"})
         self.assertFalse(dfa.isfinite())
 
-    @params(
-        *get_permutation_tuples(
+    @parameterized.expand(
+        get_permutation_tuples(
             DFA.from_substring(set("01"), "1111"),
             partial_dfa,
             no_consecutive_11_dfa,
             at_least_four_ones,
             zero_or_one_1_dfa,
             no_reachable_final_dfa,
-        )
+        ),
     )
     def test_set_laws(self, dfa1: DFA, dfa2: DFA) -> None:
         """Tests many set laws that are true for all sets"""
@@ -1681,7 +1681,7 @@ class TestDFA(test_fa.TestFA):
         graph = self.dfa.show_diagram(fig_size=(3.3,))
         self.assertEqual(graph.graph_attr["size"], "3.3")
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_minimal_finite_language(self, as_partial: bool) -> None:
         """Should compute the minimal DFA accepting the given finite language"""
 
@@ -1730,7 +1730,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(len(minimal_dfa.states), len(equiv_dfa.states))
         self.assertEqual(minimal_dfa, equiv_dfa)
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_minimal_finite_language_large(self, as_partial: bool) -> None:
         """Should compute the minimal DFA accepting the given finite language on
         large test case"""
@@ -1773,7 +1773,7 @@ class TestDFA(test_fa.TestFA):
         )  # dfa2.states is a frozenset of frozensets
         self.assertTrue(repr(dfa2))
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_iter_finite(self, as_partial: bool) -> None:
         """
         Test that DFA for finite language generates all words
@@ -1838,7 +1838,7 @@ class TestDFA(test_fa.TestFA):
         generated_list = [next(generator) for _ in expected]
         self.assertEqual(generated_list, expected)
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_len_finite(self, as_partial: bool) -> None:
         input_symbols = {"a", "b"}
         dfa = DFA.from_finite_language(input_symbols, set(), as_partial)
@@ -1895,7 +1895,7 @@ class TestDFA(test_fa.TestFA):
         for i in range(10):
             self.assertIn(dfa.random_word(100), dfa)
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_predecessor(self, as_partial: bool) -> None:
         binary = {"0", "1"}
         language = {
@@ -1932,7 +1932,7 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.InfiniteLanguageException):
             [_ for _ in infinite_dfa.predecessors("000")]
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_successor(self, as_partial: bool) -> None:
         binary = {"0", "1"}
         language = {
@@ -1974,7 +1974,7 @@ class TestDFA(test_fa.TestFA):
         self.assertEqual(infinite_dfa.successor("1", min_length=5), "11111")
         self.assertEqual(infinite_dfa.successor("1111", max_length=4), None)
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_successor_and_predecessor(self, as_partial: bool) -> None:
         binary = {"0", "1"}
         language = {
@@ -2135,7 +2135,7 @@ class TestDFA(test_fa.TestFA):
         with self.assertRaises(exceptions.EmptyLanguageException):
             empty.maximum_word_length()
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_contains_prefix(self, as_partial: bool) -> None:
         input_symbols = {"a", "n", "o", "b"}
 
@@ -2161,7 +2161,7 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertTrue(word.startswith("nano"))
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_contains_suffix(self, as_partial: bool) -> None:
         input_symbols = {"a", "n", "o", "b"}
 
@@ -2184,7 +2184,7 @@ class TestDFA(test_fa.TestFA):
                 break
             self.assertTrue(word.endswith("nano"))
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_contains_substring(self, as_partial: bool) -> None:
         """Should compute the minimal DFA accepting strings with the given substring"""
 
@@ -2261,7 +2261,7 @@ class TestDFA(test_fa.TestFA):
 
         self.assertEqual(equiv_dfa, res_dfa)
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_contains_subsequence(self, as_partial: bool) -> None:
         """Should compute the minimal DFA accepting strings with the given
         subsequence"""
@@ -2308,7 +2308,7 @@ class TestDFA(test_fa.TestFA):
             DFA.from_subsequence(input_symbols, "nano", contains=False),
         )
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_of_length(self, as_partial: bool) -> None:
         binary = {"0", "1"}
         dfa1 = DFA.of_length(binary)
@@ -2547,7 +2547,7 @@ class TestDFA(test_fa.TestFA):
         dfa = DFA.empty_language({"0", "1", "a", "b"})
         self.assertTrue(dfa.isempty())
 
-    @params(True, False)
+    @parameterized.expand((True, False))
     def test_reset_word_cache(self, as_partial: bool) -> None:
         max_len = 4
         dfa = DFA.of_length({"0", "1"}, min_length=0, max_length=max_len)

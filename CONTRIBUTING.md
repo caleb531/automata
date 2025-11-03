@@ -41,10 +41,9 @@ In addition, new code must include type annotations and pass typechecking run wi
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests
 to verify that your code additions function correctly and break nothing else.
 
-3. Please run `uv run coverage run -m nose2 && uv run coverage report` and ensure that your
-changes are covered.
+1. Please run `uv run pytest --cov` and ensure that your changes are covered.
 
-4. If you are adding a new feature or changing behavior, please
+1. If you are adding a new feature or changing behavior, please
 update the documentation appropriately with the relevant information. This
 includes updating docstrings for all functions in the public interface, using
 the [NumPy style](https://numpydoc.readthedocs.io/en/latest/format.html). To
@@ -74,7 +73,7 @@ To create a virtual environment and install all project dependencies (including
 dev dependencies), run:
 
 ```sh
-uv sync --group docs --dev --extra visual
+uv sync --all-groups
 ```
 
 #### Troubleshooting pygraphviz
@@ -85,20 +84,20 @@ installing dependencies, try running:
 ```sh
 brew install graphviz
 # Proceed to install and build dependencies
-uv sync --group docs --dev --extra visual
+uv sync --all-groups
 ```
 
 ### Running unit tests
 
 The project's unit tests are written using [unittest][unittest] and run using
-the [nose2][nose2] Python package. You can run all unit tests via the following command:
+the [pytest][pytest] Python package. You can run all unit tests via the following command:
 
 ```sh
-uv run nose2
+uv run pytest
 ```
 
 [unittest]: https://docs.python.org/3/library/unittest.html
-[nose2]: https://docs.nose2.io/en/latest/
+[pytest]: https://docs.pytest.org/en/stable/
 
 ### Code coverage
 
@@ -107,8 +106,7 @@ contributions are expected to maintain this high standard. You can view the
 current coverage report via the following commands:
 
 ```sh
-uv run coverage run -m nose2
-uv run coverage report
+pytest --cov
 ```
 
 If the coverage ever decreases, you can generate and open a detailed HTML view

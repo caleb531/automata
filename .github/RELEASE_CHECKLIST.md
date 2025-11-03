@@ -5,7 +5,7 @@ properly publish a release to GitHub and PyPI.
 
 - [ ] Before Release
   - [ ] Checkout `develop` branch and pull
-  - [ ] Run tests and coverage report (`coverage run -m nose2`)
+  - [ ] Run tests and coverage report (`pytest --cov`)
     - [ ] All tests pass
     - [ ] Code coverage is over 90% for all files
   - [ ] Update Migration Guide with details of any breaking API changes and
