@@ -32,10 +32,9 @@ jobs:
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
 
-      - name: Test with nose2
+      - name: Test with pytest
         run: |
-          uv run coverage run -m nose2 tests
-          uv run coverage lcov -o cover/coverage.lcov
+          uv run pytest --cov --cov-report=lcov:cover/coverage.lcov --cov-report=term-missing
 
       - name: Run Coveralls
         uses: coverallsapp/github-action@master

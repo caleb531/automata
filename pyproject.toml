@@ -25,6 +25,8 @@ dependencies = [
     "frozendict>=2.3.4",
     "typing-extensions>=4.5.0",
     "cached_method>=0.1.0",
+    "pytest>=8.4.2",
+    "pytest-cov>=5.0.0",
 ]
 
 classifiers = [
@@ -64,7 +66,7 @@ dev = [
     "coverage==7.4.1",
     "mypy==1.8.0",
     "mypy-extensions==1.0.0",
-    "nose2==0.14.1",
+    "parameterized>=0.9.0",
     "pygraphviz>=1.10",
     "ruff==0.11.2",
     "types-frozendict==2.0.9",
@@ -90,7 +92,6 @@ module = [
     "networkx.*",
     "pygraphviz.*",
     "cached_method.*",
-    "nose2.tools.*",
     "manim.*",
 ]
 ignore_missing_imports = true
