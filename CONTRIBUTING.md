@@ -41,9 +41,9 @@ In addition, new code must include type annotations and pass typechecking run wi
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests
 to verify that your code additions function correctly and break nothing else.
 
-1. Please run `uv run pytest --cov` and ensure that your changes are covered.
+3. Please run `uv run pytest --cov` and ensure that your changes are covered.
 
-1. If you are adding a new feature or changing behavior, please
+4. If you are adding a new feature or changing behavior, please
 update the documentation appropriately with the relevant information. This
 includes updating docstrings for all functions in the public interface, using
 the [NumPy style](https://numpydoc.readthedocs.io/en/latest/format.html). To
