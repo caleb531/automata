@@ -39,12 +39,9 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 
-# Per https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
+# Per https://docs.astral.sh/uv/concepts/projects/dependencies/#optional-dependencies
 [project.optional-dependencies]
 visual = ["coloraide>=1.8.2", "manim>=0.19.0", "pygraphviz>=1.10"]
-
-[tool.setuptools.package-data]
-"automata" = ["py.typed"]
 
 [project.urls]
 homepage = "https://github.com/caleb531/automata"
@@ -90,7 +87,6 @@ disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = [
-    "setuptools.*",
     "networkx.*",
     "pygraphviz.*",
     "cached_method.*",
