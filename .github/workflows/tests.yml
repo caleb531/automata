@@ -33,8 +33,7 @@ jobs:
         uses: ts-graphviz/setup-graphviz@v1
 
       - name: Test with pytest
-        run: |
-          uv run pytest --cov --cov-report=lcov:cover/coverage.lcov --cov-report=term-missing
+        run: uv run pytest --cov --cov-report=lcov:cover/coverage.lcov --cov-report=term-missing
 
       - name: Run Coveralls
         uses: coverallsapp/github-action@master
