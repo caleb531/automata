@@ -4,10 +4,10 @@ import string
 
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
-from tests.test_nfa.base import NfaTestCase
+from tests.test_nfa.base import NFATestCase
 
 
-class TestNfaOperations(NfaTestCase):
+class TestNFAOperations(NFATestCase):
     """Exercise concatenation, closure, and set-like operations."""
 
     def test_operations_other_type(self) -> None:
@@ -376,6 +376,3 @@ class TestNfaOperations(NfaTestCase):
                 nfa2 + nfa1.right_quotient(nfa2), (nfa2 + nfa1).right_quotient(nfa2)
             )
         )
-
-
-__all__ = ["TestNfaOperations"]

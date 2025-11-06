@@ -15,7 +15,7 @@ def get_permutation_tuples(*args: ArgT) -> Tuple[Tuple[ArgT, ArgT], ...]:
     return tuple(cast(Iterable[Tuple[ArgT, ArgT]], permutations(args, 2)))
 
 
-class DfaTestCase(test_fa.TestFA):
+class DFATestCase(test_fa.TestFA):
     """Base test case providing common DFA fixtures."""
 
     temp_dir_path = tempfile.gettempdir()

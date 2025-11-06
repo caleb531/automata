@@ -4,10 +4,10 @@ import string
 from itertools import product
 
 from automata.fa.nfa import NFA
-from tests.test_nfa.base import NfaTestCase
+from tests.test_nfa.base import NFATestCase
 
 
-class TestNfaEditDistance(NfaTestCase):
+class TestNFAEditDistance(NFATestCase):
     """Validate the family of edit-distance NFA builders."""
 
     def test_nfa_levenshtein_distance(self) -> None:
@@ -369,6 +369,3 @@ class TestNfaEditDistance(NfaTestCase):
         for close_string in close_strings_deletion:
             self.assertTrue(nice_nfa_deletion.accepts_input(close_string))
             self.assertFalse(nice_nfa_insertion.accepts_input(close_string))
-
-
-__all__ = ["TestNfaEditDistance"]

@@ -5,11 +5,11 @@ import random
 import unittest
 
 from tests.optional import VISUAL_OK, VISUAL_SKIP_REASON
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
 @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
-class TestDfaVisualization(DfaTestCase):
+class TestDFAVisualization(DFATestCase):
     """Ensure DFA diagram generation remains stable."""
 
     def test_show_diagram_initial_final_different(self) -> None:
@@ -125,6 +125,3 @@ class TestDfaVisualization(DfaTestCase):
 
         graph = self.dfa.show_diagram(fig_size=(3.3,))
         self.assertEqual(graph.graph_attr["size"], "3.3")
-
-
-__all__ = ["TestDfaVisualization"]

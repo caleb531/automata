@@ -4,10 +4,10 @@ from parameterized import parameterized  # type: ignore
 
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
-class TestDfaLengthConstraints(DfaTestCase):
+class TestDFALengthConstraints(DFATestCase):
     """Validate language length constraints, counting, and caches."""
 
     def test_count_words_of_length(self) -> None:
@@ -293,6 +293,3 @@ class TestDfaLengthConstraints(DfaTestCase):
         dfa.clear_cache()
         self.assertEqual(len(dfa._word_cache), 0)
         self.assertEqual(len(dfa._count_cache), 0)
-
-
-__all__ = ["TestDfaLengthConstraints"]

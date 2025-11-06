@@ -7,10 +7,10 @@ from frozendict import frozendict
 
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
-class TestDfaConstruction(DfaTestCase):
+class TestDFAConstruction(DFATestCase):
     """Verify DFA construction, immutability, and basic input handling."""
 
     def test_init_dfa(self) -> None:

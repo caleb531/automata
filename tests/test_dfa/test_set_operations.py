@@ -4,10 +4,10 @@ from parameterized import parameterized  # type: ignore
 
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA
-from tests.test_dfa.base import DfaTestCase, get_permutation_tuples
+from tests.test_dfa.base import DFATestCase, get_permutation_tuples
 
 
-class TestDfaEquivalence(DfaTestCase):
+class TestDFAEquivalence(DFATestCase):
     """Validate DFA equality and conversions between partial and complete forms."""
 
     def test_equivalence_not_equal(self) -> None:
@@ -296,11 +296,11 @@ class TestDfaEquivalence(DfaTestCase):
     @parameterized.expand(
         get_permutation_tuples(
             DFA.from_substring(set("01"), "1111"),
-            DfaTestCase.partial_dfa,
-            DfaTestCase.no_consecutive_11_dfa,
-            DfaTestCase.at_least_four_ones,
-            DfaTestCase.zero_or_one_1_dfa,
-            DfaTestCase.no_reachable_final_dfa,
+            DFATestCase.partial_dfa,
+            DFATestCase.no_consecutive_11_dfa,
+            DFATestCase.at_least_four_ones,
+            DFATestCase.zero_or_one_1_dfa,
+            DFATestCase.no_reachable_final_dfa,
         )
     )
     def test_set_laws(self, dfa1: DFA, dfa2: DFA) -> None:
@@ -329,6 +329,3 @@ class TestDfaEquivalence(DfaTestCase):
         self.assertEqual(dfa1 | dfa2, dfa2 | dfa1)
         self.assertEqual(dfa1 & dfa2, dfa2 & dfa1)
         self.assertEqual(dfa1 ^ dfa2, dfa2 ^ dfa1)
-
-
-__all__ = ["TestDfaEquivalence"]

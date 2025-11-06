@@ -5,10 +5,10 @@ from itertools import product
 from parameterized import parameterized  # type: ignore
 
 from automata.fa.dfa import DFA
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
-class TestDfaFiniteLanguage(DfaTestCase):
+class TestDFAFiniteLanguage(DFATestCase):
     """Validate helpers specific to finite DFAs."""
 
     @parameterized.expand((True, False))
@@ -92,6 +92,3 @@ class TestDfaFiniteLanguage(DfaTestCase):
         dfa1 = DFA.from_finite_language(set("abcd"), {"abcd", "dcba"})
         dfa2 = dfa1.minify(retain_names=True)
         self.assertTrue(repr(dfa2))
-
-
-__all__ = ["TestDfaFiniteLanguage"]

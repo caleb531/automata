@@ -6,11 +6,11 @@ from itertools import product
 
 from automata.fa.nfa import NFA
 from tests.optional import VISUAL_OK, VISUAL_SKIP_REASON
-from tests.test_nfa.base import NfaTestCase
+from tests.test_nfa.base import NFATestCase
 
 
 @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
-class TestNfaVisualization(NfaTestCase):
+class TestNFAVisualization(NFATestCase):
     """Ensure diagram rendering behaves as expected."""
 
     def test_show_diagram_initial_final_same(self) -> None:
@@ -73,7 +73,7 @@ class TestNfaVisualization(NfaTestCase):
         os.remove(diagram_path)
 
 
-class TestNfaInputPath(NfaTestCase):
+class TestNFAInputPath(NFATestCase):
     """Validate path helpers that power visualization overlays."""
 
     def test_get_input_path(self) -> None:
@@ -135,6 +135,3 @@ class TestNfaInputPath(NfaTestCase):
         input_path, was_accepted = nfa._get_input_path(input_str)
         self.assertEqual(was_accepted, nfa.accepts_input(input_str))
         self.assertEqual(len(input_path), 3)
-
-
-__all__ = ["TestNfaVisualization", "TestNfaInputPath"]

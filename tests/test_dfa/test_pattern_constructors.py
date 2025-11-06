@@ -5,10 +5,10 @@ from itertools import product
 from parameterized import parameterized  # type: ignore
 
 from automata.fa.dfa import DFA
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
-class TestDfaPatternConstructors(DfaTestCase):
+class TestDFAPatternConstructors(DFATestCase):
     """Exercise prefix, suffix, substring, and subsequence constructors."""
 
     @parameterized.expand((True, False))
@@ -174,6 +174,3 @@ class TestDfaPatternConstructors(DfaTestCase):
             ~subsequence_dfa,
             DFA.from_subsequence(input_symbols, "nano", contains=False),
         )
-
-
-__all__ = ["TestDfaPatternConstructors"]

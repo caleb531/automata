@@ -2,10 +2,10 @@
 
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
-class TestDfaLanguageProperties(DfaTestCase):
+class TestDFALanguageProperties(DFATestCase):
     """Exercise language emptiness, finiteness, and length bounds."""
 
     def test_isempty_non_empty(self) -> None:
@@ -111,6 +111,3 @@ class TestDfaLanguageProperties(DfaTestCase):
 
         dfa = DFA.empty_language({"0", "1", "a", "b"})
         self.assertTrue(dfa.isempty())
-
-
-__all__ = ["TestDfaLanguageProperties"]

@@ -2,10 +2,10 @@
 
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
-class TestDfaConversions(DfaTestCase):
+class TestDFAConversions(DFATestCase):
     """Ensure DFAs interoperate with NFAs and partial constructions."""
 
     def test_init_nfa_simple(self) -> None:
@@ -147,6 +147,3 @@ class TestDfaConversions(DfaTestCase):
             allow_partial=True,
         )
         self.assertEqual(dfa.read_input("aa"), "aa")
-
-
-__all__ = ["TestDfaConversions"]

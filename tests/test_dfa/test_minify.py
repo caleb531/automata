@@ -1,10 +1,10 @@
 """Tests exercising DFA minimisation functionality."""
 
 from automata.fa.dfa import DFA
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
-class TestDfaMinify(DfaTestCase):
+class TestDFAMinify(DFATestCase):
     """Validate DFA minimisation across varied constructions."""
 
     def test_minify_dfa(self) -> None:
@@ -510,6 +510,3 @@ class TestDfaMinify(DfaTestCase):
         self.assertEqual(
             dfa.difference(dfa2, minify=False), dfa.difference(dfa2, minify=True)
         )
-
-
-__all__ = ["TestDfaMinify"]

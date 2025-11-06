@@ -5,10 +5,10 @@ from parameterized import parameterized  # type: ignore
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
-from tests.test_dfa.base import DfaTestCase
+from tests.test_dfa.base import DFATestCase
 
 
-class TestDfaEnumeration(DfaTestCase):
+class TestDFAEnumeration(DFATestCase):
     """Cover iteration, length, and lexical ordering helpers."""
 
     @parameterized.expand((True, False))
@@ -263,6 +263,3 @@ class TestDfaEnumeration(DfaTestCase):
         self.assertEqual(dfa.successor("01"), "011")
         self.assertEqual(dfa.successor("01000"), "011")
         self.assertIsNone(dfa.successor("1"))
-
-
-__all__ = ["TestDfaEnumeration"]

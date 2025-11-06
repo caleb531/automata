@@ -7,10 +7,10 @@ from frozendict import frozendict
 
 import automata.base.exceptions as exceptions
 from automata.fa.nfa import NFA
-from tests.test_nfa.base import NfaTestCase
+from tests.test_nfa.base import NFATestCase
 
 
-class TestNfaConstruction(NfaTestCase):
+class TestNFAConstruction(NFATestCase):
     """Verify NFA construction, validation, and basic input handling."""
 
     def test_init_nfa(self) -> None:
@@ -233,6 +233,3 @@ class TestNfaConstruction(NfaTestCase):
             final_states=set(),
         )
         self.assertIsNotNone(nfa.accepts_input(""))
-
-
-__all__ = ["TestNfaConstruction"]

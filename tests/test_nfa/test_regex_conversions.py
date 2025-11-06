@@ -3,10 +3,10 @@
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
-from tests.test_nfa.base import NfaTestCase
+from tests.test_nfa.base import NFATestCase
 
 
-class TestNfaRegexConversions(NfaTestCase):
+class TestNFARegexConversions(NFATestCase):
     """Validate regex-based construction and related transformations."""
 
     def test_from_regex(self) -> None:
@@ -265,6 +265,3 @@ class TestNfaRegexConversions(NfaTestCase):
                 input_symbols=input_symbols_2,
             ),
         )
-
-
-__all__ = ["TestNfaRegexConversions"]
