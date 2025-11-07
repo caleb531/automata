@@ -1,6 +1,5 @@
 """Shared fixtures and utilities for DFA tests."""
 
-import tempfile
 from itertools import permutations
 from typing import Iterable, Tuple, TypeVar, cast
 
@@ -17,8 +16,6 @@ def get_permutation_tuples(*args: ArgT) -> Tuple[Tuple[ArgT, ArgT], ...]:
 
 class DFATestCase(test_fa.TestFA):
     """Base test case providing common DFA fixtures."""
-
-    temp_dir_path = tempfile.gettempdir()
 
     # A partial DFA that accepts the string "111" only
     partial_dfa = DFA(
