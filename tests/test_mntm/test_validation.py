@@ -10,9 +10,8 @@ class TestMNTMValidation(MNTMTestCase):
     """Exercise structural validation around MNTM definitions."""
 
     def test_validate_input_symbol_subset(self) -> None:
-        """
-        Should raise error if input symbols are not a strict superset of tape symbols.
-        """
+        """Should raise error if input symbols are not a strict superset of tape
+        symbols."""
         with self.assertRaises(exceptions.MissingSymbolError):
             MNTM(
                 states={"q0", "q1"},
@@ -72,7 +71,7 @@ class TestMNTMValidation(MNTMTestCase):
             )
 
     def test_validate_invalid_final_state_non_str(self) -> None:
-        """Should raise InvalidStateError when final states are not strings."""
+        """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
             MNTM(
                 states={"q0", "q1"},

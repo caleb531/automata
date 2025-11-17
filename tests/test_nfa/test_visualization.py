@@ -14,6 +14,8 @@ class TestNFAVisualization(NFATestCase):
     """Ensure diagram rendering behaves as expected."""
 
     def test_show_diagram_initial_final_same(self) -> None:
+        """Should construct the diagram for a NFA whose initial state
+        is also a final state."""
         graph = self.nfa.show_diagram()
         node_names = {node.get_name() for node in graph.nodes()}
         self.assertTrue(set(self.nfa.states).issubset(node_names))
@@ -45,6 +47,7 @@ class TestNFAVisualization(NFATestCase):
         self.assertTrue(source not in self.nfa.states)
 
     def test_show_diagram_read_input(self) -> None:
+        """Should construct the diagram for a NFA reading input."""
         input_strings = ["ababa", "bba", "aabba", "baaab", "bbaab", ""]
 
         for input_string in input_strings:
@@ -62,6 +65,8 @@ class TestNFAVisualization(NFATestCase):
             self.assertEqual(edge_pairs, colored_edges)
 
     def test_show_diagram_write_file(self) -> None:
+        """Should construct the diagram for a NFA
+        and write it to the specified file."""
         diagram_path = os.path.join(self.temp_dir_path, "test_dfa.png")
         try:
             os.remove(diagram_path)
@@ -115,6 +120,8 @@ class TestNFAInputPath(NFATestCase):
             self.assertEqual(last_vtx in nfa.final_states, was_accepted)
 
     def test_input_path_optimality(self) -> None:
+        """A test case for optimality of path found.
+        Checks path length doesn't use the extra epsilon transition."""
         nfa = NFA(
             states=set(range(6)),
             input_symbols=set("01"),

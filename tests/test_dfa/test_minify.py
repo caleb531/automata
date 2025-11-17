@@ -8,6 +8,7 @@ class TestDFAMinify(DFATestCase):
     """Validate DFA minimisation across varied constructions."""
 
     def test_minify_dfa(self) -> None:
+        """Should minify a given DFA."""
         dfa = DFA(
             states={"q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7"},
             input_symbols={"0", "1"},
@@ -57,6 +58,7 @@ class TestDFAMinify(DFATestCase):
         )
 
     def test_minify_dfa_complex(self) -> None:
+        """Should minify a given large DFA."""
         dfa = DFA(
             states={
                 "13",
@@ -392,6 +394,7 @@ class TestDFAMinify(DFATestCase):
         self.assertEqual(minimal_dfa.final_states, check_dfa.final_states)
 
     def test_minify_minimal_dfa(self) -> None:
+        """Should minify an already minimal DFA."""
         dfa = DFA(
             states={"q0", "q1"},
             input_symbols={"0", "1"},
@@ -418,6 +421,7 @@ class TestDFAMinify(DFATestCase):
         self.assertEqual(minimal_dfa.final_states, other_minimal_dfa.final_states)
 
     def test_minify_dfa_initial_state(self) -> None:
+        """Should minify a DFA where the initial state is being changed."""
         dfa = DFA(
             states={"q0", "q1"},
             input_symbols={"0", "1"},
@@ -470,6 +474,7 @@ class TestDFAMinify(DFATestCase):
         self.assertEqual(minimal_dfa.final_states, set())
 
     def test_minify_partial_dfa(self) -> None:
+        """Test that minifying a partial DFA removes extra states."""
         partial_dfa_extra_state = DFA(
             states=set(range(5)),
             input_symbols={"0", "1"},
@@ -484,6 +489,9 @@ class TestDFAMinify(DFATestCase):
         self.assertEqual(minified_partial_dfa, partial_dfa_extra_state)
 
     def test_minify_partial_dfa_correctness(self) -> None:
+        """Test correctness of minifying partial DFAs.
+        Test added because of issues raised here:
+        https://github.com/caleb531/automata/issues/182"""
         input_symbols = {"a", "b", "c"}
         dfa = DFA.from_finite_language(
             language={"ab", "abcb"}, input_symbols=input_symbols, as_partial=True

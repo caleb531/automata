@@ -11,6 +11,8 @@ class TestDFALengthConstraints(DFATestCase):
     """Validate language length constraints, counting, and caches."""
 
     def test_count_words_of_length(self) -> None:
+        """Test that language that avoids the pattern '11' is counted by fibonacci
+        numbers"""
         dfa = DFA(
             states={"p0", "p1", "p2"},
             input_symbols={"0", "1"},
@@ -28,6 +30,7 @@ class TestDFALengthConstraints(DFATestCase):
             self.assertEqual(dfa.count_words_of_length(i), fib)
 
     def test_words_of_length(self) -> None:
+        """Test that all words generated are accepted and that count matches"""
         dfa = DFA(
             states={"p0", "p1", "p2"},
             input_symbols={"0", "1"},

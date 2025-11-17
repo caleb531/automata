@@ -11,6 +11,7 @@ class TestDFAEquivalence(DFATestCase):
     """Validate DFA equality and conversions between partial and complete forms."""
 
     def test_equivalence_not_equal(self) -> None:
+        """Should not be equal."""
         self.assertNotEqual(self.no_consecutive_11_dfa, self.zero_or_one_1_dfa)
 
     def test_equivalence_partials(self) -> None:
@@ -38,6 +39,7 @@ class TestDFAEquivalence(DFATestCase):
         )
 
     def test_equivalence_complete(self) -> None:
+        """Example test case from https://github.com/caleb531/automata/issues/257"""
         frag = DFA(
             states={0, 1, 2, 3, 4},
             input_symbols={"0", "1"},
@@ -56,6 +58,7 @@ class TestDFAEquivalence(DFATestCase):
         self.assertEqual(frag, frag.to_partial())
 
     def test_equivalence_minify(self) -> None:
+        """Should be equivalent after minify."""
         minimal_dfa = self.no_consecutive_11_dfa.minify()
         self.assertEqual(self.no_consecutive_11_dfa, minimal_dfa)
 
@@ -83,6 +86,7 @@ class TestDFAEquivalence(DFATestCase):
         self.assertEqual(other_dfa, other_dfa.minify())
 
     def test_equivalence_two_non_minimal(self) -> None:
+        """Should be equivalent even though they are non minimal."""
         other_dfa = DFA(
             states={"q0", "q1", "q2", "q3"},
             input_symbols={"0", "1"},
@@ -98,12 +102,14 @@ class TestDFAEquivalence(DFATestCase):
         self.assertEqual(self.no_consecutive_11_dfa, other_dfa)
 
     def test_complement_partial(self) -> None:
+        """Test complement properties for partial DFAs"""
         complement_partial_dfa = self.partial_dfa.complement()
         complement_complete_dfa = self.partial_dfa.to_complete().complement()
 
         self.assertEqual(complement_complete_dfa, complement_partial_dfa)
 
     def test_complement(self) -> None:
+        """Should compute the complement of a DFA"""
         complement_dfa = self.no_consecutive_11_dfa.complement(
             retain_names=True, minify=False
         )
@@ -120,6 +126,7 @@ class TestDFAEquivalence(DFATestCase):
         self.assertEqual(complement_dfa.final_states, {"p2"})
 
     def test_union(self) -> None:
+        """Should compute the union between two DFAs"""
         dfa1 = self.at_least_four_ones
         dfa2 = self.no_consecutive_11_dfa
         new_dfa = dfa1.union(dfa2, retain_names=True, minify=False)
@@ -178,6 +185,7 @@ class TestDFAEquivalence(DFATestCase):
         self.assertEqual(dfa1.union(dfa2, retain_names=False, minify=False), new_dfa)
 
     def test_intersection(self) -> None:
+        """Should compute the intersection between two DFAs"""
         dfa1 = self.at_least_four_ones
         dfa2 = self.no_consecutive_11_dfa
         new_dfa = dfa1.intersection(dfa2, retain_names=True, minify=False)
@@ -194,6 +202,7 @@ class TestDFAEquivalence(DFATestCase):
         )
 
     def test_difference(self) -> None:
+        """Should compute the difference between two DFAs"""
         dfa1 = self.at_least_four_ones
         dfa2 = self.no_consecutive_11_dfa
         new_dfa = dfa1.difference(dfa2, retain_names=True, minify=False)
@@ -204,6 +213,7 @@ class TestDFAEquivalence(DFATestCase):
         )
 
     def test_symmetric_difference(self) -> None:
+        """Should compute the symmetric difference between two DFAs"""
         dfa1 = self.at_least_four_ones
         dfa2 = self.no_consecutive_11_dfa
         new_dfa = dfa1.symmetric_difference(dfa2, retain_names=True, minify=False)
@@ -226,6 +236,7 @@ class TestDFAEquivalence(DFATestCase):
         )
 
     def test_issubset(self) -> None:
+        """Should test if one DFA is a subset of another"""
         self.assertTrue(self.zero_or_one_1_dfa < self.no_consecutive_11_dfa)
         self.assertTrue(self.zero_or_one_1_dfa <= self.no_consecutive_11_dfa)
         self.assertFalse(self.no_consecutive_11_dfa < self.zero_or_one_1_dfa)
@@ -242,6 +253,7 @@ class TestDFAEquivalence(DFATestCase):
         self.assertTrue(single_string_dfa <= self.no_consecutive_11_dfa)
 
     def test_issuperset(self) -> None:
+        """Should test if one DFA is a superset of another"""
         self.assertFalse(self.zero_or_one_1_dfa > self.no_consecutive_11_dfa)
         self.assertFalse(self.zero_or_one_1_dfa >= self.no_consecutive_11_dfa)
 
@@ -259,6 +271,7 @@ class TestDFAEquivalence(DFATestCase):
         self.assertTrue(self.no_consecutive_11_dfa >= single_string_dfa)
 
     def test_symbol_mismatch(self) -> None:
+        """Should test if symbol mismatch is raised"""
         zero_or_one_b_dfa = DFA(
             states={"q0", "q1", "q2"},
             input_symbols={"a", "b"},
@@ -277,6 +290,7 @@ class TestDFAEquivalence(DFATestCase):
             zero_or_one_b_dfa.difference(self.no_consecutive_11_dfa)
 
     def test_isdisjoint(self) -> None:
+        """Should test if two DFAs are disjoint"""
         input_symbols = {"0", "1"}
         at_least_three_1 = DFA.from_subsequence(input_symbols, "111")
         at_least_one_1 = DFA.from_subsequence(input_symbols, "1")
@@ -304,6 +318,7 @@ class TestDFAEquivalence(DFATestCase):
         )
     )
     def test_set_laws(self, dfa1: DFA, dfa2: DFA) -> None:
+        """Tests many set laws that are true for all sets"""
         input_symbols = {"0", "1"}
 
         dfa1 = dfa1.to_complete()

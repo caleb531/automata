@@ -9,6 +9,7 @@ class TestDFAConversions(DFATestCase):
     """Ensure DFAs interoperate with NFAs and partial constructions."""
 
     def test_init_nfa_simple(self) -> None:
+        """Should convert to a DFA a simple NFA."""
         nfa = NFA(
             states={"q0", "q1", "q2"},
             input_symbols={"0", "1"},
@@ -45,6 +46,7 @@ class TestDFAConversions(DFATestCase):
         self.assertEqual(dfa.final_states, {frozenset(("q2",))})
 
     def test_init_nfa_more_complex(self) -> None:
+        """Should convert to a DFA a more complex NFA."""
         nfa = NFA(
             states={"q0", "q1", "q2"},
             input_symbols={"0", "1"},
@@ -96,6 +98,7 @@ class TestDFAConversions(DFATestCase):
         )
 
     def test_init_nfa_lambda_transition(self) -> None:
+        """Should convert to a DFA an NFA with a lambda transition."""
         dfa = DFA.from_nfa(self.nfa, retain_names=True, minify=False).to_complete(
             frozenset()
         )
@@ -119,6 +122,7 @@ class TestDFAConversions(DFATestCase):
         self.assertEqual(dfa.final_states, {frozenset(("q1", "q2"))})
 
     def test_nfa_to_dfa_with_lambda_transitions(self) -> None:
+        """Test NFA->DFA when initial state has lambda transitions"""
         nfa = NFA(
             states={"q0", "q1", "q2"},
             input_symbols={"a", "b"},
@@ -130,6 +134,7 @@ class TestDFAConversions(DFATestCase):
         self.assertEqual(dfa.read_input("a"), frozenset(("q1",)))
 
     def test_partial_dfa(self) -> None:
+        """Should allow for partial DFA when flag is set"""
         dfa = DFA(
             states={"", "a", "b", "aa", "bb", "ab", "ba"},
             input_symbols={"a", "b"},

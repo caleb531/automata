@@ -10,6 +10,7 @@ class TestNFARegexConversions(NFATestCase):
     """Validate regex-based construction and related transformations."""
 
     def test_from_regex(self) -> None:
+        """Test if from_regex produces correct NFA"""
         input_symbols = {"a", "b", "c", "d"}
         nfa1 = NFA.from_regex("ab(cd*|dc)|a?", input_symbols=input_symbols)
         nfa2 = NFA(
@@ -112,6 +113,7 @@ class TestNFARegexConversions(NFATestCase):
                 self.assertNotEqual(char, "")
 
     def test_validate_regex(self) -> None:
+        """Should raise an error if invalid regex is passed into NFA.from_regex()"""
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "ab|")
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "?")
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "a|b|*")
@@ -127,6 +129,8 @@ class TestNFARegexConversions(NFATestCase):
         self.assertRaises(exceptions.InvalidRegexError, NFA.from_regex, "ab(|)")
 
     def test_add_new_state_type_integrity(self) -> None:
+        """Should properly add new state of different type than original states;
+        see <https://github.com/caleb531/automata/issues/60> for more details"""
         dfa1 = NFA(
             states={"0", "1"},
             input_symbols={"0"},

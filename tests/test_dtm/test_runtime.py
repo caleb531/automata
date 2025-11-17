@@ -27,7 +27,7 @@ class TestDTMRuntime(DTMTestCase):
         self.assertEqual(str(configs[-1].tape), "TMTape('xxxxyyyy..', '.', 9)")
 
     def test_read_input_offset(self) -> None:
-        """Should validate input when tape is offset."""
+        """Should valdiate input when tape is offset."""
         final_config = self.dtm2.read_input("01010101")
         self.assertEqual(final_config.state, "q4")
         self.assertEqual(str(final_config.tape), "TMTape('yyx1010101', '.', 3)")

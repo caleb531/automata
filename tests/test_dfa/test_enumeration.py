@@ -13,6 +13,7 @@ class TestDFAEnumeration(DFATestCase):
 
     @parameterized.expand((True, False))
     def test_iter_finite(self, as_partial: bool) -> None:
+        """Test that DFA for finite language generates all words"""
         language = {
             "aa",
             "aaa",
@@ -32,6 +33,8 @@ class TestDFAEnumeration(DFATestCase):
         self.assertEqual(generated_set, language)
 
     def test_iter_infinite(self) -> None:
+        """Test that language that avoids the pattern '11' generates the correct
+        values in correct order"""
         dfa = DFA(
             states={"p0", "p1", "p2"},
             input_symbols={"0", "1"},
@@ -109,6 +112,7 @@ class TestDFAEnumeration(DFATestCase):
             len(~dfa)
 
     def test_random_word(self) -> None:
+        """Test random generation of words, the generation should be uniformly random"""
         binary = {"0", "1"}
         dfa = DFA.from_prefix(binary, "00")
         with self.assertRaises(ValueError):

@@ -40,13 +40,15 @@ class TestNTMConstruction(NTMTestCase):
         self.assertIsNot(new_ntm, self.ntm1)
 
     def test_ntm_immutable_attr_set(self) -> None:
+        """Should prevent setting attributes on NTM after construction."""
         with self.assertRaises(AttributeError):
             self.ntm1.states = set()
 
     def test_ntm_immutable_attr_del(self) -> None:
+        """Should prevent deleting attributes on NTM after construction."""
         with self.assertRaises(AttributeError):
             del self.ntm1.states
 
     def test_ntm_immutable_dict(self) -> None:
-        """Should create an NTM whose contents are fully immutable/hashable."""
+        """Should create an NTM whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.ntm1.input_parameters)), int)

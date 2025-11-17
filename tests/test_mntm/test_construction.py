@@ -48,5 +48,5 @@ class TestMNTMConstruction(MNTMTestCase):
             del self.mntm1.states
 
     def test_mntm_immutable_dict(self) -> None:
-        """Should ensure input parameters are hashable."""
+        """Should create a DPDA whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.mntm1.input_parameters)), int)

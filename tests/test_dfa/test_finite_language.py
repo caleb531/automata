@@ -13,6 +13,7 @@ class TestDFAFiniteLanguage(DFATestCase):
 
     @parameterized.expand((True, False))
     def test_minimal_finite_language(self, as_partial: bool) -> None:
+        """Should compute the minimal DFA accepting the given finite language"""
         language = {
             "aa",
             "aaa",
@@ -59,6 +60,8 @@ class TestDFAFiniteLanguage(DFATestCase):
 
     @parameterized.expand((True, False))
     def test_minimal_finite_language_large(self, as_partial: bool) -> None:
+        """Should compute the minimal DFA accepting the given finite language on
+        large test case"""
         m = 50
         n = 50
         language = {("a" * i + "b" * j) for i, j in product(range(n), range(m))}
@@ -74,6 +77,7 @@ class TestDFAFiniteLanguage(DFATestCase):
         self.assertEqual(dfa_language, language)
 
     def test_dfa_repr(self) -> None:
+        """Should display proper string representation of DFA"""
         dfa = DFA(
             states={"q0"},
             input_symbols={"a"},
@@ -89,6 +93,7 @@ class TestDFAFiniteLanguage(DFATestCase):
         )
 
     def test_dfa_repr_retain_names(self) -> None:
+        """Should produce repr of minified DFA with retain_names=True"""
         dfa1 = DFA.from_finite_language(set("abcd"), {"abcd", "dcba"})
         dfa2 = dfa1.minify(retain_names=True)
         self.assertTrue(repr(dfa2))

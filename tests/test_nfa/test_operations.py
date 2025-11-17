@@ -11,6 +11,7 @@ class TestNFAOperations(NFATestCase):
     """Exercise concatenation, closure, and set-like operations."""
 
     def test_operations_other_type(self) -> None:
+        """Should raise TypeError for concatenate."""
         nfa = NFA(
             states={"q1", "q2", "q3", "q4"},
             input_symbols={"0", "1"},
@@ -67,6 +68,7 @@ class TestNFAOperations(NFATestCase):
         self.assertTrue(concat_nfa.accepts_input("1010"))
 
     def test_kleene_star(self) -> None:
+        """Should perform the Kleene Star operation on an NFA"""
         nfa = NFA(
             states={0, 1, 2, 3, 4, 6, 10},
             input_symbols={"a", "b"},
@@ -98,6 +100,7 @@ class TestNFAOperations(NFATestCase):
         self.assertFalse(kleene_nfa.accepts_input("aaabababaaaaba"))
 
     def test_reverse(self) -> None:
+        """Should reverse an NFA"""
         nfa = NFA(
             states={0, 1, 2, 4},
             input_symbols={"a", "b"},
@@ -119,6 +122,9 @@ class TestNFAOperations(NFATestCase):
         self.assertTrue(reverse_nfa.accepts_input("bbba"))
 
     def test_option(self) -> None:
+        """Given a NFA recognizing language L, should return NFA
+        such that it accepts the language 'L?'
+        that zero or one occurrence of L."""
         nfa1 = NFA.from_regex("a*b")
         nfa1 = nfa1.option()
         self.assertTrue(nfa1.accepts_input("aab"))
@@ -193,6 +199,9 @@ class TestNFAOperations(NFATestCase):
             self.nfa & self.dfa  # type: ignore
 
     def test_nfa_shuffle_product(self) -> None:
+        """Test shuffle product of two NFAs.
+
+        Test cases based on https://planetmath.org/shuffleoflanguages"""
         input_symbols = {"a", "b"}
 
         nfa1 = NFA.from_dfa(DFA.from_finite_language(input_symbols, {"aba"}))
@@ -238,6 +247,7 @@ class TestNFAOperations(NFATestCase):
             self.nfa.shuffle_product(self.dfa)  # type: ignore
 
     def test_nfa_shuffle_product_set_laws(self) -> None:
+        """Test set laws for shuffle product"""
         alphabet = {"a", "b"}
         nfa1 = NFA.from_regex("a*b*", input_symbols=alphabet)
         nfa2 = NFA.from_regex("b*a*", input_symbols=alphabet)
@@ -254,6 +264,8 @@ class TestNFAOperations(NFATestCase):
         )
 
     def test_right_quotient(self) -> None:
+        """Tests for right quotient operator,
+        based on https://www.geeksforgeeks.org/quotient-operation-in-automata/"""
         alphabet = set(string.ascii_lowercase)
 
         nfa1 = NFA.from_dfa(
@@ -306,6 +318,8 @@ class TestNFAOperations(NFATestCase):
             self.nfa.right_quotient(self.dfa)  # type: ignore
 
     def test_left_quotient(self) -> None:
+        """Tests for left quotient operator,
+        based on https://www.geeksforgeeks.org/quotient-operation-in-automata/"""
         alphabet = set(string.ascii_lowercase)
 
         nfa1 = NFA.from_dfa(
@@ -348,6 +362,8 @@ class TestNFAOperations(NFATestCase):
             self.nfa.left_quotient(self.dfa)  # type: ignore
 
     def test_quotient_properties(self) -> None:
+        """Test some properties of quotients, based on
+        https://planetmath.org/quotientoflanguages"""
         nfa1 = NFA.from_regex("(ab*aa*)|(baa+)")
         nfa2 = NFA.from_regex("(aa*b*a)|(b+aaba)")
 

@@ -13,6 +13,7 @@ class TestDPDAVisualization(DPDATestCase):
     """Exercise diagram generation and path-highlighting helpers."""
 
     def test_show_diagram(self) -> None:
+        """Should construct the diagram for a DPDA"""
         graph = self.dpda.show_diagram()
         node_names = {node.get_name() for node in graph.nodes()}
         self.assertTrue(set(self.dpda.states).issubset(node_names))
@@ -44,10 +45,12 @@ class TestDPDAVisualization(DPDATestCase):
         self.assertTrue(source not in self.dpda.states)
 
     def test_show_diagram_exception(self) -> None:
+        """Should raise exception"""
         with self.assertRaises(exceptions.DiagramException):
             self.dpda.show_diagram("ab", with_machine=False, with_stack=False)
 
     def test_show_diagram_read_input_machine_only(self) -> None:
+        """Should construct the diagram with machine only for a DPDA reading input."""
         input_strings = ["ab", "aabb", "aaabbb"]
 
         for input_string in input_strings:
@@ -62,6 +65,7 @@ class TestDPDAVisualization(DPDATestCase):
             self.assertEqual(edge_pairs, colored_edges)
 
     def test_show_diagram_read_input_stack_only(self) -> None:
+        """Should construct the diagram with stack only for a DPDA reading input."""
         input_strings = ["ab", "aabb", "aaabbb"]
 
         for input_string in input_strings:
@@ -82,6 +86,8 @@ class TestDPDAVisualization(DPDATestCase):
             self.assertEqual(edge_pairs, colored_edges)
 
     def test_show_diagram_write_file(self) -> None:
+        """Should construct the diagram for a DPDA
+        and write it to the specified file."""
         diagram_path = os.path.join(self.temp_dir_path, "test_dpda.png")
         try:
             os.remove(diagram_path)
@@ -106,6 +112,8 @@ class TestDPDAVisualization(DPDATestCase):
         self.assertEqual(graph.graph_attr["rankdir"], "BT")
 
     def test_show_diagram_fig_size(self) -> None:
+        """Testing figure size. Just need to make sure it matches the input
+        (the library handles the rendering)."""
         graph = self.dpda.show_diagram(fig_size=(1.1, 2))
         self.assertEqual(graph.graph_attr["size"], "1.1, 2")
 

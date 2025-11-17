@@ -26,7 +26,7 @@ class TestNPDAConstruction(NPDATestCase):
             )
 
     def test_init_npda_no_acceptance_mode(self) -> None:
-        """Should default acceptance mode to "both" when omitted."""
+        """Should create a new NPDA."""
         new_npda = NPDA(
             states={"q0"},
             input_symbols={"a", "b"},
@@ -65,5 +65,5 @@ class TestNPDAConstruction(NPDATestCase):
             del self.npda.states
 
     def test_npda_immutable_dict(self) -> None:
-        """Should ensure NPDA contents remain hashable."""
+        """Should create an NPDA whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.npda.input_parameters)), int)

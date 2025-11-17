@@ -14,10 +14,12 @@ class TestNFAConstruction(NFATestCase):
     """Verify NFA construction, validation, and basic input handling."""
 
     def test_init_nfa(self) -> None:
+        """Should copy NFA if passed into NFA constructor."""
         new_nfa = self.nfa.copy()
         self.assertIsNot(new_nfa, self.nfa)
 
     def test_init_nfa_missing_formal_params(self) -> None:
+        """Should raise an error if formal NFA parameters are missing."""
         with self.assertRaises(TypeError):
             NFA(  # type: ignore
                 states={"q0", "q1"},
@@ -27,6 +29,7 @@ class TestNFAConstruction(NFATestCase):
             )
 
     def test_copy_nfa(self) -> None:
+        """Should create exact copy of NFA if copy() method is called."""
         new_nfa = self.nfa.copy()
         self.assertIsNot(new_nfa, self.nfa)
 
@@ -39,9 +42,11 @@ class TestNFAConstruction(NFATestCase):
             del self.nfa.states
 
     def test_nfa_immutable_dict(self) -> None:
+        """Should create an NFA whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.nfa.input_parameters)), int)
 
     def test_init_dfa(self) -> None:
+        """Should convert DFA to NFA if passed into NFA constructor."""
         nfa = NFA.from_dfa(self.dfa)
         self.assertEqual(nfa.states, {"q0", "q1", "q2"})
         self.assertEqual(nfa.input_symbols, {"0", "1"})
@@ -57,10 +62,12 @@ class TestNFAConstruction(NFATestCase):
 
     @patch("automata.fa.nfa.NFA.validate")
     def test_init_validation(self, validate: MagicMock) -> None:
+        """Should validate NFA when initialized."""
         self.nfa.copy()
         validate.assert_called_once_with()
 
     def test_nfa_equal(self) -> None:
+        """Should correctly determine if two NFAs are equal."""
         nfa1 = NFA(
             states={"q0", "q1", "q2", "q3"},
             input_symbols={"a", "b"},
@@ -89,6 +96,7 @@ class TestNFAConstruction(NFATestCase):
         self.assertEqual(nfa1.eliminate_lambda(), nfa2.eliminate_lambda())
 
     def test_nfa_not_equal(self) -> None:
+        """Should correctly determine if two NFAs are not equal."""
         nfa1 = NFA(
             states={"q0", "q1", "q2"},
             input_symbols={"a", "b"},
@@ -110,6 +118,7 @@ class TestNFAConstruction(NFATestCase):
         self.assertNotEqual(nfa1, nfa2)
 
     def test_validate_invalid_symbol(self) -> None:
+        """Should raise error if a transition references an invalid symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             NFA(
                 states={"q0"},
@@ -120,6 +129,7 @@ class TestNFAConstruction(NFATestCase):
             )
 
     def test_validate_invalid_state(self) -> None:
+        """Should raise error if a transition references an invalid state."""
         with self.assertRaises(exceptions.InvalidStateError):
             NFA(
                 states={"q0"},
@@ -130,6 +140,7 @@ class TestNFAConstruction(NFATestCase):
             )
 
     def test_validate_invalid_initial_state(self) -> None:
+        """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             NFA(
                 states={"q0"},
@@ -140,6 +151,7 @@ class TestNFAConstruction(NFATestCase):
             )
 
     def test_validate_initial_state_transitions(self) -> None:
+        """Should raise error if the initial state has no transitions."""
         with self.assertRaises(exceptions.MissingStateError):
             NFA(
                 states={"q0", "q1"},
@@ -150,6 +162,7 @@ class TestNFAConstruction(NFATestCase):
             )
 
     def test_validate_invalid_final_state(self) -> None:
+        """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             NFA(
                 states={"q0"},
@@ -160,6 +173,7 @@ class TestNFAConstruction(NFATestCase):
             )
 
     def test_validate_invalid_final_state_non_str(self) -> None:
+        """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
             NFA(
                 states={"q0"},
@@ -171,9 +185,11 @@ class TestNFAConstruction(NFATestCase):
             self.nfa.validate()
 
     def test_read_input_accepted(self) -> None:
+        """Should return correct states if acceptable NFA input is given."""
         self.assertEqual(self.nfa.read_input("aba"), {"q1", "q2"})
 
     def test_validate_missing_state(self) -> None:
+        """Should silently ignore states without transitions defined."""
         NFA(
             states={"q0"},
             input_symbols={"a", "b"},
@@ -184,14 +200,17 @@ class TestNFAConstruction(NFATestCase):
         self.assertIsNotNone(self.nfa.transitions)
 
     def test_read_input_rejection(self) -> None:
+        """Should raise error if the stop state is not a final state."""
         with self.assertRaises(exceptions.RejectionException):
             self.nfa.read_input("abba")
 
     def test_read_input_rejection_invalid_symbol(self) -> None:
+        """Should raise error if an invalid symbol is read."""
         with self.assertRaises(exceptions.RejectionException):
             self.nfa.read_input("abc")
 
     def test_read_input_step(self) -> None:
+        """Should return validation generator if step flag is supplied."""
         validation_generator = self.nfa.read_input_stepwise("aba")
         self.assertIsInstance(validation_generator, types.GeneratorType)
         self.assertEqual(
@@ -200,15 +219,18 @@ class TestNFAConstruction(NFATestCase):
         )
 
     def test_accepts_input_true(self) -> None:
+        """Should return True if NFA input is accepted."""
         self.assertTrue(self.nfa.accepts_input("aba"))
         self.assertIn("aba", self.nfa)
 
     def test_accepts_input_false(self) -> None:
+        """Should return False if NFA input is rejected."""
         self.assertFalse(self.nfa.accepts_input("abba"))
         self.assertNotIn("abba", self.nfa)
         self.assertNotIn(1, self.nfa)
 
     def test_cyclic_lambda_transitions(self) -> None:
+        """Should traverse NFA containing cyclic lambda transitions."""
         nfa = NFA(
             states={"q0", "q1", "q2", "q3"},
             input_symbols={"a"},
@@ -225,6 +247,7 @@ class TestNFAConstruction(NFATestCase):
         self.assertEqual(nfa.read_input("a"), {"q0", "q1", "q2", "q3"})
 
     def test_non_str_states(self) -> None:
+        """Should handle non-string state names"""
         nfa = NFA(
             states={0},
             input_symbols={"0"},

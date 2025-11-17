@@ -48,7 +48,8 @@ class TestGNFAVisualization(GNFATestCase):
 
     @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_write_file(self) -> None:
-        """Should construct the diagram for a GNFA and write it to file."""
+        """Should construct the diagram for a NFA
+        and write it to the specified file."""
         diagram_path = os.path.join(self.temp_dir_path, "test_gnfa.png")
         try:
             os.remove(diagram_path)

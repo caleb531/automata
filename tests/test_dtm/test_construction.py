@@ -48,5 +48,5 @@ class TestDTMConstruction(DTMTestCase):
             del self.dtm1.states
 
     def test_dtm_immutable_dict(self) -> None:
-        """Should ensure DTM contents remain hashable."""
+        """Should create a DTM whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.dtm1.input_parameters)), int)

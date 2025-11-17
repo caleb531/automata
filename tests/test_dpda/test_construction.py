@@ -12,10 +12,12 @@ class TestDPDAConstruction(DPDATestCase):
     """Verify initialization semantics and structural validation."""
 
     def test_init_dpda(self) -> None:
+        """Should copy DPDA if passed into DPDA constructor."""
         new_dpda = self.dpda.copy()
         self.assertIsNot(new_dpda, self.dpda)
 
     def test_init_dpda_missing_formal_params(self) -> None:
+        """Should raise an error if formal DPDA parameters are missing."""
         with self.assertRaises(TypeError):
             DPDA(  # type: ignore
                 states={"q0", "q1", "q2"},
@@ -25,6 +27,7 @@ class TestDPDAConstruction(DPDATestCase):
             )
 
     def test_init_dpda_no_acceptance_mode(self) -> None:
+        """Should create a new DPDA."""
         new_dpda = DPDA(
             states={"q0"},
             input_symbols={"a", "b"},
@@ -37,6 +40,7 @@ class TestDPDAConstruction(DPDATestCase):
         self.assertEqual(new_dpda.acceptance_mode, "both")
 
     def test_init_dpda_invalid_acceptance_mode(self) -> None:
+        """Should raise an error if the NPDA has an invalid acceptance mode."""
         with self.assertRaises(pda_exceptions.InvalidAcceptanceModeError):
             DPDA(
                 states={"q0"},
@@ -58,9 +62,11 @@ class TestDPDAConstruction(DPDATestCase):
             del self.dpda.states
 
     def test_dpda_immutable_dict(self) -> None:
+        """Should create a DPDA whose contents are fully immutable/hashable"""
         self.assertIsInstance(hash(frozendict(self.dpda.input_parameters)), int)
 
     def test_validate_invalid_input_symbol(self) -> None:
+        """Should raise error if a transition has an invalid input symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             DPDA(
                 states={"q0", "q1", "q2", "q3"},
@@ -82,6 +88,7 @@ class TestDPDAConstruction(DPDATestCase):
             )
 
     def test_validate_invalid_stack_symbol(self) -> None:
+        """Should raise error if a transition has an invalid stack symbol."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             DPDA(
                 states={"q0", "q1", "q2", "q3"},
@@ -102,6 +109,7 @@ class TestDPDAConstruction(DPDATestCase):
             )
 
     def test_validate_nondeterminism(self) -> None:
+        """Should raise error if DPDA exhibits nondeterminism."""
         with self.assertRaises(pda_exceptions.NondeterminismError):
             DPDA(
                 states={"q0", "q1", "q2", "q3"},
@@ -122,6 +130,7 @@ class TestDPDAConstruction(DPDATestCase):
             )
 
     def test_validate_invalid_initial_state(self) -> None:
+        """Should raise error if the initial state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             DPDA(
                 states={"q0"},
@@ -134,6 +143,7 @@ class TestDPDAConstruction(DPDATestCase):
             )
 
     def test_validate_invalid_initial_stack_symbol(self) -> None:
+        """Should raise error if the initial stack symbol is invalid."""
         with self.assertRaises(exceptions.InvalidSymbolError):
             DPDA(
                 states={"q0"},
@@ -146,6 +156,7 @@ class TestDPDAConstruction(DPDATestCase):
             )
 
     def test_validate_invalid_final_state(self) -> None:
+        """Should raise error if the final state is invalid."""
         with self.assertRaises(exceptions.InvalidStateError):
             DPDA(
                 states={"q0"},
@@ -158,6 +169,7 @@ class TestDPDAConstruction(DPDATestCase):
             )
 
     def test_validate_invalid_final_state_non_str(self) -> None:
+        """Should raise InvalidStateError even for non-string final states."""
         with self.assertRaises(exceptions.InvalidStateError):
             DPDA(
                 states={"q0"},

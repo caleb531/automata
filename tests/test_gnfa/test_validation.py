@@ -94,7 +94,7 @@ class TestGNFAValidation(GNFATestCase):
             )
 
     def test_validate_final_state_transition(self) -> None:
-        """Should raise error if there are transitions from final state."""
+        """Should raise error if there are transitions from final state"""
         with self.assertRaises(exceptions.InvalidStateError):
             GNFA(
                 states={"q_in", "q_f", "q0", "q1", "q2"},
@@ -127,7 +127,8 @@ class TestGNFAValidation(GNFATestCase):
             )
 
     def test_validate_incomplete_transitions(self) -> None:
-        """Should raise errors when transition maps omit required states."""
+        """Should raise error if transitions from (except final state)
+        and to (except initial state) every state is missing."""
         with self.assertRaises(exceptions.MissingStateError):
             GNFA(
                 states={"q_in", "q_f", "q0", "q1", "q2"},

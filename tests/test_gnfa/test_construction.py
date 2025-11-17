@@ -88,7 +88,7 @@ class TestGNFAConstruction(GNFATestCase):
         validate.assert_called_once_with()
 
     def test_from_dfa(self) -> None:
-        """Should generate GNFA from DFA correctly."""
+        """Check if GNFA is generated properly from DFA"""
         dfa = DFA(
             states={0, 1, 2, 4},
             input_symbols={"a", "b"},
@@ -152,7 +152,7 @@ class TestGNFAConstruction(GNFATestCase):
         self.assertEqual(gnfa.to_regex(), gnfa2.to_regex())
 
     def test_from_nfa(self) -> None:
-        """Should convert NFA to GNFA properly."""
+        """Should convert NFA to GNFA properly"""
         nfa = NFA(
             states={0, 1, 2, 4},
             input_symbols={"a", "b"},
@@ -184,7 +184,8 @@ class TestGNFAConstruction(GNFATestCase):
         self.assertEqual(gnfa.input_parameters, gnfa2.input_parameters)
 
     def test_gnfa_deterministic(self) -> None:
-        """Should convert deterministically when building regex."""
+        """Check for deterministic conversion to GNFA.
+        From https://github.com/caleb531/automata/issues/231"""
         gt_symbols = {"Connect": "0", "Send_msg": "1", "Ack": "2", "Close": "3"}
         gt_dfa = DFA.from_nfa(
             NFA(

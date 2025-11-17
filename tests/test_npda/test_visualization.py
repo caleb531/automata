@@ -12,7 +12,7 @@ class TestNPDAVisualization(NPDATestCase):
 
     @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram(self) -> None:
-        """Should construct the diagram for a NPDA."""
+        """Should construct the diagram for a NPDA"""
         graph = self.npda.show_diagram()
         node_names = {node.get_name() for node in graph.nodes()}
         self.assertTrue(set(self.npda.states).issubset(node_names))
@@ -117,7 +117,8 @@ class TestNPDAVisualization(NPDATestCase):
 
     @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_write_file(self) -> None:
-        """Should construct the diagram for a NPDA and write it to disk."""
+        """Should construct the diagram for a NPDA
+        and write it to the specified file."""
         diagram_path = os.path.join(self.temp_dir_path, "test_npda.png")
         try:
             os.remove(diagram_path)
@@ -144,7 +145,8 @@ class TestNPDAVisualization(NPDATestCase):
 
     @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_fig_size(self) -> None:
-        """Should thread through the requested figure size."""
+        """Testing figure size. Just need to make sure it matches the input
+        (the library handles the rendering)."""
         graph = self.npda.show_diagram(fig_size=(1.1, 2))
         self.assertEqual(graph.graph_attr["size"], "1.1, 2")
 

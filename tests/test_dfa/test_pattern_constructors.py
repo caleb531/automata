@@ -62,6 +62,7 @@ class TestDFAPatternConstructors(DFATestCase):
 
     @parameterized.expand((True, False))
     def test_contains_substring(self, as_partial: bool) -> None:
+        """Should compute the minimal DFA accepting strings with the given substring"""
         input_symbols = {"a", "n", "o", "b"}
 
         equiv_dfa = DFA(
@@ -99,6 +100,8 @@ class TestDFAPatternConstructors(DFATestCase):
             self.assertIn("nano", word)
 
     def test_contains_substrings(self) -> None:
+        """Should compute the minimal DFA recognizing strings containing the given
+        substring"""
         input_symbols = {"a", "n", "o", "b"}
         substring_dfa = DFA.from_substring(input_symbols, "nano")
         substrings_dfa = DFA.from_substrings(input_symbols, {"nano"})
@@ -133,6 +136,8 @@ class TestDFAPatternConstructors(DFATestCase):
 
     @parameterized.expand((True, False))
     def test_contains_subsequence(self, as_partial: bool) -> None:
+        """Should compute the minimal DFA accepting strings with the given
+        subsequence"""
         input_symbols = {"a", "n", "o", "b"}
 
         equiv_dfa = DFA(

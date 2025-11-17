@@ -87,12 +87,14 @@ class TestMNTMRuntime(MNTMTestCase):
             self.assertEqual(final_mntm_tape, final_ntm_tape)
 
     def test_read_input_accepted(self) -> None:
+        """Should return correct state if acceptable TM input is given."""
         final_config = self.mntm1.read_input("0101101011").pop()
         self.assertEqual(final_config.state, "q1")
         self.assertEqual(str(final_config.tapes[0]), "TMTape('0101101011#', '#', 10)")
         self.assertEqual(str(final_config.tapes[1]), "TMTape('111111#', '#', 6)")
 
     def test_read_input_step(self) -> None:
+        """Should return validation generator if step flag is supplied."""
         validation_generator = self.mntm1.read_input_stepwise("0010101111")
         self.assertIsInstance(validation_generator, types.GeneratorType)
         configs = list(validation_generator)
@@ -106,14 +108,17 @@ class TestMNTMRuntime(MNTMTestCase):
         self.assertEqual(str(last_config.tapes[1]), "TMTape('111111#', '#', 6)")
 
     def test_read_input_rejection(self) -> None:
+        """Should raise error if the machine halts."""
         with self.assertRaises(exceptions.RejectionException):
             self.mntm1.read_input("2")
 
     def test_read_input_rejection_invalid_symbol(self) -> None:
+        """Should raise error if an invalid symbol is read."""
         with self.assertRaises(exceptions.RejectionException):
             self.mntm2.read_input("1")
 
     def test_accepts_input_true(self) -> None:
+        """Should return False if MNTM input is not accepted."""
         test_limit = 20
         for i in range(test_limit):
             input_str_1 = ""
@@ -138,6 +143,7 @@ class TestMNTMRuntime(MNTMTestCase):
                 self.assertFalse(self.mntm2.accepts_input(input_str_2))
 
     def test_accepts_input_false(self) -> None:
+        """Should return False if MNTM input is rejected."""
         self.assertFalse(self.mntm1.accepts_input("000012"))
         self.assertFalse(self.mntm2.accepts_input("#00000"))
 

@@ -10,7 +10,9 @@ class TestGNFARegex(GNFATestCase):
     """Verify regex conversions for GNFA instances."""
 
     def test_to_regex(self) -> None:
-        """Should produce equivalent automata when converting via regex."""
+        """We generate GNFA from DFA then convert it to regex
+        then generate NFA from regex (already tested method)
+        and check for equivalence of NFA and previous DFA"""
         regex_strings = [
             "a*",
             "aa*b|bba*|(cc*)(bb+)",

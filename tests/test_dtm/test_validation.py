@@ -10,7 +10,8 @@ class TestDTMValidation(DTMTestCase):
     """Exercise structural validation for DTM definitions."""
 
     def test_validate_input_symbol_subset(self) -> None:
-        """Should raise error when input symbols omit tape symbols."""
+        """Should raise error if input symbols are not a strict superset of tape
+        symbols."""
         with self.assertRaises(exceptions.MissingSymbolError):
             DTM(
                 states={"q0", "q1", "q2"},
@@ -200,7 +201,7 @@ class TestDTMValidation(DTMTestCase):
             )
 
     def test_validate_blank_symbol(self) -> None:
-        """Should raise an error if the blank symbol is not valid."""
+        """Should raise an error if the blank symbol is not valid"""
         with self.assertRaises(exceptions.InvalidSymbolError):
             DTM(
                 states={"q0", "q1", "q2"},

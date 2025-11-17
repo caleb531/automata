@@ -13,6 +13,8 @@ class TestDFAVisualization(DFATestCase):
     """Ensure DFA diagram generation remains stable."""
 
     def test_show_diagram_initial_final_different(self) -> None:
+        """Should construct the diagram for a DFA whose initial state
+        is not a final state."""
         graph = self.dfa.show_diagram()
         node_names = {node.get_name() for node in graph.nodes()}
         self.assertTrue(set(self.dfa.states).issubset(node_names))
@@ -45,6 +47,7 @@ class TestDFAVisualization(DFATestCase):
         self.assertTrue(source not in self.dfa.states)
 
     def test_show_diagram_read_input(self) -> None:
+        """Should construct the diagram for a DFA reading input."""
         input_strings = ["0111", "001", "01110011", "001011001", "1100", ""]
 
         for input_string in input_strings:
@@ -61,6 +64,8 @@ class TestDFAVisualization(DFATestCase):
             self.assertEqual(edge_pairs, colored_edges)
 
     def test_show_diagram_initial_final_same(self) -> None:
+        """Should construct the diagram for a DFA whose initial state
+        is also a final state."""
         dfa = self.no_consecutive_11_dfa
 
         graph = dfa.show_diagram()
@@ -92,6 +97,8 @@ class TestDFAVisualization(DFATestCase):
         self.assertTrue(source not in dfa.states)
 
     def test_show_diagram_write_file(self) -> None:
+        """Should construct the diagram for a DFA
+        and write it to the specified file."""
         diagram_path = os.path.join(self.temp_dir_path, "test_dfa.png")
         try:
             os.remove(diagram_path)
@@ -103,6 +110,7 @@ class TestDFAVisualization(DFATestCase):
         os.remove(diagram_path)
 
     def test_repr_mimebundle_same(self) -> None:
+        """Check that the mimebundle is the same."""
         random.seed(42)
         first_repr = self.dfa._repr_mimebundle_()
         random.seed(42)
@@ -120,6 +128,8 @@ class TestDFAVisualization(DFATestCase):
         self.assertEqual(graph.graph_attr["rankdir"], "BT")
 
     def test_show_diagram_fig_size(self) -> None:
+        """Testing figure size. Just need to make sure it matches the input
+        (the library handles the rendering)."""
         graph = self.dfa.show_diagram(fig_size=(1.1, 2))
         self.assertEqual(graph.graph_attr["size"], "1.1, 2")
 

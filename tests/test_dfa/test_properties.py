@@ -9,17 +9,21 @@ class TestDFALanguageProperties(DFATestCase):
     """Exercise language emptiness, finiteness, and length bounds."""
 
     def test_isempty_non_empty(self) -> None:
+        """Should test if a non-empty DFA is empty"""
         dfa = DFA.from_subsequence({"0", "1"}, "111")
         self.assertFalse(dfa.isempty())
 
     def test_isempty_empty(self) -> None:
+        """Should test if an empty DFA is empty"""
         self.assertTrue(self.no_reachable_final_dfa.isempty())
 
     def test_isfinite_infinite(self) -> None:
+        """Should test if an infinite DFA is finite (case #1)"""
         dfa = DFA.from_substring({"0", "1"}, "11").complement(minify=False)
         self.assertFalse(dfa.isfinite())
 
     def test_isfinite_infinite_case_2(self) -> None:
+        """Should test if an infinite DFA is finite (case #2)"""
         dfa = DFA(
             states={"q0", "q1", "q2", "q3", "q4", "q5", "q6"},
             input_symbols={"0", "1"},
@@ -38,10 +42,12 @@ class TestDFALanguageProperties(DFATestCase):
         self.assertFalse(dfa.isfinite())
 
     def test_isfinite_finite(self) -> None:
+        """Should test if a finite DFA is finite"""
         dfa = DFA.of_length({"0", "1"}, min_length=0, max_length=5)
         self.assertTrue(dfa.isfinite())
 
     def test_isfinite_empty(self) -> None:
+        """Should test if an empty DFA is finite"""
         self.assertTrue(self.no_reachable_final_dfa.isfinite())
 
     def test_isfinite_universe(self) -> None:
