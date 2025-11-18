@@ -122,7 +122,7 @@ class TestDPDAAcceptance(DPDATestCase):
             self.dpda.read_input("01")
 
     def test_accepts_input_true(self) -> None:
-        """Should return False if DPDA input is not accepted."""
+        """Should return True if DPDA input is accepted."""
         self.assertTrue(self.dpda.accepts_input("aabb"))
 
     def test_accepts_input_false(self) -> None:

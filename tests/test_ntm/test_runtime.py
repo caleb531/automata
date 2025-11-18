@@ -38,9 +38,9 @@ class TestNTMRuntime(NTMTestCase):
             self.ntm1.read_input("02")
 
     def test_accepts_input_true(self) -> None:
-        """Should return False if DTM input is not accepted."""
-        self.assertTrue(self.dtm1.accepts_input("00001111"))
+        """Should return True if NTM input is accepted."""
+        self.assertTrue(self.ntm1.accepts_input("00001111"))
 
     def test_accepts_input_false(self) -> None:
-        """Should return False if DTM input is rejected."""
-        self.assertFalse(self.dtm1.accepts_input("000011"))
+        """Should return False if NTM input is rejected."""
+        self.assertFalse(self.ntm1.accepts_input("3"))

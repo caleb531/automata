@@ -1,5 +1,6 @@
 """Diagram rendering and tracing tests for deterministic pushdown automata."""
 
+import contextlib
 import os
 import unittest
 
@@ -89,10 +90,8 @@ class TestDPDAVisualization(DPDATestCase):
         """Should construct the diagram for a DPDA
         and write it to the specified file."""
         diagram_path = os.path.join(self.temp_dir_path, "test_dpda.png")
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.remove(diagram_path)
-        except OSError:
-            pass
         self.assertFalse(os.path.exists(diagram_path))
         self.dpda.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))

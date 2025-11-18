@@ -1,5 +1,6 @@
 """Visualization-centric DFA tests."""
 
+import contextlib
 import os
 import random
 import unittest
@@ -100,10 +101,8 @@ class TestDFAVisualization(DFATestCase):
         """Should construct the diagram for a DFA
         and write it to the specified file."""
         diagram_path = os.path.join(self.temp_dir_path, "test_dfa.png")
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.remove(diagram_path)
-        except OSError:
-            pass
         self.assertFalse(os.path.exists(diagram_path))
         self.dfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))

@@ -118,7 +118,7 @@ class TestMNTMRuntime(MNTMTestCase):
             self.mntm2.read_input("1")
 
     def test_accepts_input_true(self) -> None:
-        """Should return False if MNTM input is not accepted."""
+        """Should return True if MNTM input is accepted."""
         test_limit = 20
         for i in range(test_limit):
             input_str_1 = ""

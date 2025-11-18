@@ -43,7 +43,7 @@ class TestDTMRuntime(DTMTestCase):
             self.dtm1.read_input("02")
 
     def test_accepts_input_true(self) -> None:
-        """Should return False if DTM input is not accepted."""
+        """Should return True if DTM input is accepted."""
         self.assertTrue(self.dtm1.accepts_input("00001111"))
 
     def test_accepts_input_false(self) -> None:

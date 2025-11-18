@@ -1,5 +1,6 @@
 """Diagram rendering tests for generalized NFAs."""
 
+import contextlib
 import os
 import unittest
 
@@ -51,10 +52,8 @@ class TestGNFAVisualization(GNFATestCase):
         """Should construct the diagram for a NFA
         and write it to the specified file."""
         diagram_path = os.path.join(self.temp_dir_path, "test_gnfa.png")
-        try:
+        with contextlib.suppress(FileNotFoundError):
             os.remove(diagram_path)
-        except OSError:
-            pass
         self.assertFalse(os.path.exists(diagram_path))
         self.gnfa.show_diagram(path=diagram_path)
         self.assertTrue(os.path.exists(diagram_path))

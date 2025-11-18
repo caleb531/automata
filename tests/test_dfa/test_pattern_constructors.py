@@ -23,7 +23,7 @@ class TestDFAPatternConstructors(DFATestCase):
             {"nano", "nanobao", "nanonana", "nanonano", "nanoo"},
             as_partial,
         )
-        self.assertTrue(subset_dfa < prefix_dfa)
+        self.assertLess(subset_dfa, prefix_dfa)
 
         self.assertEqual(
             ~prefix_dfa,
@@ -49,7 +49,7 @@ class TestDFAPatternConstructors(DFATestCase):
             {"nano", "annnano", "bnano", "anbonano", "nananananananananano"},
             as_partial,
         )
-        self.assertTrue(subset_dfa < suffix_dfa)
+        self.assertLess(subset_dfa, suffix_dfa)
 
         self.assertEqual(
             ~suffix_dfa, DFA.from_suffix(input_symbols, "nano", contains=False)
@@ -88,7 +88,7 @@ class TestDFAPatternConstructors(DFATestCase):
         subset_dfa = DFA.from_finite_language(
             input_symbols, {"nano", "bananano", "nananano", "naonano"}, as_partial
         )
-        self.assertTrue(subset_dfa < substring_dfa)
+        self.assertLess(subset_dfa, substring_dfa)
 
         self.assertEqual(
             ~substring_dfa, DFA.from_substring(input_symbols, "nano", contains=False)
@@ -167,7 +167,7 @@ class TestDFAPatternConstructors(DFATestCase):
             {"naooono", "bananano", "onbaonbo", "ooonano"},
             as_partial,
         )
-        self.assertTrue(subset_dfa < subsequence_dfa)
+        self.assertLess(subset_dfa, subsequence_dfa)
 
         substring_dfa = DFA.from_substring(
             input_symbols,
