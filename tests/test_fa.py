@@ -1,5 +1,6 @@
 """Classes and functions for testing the behavior of both DFAs and NFAs."""
 
+import tempfile
 import unittest
 
 from automata.fa.dfa import DFA
@@ -14,6 +15,8 @@ class TestFA(unittest.TestCase):
     dfa: DFA
     nfa: NFA
     gnfa: GNFA
+
+    temp_dir_path = tempfile.gettempdir()
 
     def setUp(self) -> None:
         """Reset test automata before every test function."""
