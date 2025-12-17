@@ -241,7 +241,7 @@ class NFA(fa.FA):
         }
 
         # Create a set for additional symbols from shorthand classes
-        additional_symbols = set()
+        additional_symbols: Set[str] = set()
 
         # Check for shorthand classes in the regex
         for marker, char_set in shorthand_classes.items():

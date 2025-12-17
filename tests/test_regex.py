@@ -374,9 +374,9 @@ class TestRegex(unittest.TestCase):
         def create_range(start_char: str, end_char: str) -> set[str]:
             return {chr(i) for i in range(ord(start_char), ord(end_char) + 1)}
 
-        latin_ext_chars = create_range("¡", "ƿ")
-        greek_chars = create_range("Ͱ", "Ͽ")
-        cyrillic_chars = create_range("Ѐ", "ӿ")
+        latin_ext_chars = create_range("\u00a1", "\u01bf")
+        greek_chars = create_range("\u0370", "\u03ff")
+        cyrillic_chars = create_range("\u0400", "\u04ff")
 
         input_symbols = set()
         input_symbols.update(latin_ext_chars)
@@ -386,57 +386,77 @@ class TestRegex(unittest.TestCase):
         ascii_chars = set(string.printable)
         input_symbols.update(ascii_chars)
 
-        latin_nfa = NFA.from_regex("[¡-ƿ]+", input_symbols=input_symbols)
-        greek_nfa = NFA.from_regex("[Ͱ-Ͽ]+", input_symbols=input_symbols)
-        cyrillic_nfa = NFA.from_regex("[Ѐ-ӿ]+", input_symbols=input_symbols)
+        latin_nfa = NFA.from_regex("[\u00a1-\u01bf]+", input_symbols=input_symbols)
+        greek_nfa = NFA.from_regex("[\u0370-\u03ff]+", input_symbols=input_symbols)
+        cyrillic_nfa = NFA.from_regex("[\u0400-\u04ff]+", input_symbols=input_symbols)
 
-        latin_samples = ["¡", "£", "Ā", "ŕ", "ƿ"]
-        greek_samples = ["Ͱ", "Α", "Θ", "Ͽ"]
-        cyrillic_samples = ["Ѐ", "Ё", "Џ", "ӿ"]
+        latin_samples = ["\u00a1", "\u00a3", "\u0100", "\u0155", "\u01bf"]
+        greek_samples = ["\u0370", "\u0391", "\u0398", "\u03ff"]
+        cyrillic_samples = ["\u0400", "\u0401", "\u040f", "\u04ff"]
 
         for char in latin_samples:
             self.assertTrue(latin_nfa.accepts_input(char), f"Should accept {char}")
-        self.assertTrue(latin_nfa.accepts_input("¡Āŕƿ"))  # Multiple characters
+        self.assertTrue(
+            latin_nfa.accepts_input("\u00a1\u0100\u0155\u01bf")
+        )  # Multiple characters
         self.assertFalse(latin_nfa.accepts_input("a"))  # ASCII - not in range
-        self.assertFalse(latin_nfa.accepts_input("Α"))  # Greek - not in range
-        self.assertFalse(latin_nfa.accepts_input("Ё"))  # Cyrillic - not in range
-        self.assertFalse(latin_nfa.accepts_input("¡a"))  # Mixed with non-matching
+        self.assertFalse(latin_nfa.accepts_input("\u0391"))  # Greek - not in range
+        self.assertFalse(latin_nfa.accepts_input("\u0401"))  # Cyrillic - not in range
+        self.assertFalse(latin_nfa.accepts_input("\u00a1a"))  # Mixed with non-matching
 
         for char in greek_samples:
             self.assertTrue(greek_nfa.accepts_input(char), f"Should accept {char}")
-        self.assertTrue(greek_nfa.accepts_input("ͰΑΘϿ"))  # Multiple characters
+        self.assertTrue(
+            greek_nfa.accepts_input("\u0370\u0391\u0398\u03ff")
+        )  # Multiple characters
         self.assertFalse(greek_nfa.accepts_input("a"))  # ASCII - not in range
-        self.assertFalse(greek_nfa.accepts_input("Ā"))  # Latin Ext - not in range
-        self.assertFalse(greek_nfa.accepts_input("Ё"))  # Cyrillic - not in range
-        self.assertFalse(greek_nfa.accepts_input("Αa"))  # Mixed with non-matching
+        self.assertFalse(greek_nfa.accepts_input("\u0100"))  # Latin Ext - not in range
+        self.assertFalse(greek_nfa.accepts_input("\u0401"))  # Cyrillic - not in range
+        self.assertFalse(greek_nfa.accepts_input("\u0391a"))  # Mixed with non-matching
 
         for char in cyrillic_samples:
             self.assertTrue(cyrillic_nfa.accepts_input(char), f"Should accept {char}")
-        self.assertTrue(cyrillic_nfa.accepts_input("ЀЁЏӿ"))  # Multiple characters
+        self.assertTrue(
+            cyrillic_nfa.accepts_input("\u0400\u0401\u040f\u04ff")
+        )  # Multiple characters
         self.assertFalse(cyrillic_nfa.accepts_input("a"))  # ASCII - not in range
-        self.assertFalse(cyrillic_nfa.accepts_input("Ā"))  # Latin Ext - not in range
-        self.assertFalse(cyrillic_nfa.accepts_input("Α"))  # Greek - not in range
-        self.assertFalse(cyrillic_nfa.accepts_input("Ёa"))  # Mixed with non-matching
+        self.assertFalse(
+            cyrillic_nfa.accepts_input("\u0100")
+        )  # Latin Ext - not in range
+        self.assertFalse(cyrillic_nfa.accepts_input("\u0391"))  # Greek - not in range
+        self.assertFalse(
+            cyrillic_nfa.accepts_input("\u0401a")
+        )  # Mixed with non-matching
 
-        combined_regex = "Latin-Extension[¡-ƿ]+Greek[Ͱ-Ͽ]+Cyrillic[Ѐ-ӿ]+"
+        combined_regex = "Latin-Extension[\u00a1-\u01bf]+Greek[\u0370-\u03ff]+Cyrillic[\u0400-\u04ff]+"
         combined_nfa = NFA.from_regex(combined_regex, input_symbols=input_symbols)
 
-        self.assertTrue(combined_nfa.accepts_input("Latin-Extension¡GreekͰCyrillicЀ"))
         self.assertTrue(
-            combined_nfa.accepts_input("Latin-ExtensionĀāGreekΑΒΓCyrillicЀЁЂ")
+            combined_nfa.accepts_input("Latin-Extension\u00a1Greek\u0370Cyrillic\u0400")
+        )
+        self.assertTrue(
+            combined_nfa.accepts_input(
+                "Latin-Extension\u0100\u0101Greek\u0391\u0392\u0393Cyrillic\u0400\u0401\u0402"
+            )
         )
 
-        self.assertFalse(combined_nfa.accepts_input("Latin-ExtensionaGreekͰCyrillicЀ"))
-        self.assertFalse(combined_nfa.accepts_input("Latin-Extension¡GreekACyrillicЀ"))
-        self.assertFalse(combined_nfa.accepts_input("Latin-Extension¡GreekͰCyrillicA"))
+        self.assertFalse(
+            combined_nfa.accepts_input("Latin-ExtensionaGreek\u0370Cyrillic\u0400")
+        )
+        self.assertFalse(
+            combined_nfa.accepts_input("Latin-Extension\u00a1GreekACyrillic\u0400")
+        )
+        self.assertFalse(
+            combined_nfa.accepts_input("Latin-Extension\u00a1Greek\u0370CyrillicA")
+        )
 
-        non_latin_nfa = NFA.from_regex("[^¡-ƿ]+", input_symbols=input_symbols)
+        non_latin_nfa = NFA.from_regex("[^\u00a1-\u01bf]+", input_symbols=input_symbols)
         self.assertTrue(non_latin_nfa.accepts_input("abc"))
-        self.assertTrue(non_latin_nfa.accepts_input("ЀЁЏӿ"))
-        self.assertTrue(non_latin_nfa.accepts_input("ͰΑΘ"))
-        self.assertFalse(non_latin_nfa.accepts_input("¡"))
-        self.assertFalse(non_latin_nfa.accepts_input("Ā"))
-        self.assertFalse(non_latin_nfa.accepts_input("a¡"))
+        self.assertTrue(non_latin_nfa.accepts_input("\u0400\u0401\u040f\u04ff"))
+        self.assertTrue(non_latin_nfa.accepts_input("\u0370\u0391\u0398"))
+        self.assertFalse(non_latin_nfa.accepts_input("\u00a1"))
+        self.assertFalse(non_latin_nfa.accepts_input("\u0100"))
+        self.assertFalse(non_latin_nfa.accepts_input("a\u00a1"))
 
         alphabet = set("abcdefghijklmnopqrstuvwxyz")
         alphabet = alphabet

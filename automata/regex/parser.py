@@ -593,7 +593,8 @@ class CharacterClassToken(Literal[NFARegexBuilder]):
         if is_negated:
             expanded_content = expanded_content[1:]  # Remove ^ from the content
 
-        return cls(match.group(), expanded_content, is_negated)
+        # Note: input_symbols and counter will be set later during lexer initialization
+        return cls(match.group(), set(expanded_content), is_negated, set(), count())
 
     def val(self) -> NFARegexBuilder:
         if self.negated:
@@ -813,7 +814,7 @@ def process_char_class(class_str: str) -> Tuple[bool, Set[str]]:
                 "Empty negated character class '[^]' is not allowed"
             )
 
-    chars = set()
+    chars: Set[str] = set()
     i = 0
     while i < len(content):
         # Handle escape sequences
