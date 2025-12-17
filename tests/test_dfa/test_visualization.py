@@ -134,3 +134,29 @@ class TestDFAVisualization(DFATestCase):
 
         graph = self.dfa.show_diagram(fig_size=(3.3,))
         self.assertEqual(graph.graph_attr["size"], "3.3")
+
+    def test_show_diagram_percent_in_state_name(self) -> None:
+        """Should handle state names containing % character (issue #268)."""
+        from automata.fa.dfa import DFA
+
+        dfa = DFA(
+            states={"%a=0", "q1", "q2"},
+            input_symbols={"0", "1"},
+            transitions={
+                "%a=0": {"0": "q1", "1": "q2"},
+                "q1": {"0": "q1", "1": "q2"},
+                "q2": {"0": "q2", "1": "q2"},
+            },
+            initial_state="%a=0",
+            final_states={"q2"},
+        )
+
+        # This should not raise an error
+        graph = dfa.show_diagram()
+
+        # Verify the graph was created successfully
+        node_names = {node.get_name() for node in graph.nodes()}
+        # State names with % should be escaped to %%
+        self.assertIn("%%a=0", node_names)
+        self.assertIn("q1", node_names)
+        self.assertIn("q2", node_names)
