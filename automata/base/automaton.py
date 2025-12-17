@@ -36,7 +36,8 @@ class Automaton(metaclass=abc.ABCMeta):
             if state_data == "":
                 return "λ"
 
-            return state_data
+            # Escape % characters for Graphviz/DOT format
+            return state_data.replace("%", "%%")
 
         elif isinstance(state_data, (frozenset, tuple)):
             inner = ", ".join(
