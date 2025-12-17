@@ -428,7 +428,10 @@ class TestRegex(unittest.TestCase):
             cyrillic_nfa.accepts_input("\u0401a")
         )  # Mixed with non-matching
 
-        combined_regex = "Latin-Extension[\u00a1-\u01bf]+Greek[\u0370-\u03ff]+Cyrillic[\u0400-\u04ff]+"
+        combined_regex = (
+            "Latin-Extension[\u00a1-\u01bf]+Greek[\u0370-\u03ff]+"
+            "Cyrillic[\u0400-\u04ff]+"
+        )
         combined_nfa = NFA.from_regex(combined_regex, input_symbols=input_symbols)
 
         self.assertTrue(
