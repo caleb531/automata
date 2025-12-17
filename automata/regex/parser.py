@@ -764,9 +764,7 @@ def _handle_escape_sequences(char: str) -> str:
         "&": "&",
     }
 
-    if char in escape_map:
-        return escape_map[char]
-    return char
+    return escape_map.get(char, char)
 
 
 def parse_regex(regexstr: str, input_symbols: AbstractSet[str]) -> NFARegexBuilder:
