@@ -35,12 +35,17 @@ class GNFA(fa.FA):
     The `GNFA` class is a subclass of `FA` and represents a generalized
     nondeterministic finite automaton.
 
-    Its main usage is for conversion of DFAs and NFAs to regular expressions. Note
-    that because of this, the `GNFA` doesn't support any binary operators or reading
-    input (e.g. `read_input_stepwise`). Every GNFA can be rendered natively inside of-
-    a Jupyter notebook (automatically calling `show_diagram` without any arguments)
-    if installed with the `visual` optional dependency. Note that `input_str`
-    cannot be set as an argument to `show_diagram`, as the `GNFA` does not read input.
+    Its main usage is for conversion of DFAs and NFAs to regular expressions using
+    Kleene's algorithm (see https://en.wikipedia.org/wiki/Kleene%27s_algorithm).
+    To convert an NFA to a regular expression, use `GNFA.from_nfa(nfa).to_regex()`.
+    To convert a DFA to a regular expression, use `GNFA.from_dfa(dfa).to_regex()`.
+
+    Note that because of this conversion purpose, the `GNFA` doesn't support any
+    binary operators or reading input (e.g. `read_input_stepwise`). Every GNFA can
+    be rendered natively inside of a Jupyter notebook (automatically calling
+    `show_diagram` without any arguments) if installed with the `visual` optional
+    dependency. Note that `input_str` cannot be set as an argument to `show_diagram`,
+    as the `GNFA` does not read input.
 
     Except for `initial_state` and `final_state`, one transition goes from every state
     to every other state, and also from each state to itself. To accommodate
