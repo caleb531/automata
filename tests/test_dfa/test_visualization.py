@@ -140,12 +140,32 @@ class TestDFAVisualization(DFATestCase):
         from automata.fa.dfa import DFA
 
         dfa = DFA(
-            states={"%a=0", 'state%"q', "state%\\path", "state space", "normal"},
+            states={
+                "%a=0",
+                'state%"q',
+                "state%\\path",
+                "state{brace}",
+                "state[bracket]",
+                "state<angle>",
+                "state|pipe",
+                "state:colon",
+                "state;semi",
+                "state,comma",
+                "state space",
+                "normal",
+            },
             input_symbols={"0", "1"},
             transitions={
                 "%a=0": {"0": 'state%"q', "1": "state%\\path"},
-                'state%"q': {"0": "state space", "1": "normal"},
-                "state%\\path": {"0": "normal", "1": "%a=0"},
+                'state%"q': {"0": "state{brace}", "1": "state[bracket]"},
+                "state%\\path": {"0": "state<angle>", "1": "state|pipe"},
+                "state{brace}": {"0": "state:colon", "1": "state;semi"},
+                "state[bracket]": {"0": "state,comma", "1": "state space"},
+                "state<angle>": {"0": "normal", "1": "normal"},
+                "state|pipe": {"0": "normal", "1": "normal"},
+                "state:colon": {"0": "normal", "1": "normal"},
+                "state;semi": {"0": "normal", "1": "normal"},
+                "state,comma": {"0": "normal", "1": "normal"},
                 "state space": {"0": "normal", "1": "normal"},
                 "normal": {"0": "normal", "1": "normal"},
             },
@@ -158,14 +178,20 @@ class TestDFAVisualization(DFATestCase):
 
         # Verify the graph was created successfully
         node_names = {node.get_name() for node in graph.nodes()}
-        
-        # States with % should be quoted per DOT language spec
+
+        # States with special DOT characters should be quoted
         self.assertIn('"%a=0"', node_names)
-        # Quotes inside % states should be escaped
-        self.assertIn('"state%\\"q"', node_names)
-        # Backslashes inside % states should be escaped
-        self.assertIn('"state%\\\\path"', node_names)
-        # Spaces without % don't need quoting
+        self.assertIn('"state%\\"q"', node_names)  # Quotes escaped
+        self.assertIn('"state%\\\\path"', node_names)  # Backslashes escaped
+        self.assertIn('"state{brace}"', node_names)
+        self.assertIn('"state[bracket]"', node_names)
+        self.assertIn('"state<angle>"', node_names)
+        self.assertIn('"state|pipe"', node_names)
+        self.assertIn('"state:colon"', node_names)
+        self.assertIn('"state;semi"', node_names)
+        self.assertIn('"state,comma"', node_names)
+
+        # Spaces without special chars don't need quoting
         self.assertIn("state space", node_names)
         # Normal state names remain unchanged
         self.assertIn("normal", node_names)

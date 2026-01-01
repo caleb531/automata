@@ -36,13 +36,17 @@ class Automaton(metaclass=abc.ABCMeta):
             if state_data == "":
                 return "λ"
 
-            # Quote state names containing % for DOT language compatibility
-            # DOT requires special characters like % to be in quoted strings
-            if "%" in state_data:
+            # Quote state names containing special DOT language characters
+            # DOT requires certain special characters to be in quoted strings
+            # See: https://graphviz.org/doc/info/lang.html
+            special_chars = "%{}[]<>|:;,"
+            needs_quoting = any(char in state_data for char in special_chars)
+
+            if needs_quoting:
                 # Escape any existing quotes and backslashes, then wrap in quotes
                 escaped = state_data.replace("\\", "\\\\").replace('"', '\\"')
                 return f'"{escaped}"'
-            
+
             return state_data
 
         elif isinstance(state_data, (frozenset, tuple)):
