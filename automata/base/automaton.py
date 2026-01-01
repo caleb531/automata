@@ -49,11 +49,11 @@ class Automaton(metaclass=abc.ABCMeta):
                 ">": "\ufe65",  # U+FE65 Small Greater-Than Sign
                 "|": "\uff5c",  # U+FF5C Fullwidth Vertical Line
             }
-            
+
             result = state_data
             for char, replacement in replacements.items():
                 result = result.replace(char, replacement)
-            
+
             return result
 
         elif isinstance(state_data, (frozenset, tuple)):
