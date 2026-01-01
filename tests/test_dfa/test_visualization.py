@@ -179,19 +179,18 @@ class TestDFAVisualization(DFATestCase):
         # Verify the graph was created successfully
         node_names = {node.get_name() for node in graph.nodes()}
 
-        # States with special DOT characters should be quoted
-        self.assertIn('"%a=0"', node_names)
-        self.assertIn('"state%\\"q"', node_names)  # Quotes escaped
-        self.assertIn('"state%\\\\path"', node_names)  # Backslashes escaped
-        self.assertIn('"state{brace}"', node_names)
-        self.assertIn('"state[bracket]"', node_names)
-        self.assertIn('"state<angle>"', node_names)
-        self.assertIn('"state|pipe"', node_names)
-        self.assertIn('"state:colon"', node_names)
-        self.assertIn('"state;semi"', node_names)
-        self.assertIn('"state,comma"', node_names)
+        # States with special DOT characters should have them replaced with Unicode equivalents
+        self.assertIn("\ufe6aa=0", node_names)  # % → ﹪ (U+FE6A)
+        self.assertIn('state\ufe6a"q', node_names)  # % → ﹪
+        self.assertIn("state\ufe6a\\path", node_names)  # % → ﹪
+        self.assertIn("state\u2774brace\u2775", node_names)  # {} → ❴❵ (U+2774, U+2775)
+        self.assertIn("state\uff3bbracket\uff3d", node_names)  # [] → ［］ (U+FF3B, U+FF3D)
+        self.assertIn("state\ufe64angle\ufe65", node_names)  # <> → ﹤﹥ (U+FE64, U+FE65)
+        self.assertIn("state\uff5cpipe", node_names)  # | → ｜ (U+FF5C)
 
-        # Spaces without special chars don't need quoting
+        # Characters not in the replacement list remain unchanged
+        self.assertIn("state:colon", node_names)
+        self.assertIn("state;semi", node_names)
+        self.assertIn("state,comma", node_names)
         self.assertIn("state space", node_names)
-        # Normal state names remain unchanged
         self.assertIn("normal", node_names)

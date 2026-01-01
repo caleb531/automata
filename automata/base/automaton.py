@@ -36,18 +36,25 @@ class Automaton(metaclass=abc.ABCMeta):
             if state_data == "":
                 return "λ"
 
-            # Quote state names containing special DOT language characters
-            # DOT requires certain special characters to be in quoted strings
-            # See: https://graphviz.org/doc/info/lang.html
-            special_chars = "%{}[]<>|:;,"
-            needs_quoting = any(char in state_data for char in special_chars)
-
-            if needs_quoting:
-                # Escape any existing quotes and backslashes, then wrap in quotes
-                escaped = state_data.replace("\\", "\\\\").replace('"', '\\"')
-                return f'"{escaped}"'
-
-            return state_data
+            # Replace special DOT language characters with safe Unicode equivalents
+            # to avoid syntax errors in the generated DOT file
+            # DOT has issues with certain special characters even when escaped
+            replacements = {
+                "%": "\ufe6a",  # U+FE6A Small Percent Sign
+                "{": "\u2774",  # U+2774 Medium Left Curly Bracket Ornament
+                "}": "\u2775",  # U+2775 Medium Right Curly Bracket Ornament
+                "[": "\uff3b",  # U+FF3B Fullwidth Left Square Bracket
+                "]": "\uff3d",  # U+FF3D Fullwidth Right Square Bracket
+                "<": "\ufe64",  # U+FE64 Small Less-Than Sign
+                ">": "\ufe65",  # U+FE65 Small Greater-Than Sign
+                "|": "\uff5c",  # U+FF5C Fullwidth Vertical Line
+            }
+            
+            result = state_data
+            for char, replacement in replacements.items():
+                result = result.replace(char, replacement)
+            
+            return result
 
         elif isinstance(state_data, (frozenset, tuple)):
             inner = ", ".join(
