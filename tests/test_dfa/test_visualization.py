@@ -156,7 +156,7 @@ class TestDFAVisualization(DFATestCase):
 
         # Verify the graph was created successfully
         node_names = {node.get_name() for node in graph.nodes()}
-        # State names with % should be replaced with fullwidth percent sign (％)
-        self.assertIn("％a=0", node_names)
+        # State names with % should be replaced with fullwidth percent sign (\uff05)
+        self.assertIn("\uff05a=0", node_names)
         self.assertIn("q1", node_names)
         self.assertIn("q2", node_names)
