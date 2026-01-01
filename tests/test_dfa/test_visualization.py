@@ -135,20 +135,22 @@ class TestDFAVisualization(DFATestCase):
         graph = self.dfa.show_diagram(fig_size=(3.3,))
         self.assertEqual(graph.graph_attr["size"], "3.3")
 
-    def test_show_diagram_percent_in_state_name(self) -> None:
-        """Should handle state names containing % character (issue #268)."""
+    def test_show_diagram_special_characters_in_state_names(self) -> None:
+        """Should handle state names with special characters (issue #268)."""
         from automata.fa.dfa import DFA
 
         dfa = DFA(
-            states={"%a=0", "q1", "q2"},
+            states={"%a=0", 'state%"q', "state%\\path", "state space", "normal"},
             input_symbols={"0", "1"},
             transitions={
-                "%a=0": {"0": "q1", "1": "q2"},
-                "q1": {"0": "q1", "1": "q2"},
-                "q2": {"0": "q2", "1": "q2"},
+                "%a=0": {"0": 'state%"q', "1": "state%\\path"},
+                'state%"q': {"0": "state space", "1": "normal"},
+                "state%\\path": {"0": "normal", "1": "%a=0"},
+                "state space": {"0": "normal", "1": "normal"},
+                "normal": {"0": "normal", "1": "normal"},
             },
             initial_state="%a=0",
-            final_states={"q2"},
+            final_states={"normal"},
         )
 
         # This should not raise an error
@@ -156,7 +158,14 @@ class TestDFAVisualization(DFATestCase):
 
         # Verify the graph was created successfully
         node_names = {node.get_name() for node in graph.nodes()}
-        # State names with % should be replaced with fullwidth percent sign (\uff05)
-        self.assertIn("\uff05a=0", node_names)
-        self.assertIn("q1", node_names)
-        self.assertIn("q2", node_names)
+        
+        # States with % should be quoted per DOT language spec
+        self.assertIn('"%a=0"', node_names)
+        # Quotes inside % states should be escaped
+        self.assertIn('"state%\\"q"', node_names)
+        # Backslashes inside % states should be escaped
+        self.assertIn('"state%\\\\path"', node_names)
+        # Spaces without % don't need quoting
+        self.assertIn("state space", node_names)
+        # Normal state names remain unchanged
+        self.assertIn("normal", node_names)

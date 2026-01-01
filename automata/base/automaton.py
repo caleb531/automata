@@ -36,9 +36,14 @@ class Automaton(metaclass=abc.ABCMeta):
             if state_data == "":
                 return "λ"
 
-            # Replace % with Unicode FULLWIDTH PERCENT SIGN for Graphviz compatibility
-            # Pygraphviz has issues with % even when escaped to %%
-            return state_data.replace("%", "％")
+            # Quote state names containing % for DOT language compatibility
+            # DOT requires special characters like % to be in quoted strings
+            if "%" in state_data:
+                # Escape any existing quotes and backslashes, then wrap in quotes
+                escaped = state_data.replace("\\", "\\\\").replace('"', '\\"')
+                return f'"{escaped}"'
+            
+            return state_data
 
         elif isinstance(state_data, (frozenset, tuple)):
             inner = ", ".join(
