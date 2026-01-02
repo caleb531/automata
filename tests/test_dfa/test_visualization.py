@@ -134,3 +134,67 @@ class TestDFAVisualization(DFATestCase):
 
         graph = self.dfa.show_diagram(fig_size=(3.3,))
         self.assertEqual(graph.graph_attr["size"], "3.3")
+
+    def test_show_diagram_special_characters_in_state_names(self) -> None:
+        """Should handle state names with special characters (issue #268)."""
+        from automata.fa.dfa import DFA
+
+        dfa = DFA(
+            states={
+                "%a=0",
+                'state%"q',
+                "state%\\path",
+                "state{brace}",
+                "state[bracket]",
+                "state<angle>",
+                "state|pipe",
+                "state:colon",
+                "state;semi",
+                "state,comma",
+                "state space",
+                "normal",
+            },
+            input_symbols={"0", "1"},
+            transitions={
+                "%a=0": {"0": 'state%"q', "1": "state%\\path"},
+                'state%"q': {"0": "state{brace}", "1": "state[bracket]"},
+                "state%\\path": {"0": "state<angle>", "1": "state|pipe"},
+                "state{brace}": {"0": "state:colon", "1": "state;semi"},
+                "state[bracket]": {"0": "state,comma", "1": "state space"},
+                "state<angle>": {"0": "normal", "1": "normal"},
+                "state|pipe": {"0": "normal", "1": "normal"},
+                "state:colon": {"0": "normal", "1": "normal"},
+                "state;semi": {"0": "normal", "1": "normal"},
+                "state,comma": {"0": "normal", "1": "normal"},
+                "state space": {"0": "normal", "1": "normal"},
+                "normal": {"0": "normal", "1": "normal"},
+            },
+            initial_state="%a=0",
+            final_states={"normal"},
+        )
+
+        # This should not raise an error
+        graph = dfa.show_diagram()
+
+        # Verify the graph was created successfully
+        node_names = {node.get_name() for node in graph.nodes()}
+
+        # States with special DOT characters replaced with Unicode equivalents
+        self.assertIn("\ufe6aa=0", node_names)  # % → ﹪ (U+FE6A)
+        self.assertIn('state\ufe6a"q', node_names)  # % → ﹪
+        self.assertIn("state\ufe6a\\path", node_names)  # % → ﹪
+        self.assertIn("state\u2774brace\u2775", node_names)  # {} → ❴❵
+        self.assertIn(
+            "state\uff3bbracket\uff3d", node_names
+        )  # [] → ［］ (U+FF3B, U+FF3D)
+        self.assertIn(
+            "state\ufe64angle\ufe65", node_names
+        )  # <> → ﹤﹥ (U+FE64, U+FE65)
+        self.assertIn("state\uff5cpipe", node_names)  # | → ｜ (U+FF5C)
+
+        # Characters not in the replacement list remain unchanged
+        self.assertIn("state:colon", node_names)
+        self.assertIn("state;semi", node_names)
+        self.assertIn("state,comma", node_names)
+        self.assertIn("state space", node_names)
+        self.assertIn("normal", node_names)
