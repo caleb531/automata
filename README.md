@@ -1,6 +1,6 @@
 # Automata
 
-*Copyright 2016-2025 Caleb Evans*  
+*Copyright 2016-2026 Caleb Evans*  
 *Released under the MIT license*
 
 [![PyPI version](https://badge.fury.io/py/automata-lib.svg)](https://badge.fury.io/py/automata-lib)
