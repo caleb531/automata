@@ -59,7 +59,7 @@ module-root = ""
 
 [dependency-groups]
 dev = [
-    "check-wheel-contents",
+    "check-wheel-contents; python_version < '3.14'",
     "coloraide>=1.8.2",
     "coverage==7.4.1",
     "mypy==1.8.0",

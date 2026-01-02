@@ -86,7 +86,7 @@ visual = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "check-wheel-contents" },
+    { name = "check-wheel-contents", marker = "python_full_version < '3.14'" },
     { name = "coloraide" },
     { name = "coverage" },
     { name = "mypy" },
@@ -120,7 +120,7 @@ provides-extras = ["visual"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "check-wheel-contents" },
+    { name = "check-wheel-contents", marker = "python_full_version < '3.14'" },
     { name = "coloraide", specifier = ">=1.8.2" },
     { name = "coverage", specifier = "==7.4.1" },
     { name = "mypy", specifier = "==1.8.0" },

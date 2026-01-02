@@ -37,4 +37,5 @@ jobs:
         run: uv build
 
       - name: Check wheel contents
+        if: matrix.python-version != '3.14'
         run: uv run check-wheel-contents dist/*.whl
