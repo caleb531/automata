@@ -793,7 +793,7 @@ def process_char_class(class_str: str) -> Tuple[bool, Set[str]]:
     Parameters
     ----------
     class_str : str
-        The character class string including brackets, e.g., '[a-z]' or '[^abc]'
+        The character class string including brackets, for example, '[a-z]' or '[^abc]'
 
     Returns
     -------

@@ -133,8 +133,11 @@ def save_graph(
     graph: pgv.AGraph,
     path: Union[str, os.PathLike],
 ) -> None:
-    """Write `graph` to file given by `path`. PNG, SVG, etc.
-    Returns the same graph."""
+    """Write `graph` to file given by `path`.
+
+    Formats include PNG, SVG, and others supported by Graphviz.
+    Returns the same graph.
+    """
 
     save_path_final: pathlib.Path = pathlib.Path(path)
 

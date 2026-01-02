@@ -41,11 +41,11 @@ class GNFA(fa.FA):
     To convert a DFA to a regular expression, use `GNFA.from_dfa(dfa).to_regex()`.
 
     Note that because of this conversion purpose, the `GNFA` doesn't support any
-    binary operators or reading input (e.g. `read_input_stepwise`). Every GNFA can
-    be rendered natively inside of a Jupyter notebook (automatically calling
-    `show_diagram` without any arguments) if installed with the `visual` optional
-    dependency. Note that `input_str` cannot be set as an argument to `show_diagram`,
-    as the `GNFA` does not read input.
+    binary operators or reading input (for example, `read_input_stepwise`).
+    Every GNFA can be rendered natively inside of a Jupyter notebook
+    (automatically calling `show_diagram` without any arguments) if installed
+    with the `visual` optional dependency. Note that `input_str` cannot be set
+    as an argument to `show_diagram`, as the `GNFA` does not read input.
 
     Except for `initial_state` and `final_state`, one transition goes from every state
     to every other state, and also from each state to itself. To accommodate

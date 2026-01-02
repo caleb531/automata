@@ -10,7 +10,7 @@ properly publish a release to GitHub and PyPI.
     - [ ] Code coverage is over 90% for all files
   - [ ] Update Migration Guide with details of any breaking API changes and
     upgrade path, if applicable
-  - [ ] Update README and Migration Guide with latest major release (e.g. v8),
+  - [ ] Update README and Migration Guide with latest major release (for example, v8),
     if applicable
   - [ ] Write release notes for new release
   - [ ] Check copyright line break in README (there should be two spaces after
@@ -24,9 +24,9 @@ properly publish a release to GitHub and PyPI.
     - [ ] `git pull`
     - [ ] `git merge develop`
   - [ ] Commit version bump in `pyproject.toml`
-    - [ ] Commit message must be `Prepare v<new_version> release` (e.g. `Prepare v8.0.0 release`)
+    - [ ] Commit message must be `Prepare v<new_version> release` (for example, `Prepare v8.0.0 release`)
   - [ ] Tag commit with new release number
-    - [ ] Tag name must be v-prefixed, followed by the semantic version (e.g.
+    - [ ] Tag name must be v-prefixed, followed by the semantic version (for example,
       `v8.0.0`)
   - [ ] Push new commit and tag with `git push && git push --tags`
 - [ ] Post-Release
