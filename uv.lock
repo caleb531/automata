@@ -68,7 +68,7 @@ wheels = [
 
 [[package]]
 name = "automata-lib"
-version = "9.1.2"
+version = "9.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "cached-method" },
