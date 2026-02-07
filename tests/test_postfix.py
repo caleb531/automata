@@ -83,7 +83,7 @@ class TestArithmeticParser(unittest.TestCase):
     def test_parse_invalid_token(self) -> None:
         """Test exception for invalid input tokens."""
         with self.assertRaises(exceptions.InvalidRegexError):
-            postfix.parse_postfix_tokens([""])  # type: ignore
+            postfix.parse_postfix_tokens([""])
 
     def test_nested_parenthesized_expression(self) -> None:
         """Test parsing parenthesized expression."""

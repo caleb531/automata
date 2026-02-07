@@ -19,7 +19,7 @@ class TestMNTMConstruction(MNTMTestCase):
     def test_init_mntm_missing_formal_params(self) -> None:
         """Should raise an error if formal MNTM parameters are missing."""
         with self.assertRaises(TypeError):
-            MNTM(  # type: ignore
+            MNTM(
                 states={"q0", "q1", "q2", "q3", "q4"},
                 input_symbols={"0", "1"},
                 tape_symbols={"0", "1", "x", "y", "."},

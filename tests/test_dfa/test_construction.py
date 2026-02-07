@@ -21,7 +21,7 @@ class TestDFAConstruction(DFATestCase):
     def test_init_dfa_missing_formal_params(self) -> None:
         """Should raise an error if formal DFA parameters are missing."""
         with self.assertRaises(TypeError):
-            DFA(  # type: ignore
+            DFA(
                 states={"q0", "q1"},
                 input_symbols={"0", "1"},
                 initial_state="q0",
@@ -36,7 +36,7 @@ class TestDFAConstruction(DFATestCase):
     def test_dfa_immutable_attr_set(self) -> None:
         """Should disallow reassigning DFA attributes"""
         with self.assertRaises(AttributeError):
-            self.dfa.states = {}  # type: ignore
+            self.dfa.states = {}
 
     def test_dfa_immutable_attr_del(self) -> None:
         """Should disallow deleting DFA attributes"""
@@ -185,21 +185,21 @@ class TestDFAConstruction(DFATestCase):
         other = 42
         self.assertNotEqual(self.dfa, other)
         with self.assertRaises(TypeError):
-            self.dfa | other  # type: ignore
+            self.dfa | other
         with self.assertRaises(TypeError):
-            self.dfa & other  # type: ignore
+            self.dfa & other
         with self.assertRaises(TypeError):
-            self.dfa - other  # type: ignore
+            self.dfa - other
         with self.assertRaises(TypeError):
-            self.dfa ^ other  # type: ignore
+            self.dfa ^ other
         with self.assertRaises(TypeError):
-            self.dfa < other  # type: ignore
+            self.dfa < other
         with self.assertRaises(TypeError):
-            self.dfa <= other  # type: ignore
+            self.dfa <= other
         with self.assertRaises(TypeError):
-            self.dfa > other  # type: ignore
+            self.dfa > other
         with self.assertRaises(TypeError):
-            self.dfa >= other  # type: ignore
+            self.dfa >= other
 
     def test_to_complete_trap_state_exception(self) -> None:
         with self.assertRaises(exceptions.InvalidStateError):

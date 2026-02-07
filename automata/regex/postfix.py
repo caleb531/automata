@@ -178,14 +178,17 @@ def parse_postfix_tokens(
 
     for token in postfix_tokens:
         if isinstance(token, InfixOperator):
+            op_token = cast(InfixOperator[ExpressionResultT], token)
             right = stack.pop()
             left = stack.pop()
-            stack.append(token.op(left, right))
+            stack.append(op_token.op(left, right))
         elif isinstance(token, PostfixOperator):
+            op_token = cast(PostfixOperator[ExpressionResultT], token)
             left = stack.pop()
-            stack.append(token.op(left))
+            stack.append(op_token.op(left))
         elif isinstance(token, Literal):
-            stack.append(token.val())
+            lit_token = cast(Literal[ExpressionResultT], token)
+            stack.append(lit_token.val())
         else:
             raise exceptions.InvalidRegexError(f"Invalid token type {type(token)}")
 

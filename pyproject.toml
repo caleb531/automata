@@ -62,13 +62,12 @@ dev = [
     "check-wheel-contents; python_version < '3.14'",
     "coloraide>=1.8.2",
     "coverage==7.4.1",
-    "mypy==1.8.0",
-    "mypy-extensions==1.0.0",
     "parameterized>=0.9.0",
     "pygraphviz>=1.10",
     "pytest>=8.4.2",
     "pytest-cov>=5.0.0",
     "ruff==0.11.2",
+    "ty>=0.0.14",
     "types-frozendict==2.0.9",
 ]
 
@@ -83,13 +82,35 @@ docs = [
 [tool.uv]
 default-groups = ["dev"]
 
-[tool.mypy]
-exclude = ["build"]
-disallow_untyped_defs = true
+[tool.ty.environment]
+python-version = "3.10"
 
-[[tool.mypy.overrides]]
-module = ["networkx.*", "pygraphviz.*", "cached_method.*", "manim.*"]
-ignore_missing_imports = true
+[tool.ty.src]
+exclude = ["build"]
+
+[tool.ty.analysis]
+allowed-unresolved-imports = [
+    "cached_method",
+    "coloraide",
+    "manim",
+    "pygraphviz",
+]
+
+[[tool.ty.overrides]]
+include = ["tests/**", "**/test_*.py"]
+
+[tool.ty.overrides.rules]
+invalid-argument-type = "ignore"
+invalid-assignment = "ignore"
+missing-argument = "ignore"
+unsupported-operator = "ignore"
+
+[[tool.ty.overrides]]
+include = ["example_notebooks/**"]
+
+[tool.ty.overrides.rules]
+unresolved-import = "ignore"
+
 
 [tool.ruff]
 include = ["**/*.py"]

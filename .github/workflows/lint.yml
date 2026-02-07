@@ -32,8 +32,8 @@ jobs:
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
 
-      - name: Run mypy
-        run: uv run mypy automata/**/*.py tests/*.py
+      - name: Run ty
+        run: uv run ty check .
 
       - name: Run ruff
         run: |

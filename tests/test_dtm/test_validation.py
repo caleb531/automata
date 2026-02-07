@@ -99,7 +99,7 @@ class TestDTMValidation(DTMTestCase):
                 tape_symbols={"0", "."},
                 transitions={
                     "q0": {"0": ("q1", "0", "R")},
-                    "q1": {"0": ("q0", "0", "U")},  # type: ignore
+                    "q1": {"0": ("q0", "0", "U")},
                 },
                 initial_state="q0",
                 blank_symbol=".",

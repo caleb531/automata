@@ -1,5 +1,7 @@
 """Construction and immutability tests for nondeterministic pushdown automata."""
 
+from typing import Any, cast
+
 from frozendict import frozendict
 
 import automata.pda.exceptions as pda_exceptions
@@ -18,7 +20,7 @@ class TestNPDAConstruction(NPDATestCase):
     def test_init_npda_missing_formal_params(self) -> None:
         """Should raise an error if formal NPDA parameters are missing."""
         with self.assertRaises(TypeError):
-            NPDA(  # type: ignore
+            NPDA(
                 states={"q0", "q1", "q2"},
                 input_symbols={"a", "b"},
                 initial_state="q0",
@@ -53,16 +55,16 @@ class TestNPDAConstruction(NPDATestCase):
                 initial_state="q0",
                 initial_stack_symbol="#",
                 final_states={"q0"},
-                acceptance_mode="foo",  # type: ignore
+                acceptance_mode="foo",
             )
 
     def test_npda_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.npda.states = set()
+            cast(Any, self.npda).states = set()
 
     def test_npda_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):
-            del self.npda.states
+            del cast(Any, self.npda).states
 
     def test_npda_immutable_dict(self) -> None:
         """Should create an NPDA whose contents are fully immutable/hashable"""

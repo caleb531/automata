@@ -217,7 +217,7 @@ class PDA(Automaton, metaclass=abc.ABCMeta):
         end_color: coloraide.Color,
         font_size: str,
         arrow_size: str,
-    ) -> None:
+    ) -> Optional[pgv.AGraph]:
         """
         Constructs stack for all the transitions in the `input_path` and
         adds the constructed stacks into `graph`. Returns the same `graph`

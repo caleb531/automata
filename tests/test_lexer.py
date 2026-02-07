@@ -107,7 +107,7 @@ class TestTokenRegistryTestCase(unittest.TestCase):
 
         match = registry.get_token("aaa")
 
-        # Using assert here because mypy doesn't like the unittest methods
+        # Using assert here because ty doesn't like the unittest methods
         assert match is not None
         self.assertTrue(isinstance(match[0](make_trivial_match("aa")), AAToken))
 

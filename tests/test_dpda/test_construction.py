@@ -19,7 +19,7 @@ class TestDPDAConstruction(DPDATestCase):
     def test_init_dpda_missing_formal_params(self) -> None:
         """Should raise an error if formal DPDA parameters are missing."""
         with self.assertRaises(TypeError):
-            DPDA(  # type: ignore
+            DPDA(
                 states={"q0", "q1", "q2"},
                 input_symbols={"a", "b"},
                 initial_state="q0",
@@ -50,7 +50,7 @@ class TestDPDAConstruction(DPDATestCase):
                 initial_state="q0",
                 initial_stack_symbol="#",
                 final_states={"q0"},
-                acceptance_mode="foo",  # type: ignore
+                acceptance_mode="foo",
             )
 
     def test_dpda_immutable_attr_set(self) -> None:

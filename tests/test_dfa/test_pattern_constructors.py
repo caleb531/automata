@@ -2,7 +2,7 @@
 
 from itertools import product
 
-from parameterized import parameterized  # type: ignore
+from parameterized import parameterized
 
 from automata.fa.dfa import DFA
 from tests.test_dfa.base import DFATestCase
