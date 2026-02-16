@@ -29,7 +29,7 @@ class TestGNFAConstruction(GNFATestCase):
     def test_init_nfa_missing_formal_params(self) -> None:
         """Should raise an error if formal NFA parameters are missing."""
         with self.assertRaises(TypeError):
-            GNFA(  # type: ignore
+            GNFA(
                 states={"q0", "q1"},
                 input_symbols={"0", "1"},
                 initial_state="q0",
@@ -43,7 +43,7 @@ class TestGNFAConstruction(GNFATestCase):
 
     def test_gnfa_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.gnfa.states = {}  # type: ignore
+            self.gnfa.states = {}
 
     def test_gnfa_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):

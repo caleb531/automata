@@ -374,11 +374,15 @@ class GNFA(fa.FA):
             # for the same GNFA, regardless of the order of state removal.
             # Uses the string representation of the states
             # to ensure consistent ordering.
-            sorted_state_pairs = sorted(
-                product(
-                    new_states - {self.final_state}, new_states - {self.initial_state}
+            sorted_state_pairs = cast(
+                list[tuple[GNFAStateT, GNFAStateT]],
+                sorted(
+                    product(
+                        new_states - {self.final_state},
+                        new_states - {self.initial_state},
+                    ),
+                    key=str,
                 ),
-                key=str,
             )
 
             for q_i, q_j in sorted_state_pairs:

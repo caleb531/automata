@@ -3,12 +3,37 @@ from __future__ import annotations
 import itertools
 from collections.abc import Iterable
 from functools import partial
-from typing import TypeVar
+from typing import Literal, Protocol, TypeVar, cast
 
 import manim
 import pygraphviz as pgv
 
 _POINTS_IN_INCH = 72
+
+
+class NodeAttr(Protocol):
+    """Typed view of pygraphviz node attributes used in this module."""
+
+    def __getitem__(
+        self,
+        key: Literal[
+            "fontsize",
+            "height",
+            "label",
+            "pos",
+            "shape",
+            "width",
+        ],
+    ) -> str: ...
+
+
+class EdgeAttr(Protocol):
+    """Typed view of pygraphviz edge attributes used in this module."""
+
+    def __getitem__(
+        self,
+        key: Literal["arrowsize", "fontsize", "label", "lp", "pos"],
+    ) -> str: ...
 
 
 class Animate:
@@ -89,11 +114,12 @@ class _ManimNode(manim.VGroup):
             - 'width': %f (possibly equals to 'height')
         """
         super().__init__(name=node.name)
-        radius = float(node.attr["height"]) / 2
-        if node.attr["shape"] == "point":
+        node_attr = cast(NodeAttr, getattr(node, "attr"))
+        radius = float(node_attr["height"]) / 2
+        if node_attr["shape"] == "point":
             self.shape = Animate.default_init(manim.Dot)(radius=radius)
             self.add(self.shape)
-        elif node.attr["shape"].endswith("circle"):
+        elif node_attr["shape"].endswith("circle"):
             circle = Animate.default_init(manim.Circle)(radius=radius)
             self.shape = (
                 manim.VGroup(
@@ -102,20 +128,20 @@ class _ManimNode(manim.VGroup):
                         circle, buffer_factor=0.8
                     ),
                 )
-                if node.attr["shape"].startswith("double")
+                if node_attr["shape"].startswith("double")
                 else circle
             )
             self.add(self.shape)
             self.label = Animate.default_init(manim.Text)(
-                node.name, font_size=float(node.attr["fontsize"])
+                node.name, font_size=float(node_attr["fontsize"])
             )
             self.add(self.label)
         else:
             raise ValueError(
-                f"Invalid node shape: {node.attr['shape']}. "
+                f"Invalid node shape: {node_attr['shape']}. "
                 "Only 'point', 'circle' and 'doublecircle' are supported."
             )
-        x, y = (float(pt) / _POINTS_IN_INCH for pt in node.attr["pos"].split(","))
+        x, y = (float(pt) / _POINTS_IN_INCH for pt in node_attr["pos"].split(","))
         self.set_x(x)
         self.set_y(y)
 
@@ -152,13 +178,14 @@ class _ManimEdge(manim.VGroup):
             - 'pos': 'e,%f,%f(\s+%f,%f)*'
         """
         super().__init__()
-        self.edge = self.__parse_spline(edge.attr["pos"].replace("\\\r", ""))
+        edge_attr = cast(EdgeAttr, getattr(edge, "attr"))
+        self.edge = self.__parse_spline(edge_attr["pos"].replace("\\\r", ""))
         self.add(self.edge)
-        if label_text := edge.attr["label"]:
+        if label_text := edge_attr["label"]:
             self.label = Animate.default_init(manim.Text)(
-                label_text, font_size=float(edge.attr["fontsize"])
+                label_text, font_size=float(edge_attr["fontsize"])
             )
-            x, y = (float(pt) / _POINTS_IN_INCH for pt in edge.attr["lp"].split(","))
+            x, y = (float(pt) / _POINTS_IN_INCH for pt in edge_attr["lp"].split(","))
             self.label.set_x(x)
             self.label.set_y(y)
             self.add(self.label)

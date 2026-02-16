@@ -1,6 +1,6 @@
 """Enumeration and ordering behaviors for DFAs."""
 
-from parameterized import parameterized  # type: ignore
+from parameterized import parameterized
 
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA
@@ -221,8 +221,8 @@ class TestDFAEnumeration(DFATestCase):
         }
         dfa = DFA.from_finite_language(binary, language, as_partial)
         for word in language:
-            self.assertEqual(dfa.successor(dfa.predecessor(word)), word)  # type: ignore
-            self.assertEqual(dfa.predecessor(dfa.successor(word)), word)  # type: ignore
+            self.assertEqual(dfa.successor(dfa.predecessor(word)), word)
+            self.assertEqual(dfa.predecessor(dfa.successor(word)), word)
 
     def test_successor_custom_key(self) -> None:
         input_symbols = {"a", "b", "c", "d"}

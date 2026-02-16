@@ -21,7 +21,7 @@ class TestNFAConstruction(NFATestCase):
     def test_init_nfa_missing_formal_params(self) -> None:
         """Should raise an error if formal NFA parameters are missing."""
         with self.assertRaises(TypeError):
-            NFA(  # type: ignore
+            NFA(
                 states={"q0", "q1"},
                 input_symbols={"0", "1"},
                 initial_state="q0",
@@ -35,7 +35,7 @@ class TestNFAConstruction(NFATestCase):
 
     def test_nfa_immutable_attr_set(self) -> None:
         with self.assertRaises(AttributeError):
-            self.nfa.states = {}  # type: ignore
+            self.nfa.states = {}
 
     def test_nfa_immutable_attr_del(self) -> None:
         with self.assertRaises(AttributeError):

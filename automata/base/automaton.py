@@ -159,7 +159,7 @@ class Automaton(metaclass=abc.ABCMeta):
         """
         # Notice that the default __setstate__ method won't work
         #   because __setattr__ is disabled due to immutability
-        self.__init__(**d)  # type: ignore
+        self.__init__(**d)
 
     @abc.abstractmethod
     def read_input_stepwise(self, input_str: str) -> Generator[Any, None, None]:

@@ -26,7 +26,7 @@ class TestNFAOperations(NFATestCase):
         )
         other = 42
         with self.assertRaises(TypeError):
-            nfa + other  # type: ignore
+            nfa + other
 
     def test_concatenate(self) -> None:
         nfa_a = NFA(
@@ -174,7 +174,7 @@ class TestNFAOperations(NFATestCase):
         self.assertEqual(nfa9, nfa7)
 
         with self.assertRaises(TypeError):
-            self.nfa | self.dfa  # type: ignore
+            self.nfa | self.dfa
 
     def test_intersection(self) -> None:
         nfa1 = NFA.from_regex("aaaa*")
@@ -196,7 +196,7 @@ class TestNFAOperations(NFATestCase):
         self.assertEqual(nfa9, nfa6)
 
         with self.assertRaises(TypeError):
-            self.nfa & self.dfa  # type: ignore
+            self.nfa & self.dfa
 
     def test_nfa_shuffle_product(self) -> None:
         """Test shuffle product of two NFAs.
@@ -244,7 +244,7 @@ class TestNFAOperations(NFATestCase):
         self.assertEqual(nfa5.shuffle_product(nfa7), nfa8)
 
         with self.assertRaises(TypeError):
-            self.nfa.shuffle_product(self.dfa)  # type: ignore
+            self.nfa.shuffle_product(self.dfa)
 
     def test_nfa_shuffle_product_set_laws(self) -> None:
         """Test set laws for shuffle product"""
@@ -315,7 +315,7 @@ class TestNFAOperations(NFATestCase):
         self.assertEqual(quotient_nfa_5, reference_nfa_5)
 
         with self.assertRaises(TypeError):
-            self.nfa.right_quotient(self.dfa)  # type: ignore
+            self.nfa.right_quotient(self.dfa)
 
     def test_left_quotient(self) -> None:
         """Tests for left quotient operator,
@@ -359,7 +359,7 @@ class TestNFAOperations(NFATestCase):
         self.assertEqual(quotient_nfa_4, reference_nfa_4)
 
         with self.assertRaises(TypeError):
-            self.nfa.left_quotient(self.dfa)  # type: ignore
+            self.nfa.left_quotient(self.dfa)
 
     def test_quotient_properties(self) -> None:
         """Test some properties of quotients, based on

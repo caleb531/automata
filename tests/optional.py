@@ -14,7 +14,7 @@ PYGRAPHVIZ_OK = False
 COLORAIDE_OK = False
 
 try:  # Try importing pygraphviz, catching linkage errors too
-    import pygraphviz as pgv  # type: ignore  # noqa: F401
+    import pygraphviz as pgv  # noqa: F401
 
     # Access an attribute to ensure the extension module is importable/linked
     _ = getattr(pgv, "AGraph", None)
@@ -23,7 +23,7 @@ except Exception:
     PYGRAPHVIZ_OK = False
 
 try:
-    import coloraide  # type: ignore  # noqa: F401
+    import coloraide  # noqa: F401
 
     COLORAIDE_OK = True
 except Exception:

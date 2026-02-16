@@ -2,6 +2,6 @@
   "recommendations": [
     "charliermarsh.ruff",
     "EditorConfig.EditorConfig",
-    "matangover.mypy",
+    "astral-sh.ty"
   ]
 }

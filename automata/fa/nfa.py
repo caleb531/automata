@@ -19,6 +19,7 @@ from typing import (
     Set,
     Tuple,
     Type,
+    cast,
 )
 
 import networkx as nx
@@ -1159,7 +1160,7 @@ class NFA(fa.FA):
         if not isinstance(other, NFA) or self.input_symbols != other.input_symbols:
             return NotImplemented
 
-        operand_nfas = (self, other)
+        operand_nfas = cast(Tuple[NFA, NFA], (self, other))
         initial_state_a = (self._get_lambda_closures()[self.initial_state], 0)
         initial_state_b = (other._get_lambda_closures()[other.initial_state], 1)
 

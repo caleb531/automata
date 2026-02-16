@@ -170,7 +170,7 @@ class TestGNFAValidation(GNFATestCase):
                         "q_f": None,
                         "q2": None,
                         "q1": None,
-                        "q5": {},  # type: ignore
+                        "q5": {},
                     },
                 },
                 initial_state="q_in",

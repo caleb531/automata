@@ -1,6 +1,6 @@
 """Tests covering DFA equivalence checks and set-theoretic operations."""
 
-from parameterized import parameterized  # type: ignore
+from parameterized import parameterized
 
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA

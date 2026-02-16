@@ -36,7 +36,7 @@ package should be available to you for this purpose with the config in `pyprojec
 The included VSCode configuration is set to run this formatting on save.
 
 In addition, new code must include type annotations and pass typechecking run with
-[mypy](https://mypy.readthedocs.io/en/stable/).
+[ty](https://docs.astral.sh/ty/).
 
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests
 to verify that your code additions function correctly and break nothing else.

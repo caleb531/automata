@@ -82,7 +82,7 @@ class MNTM(ntm.NTM):
         "final_states",
     )
 
-    transitions: MNTMTransitionsT  # type: ignore
+    transitions: MNTMTransitionsT
     n_tapes: int
 
     def __init__(

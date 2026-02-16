@@ -1,6 +1,6 @@
 """Length and counting related DFA helpers."""
 
-from parameterized import parameterized  # type: ignore
+from parameterized import parameterized
 
 import automata.base.exceptions as exceptions
 from automata.fa.dfa import DFA

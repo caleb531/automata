@@ -1,5 +1,6 @@
 """Tests covering NTM construction and immutability behaviors."""
 
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 from frozendict import frozendict
@@ -19,7 +20,7 @@ class TestNTMConstruction(NTMTestCase):
     def test_init_ntm_missing_formal_params(self) -> None:
         """Should raise an error if formal NTM parameters are missing."""
         with self.assertRaises(TypeError):
-            NTM(  # type: ignore
+            NTM(
                 states={"q0", "q1", "q2", "q3", "q4"},
                 input_symbols={"0", "1"},
                 tape_symbols={"0", "1", "x", "y", "."},
@@ -42,12 +43,12 @@ class TestNTMConstruction(NTMTestCase):
     def test_ntm_immutable_attr_set(self) -> None:
         """Should prevent setting attributes on NTM after construction."""
         with self.assertRaises(AttributeError):
-            self.ntm1.states = set()
+            cast(Any, self.ntm1).states = set()
 
     def test_ntm_immutable_attr_del(self) -> None:
         """Should prevent deleting attributes on NTM after construction."""
         with self.assertRaises(AttributeError):
-            del self.ntm1.states
+            del cast(Any, self.ntm1).states
 
     def test_ntm_immutable_dict(self) -> None:
         """Should create an NTM whose contents are fully immutable/hashable"""

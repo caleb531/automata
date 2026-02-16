@@ -183,7 +183,7 @@ class NPDA(pda.PDA):
             self._get_transitions(old_config.state, "", old_config.stack.top())
         )
         new_configs = set()
-        for input_symbol, new_state, new_stack_top in transitions:  # type: ignore
+        for input_symbol, new_state, new_stack_top in transitions:
             remaining_input = old_config.remaining_input
             if input_symbol:
                 remaining_input = remaining_input[1:]

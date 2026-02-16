@@ -147,7 +147,7 @@ class DFA(fa.FA):
         if not isinstance(other, DFA) or self.input_symbols != other.input_symbols:
             return NotImplemented
 
-        operand_dfas = (self, other)
+        operand_dfas = cast(Tuple[DFA, DFA], (self, other))
         initial_state_a = (self.initial_state, 0)
         initial_state_b = (other.initial_state, 1)
 

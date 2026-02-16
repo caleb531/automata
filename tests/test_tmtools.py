@@ -90,7 +90,7 @@ class TestTMTools(unittest.TestCase):
         ]
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            tmtools.print_configs(configs)  # type: ignore
+            tmtools.print_configs(configs)
             self.assertEqual(print_config.call_args_list, [call(), call(), call()])
 
     def test_tape_iteration(self) -> None:

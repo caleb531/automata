@@ -1,4 +1,5 @@
 {
+  "python.languageServer": "None",
   "python.analysis.extraPaths": [".virtualenv"],
   "[python]": {
     "editor.formatOnSave": true,

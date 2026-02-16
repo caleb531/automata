@@ -115,7 +115,7 @@ def create_graph(
     graph = pgv.AGraph(strict=False, directed=True)
 
     if fig_size is not None:
-        graph.graph_attr.update(size=", ".join(map(str, fig_size)))
+        graph.graph_attr.update(size=", ".join(f"{value}" for value in fig_size))
 
     graph.graph_attr.update(ranksep=str(state_separation))
 
