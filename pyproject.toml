@@ -25,7 +25,6 @@ dependencies = [
     "frozendict>=2.3.4",
     "typing-extensions>=4.5.0",
     "cached_method>=0.1.0",
-    "black>=26.5.1",
 ]
 
 classifiers = [
