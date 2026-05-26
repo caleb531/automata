@@ -37,9 +37,11 @@ class TM(Automaton, metaclass=abc.ABCMeta):
     def _get_edge_name(
         input_symbol: str = "", write_symbol: str = "", move_direction: str = ""
     ) -> str:
-        
-        show_invisible = lambda s: "␣" if s.isspace() else str(s)
-        return f"{show_invisible(input_symbol)}→{show_invisible(write_symbol)},{move_direction}"
+
+        input_symbol = "␣" if input_symbol.isspace() else str(input_symbol)
+        write_symbol = "␣" if write_symbol.isspace() else str(write_symbol)
+
+        return f"{input_symbol}→{write_symbol},{move_direction}"
 
 
     def _read_input_symbol_subset(self) -> None:
@@ -112,7 +114,8 @@ class TM(Automaton, metaclass=abc.ABCMeta):
         node_formatter : Union[Callable[[str],str], None] , default: None
             A function that takes a state as input and returns a string
             representing the state in the diagram.
-        edge_formatter : Union[Callable[[str,str,TMDirectionT],str], None], default: None
+        edge_formatter : Union[Callable[[str,str,TMDirectionT],str], None
+], default: None
             A function that takes input_symbol, write_symbol, move_direction
             as input and returns a string representing the edge in the diagram.
 
@@ -124,10 +127,10 @@ class TM(Automaton, metaclass=abc.ABCMeta):
 
         if _missing_visual_imports:
             raise _missing_visual_imports
-        
+
         if node_formatter is None:
             node_formatter = self._get_state_name
-        
+
         if edge_formatter is None:
             edge_formatter = self._get_edge_name
 
