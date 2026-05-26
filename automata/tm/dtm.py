@@ -14,6 +14,7 @@ DTMPathT = Mapping[str, DTMPathResultT]
 DTMTransitionsT = Mapping[DTMStateT, DTMPathT]
 TMDirectionT = tm.TMDirectionT
 
+
 class DTM(tm.TM):
     """
     The `DTM` class is a subclass of `TM` and represents a deterministic Turing
@@ -247,7 +248,6 @@ class DTM(tm.TM):
         while not self._has_accepted(current_configuration):
             current_configuration = self._get_next_configuration(current_configuration)
             yield current_configuration
-
 
     def iter_transitions(
         self,

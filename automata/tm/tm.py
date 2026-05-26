@@ -37,7 +37,6 @@ class TM(Automaton, metaclass=abc.ABCMeta):
     def _get_edge_name(
         input_symbol: str = "", write_symbol: str = "", move_direction: str = ""
     ) -> str:
-
         input_symbol = "␣" if input_symbol.isspace() else str(input_symbol)
         write_symbol = "␣" if write_symbol.isspace() else str(write_symbol)
 
@@ -172,7 +171,6 @@ class TM(Automaton, metaclass=abc.ABCMeta):
             write_symbol,
             move_direction,
         ) in self.iter_transitions():
-
             from_node = self._get_state_name(from_state)
             to_node = self._get_state_name(to_state)
             label = edge_formatter(
