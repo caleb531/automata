@@ -43,7 +43,6 @@ class TM(Automaton, metaclass=abc.ABCMeta):
 
         return f"{input_symbol}→{write_symbol},{move_direction}"
 
-
     def _read_input_symbol_subset(self) -> None:
         if not (self.input_symbols < self.tape_symbols):
             raise exceptions.MissingSymbolError(
@@ -89,40 +88,40 @@ class TM(Automaton, metaclass=abc.ABCMeta):
         font_size: float = 14.0,
         arrow_size: float = 0.85,
         state_separation: float = 0.5,
-        node_formatter: Union[Callable[[str],str], None] = None,
-        edge_formatter: Union[Callable[[str,str,TMDirectionT],str], None] = None,
+        node_formatter: Union[Callable[[str], str], None] = None,
+        edge_formatter: Union[Callable[[str, str, TMDirectionT], str], None] = None,
     ) -> pgv.AGraph:
         """
-        Generates a diagram of the associated TM.
+                Generates a diagram of the associated TM.
 
-        Parameters
-        ----------
-        path : Union[str, os.PathLike, None], default: None
-            Path to output file. If None, the output will not be saved.
-        horizontal : bool, default: True
-            Direction of node layout in the output graph.
-        reverse_orientation : bool, default: False
-            Reverse direction of node layout in the output graph.
-        fig_size : Union[Tuple[float, float], Tuple[float], None], default: None
-            Figure size.
-        font_size : float, default: 14.0
-            Font size in the output graph.
-        arrow_size : float, default: 0.85
-            Arrow size in the output graph.
-        state_separation : float, default: 0.5
-            Distance between nodes in the output graph.
-        node_formatter : Union[Callable[[str],str], None] , default: None
-            A function that takes a state as input and returns a string
-            representing the state in the diagram.
-        edge_formatter : Union[Callable[[str,str,TMDirectionT],str], None
-], default: None
-            A function that takes input_symbol, write_symbol, move_direction
-            as input and returns a string representing the edge in the diagram.
+                Parameters
+                ----------
+                path : Union[str, os.PathLike, None], default: None
+                    Path to output file. If None, the output will not be saved.
+                horizontal : bool, default: True
+                    Direction of node layout in the output graph.
+                reverse_orientation : bool, default: False
+                    Reverse direction of node layout in the output graph.
+                fig_size : Union[Tuple[float, float], Tuple[float], None], default: None
+                    Figure size.
+                font_size : float, default: 14.0
+                    Font size in the output graph.
+                arrow_size : float, default: 0.85
+                    Arrow size in the output graph.
+                state_separation : float, default: 0.5
+                    Distance between nodes in the output graph.
+                node_formatter : Union[Callable[[str],str], None] , default: None
+                    A function that takes a state as input and returns a string
+                    representing the state in the diagram.
+                edge_formatter : Union[Callable[[str,str,TMDirectionT],str], None
+        ], default: None
+                    A function that takes input_symbol, write_symbol, move_direction
+                    as input and returns a string representing the edge in the diagram.
 
-        Returns
-        ------
-        AGraph
-            A diagram of the given automaton.
+                Returns
+                ------
+                AGraph
+                    A diagram of the given automaton.
         """
 
         if _missing_visual_imports:
@@ -166,8 +165,13 @@ class TM(Automaton, metaclass=abc.ABCMeta):
         graph.add_nodes_from(final_states, shape="doublecircle", fontsize=font_size_str)
 
         edge_labels = defaultdict(list)
-        for (from_state, to_state, input_symbol,
-             write_symbol, move_direction) in self.iter_transitions():
+        for (
+            from_state,
+            to_state,
+            input_symbol,
+            write_symbol,
+            move_direction,
+        ) in self.iter_transitions():
 
             from_node = self._get_state_name(from_state)
             to_node = self._get_state_name(to_state)

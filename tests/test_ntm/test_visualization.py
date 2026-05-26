@@ -20,9 +20,7 @@ class TestNTMVisualization(TestTM):
 
         for state in ntm.states:
             node = graph.get_node(state)
-            expected_shape = (
-                "doublecircle" if state in ntm.final_states else "circle"
-            )
+            expected_shape = "doublecircle" if state in ntm.final_states else "circle"
             self.assertEqual(node.attr["shape"], expected_shape)
 
         edge_formatter = ntm._get_edge_name
@@ -30,11 +28,9 @@ class TestNTMVisualization(TestTM):
             ("q0", edge_formatter("0", "0", "R"), "q0"),
             ("q0", edge_formatter("1", "1", "R"), "q1"),
             ("q0", edge_formatter("1", "1", "R"), "q2"),
-
             ("q1", edge_formatter("1", "1", "R"), "q1"),
             ("q1", edge_formatter(".", ".", "N"), "q3"),
-
-            ("q2", edge_formatter("2", "2", "R"), "q0")
+            ("q2", edge_formatter("2", "2", "R"), "q0"),
         }
         seen_transitions = {
             (edge[0], edge.attr["label"], edge[1]) for edge in graph.edges()

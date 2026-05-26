@@ -25,26 +25,29 @@ class TestDTMVisualization(TestTM):
 
         for state in dtm.states:
             node = graph.get_node(state)
-            expected_shape = (
-                "doublecircle" if state in dtm.final_states else "circle"
-            )
+            expected_shape = "doublecircle" if state in dtm.final_states else "circle"
             self.assertEqual(node.attr["shape"], expected_shape)
 
         edge_formatter = dtm._get_edge_name
         expected_transitions = {
             ("q0", edge_formatter("0", "x", "R"), "q1"),
             ("q0", edge_formatter("y", "y", "R"), "q3"),
-
-            ("q1", ",".join([
-                edge_formatter("0", "0", "R"),
-                edge_formatter("y","y","R")]), "q1"),
+            (
+                "q1",
+                ",".join(
+                    [edge_formatter("0", "0", "R"), edge_formatter("y", "y", "R")]
+                ),
+                "q1",
+            ),
             ("q1", edge_formatter("1", "y", "L"), "q2"),
-
-            ("q2", ",".join([
-                edge_formatter("0", "0", "L"),
-                edge_formatter("y","y","L")]), "q2"),
+            (
+                "q2",
+                ",".join(
+                    [edge_formatter("0", "0", "L"), edge_formatter("y", "y", "L")]
+                ),
+                "q2",
+            ),
             ("q2", edge_formatter("x", "x", "R"), "q0"),
-
             ("q3", edge_formatter("y", "y", "R"), "q3"),
             ("q3", edge_formatter(".", ".", "R"), "q4"),
         }
@@ -58,7 +61,6 @@ class TestDTMVisualization(TestTM):
         self.assertEqual(symbol, "")
         self.assertEqual(dest, dtm.initial_state)
         self.assertTrue(source not in dtm.states)
-
 
     def test_show_diagram_write_file(self) -> None:
         """Should construct the diagram for a DTM
@@ -111,61 +113,51 @@ class TestDTMVisualization(TestTM):
             },
             input_symbols={"0", "1"},
             tape_symbols={"0", "1", "."},
-            transitions = {
+            transitions={
                 "%a=0": {
                     "0": ('state%"q', "0", "R"),
                     "1": ("state%\\path", "1", "R"),
                 },
-
                 'state%"q': {
                     "0": ("state{brace}", "0", "R"),
                     "1": ("state[bracket]", "1", "R"),
                 },
-
                 "state%\\path": {
                     "0": ("state<angle>", "0", "R"),
                     "1": ("state|pipe", "1", "R"),
                 },
-
                 "state{brace}": {
                     "0": ("state:colon", "0", "R"),
                     "1": ("state;semi", "1", "R"),
                 },
-
                 "state[bracket]": {
                     "0": ("state,comma", "0", "R"),
                     "1": ("state space", "1", "R"),
                 },
-
                 "state<angle>": {
                     "0": ("normal", "0", "R"),
                     "1": ("normal", "1", "R"),
                 },
-
                 "state|pipe": {
                     "0": ("normal", "0", "R"),
                     "1": ("normal", "1", "R"),
                 },
-
                 "state:colon": {
                     "0": ("normal", "0", "R"),
                     "1": ("normal", "1", "R"),
                 },
-
                 "state;semi": {
                     "0": ("normal", "0", "R"),
                     "1": ("normal", "1", "R"),
                 },
-
                 "state,comma": {
                     "0": ("normal", "0", "R"),
                     "1": ("normal", "1", "R"),
                 },
-
                 "state space": {
                     "0": ("normal", "0", "R"),
                     "1": ("normal", "1", "R"),
-                }
+                },
             },
             blank_symbol=".",
             initial_state="%a=0",
