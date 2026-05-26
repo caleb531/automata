@@ -1,9 +1,9 @@
 [project]
 name = "automata-lib"
-version = "9.1.2"
+version = "9.2.0"
 description = "A Python library for simulating finite automata, pushdown automata, and Turing machines"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = [
     "automata",
     "finite",
@@ -29,22 +29,19 @@ dependencies = [
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Mathematics",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
 ]
 
-# Per https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
+# Per https://docs.astral.sh/uv/concepts/projects/dependencies/#optional-dependencies
 [project.optional-dependencies]
 visual = ["coloraide>=1.8.2", "manim>=0.19.0", "pygraphviz>=1.10"]
-
-[tool.setuptools.package-data]
-"automata" = ["py.typed"]
 
 [project.urls]
 homepage = "https://github.com/caleb531/automata"
@@ -53,24 +50,24 @@ repository = "https://github.com/caleb531/automata"
 changelog = "https://github.com/caleb531/automata/releases"
 
 [build-system]
-requires = ["setuptools>=77.0.3"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.9.6,<0.10.0"]
+build-backend = "uv_build"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["automata", "automata.*"]
-# Explicitly exclude other top-level items
-exclude = ["docs", "tests", "joss", "example_notebooks"]
+[tool.uv.build-backend]
+module-name = "automata"
+module-root = ""
 
 [dependency-groups]
 dev = [
-    "check-wheel-contents",
+    "check-wheel-contents; python_version < '3.14'",
     "coloraide>=1.8.2",
     "coverage==7.4.1",
     "mypy==1.8.0",
     "mypy-extensions==1.0.0",
-    "nose2==0.14.1",
+    "parameterized>=0.9.0",
     "pygraphviz>=1.10",
+    "pytest>=8.4.2",
+    "pytest-cov>=5.0.0",
     "ruff==0.11.2",
     "types-frozendict==2.0.9",
 ]
@@ -91,14 +88,7 @@ exclude = ["build"]
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = [
-    "setuptools.*",
-    "networkx.*",
-    "pygraphviz.*",
-    "cached_method.*",
-    "nose2.tools.*",
-    "manim.*",
-]
+module = ["networkx.*", "pygraphviz.*", "cached_method.*", "manim.*"]
 ignore_missing_imports = true
 
 [tool.ruff]
@@ -123,6 +113,8 @@ select = [
 [tool.coverage.run]
 # Enable branch coverage
 branch = true
+# Only check coverage for source files
+include = ["automata/*/*.py"]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
@@ -132,6 +124,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "pass",
 ]
-
-# Only check coverage for source files
-include = ["automata/*/*.py"]

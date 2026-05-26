@@ -36,7 +36,21 @@ class Automaton(metaclass=abc.ABCMeta):
             if state_data == "":
                 return "λ"
 
-            return state_data
+            # Replace special DOT language characters with safe Unicode equivalents
+            # to avoid syntax errors in the generated DOT file
+            # DOT has issues with certain special characters even when escaped
+            replacements = {
+                "%": "\ufe6a",  # U+FE6A Small Percent Sign
+                "{": "\u2774",  # U+2774 Medium Left Curly Bracket Ornament
+                "}": "\u2775",  # U+2775 Medium Right Curly Bracket Ornament
+                "[": "\uff3b",  # U+FF3B Fullwidth Left Square Bracket
+                "]": "\uff3d",  # U+FF3D Fullwidth Right Square Bracket
+                "<": "\ufe64",  # U+FE64 Small Less-Than Sign
+                ">": "\ufe65",  # U+FE65 Small Greater-Than Sign
+                "|": "\uff5c",  # U+FF5C Fullwidth Vertical Line
+            }
+
+            return "".join(replacements.get(char, char) for char in state_data)
 
         elif isinstance(state_data, (frozenset, tuple)):
             inner = ", ".join(

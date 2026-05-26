@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections import deque
 from itertools import chain, count, product, repeat
 from typing import (
@@ -29,7 +30,17 @@ import automata.base.exceptions as exceptions
 import automata.fa.dfa as dfa
 import automata.fa.fa as fa
 from automata.base.utils import _missing_animation_imports, get_reachable_nodes
-from automata.regex.parser import RESERVED_CHARACTERS, parse_regex
+from automata.regex.parser import (
+    DIGIT_CHARS,
+    NON_DIGIT_CHARS,
+    NON_WHITESPACE_CHARS,
+    NON_WORD_CHARS,
+    RESERVED_CHARACTERS,
+    WHITESPACE_CHARS,
+    WORD_CHARS,
+    _handle_escape_sequences,
+    parse_regex,
+)
 
 if not _missing_animation_imports:
     from automata.fa.animation import _NFAAnimation
@@ -219,21 +230,142 @@ class NFA(fa.FA):
         Self
             The NFA accepting the language of the input regex.
         """
+        # Dictionary mapping shorthand character class markers to their character sets
+        shorthand_classes = {
+            "\\s": WHITESPACE_CHARS,
+            "\\S": NON_WHITESPACE_CHARS,
+            "\\d": DIGIT_CHARS,
+            "\\D": NON_DIGIT_CHARS,
+            "\\w": WORD_CHARS,
+            "\\W": NON_WORD_CHARS,
+        }
 
+        # Create a set for additional symbols from shorthand classes
+        additional_symbols: Set[str] = set()
+
+        # Check for shorthand classes in the regex
+        for marker, char_set in shorthand_classes.items():
+            if marker in regex:
+                additional_symbols.update(char_set)
+
+        # Extract escaped sequences from the regex
+        escape_chars = set()
+        i = 0
+        while i < len(regex):
+            if regex[i] == "\\" and i + 1 < len(regex):
+                # Skip shorthand classes
+                if regex[i + 1] in "sSwWdD":
+                    i += 2
+                    continue
+
+                escaped_char = _handle_escape_sequences(regex[i + 1])
+                escape_chars.add(escaped_char)
+                i += 2
+            else:
+                i += 1
+
+        class_symbols = set()
+        range_pattern = re.compile(r"\[([^\]]*)\]")
+        for match in range_pattern.finditer(regex):
+            class_content = match.group(1)
+            pos = 0
+            # Dictionary for shorthand class handling in character classes
+            shorthand_map = {
+                "s": WHITESPACE_CHARS,
+                "S": NON_WHITESPACE_CHARS,
+                "d": DIGIT_CHARS,
+                "D": NON_DIGIT_CHARS,
+                "w": WORD_CHARS,
+                "W": NON_WORD_CHARS,
+            }
+
+            while pos < len(class_content):
+                if class_content[pos] == "\\" and pos + 1 < len(class_content):
+                    # Check for shorthand classes in character classes
+                    if class_content[pos + 1] in shorthand_map:
+                        additional_symbols.update(shorthand_map[class_content[pos + 1]])
+                        pos += 2
+                        continue
+
+                    # Handle escape sequence in character class
+                    escaped_char = _handle_escape_sequences(class_content[pos + 1])
+                    class_symbols.add(escaped_char)
+
+                    # Check if this is part of a range
+                    if (
+                        pos + 2 < len(class_content)
+                        and class_content[pos + 2] == "-"
+                        and pos + 3 < len(class_content)
+                    ):
+                        # Handle range with escaped start character
+                        start_char = escaped_char
+
+                        # Check if end character is also escaped
+                        if class_content[pos + 3] == "\\" and pos + 4 < len(
+                            class_content
+                        ):
+                            end_char = _handle_escape_sequences(class_content[pos + 4])
+                            pos += 5
+                        else:
+                            end_char = class_content[pos + 3]
+                            pos += 4
+
+                        # Add all characters in the range to input symbols
+                        for i in range(ord(start_char), ord(end_char) + 1):
+                            class_symbols.add(chr(i))
+                        continue
+
+                    pos += 2
+                elif pos + 2 < len(class_content) and class_content[pos + 1] == "-":
+                    # Handle normal range
+                    start_char = class_content[pos]
+
+                    if class_content[pos + 2] == "\\" and pos + 3 < len(class_content):
+                        end_char = _handle_escape_sequences(class_content[pos + 3])
+                        pos += 4
+                    else:
+                        end_char = class_content[pos + 2]
+                        pos += 3
+
+                    for i in range(ord(start_char), ord(end_char) + 1):
+                        class_symbols.add(chr(i))
+                else:
+                    if class_content[pos] != "^":  # Skip negation symbol
+                        class_symbols.add(class_content[pos])
+                    pos += 1
+
+        # Set up the final input symbols
         if input_symbols is None:
-            input_symbols = frozenset(regex) - RESERVED_CHARACTERS
-        else:
-            conflicting_symbols = RESERVED_CHARACTERS & input_symbols
-            if conflicting_symbols:
-                raise exceptions.InvalidSymbolError(
-                    f"Invalid input symbols: {conflicting_symbols}"
-                )
+            # If no input_symbols provided, collect all non-reserved chars from regex
+            input_symbols_set = set()
+            for char in regex:
+                if char not in RESERVED_CHARACTERS:
+                    input_symbols_set.add(char)
 
-        nfa_builder = parse_regex(regex, input_symbols)
+            # Include all character class symbols and escape sequences
+            input_symbols_set.update(class_symbols)
+            input_symbols_set.update(escape_chars)
+
+            # Add the shorthand characters
+            input_symbols_set.update(additional_symbols)
+
+            final_input_symbols = frozenset(input_symbols_set)
+        else:
+            # For user-provided input_symbols, we need to update
+            # with character class symbols and escape sequences
+            final_input_symbols = (
+                frozenset(input_symbols)
+                .union(class_symbols)
+                .union(escape_chars)
+                .union(additional_symbols)
+            )
+
+        # Build the NFA
+        nfa_builder = parse_regex(regex, final_input_symbols)
 
         return cls(
             states=frozenset(nfa_builder._transitions.keys()),
-            input_symbols=input_symbols,
+            input_symbols=final_input_symbols,
             transitions=nfa_builder._transitions,
             initial_state=nfa_builder._initial_state,
             final_states=nfa_builder._final_states,

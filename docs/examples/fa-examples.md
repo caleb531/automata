@@ -206,6 +206,57 @@ print(
 )
 ```
 
+## Converting NFA to Regular Expression
+
+You can convert an NFA (or DFA) to an equivalent regular expression using the `GNFA` class,
+which implements [Kleene's algorithm](https://en.wikipedia.org/wiki/Kleene%27s_algorithm):
+
+```python
+from automata.fa.nfa import NFA
+from automata.fa.gnfa import GNFA
+
+# Define an NFA that accepts strings with 'a' at the beginning and end,
+# and no consecutive 'b's
+my_nfa = NFA(
+    states={'q0', 'q1', 'q2'},
+    input_symbols={'a', 'b'},
+    transitions={
+        'q0': {'a': {'q1'}},
+        'q1': {'a': {'q1'}, '': {'q2'}},
+        'q2': {'b': {'q0'}}
+    },
+    initial_state='q0',
+    final_states={'q1'}
+)
+
+# Convert to a regular expression
+regex = GNFA.from_nfa(my_nfa).to_regex()
+print(regex)  # Outputs the equivalent regular expression
+```
+
+This works for DFAs as well:
+
+```python
+from automata.fa.dfa import DFA
+from automata.fa.gnfa import GNFA
+
+# DFA that accepts binary strings ending in '1'
+my_dfa = DFA(
+    states={'q0', 'q1'},
+    input_symbols={'0', '1'},
+    transitions={
+        'q0': {'0': 'q0', '1': 'q1'},
+        'q1': {'0': 'q0', '1': 'q1'}
+    },
+    initial_state='q0',
+    final_states={'q1'}
+)
+
+# Convert to regex
+regex = GNFA.from_dfa(my_dfa).to_regex()
+print(regex)  # Outputs: (0|1)*1
+```
+
 ## Making a transition table
 
 The example below is adapted from the
