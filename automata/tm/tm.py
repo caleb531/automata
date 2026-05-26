@@ -1,5 +1,7 @@
 """Classes and methods for working with all Turing machines."""
 
+from __future__ import annotations
+
 import abc
 import os
 from collections import defaultdict
