@@ -5,6 +5,7 @@ import os
 import tempfile
 import unittest
 
+from automata.tm.dtm import DTM
 from tests.optional import VISUAL_OK, VISUAL_SKIP_REASON
 from tests.test_tm import TestTM
 
@@ -94,7 +95,6 @@ class TestDTMVisualization(TestTM):
 
     def test_show_diagram_special_characters_in_state_names(self) -> None:
         """Should handle state names with special characters (issue #268)."""
-        from automata.tm.dtm import DTM
 
         dtm = DTM(
             states={

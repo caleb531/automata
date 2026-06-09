@@ -178,7 +178,6 @@ class TM(Automaton, metaclass=abc.ABCMeta):
                 write_symbol,
                 move_direction,
             )
-            # label = self._get_edge_name(input_symbol, write_symbol, move_direction)
             edge_labels[from_node, to_node].append(label)
 
         for (from_node, to_node), labels in edge_labels.items():
