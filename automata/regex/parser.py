@@ -256,7 +256,7 @@ class NFARegexBuilder:
 
         new_final_states = set()
 
-        if lower_bound <= 1:
+        if lower_bound <= 1 and upper_bound != 0:
             new_final_states.update(self._final_states)
 
         # Loop around if lower bound is 0

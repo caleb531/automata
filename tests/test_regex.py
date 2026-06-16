@@ -192,6 +192,11 @@ class TestRegex(unittest.TestCase):
             re.isequal("a{,4}", "a?|aa|aaa|aaaa", input_symbols=input_symbols)
         )
 
+        # {0} matches the empty string only, not one occurrence (parity with re)
+        self.assertTrue(re.isequal("a{0}", "()", input_symbols=input_symbols))
+        self.assertTrue(re.isequal("a{0,0}", "()", input_symbols=input_symbols))
+        self.assertTrue(re.isequal("(ab){0}", "()", input_symbols=input_symbols))
+
         # More complex equivalences
         self.assertTrue(re.isequal("ba{,1}", "ba?", input_symbols=input_symbols))
         self.assertTrue(
