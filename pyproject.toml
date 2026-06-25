@@ -50,7 +50,7 @@ repository = "https://github.com/caleb531/automata"
 changelog = "https://github.com/caleb531/automata/releases"
 
 [build-system]
-requires = ["uv_build>=0.10.11,<0.11.0"]
+requires = ["uv_build>=0.11.24,<0.12"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
