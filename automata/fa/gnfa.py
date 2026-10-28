@@ -126,7 +126,8 @@ class GNFA(fa.FA):
         Self
             The GNFA accepting the language of the input DFA.
         """
-        new_gnfa_transitions = dict()
+        # Transitions can contain None when there is no path between states.
+        new_gnfa_transitions: Dict[GNFAStateT, Dict[GNFAStateT, Optional[str]]] = dict()
         gnfa_states = set(target_dfa.states)
 
         for state in target_dfa.states:
@@ -374,15 +375,12 @@ class GNFA(fa.FA):
             # for the same GNFA, regardless of the order of state removal.
             # Uses the string representation of the states
             # to ensure consistent ordering.
-            sorted_state_pairs = cast(
-                list[tuple[GNFAStateT, GNFAStateT]],
-                sorted(
-                    product(
-                        new_states - {self.final_state},
-                        new_states - {self.initial_state},
-                    ),
-                    key=str,
+            sorted_state_pairs = sorted(
+                product(
+                    new_states - {self.final_state},
+                    new_states - {self.initial_state},
                 ),
+                key=str,
             )
 
             for q_i, q_j in sorted_state_pairs:

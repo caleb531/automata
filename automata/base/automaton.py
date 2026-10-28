@@ -11,7 +11,8 @@ import automata.base.exceptions as exceptions
 from automata.base.utils import freeze_value
 
 AutomatonStateT = Any
-AutomatonPathT = Mapping[str, Any]
+# Transition keys can be symbols, states, or tuples of tape symbols.
+AutomatonPathT = Mapping[Any, Any]
 AutomatonTransitionsT = Mapping[str, AutomatonPathT]
 
 

@@ -724,19 +724,17 @@ class NFA(fa.FA):
         new_initial_state = self.__class__._add_new_state(new_states)
 
         # Transitions are the same with a few additions.
-        new_transitions: Dict[NFAStateT, Dict[str, Set[NFAStateT]]] = dict(
-            self.transitions
-        )
+        new_transitions: Dict[NFAStateT, NFAPathT] = dict(self.transitions)
         # We add epsilon transition from new initial state
         # to old initial state
         new_transitions[new_initial_state] = {"": {self.initial_state}}
         # For each final state in original NFA we add epsilon
         # transition to the old initial state
         for state in self.final_states:
-            new_transitions[state] = dict(new_transitions.get(state, {}))
-            transition = new_transitions[state]
-            transition[""] = set(transition.get("", set()))
-            transition[""].add(self.initial_state)
+            # Copy the path before adding the return to the initial state.
+            transition = dict(new_transitions.get(state, {}))
+            transition[""] = set(transition.get("", set())) | {self.initial_state}
+            new_transitions[state] = transition
 
         return self.__class__(
             states=new_states,

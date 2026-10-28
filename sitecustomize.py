@@ -40,7 +40,7 @@ if _enable_warning_suppression():
     from typing import Optional, TextIO, Type
 
     def _showwarning_filter(
-        message: Warning,
+        message: Warning | str,
         category: Type[Warning],
         filename: str,
         lineno: int,
@@ -65,4 +65,5 @@ if _enable_warning_suppression():
             line=line,
         )
 
-    warnings.showwarning = _showwarning_filter  # type: ignore[assignment]
+    # ty rejects this replacement even when the callback signatures match.
+    warnings.showwarning = _showwarning_filter  # ty: ignore[invalid-assignment]
