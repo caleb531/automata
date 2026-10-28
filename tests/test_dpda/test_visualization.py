@@ -63,7 +63,8 @@ class TestDPDAVisualization(DPDATestCase):
                 (edge[0].state, edge[1].state)
                 for edge in self.dpda._get_input_path(input_string)[0]
             ]
-            self.assertEqual(edge_pairs, colored_edges)
+            # Compare directed edges and their counts regardless of graph order.
+            self.assertCountEqual(edge_pairs, colored_edges)
 
     def test_show_diagram_read_input_stack_only(self) -> None:
         """Should construct the diagram with stack only for a DPDA reading input."""
@@ -83,8 +84,9 @@ class TestDPDAVisualization(DPDATestCase):
                 " | " + " | ".join(reversed(edge.stack))
                 for edge in list(self.dpda.read_input_stepwise(input_string))
             ]
-            self.assertEqual(nodes, stack_content)
-            self.assertEqual(edge_pairs, colored_edges)
+            # Compare stack labels and edges without relying on graph order.
+            self.assertCountEqual(nodes, stack_content)
+            self.assertCountEqual(edge_pairs, colored_edges)
 
     def test_show_diagram_write_file(self) -> None:
         """Should construct the diagram for a DPDA

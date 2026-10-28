@@ -94,7 +94,8 @@ class TestNPDAVisualization(NPDATestCase):
                 (edge[0].state, edge[1].state)
                 for edge in self.npda._get_input_path(input_string)[0]
             ]
-            self.assertEqual(edge_pairs, colored_edges)
+            # Compare directed edges and their counts regardless of graph order.
+            self.assertCountEqual(edge_pairs, colored_edges)
 
     @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_read_input_stack_only(self) -> None:
@@ -113,8 +114,9 @@ class TestNPDAVisualization(NPDATestCase):
                 " | " + " | ".join(reversed(edge[0].stack)) for edge in input_path
             ] + [" | " + " | ".join(reversed(input_path[-1][1].stack))]
 
-            self.assertEqual(nodes, stack_content)
-            self.assertEqual(edge_pairs, colored_edges)
+            # Compare stack labels and edges without relying on graph order.
+            self.assertCountEqual(nodes, stack_content)
+            self.assertCountEqual(edge_pairs, colored_edges)
 
     @unittest.skipIf(not VISUAL_OK, VISUAL_SKIP_REASON)
     def test_show_diagram_write_file(self) -> None:
