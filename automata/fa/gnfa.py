@@ -354,6 +354,9 @@ class GNFA(fa.FA):
         """
         Convert GNFA to regular expression.
 
+        Epsilon paths use empty strings or optional subexpressions, not empty
+        alternatives.
+
         Returns
         ------
         str
@@ -405,6 +408,17 @@ class GNFA(fa.FA):
 
                     if self._isbracket_req(r3):
                         r3 = f"({r3})"
+
+                    if not (r1 or r2 or r3):
+                        # The new path accepts epsilon, so its union with the
+                        # existing path is optional, not an empty alternative.
+                        if r4 is None or r4 == "":
+                            new_transitions[q_i][q_j] = ""
+                        elif len(r4) == 1:
+                            new_transitions[q_i][q_j] = f"{r4}?"
+                        else:
+                            new_transitions[q_i][q_j] = f"({r4})?"
+                        continue
 
                     if r4 is None:
                         r4 = ""
