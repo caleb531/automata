@@ -1565,7 +1565,7 @@ class DFA(fa.FA):
             and min_length <= len(char_stack)
             and (max_length is None or len(char_stack) <= max_length)
             and candidate is None
-            and state in self.final_states
+            and state_stack[-1] in self.final_states
         ):
             yield "".join(char_stack)
 
