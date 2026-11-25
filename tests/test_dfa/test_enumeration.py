@@ -157,12 +157,25 @@ class TestDFAEnumeration(DFATestCase):
             dfa.predecessor("0111111110101011"), "010101111111101011010100"
         )
         self.assertIsNone(dfa.predecessor(""))
+        self.assertEqual(dfa.predecessor("", strict=False), "")
 
         infinite_dfa = DFA.from_nfa(NFA.from_regex("0*1*"))
         with self.assertRaises(exceptions.InfiniteLanguageException):
             infinite_dfa.predecessor("000")
         with self.assertRaises(exceptions.InfiniteLanguageException):
             list(infinite_dfa.predecessors("000"))
+
+    @parameterized.expand((True, False))
+    def test_predecessor_empty_word(self, as_partial: bool) -> None:
+        """Should yield the empty word only if the DFA accepts it"""
+        binary = {"0", "1"}
+        dfa = DFA.from_finite_language(binary, {"0"}, as_partial)
+        self.assertIsNone(dfa.predecessor("0"))
+        self.assertListEqual(list(dfa.predecessors("1")), ["0"])
+        self.assertIsNone(dfa.predecessor("", strict=False))
+
+        empty_word_dfa = DFA.from_finite_language(binary, {""}, as_partial)
+        self.assertEqual(empty_word_dfa.predecessor("1001", max_length=3), "")
 
     @parameterized.expand((True, False))
     def test_successor(self, as_partial: bool) -> None:
